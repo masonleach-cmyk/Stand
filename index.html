@@ -1100,29 +1100,46 @@ const MAX_ZOOM = 6;
    swipe arming distance, which closes a dead zone where a movement was too big
    to count as a tap but too small to arm a swipe, and so did nothing at all. */
 const TAP_SLOP = 18, TAP_MS = 2000, SWIPE_ARM = 18, PINCH_ENGAGE = 12;
-// Leaving the score is judged by how fast you were still shrinking at the moment
-// you let go, not by how far you got: a quick flick out exits, while creeping
-// slowly down to the same size just springs back.
-const HOME_VEL = 0.0022;  // scale units lost per millisecond, at any point in the gesture
-const HOME_K = 0.85;      // ...and you must have actually shrunk this far
 const nowMs = () => (window.performance && performance.now) ? performance.now() : Date.now();
-const VEL_WINDOW = 70;   // ms of history to judge the release speed over
-function pinchVelocity(hist){
+const EDIT_SWIPE = 60;    // an upward flick this far opens markup
+
+/* Vertical gestures, and how they are told apart from panning.
+
+   Dragging down leaves the score, with the page following your finger the whole
+   way. At fit there is nothing to pan, so any downward drag follows. Zoomed in
+   the same drag could equally mean "move the page", so the two are separated by
+   SPEED, decided ONCE at the moment the finger leaves the slop: a quick flick is
+   a gesture and never pans, a slow drag is a pan and never exits or opens markup,
+   however it happens to end. Judging at release instead — as this used to — meant
+   a pan always moved the page first and could still be stolen by the way you
+   happened to lift your finger. */
+const PAN_ARM = 12;        // travel before a zoomed drag is judged pan-or-flick
+const FLICK_V = 0.42;      // px per ms: at or above this the drag is a flick
+const FLICK_WINDOW = 60;   // ms of motion the speed is measured over
+const CLOSE_DY = 0.16;     // drag down this fraction of the screen and you're out
+const CLOSE_VEL = 0.5;     // ...or let go moving down this fast (px per ms)
+const CLOSE_MIN_DY = 26;   // ...having travelled at least this far
+const CLOSE_SCALE = 0.18;  // how far the page shrinks at the bottom of the pull
+
+/* Speed of the recent vertical motion, positive downward. Measured over a time
+   window rather than between the last two events, which can be microseconds
+   apart and would make a slow drag look like a flick. A long still pause before
+   the motion is excluded, so resting a finger and then flicking still reads as
+   a flick rather than being averaged away to nothing. */
+function flickSpeed(hist){
   if(!hist || hist.length < 2) return 0;
   const last = hist[hist.length-1];
   let first = hist[0];
   for(let i = hist.length-1; i >= 0; i--){
-    if(last.t - hist[i].t >= VEL_WINDOW){ first = hist[i]; break; }
+    if(last.t - hist[i].t >= FLICK_WINDOW){
+      first = (last.t - hist[i].t > FLICK_WINDOW*2.5 && i < hist.length-1) ? hist[i+1] : hist[i];
+      break;
+    }
   }
   const dt = last.t - first.t;
-  if(dt < 15) return 0;          // too brief a window to judge speed from
-  return (last.k - first.k)/dt;
+  if(dt <= 0) return 0;
+  return (last.y - first.y)/dt;
 }
-const EDIT_SWIPE = 60;    // an upward flick this far opens markup
-// When zoomed in a vertical drag pans the page, so the two gestures are told
-// apart by speed: a slow drag pans, a quick upward flick opens markup.
-const PAN_FLICK = 0.55;   // px per ms upward
-const PAN_FLICK_DY = 40;  // ...over at least this much travel
 const MAX_PAGE_PIXELS = 5.5e6;   // ceiling on the page bitmap, whatever the zoom
 
 const stage=$('#stage'), pagewrap=$('#pagewrap'), ghostwrap=$('#ghostwrap'), inkLayer=$('#inkLayer');
@@ -1787,6 +1804,7 @@ function redrawInk(){
 /* ---------- gestures ---------- */
 const ptrs = new Map();
 let stroke=null, pinch=null, swipe=null, panning=false, movedFar=false, liveAnchor=null;
+let closeDrag=null;       // a downward drag the page follows, on its way out
 let inkAtX=0, inkAtY=0;   // the pan the ink canvas was last rasterized at
 let panRawX = null, panRawY = null;   // unresisted pan while a drag is live
 
@@ -1794,10 +1812,59 @@ function normPt(cx, cy){
   return [ (cx - stageL - panX)/V.renderW, (cy - stageT - panY)/V.renderH ];
 }
 
+/* ---------- leaving the score: drag down and the page comes with you ----------
+   The page tracks the finger the whole way and shrinks a little as it goes, so
+   the exit is one continuous movement: let go past the threshold and the same
+   transform simply carries on into the flight back to the tile, let go short of
+   it and the page springs back. Nothing is committed until you lift. */
+function beginCloseDrag(p){
+  abortStroke();
+  cancelSwipe();
+  panning = false; panRawX = panRawY = null;
+  stopViewAnim();
+  p.consumed = true;                    // this finger is spoken for: no tap on release
+  // The drag starts from where the finger is NOW, not from where it touched down,
+  // so the page slides out from under it instead of jumping by the slop.
+  closeDrag = { ptr:p, y0:p.y, baseX:panX, baseY:panY, s:1, tx:panX, ty:panY, d:0 };
+  moveCloseDrag(0);
+}
+function moveCloseDrag(dy){
+  if(!closeDrag) return;
+  // Down follows one for one; up is resisted, since there is nothing above to go to.
+  const d = dy >= 0 ? dy : dy*RUBBER;
+  const prog = Math.max(0, Math.min(1, d/(stageH*0.5 || 1)));
+  const s = 1 - CLOSE_SCALE*prog;
+  // Shrink about the middle of the SCREEN, not the middle of the page: zoomed in
+  // the page is far bigger than the stage, and scaling about its centre would
+  // slide whatever you were looking at off sideways.
+  const tx = stageW/2 - s*(stageW/2 - closeDrag.baseX);
+  const ty = stageH/2 - s*(stageH/2 - closeDrag.baseY) + d;
+  closeDrag.s = s; closeDrag.tx = tx; closeDrag.ty = ty; closeDrag.d = d;
+  setViewTransform(s, tx, ty);
+}
+function finishCloseDrag(){
+  const c = closeDrag; closeDrag = null;
+  if(!c) return;
+  const vel = flickSpeed(c.ptr.hist);              // px per ms, positive downward
+  const go = V.pdf && !V.exiting &&
+             (c.d > stageH*CLOSE_DY || (vel > CLOSE_VEL && c.d > CLOSE_MIN_DY));
+  if(go){ zoomOutToLibrary(c.s, c.tx, c.ty); return; }
+  const settle = () => { place(); redrawInk(); };
+  if(Math.abs(c.s-1) > 0.002 || Math.abs(c.tx-panX) > 0.5 || Math.abs(c.ty-panY) > 0.5)
+    animateView(c.s, c.tx, c.ty, 1, panX, panY, settle, 260);
+  else settle();
+}
+
 stage.addEventListener('pointerdown', e => {
   if(!V.pdf || V.exiting) return;
+  // On the way out the page is already following one finger; another joining now
+  // must not arm a pinch underneath it.
+  if(closeDrag) return;
   if(ptrs.size === 0){ syncStageOrigin(); stopViewAnim(); }   // fresh origin at the start of every gesture
-  ptrs.set(e.pointerId, {x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t:Date.now()});
+  // hist is seeded at touch-down so even a gesture delivered in a single move
+  // event still has a baseline to measure its speed against
+  ptrs.set(e.pointerId, {x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t:Date.now(),
+                         hist:[{y:e.clientY, t:nowMs()}]});
   try{ stage.setPointerCapture(e.pointerId); }catch(err){}
 
   if(ptrs.size === 2){
@@ -1810,9 +1877,6 @@ stage.addEventListener('pointerdown', e => {
     // pinch here swallowed quick alternating taps entirely.
     pinch = {
       ids, engaged:false,
-      // seed the velocity baseline at touch-down, so even a gesture delivered in
-      // a single move event still has something to measure its speed against
-      hist: [{k:1, t:nowMs()}], peakVel: null,
       d0: Math.hypot(a.x-b.x, a.y-b.y) || 1,
       mx, my, cx:mx, cy:my,
       fx:(mx-stageL-panX)/(V.renderW||1), fy:(my-stageT-panY)/(V.renderH||1),
@@ -1842,6 +1906,18 @@ stage.addEventListener('pointermove', e => {
   p.x = e.clientX; p.y = e.clientY;
   if(Math.abs(p.x-p.x0) > 8 || Math.abs(p.y-p.y0) > 8) movedFar = true;
 
+  // One motion history per finger, kept for every gesture: the pan-or-flick
+  // decision and the close drag's release speed both read it.
+  p.hist.push({y:p.y, t:nowMs()});
+  if(p.hist.length > 24) p.hist.shift();
+
+  if(closeDrag){
+    if(closeDrag.ptr !== p) return;
+    e.preventDefault();
+    moveCloseDrag(p.y - closeDrag.y0);
+    return;
+  }
+
   if(pinch){
     const a = ptrs.get(pinch.ids[0]), b = ptrs.get(pinch.ids[1]);
     if(a && b){
@@ -1865,18 +1941,6 @@ stage.addEventListener('pointermove', e => {
     e.preventDefault();
     // floor is low so a deliberate big zoom-out can shrink the page right down
     pinch.k = Math.max(0.05, Math.min(MAX_ZOOM/pinch.zoom0, dist/pinch.d0));
-    // Keep a short history of (scale, time) and measure speed over a TIME WINDOW
-    // at release. A pinch fires one move per finger, so consecutive events can be
-    // microseconds apart: differencing them gives a meaningless spike that made a
-    // slow gesture look like a flick.
-    pinch.hist.push({k:pinch.k, t:nowMs()});
-    if(pinch.hist.length > 32) pinch.hist.shift();
-    // Track the FASTEST shrink seen at any point, not just the speed at the final
-    // instant. Fingers almost always coast to a stop before lifting, so sampling
-    // only at release missed most genuine flicks - which is why the exit
-    // "didn't work most of the time".
-    const vNow = pinchVelocity(pinch.hist);
-    if(vNow < 0 && (pinch.peakVel == null || vNow < pinch.peakVel)) pinch.peakVel = vNow;
     pinch.cx = (a.x+b.x)/2; pinch.cy = (a.y+b.y)/2;
     // Everything is expressed with transform-origin 0 0, where a page-local point
     // L simply renders at T + k*L. Anchoring the point under the fingers is then
@@ -1899,9 +1963,12 @@ stage.addEventListener('pointermove', e => {
   if(swipe){
     const dx = p.x - swipe.x0, dy = p.y - swipe.y0;
     if(!swipe.dir && !swipe.vert){
-      // an upward flick anywhere on the page opens markup
+      // an upward flick anywhere on the page opens markup; a downward one takes
+      // the page with it, back to the library
       if(Math.abs(dy) > SWIPE_ARM && Math.abs(dy) > Math.abs(dx)){
-        if(dy < 0){ swipe.vert = true; e.preventDefault(); }
+        e.preventDefault();
+        if(dy < 0) swipe.vert = true;
+        else beginCloseDrag(p);
         return;
       }
     }
@@ -1922,10 +1989,28 @@ stage.addEventListener('pointermove', e => {
   }
 
   if(!movedFar) return;
+
+  /* Zoomed in with the finger on the page, so this drag is either a pan or a
+     vertical flick. Decide once, here, before a single pixel has moved: a quick
+     flick is a gesture and the page stays put, a slow drag pans and can no longer
+     be mistaken for a gesture however it ends. */
+  if(!p.judged){
+    const adx = Math.abs(p.x-p.x0), ady = Math.abs(p.y-p.y0);
+    if(Math.max(adx, ady) < PAN_ARM) return;     // still inside the slop: undecided
+    p.judged = true;
+    const v = flickSpeed(p.hist);
+    if(ady > adx && Math.abs(v) >= FLICK_V){
+      p.consumed = true;                          // a gesture, never a tap
+      e.preventDefault();
+      if(v < 0){ if(!V.markup) setMarkup(true); } // flicked up: mark this up
+      else beginCloseDrag(p);                     // flicked down: back to the library
+      return;
+    }
+  }
+  if(p.consumed) return;          // its gesture already fired; this finger won't pan
+
   panning = true; e.preventDefault();
   stopViewAnim();
-  (p.hist || (p.hist = [])).push({y:p.y, t:nowMs()});
-  if(p.hist.length > 24) p.hist.shift();
   if(panRawX == null){ panRawX = panX; panRawY = panY; }
   panRawX += p.x - px; panRawY += p.y - py;
   const pb = viewBounds();
@@ -1940,6 +2025,11 @@ async function pointerFinished(e){
   const p = ptrs.get(e.pointerId);
   ptrs.delete(e.pointerId);
 
+  if(closeDrag){
+    if(closeDrag.ptr === p) finishCloseDrag();
+    return;
+  }
+
   if(pinch && !pinch.engaged && (!ptrs.has(pinch.ids[0]) || !ptrs.has(pinch.ids[1]))){
     // never became a real pinch — drop it and let this pointer be judged as a tap
     pinch = null;
@@ -1950,21 +2040,14 @@ async function pointerFinished(e){
     // threw the page across the screen.
     if(!ptrs.has(pinch.ids[0]) || !ptrs.has(pinch.ids[1])){
       const {k, fx, fy, cx, cy, zoom0} = pinch;
-      const peakVel = pinch.peakVel;
       const fromS = k;
       const fromX = pinch.tx != null ? pinch.tx : panX;
       const fromY = pinch.ty != null ? pinch.ty : panY;
       pinch = null;
 
       // Where the view should come to rest: the zoom clamped back into range,
-      // and the page pulled back inside its edges.
-      // A quick flick outward is a request to leave the score entirely.
-      if(peakVel != null && peakVel < -HOME_VEL && k < HOME_K && V.pdf){
-        for(const q of ptrs.values()){ q.x0 = q.x; q.y0 = q.y; q.consumed = true; }
-        movedFar = false; panning = false;
-        zoomOutToLibrary(fromS, fromX, fromY);
-        return;
-      }
+      // and the page pulled back inside its edges. Pinching out now bottoms out
+      // at fit and springs back — leaving the score is the downward drag's job.
       const targetZoom = Math.max(1, Math.min(MAX_ZOOM, zoom0*k));
       const s = targetZoom / zoom0;                       // scale vs the current raster
       const newW = V.renderW*s, newH = V.renderH*s;
@@ -2020,21 +2103,9 @@ async function pointerFinished(e){
 
   if(panning){
     panning = false;
-    // A quick upward flick while zoomed means "let me mark this up", not "pan".
-    if(p && p.hist && p.hist.length > 1 && !V.markup){
-      const last = p.hist[p.hist.length-1];
-      let first = p.hist[0];
-      for(let i = p.hist.length-1; i >= 0; i--){
-        if(last.t - p.hist[i].t >= 70){ first = p.hist[i]; break; }
-      }
-      const dt = last.t - first.t, dy = last.y - first.y;
-      if(dt >= 15 && dy/dt < -PAN_FLICK && (p.y - p.y0) < -PAN_FLICK_DY){
-        panRawX = panRawY = null;
-        clampPan(); redrawInk();
-        setMarkup(true);
-        return;
-      }
-    }
+    // Nothing is judged here any more. This drag was settled as a pan the moment
+    // it left the slop, so however quickly the finger happens to be moving as it
+    // lifts, it pans and only pans — no exit, no markup.
     // let the page travel back inside its edges rather than teleporting
     const pb = viewBounds();
     const tx = Math.min(pb.maxX, Math.max(pb.minX, panRawX == null ? panX : panRawX));
@@ -2061,6 +2132,12 @@ stage.addEventListener('pointerup', pointerFinished);
 stage.addEventListener('pointercancel', e => {
   const cp = ptrs.get(e.pointerId);
   ptrs.delete(e.pointerId);
+  // A drag that carries on past the bottom of the screen is cancelled rather than
+  // released, so judge it exactly as a release instead of dropping it.
+  if(closeDrag){
+    if(closeDrag.ptr === cp) finishCloseDrag();
+    return;
+  }
   if(stroke) endStroke();
   // A swipe that carries on off the edge of the screen is cancelled rather than
   // released, so honour it here too instead of silently dropping the gesture.
