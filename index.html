@@ -91,11 +91,17 @@ input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
 
 /* ---------- grid ---------- */
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 20px calc(var(--safe-b) + 40px)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 14px}
-@media (min-width:560px){.grid{grid-template-columns:repeat(3,1fr)}}
-@media (min-width:820px){.grid{grid-template-columns:repeat(4,1fr)}}
+/* minmax(0,1fr), not 1fr: a bare 1fr is minmax(auto,1fr) and will not let a
+   column shrink below its content's minimum width. The composer line is
+   white-space:nowrap and a filename like IMSLP969260-PMLP5514-… has no break
+   opportunity, so either one silently widens its own column — and because the
+   page image is sized by aspect-ratio off that width, a wider column also makes
+   a taller page. That is why two scores side by side came out different sizes. */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 14px}
+@media (min-width:560px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:820px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
-.tile{position:relative;touch-action:manipulation;
+.tile{position:relative;min-width:0;touch-action:manipulation;
   -webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .tile img,.ghost img{-webkit-user-drag:none;user-drag:none}
 .tile .sheet{
@@ -106,8 +112,12 @@ input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
 .tile .sheet::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(90deg,rgba(0,0,0,.16),rgba(0,0,0,0));z-index:2}
 .tile .sheet img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
 .tile .sheet .nothumb{width:100%;height:100%;display:grid;place-items:center;color:#B9B3A6;font-family:var(--serif);font-size:13px;padding:10px;text-align:center}
-.tile .meta{padding:9px 2px 0}
+.tile .meta{padding:9px 2px 0;min-width:0}
+/* Two lines are always reserved, so a one-line title doesn't pull the next row
+   up and leave the grid ragged. overflow-wrap lets an unbroken filename split
+   rather than push the column wider. */
 .tile .t{font-family:var(--serif);font-size:15px;line-height:1.25;color:var(--text);
+  overflow-wrap:anywhere;min-height:2.5em;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .tile .c{font-size:12.5px;color:var(--text-faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tile .marks{position:absolute;top:8px;right:8px;width:9px;height:9px;border-radius:50%;background:var(--pencil);box-shadow:0 0 0 2px rgba(251,250,246,.85);display:none;z-index:3}
