@@ -1361,10 +1361,18 @@ const COMPOSER_KEYS = (() => {
    words — padding both sides with a space is what stops "Bach" being found
    inside "Bachelor" while still finding it in "bach-invention-4". */
 function matchComposer(text){
-  const hay = ' ' + normText(text) + ' ';
-  if(hay.length < 4) return '';
-  for(const c of COMPOSER_KEYS)
-    if(hay.includes(' ' + c.key + ' ')) return c.name;
+  // A filename may run words together — "ChopinNocturne" — so the camel-split
+  // reading is tried as well. The plain reading goes first, since splitting it
+  // would break names that legitimately carry a capital in the middle, like
+  // MacMillan and MacDowell.
+  const hays = [' ' + normText(text) + ' '];
+  const split = ' ' + normText(camelSplit(text)) + ' ';
+  if(split !== hays[0]) hays.push(split);
+  for(const hay of hays){
+    if(hay.length < 4) continue;
+    for(const c of COMPOSER_KEYS)
+      if(hay.includes(' ' + c.key + ' ')) return c.name;
+  }
   return '';
 }
 
@@ -1479,10 +1487,11 @@ const WORKS = {
     ["70/2","Piano Trio No. 6 in E-flat major, Op. 70 No. 2"],
     ["97","Piano Trio No. 7 in B-flat major “Archduke”, Op. 97","archduke"],
     ["WoO59","Bagatelle in A minor, WoO 59 “Für Elise”","fur elise|furelise|for elise"],
-    ["WoO80","32 Variations in C minor, WoO 80"],
+    ["WoO80","32 Variations in C minor, WoO 80","32 variations"],
+    ["WoO57","Andante favori in F major, WoO 57","andante favori"],
     ["129","Rondo a capriccio in G major, Op. 129 “Rage Over a Lost Penny”","rage over a lost penny|lost penny"],
-    ["120","33 Variations on a Waltz by Diabelli, Op. 120","diabelli variations"],
-    ["35","15 Variations and a Fugue in E-flat major, Op. 35 “Eroica Variations”","eroica variations"],
+    ["120","33 Variations on a Waltz by Diabelli, Op. 120","diabelli variations|33 variations"],
+    ["35","15 Variations and a Fugue in E-flat major, Op. 35 “Eroica Variations”","eroica variations|15 variations"],
     ["34","Six Variations in F major, Op. 34"],
     ["33","Seven Bagatelles, Op. 33"],
     ["119","Eleven Bagatelles, Op. 119"],
@@ -1827,7 +1836,7 @@ const WORKS = {
     ["K475","Fantasia in C minor, K. 475"],
     ["K485","Rondo in D major, K. 485"],
     ["K511","Rondo in A minor, K. 511"],
-    ["K265","Twelve Variations on “Ah vous dirai-je, Maman”, K. 265","ah vous dirai je maman|twinkle twinkle"],
+    ["K265","Twelve Variations on “Ah vous dirai-je, Maman”, K. 265","ah vous dirai je maman|twinkle twinkle|12 variations"],
     ["K622","Clarinet Concerto in A major, K. 622"],
     ["K299","Concerto for Flute and Harp in C major, K. 299"],
     ["K313","Flute Concerto No. 1 in G major, K. 313"],
@@ -2041,10 +2050,20 @@ const WORKS = {
   ],
 };
 
-/* Same normalisation as composer matching, plus a split between letters and
-   digits so "Sonata2", "Op.19" and "K545" break into countable words. */
+/* "PianoSonata2" carries three words with no separator between them, which is
+   ordinary in a downloaded filename. Splitting on the lower-to-upper boundary
+   has to happen before anything is lowercased, or the boundary is gone. */
+function camelSplit(s){
+  return String(s || '')
+    .replace(/WoO/g, 'WOO')                        // Beethoven's catalogue, not two words
+    .replace(/([a-zà-ÿ])([A-ZÀ-Þ])/g, '$1 $2');
+}
+
+/* Same normalisation as composer matching, plus the camel split and a break
+   between letters and digits, so "Sonata2", "Op.19" and "K545" all come apart
+   into countable words. */
 function normWork(s){
-  return normText(s)
+  return normText(camelSplit(s))
     .replace(/([a-z])(\d)/g, '$1 $2')
     .replace(/(\d)([a-z])/g, '$1 $2')
     .replace(/\s+/g, ' ').trim();
@@ -2158,18 +2177,54 @@ function movementNumber(hay){
   return 0;
 }
 
+/* When nothing in the file names a composer, the piece can still name itself.
+   "Andante Favori, WoO 57" says Beethoven as plainly as the word would, because
+   WoO 57 is his and nobody else's — the cover page said BEETHOVEN, but a cover
+   page is a picture and the metadata carried the editor's name instead.
+
+   So every catalogue is asked, and the answer is only used if exactly one
+   composer can claim it. "Op. 27 No. 2" is a Beethoven sonata AND a Chopin
+   nocturne, so it identifies nothing on its own and is left alone. */
+function identifyWork(text){
+  if(!text) return null;
+  const hits = [];
+  for(const composer in WORKS){
+    const r = findWork(composer, text);
+    if(r) hits.push({ composer, title: r.title, tier: r.tier });
+  }
+  // A genre and a number only means something once you know whose it is —
+  // "Symphony No. 5" belongs to half the composers who ever lived, and the one
+  // catalogued here isn't evidence. Naming a composer this way needs a
+  // catalogue number or a distinctive title.
+  const strong = hits.filter(h => h.tier <= 2);
+  if(!strong.length) return null;
+  // Then weigh what's left: "K. 311" is a Mozart catalogue number and settles
+  // the matter. Only claims of equal strength compete.
+  const best = Math.min(...strong.map(h => h.tier));
+  const top = strong.filter(h => h.tier === best);
+  return top.length === 1 ? top[0] : null;
+}
+
 /* The piece a filename is describing, or '' if it can't be told. Three passes,
    strongest evidence first: a catalogue number, then a nickname, then a genre
    and a number. Nothing convincing means no rename — the imported title stays. */
 function guessWorkTitle(composer, text){
+  const r = findWork(composer, text);
+  return r ? r.title : '';
+}
+
+/* The work, and how strongly it was identified: 1 a catalogue number, 2 a
+   nickname, 3 a genre and a number. The strength matters when two composers
+   both think a filename is theirs. */
+function findWork(composer, text){
   const idx = WORK_INDEX[composer];
-  if(!idx || !text) return '';
+  if(!idx || !text) return null;
   const hay = ' ' + normWork(text) + ' ';
   const lean = ' ' + leanWords(normWork(text)) + ' ';
 
-  let found = null;
+  let found = null, tier = 0;
   for(const key of catalogueKeys(hay))
-    if(idx.byKey[key]){ found = idx.byKey[key]; break; }
+    if(idx.byKey[key]){ found = idx.byKey[key]; tier = 1; break; }
 
   /* A filename can name both a set and a piece inside it —
      "suite_bergamasque_3_clair_de_lune" names two things, and the piece is the
@@ -2184,14 +2239,14 @@ function guessWorkTitle(composer, text){
       if(!best || rank[0] > best.rank[0] || (rank[0] === best.rank[0] && rank[1] > best.rank[1]))
         best = { entry: p.entry, rank };
     }
-    if(best) found = best.entry;
+    if(best){ found = best.entry; tier = 2; }
   }
   if(!found)
-    for(const g of idx.genres) if(lean.includes(' ' + g.key + ' ')){ found = g.entry; break; }
-  if(!found) return '';
+    for(const g of idx.genres) if(lean.includes(' ' + g.key + ' ')){ found = g.entry; tier = 3; break; }
+  if(!found) return null;
 
   const mv = movementNumber(hay);
-  return mv ? found.title + ' — Movement ' + mv : found.title;
+  return { title: mv ? found.title + ' — Movement ' + mv : found.title, tier };
 }
 
 function cleanName(n){
@@ -2227,21 +2282,30 @@ async function importFile(file){
 
   /* Composer: a name we recognise in the PDF's own author field first, since
      that field is meant to hold exactly this; then one recognised in the title
-     or the filename, which is where it usually actually is. Failing all three,
-     fall back to whatever the author field said verbatim — often a real name we
-     simply don't have on the list, and better than nothing. A recognised name
-     is also returned in its canonical spelling, so "BACH, J.S." and
-     "js_bach" both land as Johann Sebastian Bach. */
-  const composer = matchComposer(author) || matchComposer(title) ||
-                   matchComposer(cleanName(file.name)) || author;
+     or the filename, which is where it usually actually is. A recognised name
+     is returned in its canonical spelling, so "BACH, J.S." and "js_bach" both
+     land as Johann Sebastian Bach. */
+  let composer = matchComposer(author) || matchComposer(title) ||
+                 matchComposer(cleanName(file.name));
 
   /* If the piece itself can be identified, the catalogue's name for it replaces
      whatever the file was called — which also takes the composer's name out of
      the title, since catalogue titles never carry it. The filename is asked
      first: that is where "Op. 19" and "No. 2" usually survive, while a metadata
      title is often the publisher's blurb. Nothing identified means no rename. */
-  const guess = guessWorkTitle(composer, cleanName(file.name)) ||
-                guessWorkTitle(composer, title);
+  let guess = composer ? (guessWorkTitle(composer, cleanName(file.name)) ||
+                          guessWorkTitle(composer, title)) : '';
+
+  /* Still no composer? The work may name itself. A catalogue number only one
+     composer uses identifies them as surely as their name would, and this is
+     the common case for a scan whose metadata carries the EDITOR rather than
+     the composer. */
+  if(!composer){
+    const found = identifyWork(cleanName(file.name)) || identifyWork(title);
+    if(found){ composer = found.composer; guess = found.title; }
+  }
+  // A real name we simply don't have on the list is better than nothing.
+  if(!composer) composer = author;
   if(guess) title = guess;
 
   const doc = { id, title, composer, keyInfo:'', notes:'', set:S.set, pages:pdf.numPages,
