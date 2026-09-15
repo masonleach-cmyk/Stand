@@ -119,7 +119,12 @@ input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
 .tile .t{font-family:var(--serif);font-size:15px;line-height:1.25;color:var(--text);
   overflow-wrap:anywhere;min-height:2.5em;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.tile .c{font-size:12.5px;color:var(--text-faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Composer and page count sit on their own lines: sharing one line meant a long
+   name ate the count and left "Wolfgang Amadeus Mozart · …". The composer line
+   keeps its height even when empty, so rows stay level. */
+.tile .c{font-size:12.5px;line-height:1.45;color:var(--text-faint);margin-top:2px;
+  min-height:1.45em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .p{font-size:12.5px;line-height:1.45;color:var(--text-faint);white-space:nowrap}
 .tile .marks{position:absolute;top:8px;right:8px;width:9px;height:9px;border-radius:50%;background:var(--pencil);box-shadow:0 0 0 2px rgba(251,250,246,.85);display:none;z-index:3}
 .tile.marked .marks{display:block}
 .tile .more{
@@ -716,7 +721,8 @@ async function renderGrid(){
       <button class="more" aria-label="Edit details for ${esc(d.title||'this piece')}"><i>···</i></button>
       <div class="meta">
         <div class="t">${esc(d.title || 'Untitled')}</div>
-        <div class="c">${esc(d.composer || '')}${d.composer && d.pages ? ' · ' : ''}${d.pages ? d.pages + (d.pages===1?' page':' pages') : ''}</div>
+        <div class="c">${esc(d.composer || '')}</div>
+        <div class="p">${d.pages ? d.pages + (d.pages===1?' page':' pages') : ''}</div>
       </div>`;
     grid.appendChild(el);
     thumbFor(d.id).then(src => {
