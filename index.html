@@ -1,0 +1,2542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Stand">
+<meta name="theme-color" content="#1B2029">
+<title>Stand</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" onerror="window.__loadFail='the PDF engine'"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js" onerror="window.__loadFail=(window.__loadFail?window.__loadFail+' and the PDF parser':'the PDF parser')"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" onerror="window.__loadFail=(window.__loadFail?window.__loadFail+' and the PDF editor':'the PDF editor')"></script>
+<style>
+:root{
+  --slate:#1B2029;
+  --slate-2:#232935;
+  --slate-3:#2E3542;
+  --line:#3A4251;
+  --paper:#FBFAF6;
+  --ink:#11151C;
+  --text:#E8EAEE;
+  --text-dim:#9AA3B2;
+  --text-faint:#6C7688;
+  --pencil:#4A6FA5;
+  --pencil-hi:#6E93C9;
+  --red:#B2413A;
+  --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden}
+body{
+  background:#000;color:var(--text);font-family:var(--sans);
+  font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+button{font-family:inherit;font-size:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
+:focus-visible{outline:2px solid var(--pencil-hi);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- screens ---------- */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;background:#000}
+#viewer{transform:translateY(100%);transition:transform .26s cubic-bezier(.32,.72,0,1);z-index:20;background:#000}
+#viewer.open{transform:translateY(0)}
+
+/* ---------- library header ---------- */
+.lib-head{padding:calc(var(--safe-t) + 18px) 20px 0;flex:none}
+.wordmark{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.wordmark h1{
+  font-family:var(--serif);font-weight:600;font-size:30px;letter-spacing:.01em;
+  margin:0;line-height:1;
+}
+.count{font-size:13px;color:var(--text-faint);white-space:nowrap}
+.staff{margin:14px 0 0;height:9px;flex:none}
+.staff span{display:block;height:1px;background:var(--line);margin-bottom:1px;opacity:.85}
+.staff span:nth-child(odd){opacity:.55}
+
+.searchrow{display:flex;gap:10px;padding:14px 20px 0;flex:none}
+.search{
+  flex:1;display:flex;align-items:center;gap:9px;background:var(--slate-2);
+  border:1px solid var(--line);border-radius:11px;padding:0 12px;height:42px;
+}
+.search input{flex:1;background:none;border:none;outline:none;color:var(--text);min-width:0}
+.search input::placeholder{color:var(--text-faint)}
+.iconbtn{
+  width:42px;height:42px;flex:none;display:grid;place-items:center;
+  background:var(--slate-2);border:1px solid var(--line);border-radius:11px;
+}
+.iconbtn.primary{background:var(--pencil);border-color:var(--pencil)}
+.iconbtn:active{transform:scale(.94)}
+
+/* ---------- sets row ---------- */
+.sets{display:flex;gap:8px;overflow-x:auto;padding:16px 20px 4px;flex:none;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.sets::-webkit-scrollbar{display:none}
+.chip{
+  flex:none;display:flex;align-items:center;gap:7px;height:36px;padding:0 14px;
+  border:1px solid var(--line);border-radius:18px;background:var(--slate-2);
+  font-size:14px;color:var(--text-dim);white-space:nowrap;transition:background .14s,border-color .14s;
+}
+.chip.on{background:var(--pencil);border-color:var(--pencil);color:#fff}
+.chip.drop{border-color:var(--pencil-hi);background:var(--slate-3);box-shadow:0 0 0 2px rgba(110,147,201,.35)}
+.chip .n{font-size:12px;color:inherit;opacity:.62}
+.chip.add{color:var(--text-faint);border-style:dashed}
+
+/* ---------- grid ---------- */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 20px calc(var(--safe-b) + 40px)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 14px}
+@media (min-width:560px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:820px){.grid{grid-template-columns:repeat(4,1fr)}}
+
+.tile{position:relative;touch-action:manipulation}
+.tile .sheet{
+  position:relative;width:100%;aspect-ratio:3/4;background:var(--paper);
+  border-radius:3px 7px 7px 3px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.5),0 8px 18px -8px rgba(0,0,0,.65);
+}
+.tile .sheet::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(90deg,rgba(0,0,0,.16),rgba(0,0,0,0));z-index:2}
+.tile .sheet img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.tile .sheet .nothumb{width:100%;height:100%;display:grid;place-items:center;color:#B9B3A6;font-family:var(--serif);font-size:13px;padding:10px;text-align:center}
+.tile .meta{padding:9px 2px 0}
+.tile .t{font-family:var(--serif);font-size:15px;line-height:1.25;color:var(--text);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tile .c{font-size:12.5px;color:var(--text-faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .marks{position:absolute;top:8px;right:8px;width:9px;height:9px;border-radius:50%;background:var(--pencil);box-shadow:0 0 0 2px rgba(251,250,246,.85);display:none;z-index:3}
+.tile.marked .marks{display:block}
+.tile .more{
+  position:absolute;top:0;right:0;width:40px;height:40px;display:grid;place-items:center;z-index:4;
+}
+.tile .more i{
+  display:block;width:26px;height:26px;border-radius:50%;background:rgba(17,21,28,.52);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  color:#fff;font-style:normal;font-size:15px;line-height:26px;text-align:center;letter-spacing:1px;
+}
+.tile.dragging{opacity:.25}
+.ghost{position:fixed;z-index:999;pointer-events:none;width:126px;transform-origin:center;
+  transform:scale(1.06) rotate(-1.6deg);filter:drop-shadow(0 14px 26px rgba(0,0,0,.6))}
+.ghost .sheet{border-radius:3px 7px 7px 3px;overflow:hidden;background:var(--paper);aspect-ratio:3/4}
+.ghost img{width:100%;height:100%;object-fit:cover;object-position:top center}
+
+.empty{padding:64px 8px;text-align:center;color:var(--text-faint)}
+.empty h2{font-family:var(--serif);font-weight:500;font-size:20px;color:var(--text-dim);margin:0 0 6px}
+.empty p{margin:0;font-size:14px}
+.empty button{margin-top:18px;height:44px;padding:0 20px;border-radius:11px;background:var(--pencil);color:#fff}
+
+/* ---------- sheet modal ---------- */
+.backdrop{position:fixed;inset:0;background:rgba(8,10,14,.6);z-index:30;opacity:0;pointer-events:none;transition:opacity .2s}
+.backdrop.on{opacity:1;pointer-events:auto}
+.sheetmodal{
+  position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--slate-2);
+  border-top:1px solid var(--line);border-radius:18px 18px 0 0;
+  padding:8px 20px calc(var(--safe-b) + 20px);
+  transform:translateY(101%);transition:transform .26s cubic-bezier(.32,.72,0,1);
+  max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.sheetmodal.on{transform:translateY(0)}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 14px}
+.sheetmodal h3{font-family:var(--serif);font-weight:600;font-size:19px;margin:0 0 14px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12.5px;color:var(--text-faint);margin-bottom:5px}
+.field input,.field textarea,.field select{
+  width:100%;background:var(--slate);border:1px solid var(--line);border-radius:10px;
+  padding:11px 12px;outline:none;color:var(--text);
+}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--pencil)}
+.field textarea{resize:vertical;min-height:76px;line-height:1.5}
+.row2{display:flex;gap:11px}
+.row2>*{flex:1;min-width:0}
+.btnrow{display:flex;gap:10px;margin-top:18px}
+.btn{flex:1;height:48px;border-radius:12px;display:grid;place-items:center;font-size:15px;
+  background:var(--slate-3);border:1px solid var(--line)}
+.btn.go{background:var(--pencil);border-color:var(--pencil);color:#fff;font-weight:500}
+.btn.danger{color:var(--red);flex:none;width:52px}
+.btn:active{transform:scale(.985)}
+
+/* ---------- viewer: bounded, GPU-composited layers ---------- */
+.stage{position:absolute;inset:0;overflow:hidden;touch-action:none;background:#000;contain:strict}
+.pagewrap,.ghostwrap{
+  position:absolute;left:0;top:0;background:var(--paper);
+  will-change:transform;transform:translate3d(0,0,0);backface-visibility:hidden;
+}
+.ghostwrap{visibility:hidden}
+.pagewrap canvas,.ghostwrap canvas{display:block;width:100%;height:100%}
+/* ink layers are viewport-sized, never page-sized, so cost never grows with zoom */
+.inklayer{position:absolute;inset:0;pointer-events:none;will-change:transform;transform:translate3d(0,0,0)}
+.inklayer canvas{position:absolute;left:0;top:0}
+
+/* one borderless row, floating clear of the page */
+/* The bar is only its buttons as far as touch is concerned. As a solid strip it
+   swallowed swipes that began near the bottom of the screen — which is exactly
+   where an upward swipe naturally starts. */
+.bar{
+  position:absolute;left:0;right:0;bottom:0;z-index:14;
+  display:flex;align-items:center;gap:2px;
+  padding:8px 10px calc(var(--safe-b) + 8px);
+  transition:opacity .18s ease,transform .18s ease;
+  pointer-events:none;
+}
+.bar button{pointer-events:auto}
+.bar.hidden{opacity:0;transform:translateY(10px);pointer-events:none}
+.bar button{
+  height:44px;min-width:44px;padding:0 10px;border-radius:10px;
+  display:grid;place-items:center;color:rgba(255,255,255,.82);
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.85)) drop-shadow(0 0 5px rgba(0,0,0,.5));
+}
+.bar button:active{color:#fff;transform:scale(.92)}
+.bar button.on{color:var(--pencil-hi)}
+.bar .spacer{flex:1}
+.bar .page{
+  font-size:13px;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums;
+  padding:0 6px;white-space:nowrap;
+  text-shadow:0 1px 2px rgba(0,0,0,.85), 0 0 5px rgba(0,0,0,.5);
+}
+.bar .dot{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.55)}
+.bar .unsaved{
+  width:6px;height:6px;border-radius:50%;background:var(--pencil-hi);
+  margin-left:-4px;align-self:flex-start;margin-top:12px;display:none;
+}
+.bar .unsaved.on{display:block}
+
+/* markup-mode indicator: light spilling in from the four edges. Built from
+   gradients rather than inset box-shadows so the falloff is a true fade to
+   transparent instead of a blurred ring, and — because the gradient is on the
+   base rule with only opacity toggled — it fades OUT as smoothly as it fades in.
+   (With the shadow on the .on rule it vanished instantly on removal.) */
+.editframe{
+  position:absolute;inset:0;z-index:12;pointer-events:none;
+  opacity:0;transition:opacity .34s cubic-bezier(.4,0,.2,1);
+  background:
+    linear-gradient(to right,  rgba(152,206,255,.52), rgba(82,164,250,.19) 45%, rgba(45,125,235,0) 100%) left   /38px 100% no-repeat,
+    linear-gradient(to left,   rgba(152,206,255,.52), rgba(82,164,250,.19) 45%, rgba(45,125,235,0) 100%) right  /38px 100% no-repeat,
+    linear-gradient(to bottom, rgba(152,206,255,.52), rgba(82,164,250,.19) 45%, rgba(45,125,235,0) 100%) top    /100% 38px no-repeat,
+    linear-gradient(to top,    rgba(152,206,255,.52), rgba(82,164,250,.19) 45%, rgba(45,125,235,0) 100%) bottom /100% 38px no-repeat;
+}
+.editframe.on{ opacity:1 }
+
+/* palette rises above the bar only in markup mode — a full color-picker now,
+   sized for real use rather than a quick strip of swatches */
+.palette{
+  position:absolute;left:8px;right:8px;bottom:calc(var(--safe-b) + 62px);z-index:15;
+  background:rgba(22,26,33,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-radius:20px;padding:20px 18px 16px;
+  max-height:min(74vh, 620px);overflow-y:auto;
+  opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .18s,transform .18s;
+}
+.palette.on{opacity:1;transform:translateY(0);pointer-events:auto}
+
+/* pen preview: an actual stroke rendered at the width it will really draw at
+   the current zoom (on-screen CSS px == size * zoom) */
+/* preview sits above the knobs normally; in note mode it moves to their right
+   as a tall box, which suits a vertical glyph far better than a wide strip */
+.workArea{display:flex;flex-direction:column;gap:12px}
+.palette.noteMode .workArea{flex-direction:row-reverse;align-items:center;justify-content:center;gap:14px}
+.penPreview{
+  border-radius:11px;background:#FBFAF6;overflow:hidden;
+  box-shadow:inset 0 1px 4px rgba(0,0,0,.26);
+}
+.penPreview canvas{display:block;width:100%}
+/* Size and Stem sit side by side in note mode; only those two are visible, so
+   the two-column grid puts them next to each other. Both shrink to leave room
+   for the preview box alongside. */
+.palette.noteMode .knobGrid{grid-template-columns:1fr 1fr;gap:10px 10px}
+.palette.noteMode .knob{width:96px;height:96px}
+.palette.noteMode .knobDot{width:5px;height:12px;top:26%}
+.palette.noteMode .knobName{font-size:10px}
+/* stem length only means anything for stamps */
+.knobWrap.stem{display:none}
+.palette.noteMode .knobWrap.stem{display:flex}
+/* colour is forced black for stamps, so the swatches would be misleading here */
+.palette.noteMode .presetrow{display:none}
+
+/* tool picker: pen / highlighter / note */
+.seg{display:flex;gap:3px;background:rgba(255,255,255,.07);border-radius:12px;padding:3px;margin-bottom:14px}
+.seg button{
+  flex:1;height:38px;border-radius:9px;font-size:13px;font-weight:600;
+  color:var(--text-faint);letter-spacing:.01em;
+}
+.seg button.on{background:rgba(255,255,255,.15);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.35)}
+
+/* note stamp picker — only shown when the Note tool is active */
+.noteSel{display:none;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.palette.noteMode .noteSel{display:grid}
+.palette.noteMode .knobWrap.color{display:none}
+.noteSel button{
+  height:62px;border-radius:12px;background:rgba(255,255,255,.06);
+  display:grid;place-items:center;
+}
+.noteSel button canvas{display:block;width:30px;height:42px}
+.noteSel button.on{background:rgba(255,255,255,.16);box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)}
+
+/* four identical amp-style dials — hue, saturation, lightness, size — each
+   with hard stops at MIN/MAX and a dead zone across the bottom so sliding
+   through it holds the value instead of snapping to the far end. The filled
+   arc is always the live pen color, so all four read as one family. */
+/* Pen and highlighter show all four dials in a single row, so the whole colour
+   control sits in one glance instead of a block. They shrink to fit four across. */
+.knobGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 8px;justify-items:center;margin-bottom:2px}
+.knobWrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.knobName{font-size:9px;letter-spacing:.04em;color:var(--text-faint);font-weight:600;text-transform:uppercase}
+
+.knob{position:relative;width:76px;height:76px;border-radius:50%;flex:none;touch-action:none}
+.knobTrack{position:absolute;inset:0;border-radius:50%}
+.knobFace{
+  position:absolute;inset:21%;border-radius:50%;
+  background:linear-gradient(180deg,#2C333D,#1A1F27);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 3px 10px rgba(0,0,0,.5);
+}
+.knobArm{position:absolute;inset:0;pointer-events:none}
+.knobDot{
+  position:absolute;left:50%;top:27%;width:5px;height:11px;border-radius:3px;
+  transform:translate(-50%,-50%);background:#fff;box-shadow:0 0 6px rgba(255,255,255,.55);
+}
+
+.presetrow{display:flex;align-items:center;gap:10px;margin-top:18px}
+.swatches{display:flex;gap:8px;flex:1}
+.swatches button{width:44px;height:44px;border-radius:12px;flex:none}
+.swatches button.on{box-shadow:0 0 0 2px rgba(22,26,33,1),0 0 0 4px #fff}
+#presetSave{
+  height:40px;padding:0 16px;border-radius:11px;background:rgba(255,255,255,.1);
+  color:var(--text);font-size:13.5px;font-weight:600;flex:none;
+}
+#presetSave:active{background:rgba(255,255,255,.18)}
+
+
+.toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + 22px);transform:translate(-50%,14px);
+  background:var(--slate-3);border:1px solid var(--line);color:var(--text);
+  padding:11px 16px;border-radius:12px;font-size:14px;z-index:60;opacity:0;pointer-events:none;
+  transition:opacity .18s,transform .18s;max-width:86vw;text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+.busy{position:fixed;inset:0;z-index:70;background:rgba(14,17,22,.74);display:none;
+  place-items:center;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.busy.on{display:grid}
+.busy div{text-align:center}
+.spin{width:30px;height:30px;border-radius:50%;border:2.5px solid var(--line);
+  border-top-color:var(--pencil-hi);margin:0 auto 12px;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.busy p{margin:0;font-size:14px;color:var(--text-dim)}
+svg{display:block}
+</style>
+</head>
+<body>
+<div id="startupError" style="display:none;position:fixed;inset:0;z-index:200;background:#1B2029;color:#E8EAEE;font-family:-apple-system,sans-serif;padding:max(24px,env(safe-area-inset-top)) 22px 22px;text-align:center">
+  <div style="max-width:340px;margin:80px auto 0">
+    <div style="font-family:ui-serif,Georgia,serif;font-size:20px;margin-bottom:10px">Stand couldn't start</div>
+    <p id="startupErrorMsg" style="font-size:14.5px;color:#9AA3B2;line-height:1.5;margin:0 0 18px"></p>
+    <button onclick="location.reload()" style="height:46px;padding:0 22px;border-radius:11px;background:#4A6FA5;color:#fff;border:none;font-size:15px">Try again</button>
+  </div>
+</div>
+
+<!-- ===================== LIBRARY ===================== -->
+<div class="screen" id="library">
+  <div class="lib-head">
+    <div class="wordmark">
+      <h1>Stand</h1>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="staff"><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+
+  <div class="searchrow">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7688" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input id="q" type="search" placeholder="Find a piece" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+    <button class="iconbtn primary" id="addBtn" aria-label="Add sheet music">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </div>
+
+  <div class="sets" id="sets"></div>
+
+  <div class="scroll" id="libScroll">
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none">
+      <h2>Nothing on the stand yet</h2>
+      <p>Add a PDF and it will appear here.</p>
+      <button id="emptyAdd">Add sheet music</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== VIEWER ===================== -->
+<div class="screen" id="viewer">
+  <div class="stage" id="stage">
+    <div class="ghostwrap" id="ghostwrap"><canvas id="ghostCanvas"></canvas></div>
+    <div class="pagewrap" id="pagewrap"><canvas id="pdfCanvas"></canvas></div>
+    <div class="inklayer" id="inkLayer">
+      <canvas id="inkCanvas"></canvas>
+      <canvas id="liveCanvas"></canvas>
+    </div>
+  </div>
+  <div class="editframe" id="editFrame"></div>
+
+  <div class="palette" id="palette">
+    <div class="seg" id="toolSeg">
+      <button data-tool="pen" class="on">Pen</button>
+      <button data-tool="highlight">Highlighter</button>
+      <button data-tool="note">Note</button>
+    </div>
+
+    <div class="noteSel" id="noteSel"></div>
+
+    <div class="workArea" id="workArea">
+    <div class="penPreview" id="previewBox"><canvas id="penPreview"></canvas></div>
+    <div class="knobGrid">
+      <div class="knobWrap color">
+        <div class="knob" id="knobHue">
+          <div class="knobTrack" id="knobHueTrack"></div>
+          <div class="knobFace"></div>
+          <div class="knobArm" id="knobHueArm"><i class="knobDot"></i></div>
+        </div>
+        <span class="knobName">Hue</span>
+      </div>
+      <div class="knobWrap color">
+        <div class="knob" id="knobSat">
+          <div class="knobTrack" id="knobSatTrack"></div>
+          <div class="knobFace"></div>
+          <div class="knobArm" id="knobSatArm"><i class="knobDot"></i></div>
+        </div>
+        <span class="knobName">Saturation</span>
+      </div>
+      <div class="knobWrap color">
+        <div class="knob" id="knobLight">
+          <div class="knobTrack" id="knobLightTrack"></div>
+          <div class="knobFace"></div>
+          <div class="knobArm" id="knobLightArm"><i class="knobDot"></i></div>
+        </div>
+        <span class="knobName">Lightness</span>
+      </div>
+      <div class="knobWrap">
+        <div class="knob" id="knobSize">
+          <div class="knobTrack" id="knobSizeTrack"></div>
+          <div class="knobFace"></div>
+          <div class="knobArm" id="knobSizeArm"><i class="knobDot"></i></div>
+        </div>
+        <span class="knobName">Size</span>
+      </div>
+      <div class="knobWrap stem">
+        <div class="knob" id="knobStem">
+          <div class="knobTrack" id="knobStemTrack"></div>
+          <div class="knobFace"></div>
+          <div class="knobArm" id="knobStemArm"><i class="knobDot"></i></div>
+        </div>
+        <span class="knobName">Stem</span>
+      </div>
+    </div>
+    </div>
+
+    <div class="presetrow">
+      <div class="swatches" id="swatches"></div>
+      <button id="presetSave" aria-label="Save current color to preset">Save</button>
+    </div>
+  </div>
+
+  <div class="bar" id="bar">
+    <button id="vBack" aria-label="Back to library">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+
+    <button id="mPrev" aria-label="Previous page" style="display:none">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button id="mNext" aria-label="Next page" style="display:none">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+
+    <span class="spacer"></span>
+    <span class="page" id="pLabel">1 / 1</span>
+    <span class="spacer"></span>
+
+    <button id="tColor" aria-label="Ink color" style="display:none"><i class="dot" id="colorDot"></i></button>
+    <button id="tErase" aria-label="Eraser" style="display:none">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8.6 19H19"/><path d="M15.6 5.4l3 3a1.6 1.6 0 010 2.3l-7 7a1.6 1.6 0 01-2.3 0l-3-3a1.6 1.6 0 010-2.3l7-7a1.6 1.6 0 012.3 0z"/></svg>
+    </button>
+    <button id="tUndo" aria-label="Undo" style="display:none">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h10a5 5 0 010 10h-4"/><path d="M7.5 5.5L4 9l3.5 3.5"/></svg>
+    </button>
+
+    <button id="tPen" aria-label="Done" style="display:none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </button>
+    <i class="unsaved" id="unsaved"></i>
+  </div>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div class="backdrop" id="backdrop"></div>
+
+<div class="sheetmodal" id="mDetails">
+  <div class="grab"></div>
+  <h3>Piece details</h3>
+  <div class="field"><label for="dTitle">Title</label><input id="dTitle" type="text"></div>
+  <div class="row2">
+    <div class="field"><label for="dComposer">Composer</label><input id="dComposer" type="text"></div>
+    <div class="field"><label for="dKey">Key or tempo</label><input id="dKey" type="text" placeholder="B♭ · ♩=132"></div>
+  </div>
+  <div class="field"><label for="dSet">Set</label><select id="dSet"></select></div>
+  <div class="field"><label for="dNotes">Notes</label><textarea id="dNotes" placeholder="Cuts, repeats, who you played it with."></textarea></div>
+  <div class="btnrow" style="margin-bottom:10px">
+    <button class="btn" id="dExport">Export a marked copy</button>
+  </div>
+  <div class="btnrow">
+    <button class="btn danger" id="dDelete" aria-label="Remove piece">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6.5 7l.8 12.1A1.5 1.5 0 008.8 20.5h6.4a1.5 1.5 0 001.5-1.4L17.5 7"/></svg>
+    </button>
+    <button class="btn" id="dCancel">Cancel</button>
+    <button class="btn go" id="dSave">Save details</button>
+  </div>
+</div>
+
+<div class="sheetmodal" id="mSet">
+  <div class="grab"></div>
+  <h3 id="setHead">New set</h3>
+  <div class="field"><label for="sName">Name</label><input id="sName" type="text" placeholder="Wedding gig, Recital, Big band"></div>
+  <div class="btnrow">
+    <button class="btn danger" id="sDelete" aria-label="Delete set">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6.5 7l.8 12.1A1.5 1.5 0 008.8 20.5h6.4a1.5 1.5 0 001.5-1.4L17.5 7"/></svg>
+    </button>
+    <button class="btn" id="sCancel">Cancel</button>
+    <button class="btn go" id="sSave">Save set</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="busy" id="busy"><div><div class="spin"></div><p id="busyText">Working</p></div></div>
+<input type="file" id="picker" accept="application/pdf,.pdf" multiple style="position:fixed;left:-9999px">
+
+<script>
+/* =======================================================================
+   Stand — sheet music library and markup
+   ======================================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+/* ---------- storage layer (IndexedDB) ---------- */
+// IndexedDB stores Blobs natively: no size cap worth worrying about, no base64
+// inflation, no splitting files across keys. A PDF goes in as the File object.
+const IDB_NAME = 'stand', IDB_STORE = 'kv';
+const mem = new Map();          // fallback only, if IndexedDB is unavailable
+let idbPromise = null, idbBroken = false;
+
+function idb(){
+  if(idbPromise) return idbPromise;
+  idbPromise = new Promise((res, rej) => {
+    let req;
+    try{ req = indexedDB.open(IDB_NAME, 1); }
+    catch(e){ return rej(e); }
+    req.onupgradeneeded = () => {
+      if(!req.result.objectStoreNames.contains(IDB_STORE)) req.result.createObjectStore(IDB_STORE);
+    };
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error || new Error('IndexedDB unavailable'));
+    req.onblocked = () => rej(new Error('IndexedDB blocked by another tab'));
+  }).catch(err => { idbBroken = true; throw err; });
+  return idbPromise;
+}
+
+function idbRun(mode, fn){
+  return idb().then(db => new Promise((res, rej) => {
+    const t = db.transaction(IDB_STORE, mode);
+    const req = fn(t.objectStore(IDB_STORE));
+    // A failed request aborts the transaction; capture its error first so the
+    // message names the real cause (usually the quota being full).
+    let reqErr = null;
+    if(req) req.onerror = () => { reqErr = req.error; };
+    const fail = () => rej(t.error || reqErr || new Error('write aborted, storage may be full'));
+    t.oncomplete = () => res(req ? req.result : undefined);
+    t.onerror = fail;
+    t.onabort = fail;
+  }));
+}
+
+const DB = {
+  async get(k){
+    if(mem.has(k)) return mem.get(k);
+    if(idbBroken) return null;
+    try{
+      const v = await idbRun('readonly', s => s.get(k));
+      return v === undefined ? null : v;
+    }catch(e){ return null; }
+  },
+  async set(k, v){
+    if(idbBroken){ mem.set(k, v); return true; }
+    await idbRun('readwrite', s => s.put(v, k));
+    return true;
+  },
+  keep(k, v){ mem.set(k, v); },
+  async del(k){
+    mem.delete(k);
+    if(idbBroken) return;
+    try{ await idbRun('readwrite', s => s.delete(k)); }catch(e){}
+  }
+};
+
+const K = {
+  index:'library:index',
+  pdf:id=>'pdf:'+id,
+  thumb:id=>'thumb:'+id,
+  ink:id=>'ink:'+id,
+  presets:'settings:presets'
+};
+
+async function estimateUsage(){
+  try{
+    if(navigator.storage && navigator.storage.estimate){
+      const e = await navigator.storage.estimate();
+      return { used:e.usage || 0, quota:e.quota || 0 };
+    }
+  }catch(e){}
+  return null;
+}
+
+/* ---------- app state ---------- */
+const S = { docs:[], sets:[], set:null, query:'', ready:false };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+/* ---------- small helpers ---------- */
+let toastTimer;
+function toast(msg, ms=2200){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('on'), ms);
+}
+function busy(on, text){ $('#busyText').textContent = text || 'Working'; $('#busy').classList.toggle('on', !!on); }
+const esc = s => (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* =======================================================================
+   Library data
+   ======================================================================= */
+async function loadLibrary(){
+  const idx = await DB.get(K.index);
+  if(idx){ S.docs = idx.docs || []; S.sets = idx.sets || []; }
+  S.ready = true;
+  await renderAll();
+}
+let idxTimer;
+function saveIndexSoon(){ clearTimeout(idxTimer); idxTimer = setTimeout(saveIndexNow, 350); }
+async function saveIndexNow(){
+  try{ await DB.set(K.index, { docs:S.docs, sets:S.sets, v:1 }); }
+  catch(e){ toast('Could not save the library. ' + e.message); }
+}
+
+function visibleDocs(){
+  const q = S.query.trim().toLowerCase();
+  return S.docs.filter(d => {
+    if(S.set !== null && d.set !== S.set) return false;
+    if(!q) return true;
+    return [d.title,d.composer,d.keyInfo,d.notes].some(f => (f||'').toLowerCase().includes(q));
+  });
+}
+
+/* =======================================================================
+   Library rendering
+   ======================================================================= */
+const thumbCache = new Map();
+async function thumbFor(id){
+  if(thumbCache.has(id)) return thumbCache.get(id);
+  const b = await DB.get(K.thumb(id));
+  const url = b ? (typeof b === 'string' ? b : URL.createObjectURL(b)) : null;
+  thumbCache.set(id, url);
+  return url;
+}
+function dropThumb(id){
+  const u = thumbCache.get(id);
+  if(u && u.startsWith('blob:')) URL.revokeObjectURL(u);
+  thumbCache.delete(id);
+}
+function canvasBlob(c, type, q){
+  return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('could not encode image')), type, q));
+}
+
+async function renderAll(){ renderSets(); await renderGrid(); renderCount(); }
+
+function renderCount(){
+  const n = S.docs.length;
+  $('#count').textContent = n === 0 ? '' : n + (n===1 ? ' piece' : ' pieces');
+}
+
+function renderSets(){
+  const wrap = $('#sets');
+  const all = `<button class="chip ${S.set===null?'on':''}" data-set="all">All pieces <span class="n">${S.docs.length}</span></button>`;
+  const sets = S.sets.map(s => {
+    const n = S.docs.filter(d => d.set === s.id).length;
+    return `<button class="chip ${S.set===s.id?'on':''}" data-set="${s.id}">${esc(s.name)} <span class="n">${n}</span></button>`;
+  }).join('');
+  wrap.innerHTML = all + sets + `<button class="chip add" data-set="new">New set</button>`;
+  wrap.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      const v = c.dataset.set;
+      if(v === 'new') return openSetModal(null);
+      if(v === 'all'){ S.set = null; }
+      else if(S.set === v){ return openSetModal(v); }   // tap an active set again to rename
+      else S.set = v;
+      renderAll();
+    });
+  });
+}
+
+async function renderGrid(){
+  const grid = $('#grid');
+  const docs = visibleDocs();
+  grid.innerHTML = '';
+  $('#empty').style.display = (S.docs.length === 0) ? 'block' : 'none';
+  if(S.docs.length && docs.length === 0){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><h2>No match</h2><p>Nothing here fits that search.</p></div>`;
+    return;
+  }
+  for(const d of docs){
+    const el = document.createElement('div');
+    el.className = 'tile' + (d.marked ? ' marked' : '');
+    el.dataset.id = d.id;
+    el.innerHTML = `
+      <div class="sheet">
+        <div class="nothumb">${esc(d.title || 'Untitled')}</div>
+        <span class="marks"></span>
+      </div>
+      <button class="more" aria-label="Edit details for ${esc(d.title||'this piece')}"><i>···</i></button>
+      <div class="meta">
+        <div class="t">${esc(d.title || 'Untitled')}</div>
+        <div class="c">${esc(d.composer || '')}${d.composer && d.pages ? ' · ' : ''}${d.pages ? d.pages + (d.pages===1?' page':' pages') : ''}</div>
+      </div>`;
+    grid.appendChild(el);
+    thumbFor(d.id).then(src => {
+      if(!src) return;
+      const holder = el.querySelector('.sheet');
+      if(!holder) return;
+      const img = new Image();
+      img.src = src; img.alt = '';
+      holder.replaceChild(img, holder.querySelector('.nothumb'));
+    });
+    el.querySelector('.more').addEventListener('click', ev => { ev.stopPropagation(); openDetails(d.id); });
+    attachTileGestures(el, d.id);
+  }
+}
+
+/* =======================================================================
+   Tile gestures — tap to open, long press to rearrange
+   ======================================================================= */
+let drag = null;
+function attachTileGestures(el, id){
+  let startX=0, startY=0, timer=null, moved=false;
+
+  el.addEventListener('pointerdown', e => {
+    if(e.target.closest('.more')) return;
+    startX = e.clientX; startY = e.clientY; moved = false;
+    timer = setTimeout(() => { if(!moved) beginDrag(el, id, startX, startY); }, 300);
+  });
+  el.addEventListener('pointermove', e => {
+    if(drag) return;
+    if(Math.abs(e.clientX-startX) > 9 || Math.abs(e.clientY-startY) > 9){ moved = true; clearTimeout(timer); }
+  });
+  el.addEventListener('pointerup', e => {
+    clearTimeout(timer);
+    if(drag || moved) return;
+    if(e.target.closest('.more')) return;
+    openDoc(id);
+  });
+  el.addEventListener('pointercancel', () => { clearTimeout(timer); });
+}
+
+function beginDrag(el, id, x, y){
+  if(navigator.vibrate) navigator.vibrate(8);
+  const img = el.querySelector('.sheet img');
+  const ghost = document.createElement('div');
+  ghost.className = 'ghost';
+  ghost.innerHTML = `<div class="sheet">${img ? `<img src="${img.src}" alt="">` : ''}</div>`;
+  document.body.appendChild(ghost);
+  el.classList.add('dragging');
+  document.body.style.overflow = 'hidden';
+  $('#libScroll').style.touchAction = 'none';
+  drag = { el, id, ghost, dropSet: undefined };
+  moveGhost(x, y);
+
+  window.addEventListener('pointermove', onDragMove, {passive:false});
+  window.addEventListener('pointerup', onDragEnd);
+  window.addEventListener('pointercancel', onDragEnd);
+}
+function moveGhost(x,y){
+  const g = drag.ghost, w = 126, h = w*4/3;
+  g.style.left = (x - w/2) + 'px';
+  g.style.top = (y - h/2) + 'px';
+}
+function onDragMove(e){
+  if(!drag) return;
+  e.preventDefault();
+  moveGhost(e.clientX, e.clientY);
+
+  drag.ghost.style.display = 'none';
+  const under = document.elementFromPoint(e.clientX, e.clientY);
+  drag.ghost.style.display = '';
+  if(!under) return;
+
+  // auto-scroll near edges
+  const sc = $('#libScroll'), r = sc.getBoundingClientRect();
+  if(e.clientY > r.bottom - 70) sc.scrollTop += 12;
+  else if(e.clientY < r.top + 50) sc.scrollTop -= 12;
+
+  $$('.chip').forEach(c => c.classList.remove('drop'));
+  const chip = under.closest('.chip');
+  if(chip && chip.dataset.set !== 'new'){
+    chip.classList.add('drop');
+    drag.dropSet = (chip.dataset.set === 'all') ? null : chip.dataset.set;
+    return;
+  }
+  drag.dropSet = undefined;
+
+  const tile = under.closest('.tile');
+  if(tile && tile !== drag.el){
+    const rect = tile.getBoundingClientRect();
+    const after = e.clientY > rect.top + rect.height/2 ||
+                  (Math.abs(e.clientY - (rect.top + rect.height/2)) < rect.height/2 && e.clientX > rect.left + rect.width/2);
+    tile.parentNode.insertBefore(drag.el, after ? tile.nextSibling : tile);
+  }
+}
+function onDragEnd(){
+  if(!drag) return;
+  window.removeEventListener('pointermove', onDragMove);
+  window.removeEventListener('pointerup', onDragEnd);
+  window.removeEventListener('pointercancel', onDragEnd);
+  drag.ghost.remove();
+  drag.el.classList.remove('dragging');
+  document.body.style.overflow = '';
+  $('#libScroll').style.touchAction = '';
+  $$('.chip').forEach(c => c.classList.remove('drop'));
+
+  const moved = S.docs.find(d => d.id === drag.id);
+  if(drag.dropSet !== undefined){
+    moved.set = drag.dropSet;
+    saveIndexSoon();
+    const name = drag.dropSet === null ? 'All pieces' : (S.sets.find(s=>s.id===drag.dropSet)||{}).name;
+    toast('Moved to ' + name);
+    drag = null;
+    renderAll();
+    return;
+  }
+  // commit new visual order into the master list
+  const order = Array.from($('#grid').children).map(n => n.dataset.id).filter(Boolean);
+  const inView = new Set(order);
+  const rest = S.docs.filter(d => !inView.has(d.id));
+  const reordered = order.map(id => S.docs.find(d => d.id === id)).filter(Boolean);
+  S.docs = mergeOrder(S.docs, reordered, rest);
+  saveIndexSoon();
+  drag = null;
+}
+function mergeOrder(all, reordered, rest){
+  // keep non-visible docs in their relative slots, drop the visible ones into the new sequence
+  const out = []; let ri = 0;
+  const visibleIds = new Set(reordered.map(d=>d.id));
+  for(const d of all){
+    if(visibleIds.has(d.id)){ out.push(reordered[ri++]); }
+    else out.push(d);
+  }
+  return out;
+}
+
+/* =======================================================================
+   Importing PDFs
+   ======================================================================= */
+function showStartupError(msg){
+  $('#startupErrorMsg').textContent = msg;
+  $('#startupError').style.display = 'block';
+}
+
+const PDFJS_WORKER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let usingRealWorker = false;
+
+// Can this browser actually run a Worker from a blob? On a normal hosted page
+// the answer is yes, and parsing moves off the main thread so page turns stay
+// smooth. Inside some embedded webviews blob URLs are blocked, in which case we
+// fall back to the main-thread handler that pdf.worker.min.js already registered
+// by being loaded as a plain script.
+function blobWorkersWork(){
+  return new Promise(res => {
+    let w, url;
+    const done = ok => { clearTimeout(timer); try{ w && w.terminate(); }catch(e){} if(url) URL.revokeObjectURL(url); res(ok); };
+    const timer = setTimeout(() => done(false), 2000);
+    try{
+      url = URL.createObjectURL(new Blob(['self.postMessage(1)'], {type:'text/javascript'}));
+      w = new Worker(url);
+      w.onmessage = () => done(true);
+      w.onerror = () => done(false);
+    }catch(e){ done(false); }
+  });
+}
+
+async function setupPdfEngine(){
+  if(await blobWorkersWork()){
+    try{
+      const code = await (await fetch(PDFJS_WORKER_URL)).text();
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        URL.createObjectURL(new Blob([code], {type:'text/javascript'}));
+      usingRealWorker = true;
+      return true;
+    }catch(e){ console.warn('Falling back to main-thread parsing:', e); }
+  }
+  // pdf.worker.min.js was loaded as a script, so globalThis.pdfjsWorker exists and
+  // pdf.js will parse on the main thread without trying to build a worker.
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+  usingRealWorker = false;
+  return false;
+}
+
+// Parsing now happens on the main thread, so give the browser a frame to paint
+// the loading overlay before we block it.
+function yieldToPaint(){
+  return new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+}
+
+$('#addBtn').addEventListener('click', () => $('#picker').click());
+$('#emptyAdd').addEventListener('click', () => $('#picker').click());
+$('#picker').addEventListener('change', async e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  if(!files.length) return;
+  for(let i=0;i<files.length;i++){
+    busy(true, files.length > 1 ? `Adding ${i+1} of ${files.length}` : 'Adding ' + files[i].name);
+    await yieldToPaint();
+    try{ await importFile(files[i]); }
+    catch(err){
+      console.error(err);
+      toast('Could not read ' + files[i].name + ': ' + (err && err.message ? err.message : 'unknown error'), 5000);
+    }
+  }
+  busy(false);
+  await renderAll();
+});
+
+// Scanner metadata is often misencoded and arrives as replacement characters or
+// stray control codes. If a title looks like that, the filename is more useful.
+function usableText(s){
+  if(!s) return false;
+  const t = String(s).trim();
+  if(t.length < 2) return false;
+  if(/[\uFFFD\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(t)) return false;
+  const latin = (t.match(/[A-Za-z0-9]/g) || []).length;
+  return latin >= Math.ceil(t.replace(/\s/g,'').length * 0.4);
+}
+function cleanName(n){
+  return n.replace(/\.pdf$/i,'').replace(/[_]+/g,' ').replace(/\s{2,}/g,' ').trim();
+}
+
+async function importFile(file){
+  const id = uid();
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+
+  // page one thumbnail
+  const page = await pdf.getPage(1);
+  const vp0 = page.getViewport({scale:1});
+  const scale = 340 / vp0.width;
+  const vp = page.getViewport({scale});
+  const c = document.createElement('canvas');
+  c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+  const cx = c.getContext('2d');
+  cx.fillStyle = '#fff'; cx.fillRect(0,0,c.width,c.height);
+  await page.render({canvasContext:cx, viewport:vp}).promise;
+  const thumb = await canvasBlob(c, 'image/jpeg', 0.72);
+
+  // title from PDF metadata when it is there, otherwise the filename
+  let title = cleanName(file.name), composer = '';
+  try{
+    const md = await pdf.getMetadata();
+    if(md && md.info){
+      if(usableText(md.info.Title)) title = md.info.Title.trim();
+      if(usableText(md.info.Author)) composer = md.info.Author.trim();
+    }
+  }catch(e){}
+
+  const doc = { id, title, composer, keyInfo:'', notes:'', set:S.set, pages:pdf.numPages,
+                added:Date.now(), bytes:buf.byteLength, marked:false };
+
+  try{
+    await DB.set(K.pdf(id), file);
+    await DB.set(K.thumb(id), thumb);
+  }catch(err){
+    console.error(err);
+    doc.sessionOnly = true;
+    DB.keep(K.pdf(id), file);
+    DB.keep(K.thumb(id), thumb);
+    toast(`${title} is open but couldn't be saved: ${err.message}`, 5000);
+  }
+  thumbCache.set(id, URL.createObjectURL(thumb));
+  S.docs.unshift(doc);
+  await saveIndexNow();
+}
+
+/* =======================================================================
+   Details modal
+   ======================================================================= */
+let editingId = null;
+function showModal(el){ $('#backdrop').classList.add('on'); el.classList.add('on'); }
+function hideModals(){ $('#backdrop').classList.remove('on'); $$('.sheetmodal').forEach(m=>m.classList.remove('on')); editingId=null; editingSet=null; }
+$('#backdrop').addEventListener('click', hideModals);
+$('#dCancel').addEventListener('click', hideModals);
+$('#sCancel').addEventListener('click', hideModals);
+
+function openDetails(id){
+  const d = S.docs.find(x => x.id === id); if(!d) return;
+  editingId = id;
+  $('#dTitle').value = d.title || '';
+  $('#dComposer').value = d.composer || '';
+  $('#dKey').value = d.keyInfo || '';
+  $('#dNotes').value = d.notes || '';
+  $('#dSet').innerHTML = `<option value="">All pieces, no set</option>` +
+    S.sets.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  $('#dSet').value = d.set || '';
+  showModal($('#mDetails'));
+}
+$('#dExport').addEventListener('click', () => {
+  const id = editingId;
+  hideModals();
+  exportDoc(id);
+});
+$('#dSave').addEventListener('click', async () => {
+  const d = S.docs.find(x => x.id === editingId); if(!d) return hideModals();
+  d.title = $('#dTitle').value.trim() || 'Untitled';
+  d.composer = $('#dComposer').value.trim();
+  d.keyInfo = $('#dKey').value.trim();
+  d.notes = $('#dNotes').value.trim();
+  d.set = $('#dSet').value || null;
+  hideModals(); await saveIndexNow(); await renderAll(); toast('Details saved');
+});
+let armDoc = null, armTimer;
+$('#dDelete').addEventListener('click', async () => {
+  const d = S.docs.find(x => x.id === editingId); if(!d) return;
+  if(armDoc !== d.id){
+    armDoc = d.id;
+    toast(`Tap again to remove “${d.title}” and its markings.`, 4000);
+    clearTimeout(armTimer); armTimer = setTimeout(()=>{ armDoc = null; }, 4000);
+    return;
+  }
+  armDoc = null; clearTimeout(armTimer);
+  await DB.del(K.pdf(d.id)); await DB.del(K.thumb(d.id)); await DB.del(K.ink(d.id));
+  dropThumb(d.id);
+  S.docs = S.docs.filter(x => x.id !== d.id);
+  hideModals(); await saveIndexNow(); await renderAll(); toast('Removed');
+});
+
+/* ---------- sets ---------- */
+let editingSet = null;
+function openSetModal(id){
+  editingSet = id;
+  const s = id ? S.sets.find(x=>x.id===id) : null;
+  $('#setHead').textContent = s ? 'Rename set' : 'New set';
+  $('#sName').value = s ? s.name : '';
+  $('#sDelete').style.display = s ? '' : 'none';
+  showModal($('#mSet'));
+  setTimeout(()=>$('#sName').focus(), 260);
+}
+$('#sSave').addEventListener('click', async () => {
+  const name = $('#sName').value.trim();
+  if(!name){ toast('Give the set a name'); return; }
+  if(editingSet){ S.sets.find(s=>s.id===editingSet).name = name; }
+  else { const id = uid(); S.sets.push({id, name}); S.set = id; }
+  hideModals(); await saveIndexNow(); await renderAll();
+});
+let armSet = null, armSetTimer;
+$('#sDelete').addEventListener('click', async () => {
+  const s = S.sets.find(x=>x.id===editingSet); if(!s) return;
+  if(armSet !== s.id){
+    armSet = s.id;
+    toast(`Tap again to delete “${s.name}”. The pieces stay in your library.`, 4000);
+    clearTimeout(armSetTimer); armSetTimer = setTimeout(()=>{ armSet = null; }, 4000);
+    return;
+  }
+  armSet = null; clearTimeout(armSetTimer);
+  S.docs.forEach(d => { if(d.set === s.id) d.set = null; });
+  S.sets = S.sets.filter(x => x.id !== s.id);
+  if(S.set === s.id) S.set = null;
+  hideModals(); await saveIndexNow(); await renderAll();
+});
+
+$('#q').addEventListener('input', e => { S.query = e.target.value; renderGrid(); });
+
+/* =======================================================================
+   Viewer
+
+   Performance model, mirroring how PDFKit + PencilKit stay fast:
+
+   1. Bounded raster work. The ink layers are sized to the SCREEN, never to the
+      page, and draw in screen space. At 6x zoom the old code allocated and
+      cleared an ~11 megapixel buffer on every stroke; now it is always about
+      one screen's worth no matter the zoom. The PDF bitmap is likewise capped.
+   2. No layout in the input path. Pointer handling used to call
+      getBoundingClientRect() per point, forcing a synchronous layout dozens of
+      times per frame. All geometry is cached in plain numbers and only
+      recomputed when it actually changes.
+   3. Additive drawing. Committed marks accumulate on the ink canvas and are
+      never wholesale repainted per stroke. A full repaint happens only on page
+      change, zoom, pan-end, erase and undo, and it culls strokes whose bounding
+      box is off screen. Cost per pen event is O(1) in the number of existing
+      marks.
+   4. Pan and zoom are GPU transforms (translate3d) on composited layers rather
+      than re-rasterizations, so dragging never re-renders.
+   5. Page turns are bitmap swaps. Neighbours are pre-rasterized, so a turn is a
+      synchronous drawImage with no await anywhere in the path. Taps therefore
+      queue properly: three fast taps advance three pages.
+   ======================================================================= */
+const V = {
+  id:null, doc:null, pdf:null, page:1,
+  zoom:1, fit:0, renderW:0, renderH:0,
+  markup:false, erasing:false,
+  tool:'pen', note:'quarter', stem:1, savedColor:null,
+  hue:352, sat:67, tone:45, size:2.5,
+  presets:null, selectedPreset:1,
+  ink:{}, undo:[], dirty:false, saving:false,
+  cache:new Map(), rendering:false, want:null, exiting:false, exitSeq:0
+};
+const MAX_ZOOM = 6;
+/* Tap tolerances. Real fingers roll a little and linger a little, so these are
+   deliberately generous: a page turn that silently does nothing is far worse
+   than one that fires from a slightly sloppy touch. TAP_SLOP also matches the
+   swipe arming distance, which closes a dead zone where a movement was too big
+   to count as a tap but too small to arm a swipe, and so did nothing at all. */
+const TAP_SLOP = 18, TAP_MS = 2000, SWIPE_ARM = 18, PINCH_ENGAGE = 12;
+// Leaving the score is judged by how fast you were still shrinking at the moment
+// you let go, not by how far you got: a quick flick out exits, while creeping
+// slowly down to the same size just springs back.
+const HOME_VEL = 0.0022;  // scale units lost per millisecond, at any point in the gesture
+const HOME_K = 0.85;      // ...and you must have actually shrunk this far
+const nowMs = () => (window.performance && performance.now) ? performance.now() : Date.now();
+const VEL_WINDOW = 70;   // ms of history to judge the release speed over
+function pinchVelocity(hist){
+  if(!hist || hist.length < 2) return 0;
+  const last = hist[hist.length-1];
+  let first = hist[0];
+  for(let i = hist.length-1; i >= 0; i--){
+    if(last.t - hist[i].t >= VEL_WINDOW){ first = hist[i]; break; }
+  }
+  const dt = last.t - first.t;
+  if(dt < 15) return 0;          // too brief a window to judge speed from
+  return (last.k - first.k)/dt;
+}
+const EDIT_SWIPE = 60;    // an upward flick this far opens markup
+// When zoomed in a vertical drag pans the page, so the two gestures are told
+// apart by speed: a slow drag pans, a quick upward flick opens markup.
+const PAN_FLICK = 0.55;   // px per ms upward
+const PAN_FLICK_DY = 40;  // ...over at least this much travel
+const MAX_PAGE_PIXELS = 5.5e6;   // ceiling on the page bitmap, whatever the zoom
+
+const stage=$('#stage'), pagewrap=$('#pagewrap'), ghostwrap=$('#ghostwrap'), inkLayer=$('#inkLayer');
+const pdfCanvas=$('#pdfCanvas'), ghostCanvas=$('#ghostCanvas'),
+      inkCanvas=$('#inkCanvas'), liveCanvas=$('#liveCanvas');
+const pctx=pdfCanvas.getContext('2d',{alpha:false});
+const gctx=ghostCanvas.getContext('2d',{alpha:false});
+const ictx=inkCanvas.getContext('2d');
+const lctx=liveCanvas.getContext('2d');
+
+/* ---------- cached geometry: the whole point is that the input path reads
+   these numbers instead of asking the DOM anything ---------- */
+let panX=0, panY=0;              // page origin, in stage CSS px
+let stageW=0, stageH=0, stageL=0, stageT=0;
+let inkDpr=1;
+
+function measure(){
+  stageW = stage.clientWidth; stageH = stage.clientHeight;
+  syncStageOrigin();
+  sizeInkLayer();
+}
+/* The viewer slides in on a CSS transform, so a rect captured while that
+   animation is mid-flight reports the stage far below where it ends up, and every
+   touch coordinate derived from it is wrong (marks land off-page, pinch focal
+   points fly away). Reading it per point would fix that but costs a forced layout
+   on every sample. Reading it once at the START OF EACH GESTURE is both correct
+   and free: one layout read per touch, none in the hot path. */
+function syncStageOrigin(){
+  const r = stage.getBoundingClientRect();
+  stageL = r.left; stageT = r.top;
+}
+function sizeInkLayer(){
+  const d = Math.min(window.devicePixelRatio || 1, 2);
+  const w = Math.round(stageW*d), h = Math.round(stageH*d);
+  if(inkCanvas.width !== w || inkCanvas.height !== h){
+    for(const c of [inkCanvas, liveCanvas]){
+      c.width = w; c.height = h;
+      c.style.width = stageW+'px'; c.style.height = stageH+'px';
+    }
+  }
+  inkDpr = d;
+}
+function pageDpr(w,h){
+  const d = Math.min(window.devicePixelRatio || 1, 2);
+  const px = w*h*d*d;
+  return px > MAX_PAGE_PIXELS ? d * Math.sqrt(MAX_PAGE_PIXELS/px) : d;
+}
+function place(){
+  pagewrap.style.transformOrigin = '0 0';
+  pagewrap.style.transform = `translate3d(${panX}px,${panY}px,0)`;
+}
+/* One helper drives every live view change — pinch, rubber-band pan and the
+   settle animation all just set (scale, translate) with origin 0 0. */
+function setViewTransform(s, tx, ty){
+  pagewrap.style.transformOrigin = '0 0';
+  pagewrap.style.transform = `translate3d(${tx}px,${ty}px,0) scale(${s})`;
+  inkLayer.style.transformOrigin = '0 0';
+  inkLayer.style.transform = `translate3d(${tx - s*inkAtX}px,${ty - s*inkAtY}px,0) scale(${s})`;
+}
+function viewBounds(w, hgt){
+  const exW = (w==null?V.renderW:w) - stageW, exH = (hgt==null?V.renderH:hgt) - stageH;
+  return {
+    minX: exW<=0 ? Math.round(-exW/2) : -exW, maxX: exW<=0 ? Math.round(-exW/2) : 0,
+    minY: exH<=0 ? Math.round(-exH/2) : -exH, maxY: exH<=0 ? Math.round(-exH/2) : 0
+  };
+}
+/* Overshoot past the edges is allowed while a gesture is live, but resisted, so
+   the page feels physical rather than nailed down. */
+const RUBBER = 0.35;
+function rubber(v, min, max){
+  if(v > max) return max + (v-max)*RUBBER;
+  if(v < min) return min + (v-min)*RUBBER;
+  return v;
+}
+let viewAnim = null;
+/* Cancelling an animation used to drop its completion callback on the floor,
+   which left the viewer mid-exit: fully transparent but still on top of the
+   library, swallowing every touch. Stopping now always lands on the end state
+   and runs the callback, so the view can never be stranded half-way. */
+function stopViewAnim(){
+  if(!viewAnim) return;
+  const a = viewAnim; viewAnim = null;
+  cancelAnimationFrame(a.id);
+  setViewTransform(a.toS, a.toX, a.toY);
+  a.done();
+}
+function animateView(fromS, fromX, fromY, toS, toX, toY, done, ms){
+  stopViewAnim();
+  const t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+  const dur = ms || 300;
+  const ease = t => 1 - Math.pow(1-t, 3);      // brisk out, no bounce past the edge
+  function frame(){
+    const now = (window.performance && performance.now) ? performance.now() : Date.now();
+    const t = Math.min(1, (now-t0)/dur), e = ease(t);
+    setViewTransform(fromS + (toS-fromS)*e, fromX + (toX-fromX)*e, fromY + (toY-fromY)*e);
+    if(t < 1) viewAnim.id = requestAnimationFrame(frame);
+    else { viewAnim = null; done(); }
+  }
+  viewAnim = { id: requestAnimationFrame(frame), toS, toX, toY, done };
+}
+function clampPan(){
+  const exW = V.renderW - stageW, exH = V.renderH - stageH;
+  panX = exW <= 0 ? Math.round(-exW/2) : Math.min(0, Math.max(-exW, panX));
+  panY = exH <= 0 ? Math.round(-exH/2) : Math.min(0, Math.max(-exH, panY));
+  place();
+}
+function centerPage(){
+  panX = Math.round((stageW - V.renderW)/2);
+  panY = Math.round((stageH - V.renderH)/2);
+  clampPan();
+}
+
+function colorNow(){
+  return `hsl(${V.hue} ${V.sat}% ${V.tone}%)`;
+}
+const SIZE_MIN = 1, SIZE_MAX = 14, SIZE_STEP = 0.1;   // 130 steps over 270deg
+const HL_ALPHA = 0.32;   // highlighter translucency; passes layer and deepen
+const HL_MULT  = 3.2;    // highlighter lays down a broad marker nib
+const NOTE_MULT = 5;     // stamped note height relative to the size knob
+const STEM_MIN = 0.3, STEM_MAX = 1.8, STEM_STEP = 0.02;
+
+/* Musical note stamps, drawn as vector paths rather than glyph characters so
+   they render identically everywhere and stay crisp at any zoom. cx,cy is the
+   notehead centre; h is the overall glyph height. */
+const NOTE_KINDS = [
+  {k:'whole',          label:'Whole',          open:true,  stem:false, flags:0, dot:false},
+  {k:'half',           label:'Half',           open:true,  stem:true,  flags:0, dot:false},
+  {k:'quarter',        label:'Quarter',        open:false, stem:true,  flags:0, dot:false},
+  {k:'eighth',         label:'Eighth',         open:false, stem:true,  flags:1, dot:false},
+  {k:'sixteenth',      label:'16th',           open:false, stem:true,  flags:2, dot:false},
+  {k:'dotted-half',    label:'Dotted half',    open:true,  stem:true,  flags:0, dot:true},
+  {k:'dotted-quarter', label:'Dotted quarter', open:false, stem:true,  flags:0, dot:true},
+  {k:'dotted-eighth',  label:'Dotted 8th',     open:false, stem:true,  flags:1, dot:true}
+];
+const NOTE_BY_KIND = Object.fromEntries(NOTE_KINDS.map(n=>[n.k,n]));
+
+function drawNoteGlyph(ctx, kind, cx, cy, h, color, stemMul){
+  const n = NOTE_BY_KIND[kind] || NOTE_BY_KIND.quarter;
+  const sm = stemMul == null ? 1 : stemMul;
+  const rx = h*0.175, ry = h*0.125;          // notehead radii
+  const lw = Math.max(1, h*0.05);
+  ctx.save();
+  ctx.strokeStyle = color; ctx.fillStyle = color;
+  ctx.lineCap='round'; ctx.lineJoin='round';
+
+  // stem first, so the head sits over its joint
+  if(n.stem){
+    const sx = cx + rx*0.92, top = cy - h*0.66*sm;
+    const stemLen = h*0.66*sm;
+    ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(sx, cy - ry*0.35); ctx.lineTo(sx, top); ctx.stroke();
+    // A proper engraved flag tapers to a point at BOTH ends — thin at the stem,
+    // widest around a third of the way down, thin again at the tip — which is
+    // what actually reads as an elegant flourish instead of a solid wedge. The
+    // inner edge hugs close to the stem the whole way, so the flag stays a
+    // blade rather than filling in as a blob. Reach and spacing are fractions
+    // of the stem's own length, verified to clear the notehead at every stem
+    // setting from 0.3x to 1.8x, for one flag or two.
+    const fw = stemLen;
+    const spacing = n.flags>1 ? 0.40 : 0, reach = n.flags>1 ? 0.54 : 0.64;
+    for(let i=0;i<n.flags;i++){
+      const fy = top + i*fw*spacing;
+      ctx.beginPath();
+      // Start at the stem's LEFT edge and close back onto its RIGHT edge lower
+      // down: the closing line crosses the stem, so the junction fills solid
+      // instead of pinching to a point and leaving a notch at the top.
+      ctx.moveTo(sx - lw*0.5, fy - lw*0.15);
+      ctx.bezierCurveTo(sx+fw*0.29, fy+fw*0.11,  sx+fw*0.31, fy+fw*reach*0.63,  sx+fw*0.07, fy+fw*reach);
+      ctx.bezierCurveTo(sx+fw*0.15, fy+fw*reach*0.60,  sx+fw*0.10, fy+fw*reach*0.26,  sx + lw*0.5, fy+fw*0.15);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  // notehead, tilted the way engraved notation sits
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, -0.35, 0, Math.PI*2);
+  if(n.open){ ctx.lineWidth = lw*1.05; ctx.stroke(); }
+  else ctx.fill();
+
+  if(n.dot){
+    ctx.beginPath();
+    ctx.arc(cx + rx*1.85, cy, Math.max(1, h*0.052), 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+const DEFAULT_PRESETS = [
+  {name:'Graphite',      h:220, s:36, l:14},
+  {name:'Rehearsal red', h:352, s:67, l:45},
+  {name:'Editor blue',   h:214, s:66, l:44},
+  {name:'Green',         h:146, s:56, l:34},
+  {name:'Amber',         h:38,  s:72, l:50}
+];
+let presetsLoading = null;
+function ensurePresetsLoaded(){
+  if(V.presets) return Promise.resolve();
+  if(presetsLoading) return presetsLoading;
+  return presetsLoading = (async () => {
+    const stored = await DB.get(K.presets).catch(()=>null);
+    V.presets = (stored && stored.length === 5) ? stored : DEFAULT_PRESETS.map(p=>({...p}));
+    buildSwatches();
+  })();
+}
+function buildSwatches(){
+  if(!V.presets) return;
+  $('#swatches').innerHTML = V.presets.map((p,i) => {
+    const c = `hsl(${p.h} ${p.s}% ${p.l}%)`;
+    return `<button data-i="${i}" style="background:${c}" aria-label="${p.name||'Preset '+(i+1)}"></button>`;
+  }).join('');
+  syncInkPanel();
+}
+$('#swatches').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  const i = +b.dataset.i, p = V.presets[i];
+  V.hue = p.h; V.sat = p.s; V.tone = p.l; V.selectedPreset = i;
+  V.erasing = false; $('#tErase').classList.remove('on');
+  syncInkPanel();
+});
+$('#presetSave').addEventListener('click', async () => {
+  await ensurePresetsLoaded();
+  V.presets[V.selectedPreset] = {name:V.presets[V.selectedPreset].name, h:V.hue, s:V.sat, l:V.tone};
+  buildSwatches();
+  try{ await DB.set(K.presets, V.presets); toast('Saved to preset'); }
+  catch(err){ toast('Could not save the preset', 3000); }
+});
+
+/* ---------- knobs: one shared amp-dial behavior for hue, saturation,
+   lightness and pen size. Each turns through 270deg between hard MIN/MAX
+   stops with a dead zone across the bottom, same as a real knob — sliding a
+   finger through that dead zone holds the current value instead of jumping
+   to the far end. The filled arc always shows the live pen color, so all
+   four read as one consistent family of controls. ---------- */
+function makeKnob(elSel, trackSel, armSel, {min, max, step, get, set}){
+  const el = $(elSel), arm = $(armSel), track = $(trackSel);
+  let center = null, lastT = null;
+  function valueFromPoint(x, y){
+    let deg = Math.atan2(x - center.cx, -(y - center.cy)) * 180/Math.PI;
+    if(deg > 135) deg = 135;
+    if(deg < -135) deg = -135;
+    const t = (deg + 135) / 270;
+    if(lastT !== null && Math.abs(t - lastT) > 0.5) return null;
+    lastT = t;
+    const raw = min + t*(max-min);
+    return Math.round(raw/step) * step;
+  }
+  function grab(e){
+    const r = el.getBoundingClientRect();
+    center = { cx:r.left+r.width/2, cy:r.top+r.height/2 };
+    lastT = null;
+    try{ el.setPointerCapture(e.pointerId); }catch(err){}
+    const v = valueFromPoint(e.clientX, e.clientY);
+    if(v !== null){ set(+v.toFixed(4)); syncInkPanel(); }
+  }
+  el.addEventListener('pointerdown', grab);
+  el.addEventListener('pointermove', e => {
+    if(!center || e.buttons === 0) return;
+    const v = valueFromPoint(e.clientX, e.clientY);
+    if(v !== null){ set(+v.toFixed(4)); syncInkPanel(); }
+  });
+  el.addEventListener('pointerup', () => { center = null; lastT = null; });
+  el.addEventListener('pointercancel', () => { center = null; lastT = null; });
+  return function update(color){
+    const t = (get() - min) / (max - min);
+    arm.style.transform = `rotate(${-135 + t*270}deg)`;
+    track.style.background =
+      `conic-gradient(from 225deg, ${color} 0 ${(t*75).toFixed(2)}%, rgba(255,255,255,.13) ${(t*75).toFixed(2)}% 75%, rgba(0,0,0,0) 75%)`;
+  };
+}
+const updateHue   = makeKnob('#knobHue',   '#knobHueTrack',   '#knobHueArm',   {min:0,        max:360,      step:0.5,     get:()=>V.hue,  set:v=>{V.hue=v;}});
+const updateSat   = makeKnob('#knobSat',   '#knobSatTrack',   '#knobSatArm',   {min:0,        max:100,      step:0.1,     get:()=>V.sat,  set:v=>{V.sat=v;}});
+const updateLight = makeKnob('#knobLight', '#knobLightTrack', '#knobLightArm', {min:0,        max:100,      step:0.1,     get:()=>V.tone, set:v=>{V.tone=v;}});
+const updateSize  = makeKnob('#knobSize',  '#knobSizeTrack',  '#knobSizeArm',  {min:SIZE_MIN, max:SIZE_MAX, step:SIZE_STEP, get:()=>V.size, set:v=>{V.size=v;}});
+const updateStem  = makeKnob('#knobStem',  '#knobStemTrack',  '#knobStemArm',  {min:STEM_MIN, max:STEM_MAX, step:STEM_STEP, get:()=>V.stem, set:v=>{V.stem=v;}});
+
+// Knob arcs are a fixed accent, independent of the pen colour — including in
+// note mode, where the pen colour is black and would otherwise be invisible
+// against the dark knob face.
+const KNOB_ACCENT = 'rgb(111,195,96)';
+
+function syncInkPanel(){
+  const c = colorNow();
+  const dot = $('#colorDot');
+  if(dot){ dot.style.background = c; dot.style.borderColor = 'rgba(255,255,255,.55)'; }
+
+  updateHue(KNOB_ACCENT); updateSat(KNOB_ACCENT); updateLight(KNOB_ACCENT); updateSize(KNOB_ACCENT); updateStem(KNOB_ACCENT);
+
+  drawPreview(c);
+  $$('#noteSel button').forEach(b => b.classList.toggle('on', b.dataset.k === V.note));
+  if(V.presets) $$('#swatches button').forEach((b,i) => b.classList.toggle('on', i === V.selectedPreset));
+}
+
+/* ---------- preview: the actual nib, at the width it will really draw at the
+   current zoom (on-screen CSS px == size * zoom), in the live colour ---------- */
+/* The preview grows when the real nib or glyph would not fit inside it, so what
+   you see is always the true size rather than a silently clipped one. Widths are
+   cached rather than measured per frame: turning a knob must not force layout. */
+let paletteInnerW = 0, previewDpr = 1;
+function refreshPreviewSize(){
+  const pal = $('#palette');
+  const w = pal.clientWidth || 0;
+  if(w) paletteInnerW = Math.max(120, w - 36);   // 18px padding each side
+}
+const PREVIEW_MIN_H = 52, PREVIEW_MAX_H = 168, NOTE_BOX_W = 100, NOTE_BOX_MAX_H = 340;
+
+function previewDims(){
+  if(V.tool === 'note'){
+    const gh = V.size*NOTE_MULT*V.zoom;
+    const needed = gh*(0.66*V.stem + 0.3) + 34;   // head plus whatever stem reaches up
+    return { w: NOTE_BOX_W, h: Math.max(180, Math.min(NOTE_BOX_MAX_H, needed)) };
+  }
+  const nib = V.size*(V.tool==='highlight'?HL_MULT:1)*V.zoom;
+  return { w: paletteInnerW || 320, h: Math.max(PREVIEW_MIN_H, Math.min(PREVIEW_MAX_H, nib + 22)) };
+}
+function syncPreviewCanvas(){
+  const cv = $('#penPreview'), box = $('#previewBox');
+  const {w, h} = previewDims();
+  const d = Math.min(window.devicePixelRatio || 1, 2);
+  previewDpr = d;
+  box.style.height = h + 'px';
+  box.style.width = V.tool === 'note' ? w + 'px' : '';
+  box.style.flex = V.tool === 'note' ? '0 0 auto' : '';
+  cv.style.height = h + 'px';
+  const bw = Math.round(w*d), bh = Math.round(h*d);
+  if(cv.width !== bw || cv.height !== bh){ cv.width = bw; cv.height = bh; }
+  return {w, h, d};
+}
+function drawPreview(c){
+  const cv = $('#penPreview');
+  syncPreviewCanvas();
+  if(!cv.width || !cv.getContext) return;
+  const ctx = cv.getContext('2d'), d = previewDpr;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,cv.width,cv.height);
+
+  if(V.tool === 'note'){
+    // scale down only if even the grown box cannot hold the glyph
+    let gh = V.size*NOTE_MULT*V.zoom*d;
+    const reach = gh*(0.66*V.stem + 0.3) + 18*d;
+    if(reach > cv.height) gh *= cv.height/reach;
+    const up = gh*(0.66*V.stem + 0.13), down = gh*0.15;
+    drawNoteGlyph(ctx, V.note, cv.width/2, (cv.height + up - down)/2, gh, c, V.stem);
+    return;
+  }
+  const hl = V.tool === 'highlight';
+  const midY = cv.height/2;
+  const wpx = Math.max(1, Math.min(cv.height - 8*d, V.size*(hl?HL_MULT:1)*V.zoom*d));
+  ctx.save();
+  // The highlighter is translucent on paper, so the preview shows it translucent
+  // over the same paper colour: what you see here is exactly one brush stroke.
+  if(hl) ctx.globalAlpha = HL_ALPHA;
+  ctx.strokeStyle = c; ctx.lineCap='round'; ctx.lineWidth = wpx;
+  // Round caps stick out by half the line width past each endpoint, so insetting
+  // by that much keeps the stroke's TOTAL length fixed and its tips on screen
+  // however thick the nib gets.
+  const pad = 10*d + wpx/2;
+  ctx.beginPath();
+  ctx.moveTo(pad, midY);
+  ctx.lineTo(Math.max(pad + 1, cv.width - pad), midY);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ---------- tool picker ---------- */
+$('#toolSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  const prev = V.tool;
+  V.tool = b.dataset.tool;
+  // Stamps are always black. Stash the drawing colour on the way in and put it
+  // back on the way out, so switching to Note and back never costs you the
+  // colour you had dialled in.
+  if(V.tool === 'note' && prev !== 'note'){
+    V.savedColor = {h:V.hue, s:V.sat, l:V.tone};
+    V.hue = 0; V.sat = 0; V.tone = 0;
+  }else if(prev === 'note' && V.tool !== 'note' && V.savedColor){
+    V.hue = V.savedColor.h; V.sat = V.savedColor.s; V.tone = V.savedColor.l;
+    V.savedColor = null;
+  }
+  V.erasing = false; $('#tErase').classList.remove('on');
+  $$('#toolSeg button').forEach(x => x.classList.toggle('on', x.dataset.tool === V.tool));
+  $('#palette').classList.toggle('noteMode', V.tool === 'note');
+  refreshPreviewSize();
+  syncInkPanel();
+});
+
+/* ---------- note stamp picker ---------- */
+(function buildNoteSel(){
+  const host = $('#noteSel');
+  host.innerHTML = NOTE_KINDS.map(n =>
+    `<button data-k="${n.k}" aria-label="${n.label}"><canvas width="60" height="84"></canvas></button>`).join('');
+  const btns = $$('#noteSel button');
+  NOTE_KINDS.forEach((n,i) => {
+    const cv = btns[i] && btns[i].children && btns[i].children[0];
+    if(cv && cv.getContext) drawNoteGlyph(cv.getContext('2d'), n.k, 26, 54, 46, '#E8EAED');
+  });
+  host.addEventListener('click', e => {
+    const b = e.target.closest('button'); if(!b) return;
+    V.note = b.dataset.k;
+    syncInkPanel();
+  });
+})();
+
+/* ---------- tap outside the open palette closes it — but never for a
+   two-finger gesture. A second finger touching down while we're still
+   watching the first aborts the close-tracking entirely, so pinch-zooming
+   never dismisses the color picker, no matter where the fingers land. ---------- */
+let outsideTouch = null;
+document.addEventListener('pointerdown', e => {
+  if(!$('#palette').classList.contains('on')) return;
+  if($('#palette').contains(e.target) || e.target.closest('#tColor')) return;
+  if(outsideTouch){ outsideTouch = null; return; }   // a second finger joined mid-touch: a gesture, not a tap
+  outsideTouch = { id:e.pointerId, x:e.clientX, y:e.clientY, t:Date.now() };
+});
+document.addEventListener('pointerup', e => {
+  if(!outsideTouch || outsideTouch.id !== e.pointerId) return;
+  const moved = Math.hypot(e.clientX-outsideTouch.x, e.clientY-outsideTouch.y) > 10;
+  const quick = Date.now()-outsideTouch.t < 600;
+  outsideTouch = null;
+  if(!moved && quick) $('#palette').classList.remove('on');
+});
+document.addEventListener('pointercancel', () => { outsideTouch = null; });
+
+
+
+/* ---------- open ---------- */
+async function openDoc(id){
+  const doc = S.docs.find(d => d.id === id); if(!doc) return;
+  busy(true, 'Opening ' + doc.title);
+  await yieldToPaint();
+  try{
+    const blob = await DB.get(K.pdf(id));
+    if(!blob){ busy(false); toast("That file's data isn't in storage anymore. Remove it and add the PDF again.", 5000); return; }
+    const vEl = $('#viewer');
+    vEl.style.transition = ''; vEl.style.opacity = '';   // never inherit a stranded exit
+    V.exiting = false; V.exitSeq++;                      // invalidate any pending teardown
+    V.id = id; V.doc = doc; V.page = 1; V.zoom = 1; V.undo = []; V.dirty = false;
+    V.cache.clear(); V.fit = 0;
+    V.ink = (await DB.get(K.ink(id))) || {};
+    for(const k in V.ink) for(const s of V.ink[k]) s.b = null;   // recompute bounds lazily
+    V.pdf = await pdfjsLib.getDocument({data: new Uint8Array(await blob.arrayBuffer())}).promise;
+    setMarkup(false);
+    showBar(true);
+    $('#viewer').classList.add('open');
+    syncInkPanel();
+    measure();
+    setTimeout(measure, 320);   // again once the slide-in transition has settled
+    await renderPage();
+  }catch(err){
+    console.error(err); toast('Could not open that file: ' + (err && err.message ? err.message : 'unknown error'), 5000);
+  }
+  busy(false);
+}
+
+$('#vBack').addEventListener('click', async () => {
+  if(V.dirty) await saveInk();
+  $('#viewer').classList.remove('open');
+  setTimeout(()=>{ V.pdf = null; V.cache.clear(); }, 300);
+  renderGrid();
+});
+
+/* ---------- page bitmap cache ---------- */
+function trimCache(){
+  if(V.cache.size <= 8) return;
+  const keys = [...V.cache.keys()].sort((a,b) => Math.abs(a-V.page) - Math.abs(b-V.page));
+  for(const k of keys.slice(8)) V.cache.delete(k);
+}
+let prefetchTimer = null;
+function schedulePrefetch(){
+  clearTimeout(prefetchTimer);
+  prefetchTimer = setTimeout(prefetchNeighbors, 80);
+}
+async function prefetchNeighbors(){
+  if(!V.pdf || V.zoom !== 1 || !V.fit) return;
+  const want = [V.page+1, V.page-1, V.page+2, V.page+3]
+    .filter(n => n>=1 && n<=V.pdf.numPages && !V.cache.has(n));
+  for(const n of want){
+    if(V.rendering || V.zoom !== 1 || V.cache.has(n)) break;
+    try{
+      const page = await V.pdf.getPage(n);
+      const vp = page.getViewport({scale: V.fit});
+      const w = Math.floor(vp.width), h = Math.floor(vp.height);
+      const d = pageDpr(w,h);
+      const c = document.createElement('canvas');
+      c.width = Math.floor(w*d); c.height = Math.floor(h*d);
+      const cx = c.getContext('2d', {alpha:false});
+      cx.fillStyle = '#fff'; cx.fillRect(0,0,c.width,c.height);
+      await page.render({ canvasContext: cx, viewport: page.getViewport({scale: V.fit*d}) }).promise;
+      if(V.zoom === 1){ V.cache.set(n, {canvas:c, fit:V.fit, w, h}); trimCache(); }
+    }catch(err){ /* a failed prefetch just means the live render does it later */ }
+  }
+}
+
+/* Paint a cached page synchronously. No awaits: this is what makes taps instant. */
+function applyEntry(e){
+  V.renderW = e.w; V.renderH = e.h;
+  pagewrap.style.width = e.w+'px'; pagewrap.style.height = e.h+'px';
+  pdfCanvas.style.width = e.w+'px'; pdfCanvas.style.height = e.h+'px';
+  if(pdfCanvas.width !== e.canvas.width || pdfCanvas.height !== e.canvas.height){
+    pdfCanvas.width = e.canvas.width; pdfCanvas.height = e.canvas.height;
+  }
+  pctx.setTransform(1,0,0,1,0,0);
+  pctx.drawImage(e.canvas, 0, 0);
+}
+
+async function renderPage(keepPan){
+  if(!V.pdf) return;
+  if(V.rendering){ V.want = V.page; return; }
+  V.rendering = true;
+  try{
+    let guard = 0;
+    do{
+      V.want = null;
+      const target = V.page;
+      const page = await V.pdf.getPage(target);
+      const base = page.getViewport({scale:1});
+      const fit = Math.min(stageW/base.width, stageH/base.height);
+      if(V.fit && Math.abs(V.fit - fit) > 0.0005) V.cache.clear();
+      V.fit = fit;
+
+      const cached = V.zoom === 1 ? V.cache.get(target) : null;
+      if(cached && cached.fit === V.fit){
+        applyEntry(cached);
+      }else{
+        const css = fit * V.zoom;
+        const vp = page.getViewport({scale: css});
+        const w = Math.floor(vp.width), h = Math.floor(vp.height);
+        const d = pageDpr(w,h);
+        V.renderW = w; V.renderH = h;
+        pagewrap.style.width = w+'px'; pagewrap.style.height = h+'px';
+        pdfCanvas.style.width = w+'px'; pdfCanvas.style.height = h+'px';
+        const bw = Math.floor(w*d), bh = Math.floor(h*d);
+        if(pdfCanvas.width !== bw || pdfCanvas.height !== bh){ pdfCanvas.width = bw; pdfCanvas.height = bh; }
+        pctx.setTransform(1,0,0,1,0,0);
+        pctx.fillStyle = '#fff'; pctx.fillRect(0,0,bw,bh);
+        await page.render({ canvasContext: pctx, viewport: page.getViewport({scale: css*d}) }).promise;
+        if(V.zoom === 1 && V.page === target){
+          const snap = document.createElement('canvas');
+          snap.width = bw; snap.height = bh;
+          snap.getContext('2d',{alpha:false}).drawImage(pdfCanvas, 0, 0);
+          V.cache.set(target, {canvas:snap, fit:V.fit, w, h});
+          trimCache();
+        }
+      }
+      if(keepPan) clampPan(); else centerPage();
+      redrawInk();
+    } while(V.want !== null && (V.page = V.want) && ++guard < 60);
+
+    $('#pLabel').textContent = `${V.page} / ${V.pdf.numPages}`;
+    schedulePrefetch();
+  }catch(err){ console.error(err); }
+  V.rendering = false;
+}
+
+/* ---------- ink ---------- */
+function strokesHere(){ return V.ink[V.page] || (V.ink[V.page] = []); }
+
+function bboxOf(s){
+  if(s.b) return s.b;
+  if(s.t === 'n'){
+    // a stamp's glyph reaches up from its anchor point; pad generously since the
+    // exact page aspect isn't known here and culling only needs a safe bound
+    const p = s.p[0];
+    // headroom above covers the longest stem the knob allows
+    return (s.b = [p[0]-s.w*0.7, p[1]-s.w*2.2, p[0]+s.w*0.9, p[1]+s.w*0.8]);
+  }
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;   // marks can land outside the page
+  for(const p of s.p){
+    if(p[0]<x0) x0=p[0]; if(p[0]>x1) x1=p[0];
+    if(p[1]<y0) y0=p[1]; if(p[1]>y1) y1=p[1];
+  }
+  const pad = (s.w||0) + 0.005;
+  return (s.b = [x0-pad, y0-pad, x1+pad, y1+pad]);
+}
+
+/* Page-space renderer, used for the ghost page and for flattened export. */
+function drawStroke(ctx, s, W, H){
+  const pts = s.p; if(!pts.length) return;
+  if(s.t === 'n'){
+    drawNoteGlyphAlpha(ctx, s, pts[0][0]*W, pts[0][1]*H, s.w*W);
+    return;
+  }
+  ctx.save();
+  if(s.a != null) ctx.globalAlpha = s.a;
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.strokeStyle = s.c;
+  ctx.lineWidth = Math.max(1, s.w * W);
+  if(pts.length === 1){
+    ctx.beginPath();
+    ctx.arc(pts[0][0]*W, pts[0][1]*H, ctx.lineWidth/2, 0, Math.PI*2);
+    ctx.fillStyle = s.c; ctx.fill(); ctx.restore(); return;
+  }
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0]*W, pts[0][1]*H);
+  for(let i=1;i<pts.length-1;i++){
+    ctx.quadraticCurveTo(pts[i][0]*W, pts[i][1]*H,
+      (pts[i][0]+pts[i+1][0])/2*W, (pts[i][1]+pts[i+1][1])/2*H);
+  }
+  const last = pts[pts.length-1];
+  ctx.lineTo(last[0]*W, last[1]*H);
+  ctx.stroke(); ctx.restore();
+}
+
+function drawNoteGlyphAlpha(ctx, s, cx, cy, h){
+  ctx.save();
+  if(s.a != null) ctx.globalAlpha = s.a;
+  drawNoteGlyph(ctx, s.k, cx, cy, h, s.c, s.sl);
+  ctx.restore();
+}
+
+/* Screen-space renderer: page coords -> current pan/zoom -> device px. */
+function paintStroke(ctx, s, ox, oy, S){
+  const W=V.renderW, H=V.renderH, pts=s.p;
+  if(!pts.length) return;
+  if(s.t === 'n'){
+    drawNoteGlyphAlpha(ctx, s, (pts[0][0]*W+ox)*S, (pts[0][1]*H+oy)*S, s.w*W*S);
+    return;
+  }
+  ctx.save();
+  if(s.a != null) ctx.globalAlpha = s.a;
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.strokeStyle = s.c;
+  ctx.lineWidth = Math.max(1, s.w * W * S);
+  if(pts.length === 1){
+    ctx.beginPath();
+    ctx.arc((pts[0][0]*W+ox)*S, (pts[0][1]*H+oy)*S, ctx.lineWidth/2, 0, Math.PI*2);
+    ctx.fillStyle = s.c; ctx.fill(); ctx.restore(); return;
+  }
+  ctx.beginPath();
+  ctx.moveTo((pts[0][0]*W+ox)*S, (pts[0][1]*H+oy)*S);
+  for(let i=1;i<pts.length-1;i++){
+    ctx.quadraticCurveTo(
+      (pts[i][0]*W+ox)*S, (pts[i][1]*H+oy)*S,
+      ((pts[i][0]+pts[i+1][0])/2*W+ox)*S, ((pts[i][1]+pts[i+1][1])/2*H+oy)*S);
+  }
+  const last = pts[pts.length-1];
+  ctx.lineTo((last[0]*W+ox)*S, (last[1]*H+oy)*S);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// Full repaint: only on page change, zoom, pan-end, erase, undo. Culls offscreen marks.
+function redrawInk(){
+  inkAtX = panX; inkAtY = panY;
+  inkLayer.style.transform = 'translate3d(0,0,0)';
+  ictx.setTransform(1,0,0,1,0,0);
+  ictx.clearRect(0,0,inkCanvas.width,inkCanvas.height);
+  const list = V.ink[V.page];
+  if(!list || !list.length) return 0;
+  const vx0 = (-panX)/V.renderW, vx1 = (stageW-panX)/V.renderW;
+  const vy0 = (-panY)/V.renderH, vy1 = (stageH-panY)/V.renderH;
+  let drawn = 0;
+  for(const s of list){
+    const b = bboxOf(s);
+    if(b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1) continue;
+    paintStroke(ictx, s, panX, panY, inkDpr);
+    drawn++;
+  }
+  return drawn;
+}
+
+/* ---------- gestures ---------- */
+const ptrs = new Map();
+let stroke=null, pinch=null, swipe=null, panning=false, movedFar=false, liveAnchor=null;
+let inkAtX=0, inkAtY=0;   // the pan the ink canvas was last rasterized at
+let panRawX = null, panRawY = null;   // unresisted pan while a drag is live
+
+function normPt(cx, cy){
+  return [ (cx - stageL - panX)/V.renderW, (cy - stageT - panY)/V.renderH ];
+}
+
+stage.addEventListener('pointerdown', e => {
+  if(!V.pdf || V.exiting) return;
+  if(ptrs.size === 0){ syncStageOrigin(); stopViewAnim(); }   // fresh origin at the start of every gesture
+  ptrs.set(e.pointerId, {x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t:Date.now()});
+  try{ stage.setPointerCapture(e.pointerId); }catch(err){}
+
+  if(ptrs.size === 2){
+    abortStroke(); cancelSwipe();
+    const [a,b] = [...ptrs.values()];
+    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+    const ids = [...ptrs.keys()];
+    // Armed, not engaged. Two fingers touching down together is not yet a pinch
+    // — if they lift without spreading, each was just a tap. Committing to a
+    // pinch here swallowed quick alternating taps entirely.
+    pinch = {
+      ids, engaged:false,
+      // seed the velocity baseline at touch-down, so even a gesture delivered in
+      // a single move event still has something to measure its speed against
+      hist: [{k:1, t:nowMs()}], peakVel: null,
+      d0: Math.hypot(a.x-b.x, a.y-b.y) || 1,
+      mx, my, cx:mx, cy:my,
+      fx:(mx-stageL-panX)/(V.renderW||1), fy:(my-stageT-panY)/(V.renderH||1),
+      zoom0:V.zoom, k:1
+    };
+    return;
+  }
+  if(ptrs.size > 2) return;
+
+  movedFar = false; panning = false;
+  // with the colour menu open the page is inert: the tap that dismisses it must
+  // never also leave a mark
+  if(V.markup && !$('#palette').classList.contains('on')) beginStroke(e);
+  else {
+    // At fit, anywhere. When zoomed, anywhere that is not on the page itself —
+    // the letterbox around it has nothing to pan, so a swipe there is a gesture.
+    const lx = e.clientX - stageL, ly = e.clientY - stageT;
+    const onPage = lx >= panX && lx <= panX + V.renderW && ly >= panY && ly <= panY + V.renderH;
+    if(V.zoom === 1 || !onPage)
+      swipe = {x0:e.clientX, y0:e.clientY, dx:0, dir:0, t:Date.now(), ghost:false};
+  }
+}, {passive:false});
+
+stage.addEventListener('pointermove', e => {
+  const p = ptrs.get(e.pointerId); if(!p) return;
+  const px = p.x, py = p.y;
+  p.x = e.clientX; p.y = e.clientY;
+  if(Math.abs(p.x-p.x0) > 8 || Math.abs(p.y-p.y0) > 8) movedFar = true;
+
+  if(pinch){
+    const a = ptrs.get(pinch.ids[0]), b = ptrs.get(pinch.ids[1]);
+    if(a && b){
+      const dist = Math.hypot(a.x-b.x, a.y-b.y);
+      if(!pinch.engaged && Math.abs(dist - pinch.d0) > PINCH_ENGAGE){
+        // the fingers really are spreading: become a pinch, and re-baseline from
+        // this moment so the zoom doesn't jump by the slack we just allowed
+        pinch.engaged = true;
+        abortStroke(); cancelSwipe();
+        const mx2 = (a.x+b.x)/2, my2 = (a.y+b.y)/2;
+        pinch.mx = mx2; pinch.my = my2; pinch.cx = mx2; pinch.cy = my2;
+        pinch.fx = (mx2-stageL-panX)/(V.renderW||1);
+        pinch.fy = (my2-stageT-panY)/(V.renderH||1);
+        // Absorb ONLY the engage slack, not the entire first event. A fast pinch
+        // delivers most of its travel in one or two moves, and re-baselining to the
+        // full distance threw that away, so quick gestures barely zoomed at all.
+        pinch.d0 = dist - (dist > pinch.d0 ? PINCH_ENGAGE : -PINCH_ENGAGE);
+        pinch.zoom0 = V.zoom; pinch.k = dist/pinch.d0;
+      }
+      if(pinch.engaged){
+    e.preventDefault();
+    // floor is low so a deliberate big zoom-out can shrink the page right down
+    pinch.k = Math.max(0.05, Math.min(MAX_ZOOM/pinch.zoom0, dist/pinch.d0));
+    // Keep a short history of (scale, time) and measure speed over a TIME WINDOW
+    // at release. A pinch fires one move per finger, so consecutive events can be
+    // microseconds apart: differencing them gives a meaningless spike that made a
+    // slow gesture look like a flick.
+    pinch.hist.push({k:pinch.k, t:nowMs()});
+    if(pinch.hist.length > 32) pinch.hist.shift();
+    // Track the FASTEST shrink seen at any point, not just the speed at the final
+    // instant. Fingers almost always coast to a stop before lifting, so sampling
+    // only at release missed most genuine flicks - which is why the exit
+    // "didn't work most of the time".
+    const vNow = pinchVelocity(pinch.hist);
+    if(vNow < 0 && (pinch.peakVel == null || vNow < pinch.peakVel)) pinch.peakVel = vNow;
+    pinch.cx = (a.x+b.x)/2; pinch.cy = (a.y+b.y)/2;
+    // Everything is expressed with transform-origin 0 0, where a page-local point
+    // L simply renders at T + k*L. Anchoring the point under the fingers is then
+    // one subtraction, and the release animation can interpolate T and k directly
+    // instead of unpicking a moving origin.
+    const Lfx = pinch.fx*V.renderW, Lfy = pinch.fy*V.renderH;
+    pinch.tx = (pinch.cx - stageL) - pinch.k*Lfx;
+    pinch.ty = (pinch.cy - stageT) - pinch.k*Lfy;
+    setViewTransform(pinch.k, pinch.tx, pinch.ty);
+        return;
+      }
+    }
+    // armed but not engaged: fall through so the primary finger can still draw,
+    // swipe, or end as a tap
+  }
+
+  if(stroke){ e.preventDefault(); extendStroke(e); return; }
+  if(V.markup) return;
+
+  if(swipe){
+    const dx = p.x - swipe.x0, dy = p.y - swipe.y0;
+    if(!swipe.dir && !swipe.vert){
+      // an upward flick anywhere on the page opens markup
+      if(Math.abs(dy) > SWIPE_ARM && Math.abs(dy) > Math.abs(dx)){
+        if(dy < 0){ swipe.vert = true; e.preventDefault(); }
+        return;
+      }
+    }
+    if(swipe.vert){ e.preventDefault(); return; }
+    if(!swipe.dir){
+      if(Math.abs(dx) < SWIPE_ARM || Math.abs(dx) <= Math.abs(dy)) return;
+      swipe.dir = dx < 0 ? 1 : -1;
+      const t = V.page + swipe.dir;
+      swipe.canTurn = t >= 1 && t <= V.pdf.numPages;
+      swipe.ghost = swipe.canTurn && prepGhost(swipe.dir);
+    }
+    e.preventDefault();
+    // Full travel whenever a page exists to turn to; the ghost is just the preview.
+    // Resistance only at the very first and last page.
+    swipe.dx = swipe.canTurn ? dx : dx*0.3;
+    moveSwipe(swipe.dx, swipe.dir, swipe.ghost);
+    return;
+  }
+
+  if(!movedFar) return;
+  panning = true; e.preventDefault();
+  stopViewAnim();
+  (p.hist || (p.hist = [])).push({y:p.y, t:nowMs()});
+  if(p.hist.length > 24) p.hist.shift();
+  if(panRawX == null){ panRawX = panX; panRawY = panY; }
+  panRawX += p.x - px; panRawY += p.y - py;
+  const pb = viewBounds();
+  panX = rubber(panRawX, pb.minX, pb.maxX);
+  panY = rubber(panRawY, pb.minY, pb.maxY);
+  place();
+  inkLayer.style.transformOrigin = '0 0';
+  inkLayer.style.transform = `translate3d(${panX-inkAtX}px,${panY-inkAtY}px,0)`;
+}, {passive:false});
+
+async function pointerFinished(e){
+  const p = ptrs.get(e.pointerId);
+  ptrs.delete(e.pointerId);
+
+  if(pinch && !pinch.engaged && (!ptrs.has(pinch.ids[0]) || !ptrs.has(pinch.ids[1]))){
+    // never became a real pinch — drop it and let this pointer be judged as a tap
+    pinch = null;
+  }
+  if(pinch){
+    // Commit as soon as EITHER pinch finger leaves. Waiting for both to lift left a
+    // scaled transform on screen while the remaining finger panned, which visibly
+    // threw the page across the screen.
+    if(!ptrs.has(pinch.ids[0]) || !ptrs.has(pinch.ids[1])){
+      const {k, fx, fy, cx, cy, zoom0} = pinch;
+      const peakVel = pinch.peakVel;
+      const fromS = k;
+      const fromX = pinch.tx != null ? pinch.tx : panX;
+      const fromY = pinch.ty != null ? pinch.ty : panY;
+      pinch = null;
+
+      // Where the view should come to rest: the zoom clamped back into range,
+      // and the page pulled back inside its edges.
+      // A quick flick outward is a request to leave the score entirely.
+      if(peakVel != null && peakVel < -HOME_VEL && k < HOME_K && V.pdf){
+        for(const q of ptrs.values()){ q.x0 = q.x; q.y0 = q.y; q.consumed = true; }
+        movedFar = false; panning = false;
+        zoomOutToLibrary(fromS, fromX, fromY);
+        return;
+      }
+      const targetZoom = Math.max(1, Math.min(MAX_ZOOM, zoom0*k));
+      const s = targetZoom / zoom0;                       // scale vs the current raster
+      const newW = V.renderW*s, newH = V.renderH*s;
+      const b = viewBounds(newW, newH);
+      const Lfx = fx*V.renderW, Lfy = fy*V.renderH;
+      const toX = Math.min(b.maxX, Math.max(b.minX, (cx - stageL) - s*Lfx));
+      const toY = Math.min(b.maxY, Math.max(b.minY, (cy - stageT) - s*Lfy));
+
+      const settle = () => {
+        // Resize the box and drop the scale in the SAME frame, so the page never
+        // flashes at the wrong size: the old bitmap simply stretches to the new
+        // box until the crisp re-render lands.
+        V.renderW = Math.round(newW); V.renderH = Math.round(newH);
+        pagewrap.style.width = V.renderW+'px'; pagewrap.style.height = V.renderH+'px';
+        pdfCanvas.style.width = V.renderW+'px'; pdfCanvas.style.height = V.renderH+'px';
+        V.zoom = targetZoom;
+        panX = Math.round(toX); panY = Math.round(toY);
+        place();
+        redrawInk();
+        renderPage(true);                                  // re-rasterize crisply
+        if(V.markup) syncInkPanel();
+      };
+
+      const moves = Math.abs(s-fromS) > 0.002 ||
+                    Math.abs(toX-fromX) > 0.5 || Math.abs(toY-fromY) > 0.5;
+      if(moves) animateView(fromS, fromX, fromY, s, toX, toY, settle, 300);
+      else settle();
+
+      // Any finger still down starts clean, but must NOT be read as a tap when it
+      // lifts, or every pinch would end by turning a page.
+      for(const q of ptrs.values()){ q.x0 = q.x; q.y0 = q.y; q.consumed = true; }
+      movedFar = false; panning = false;
+    }
+    return;
+  }
+
+  if(stroke){ endStroke(); return; }
+
+  if(swipe && swipe.vert){
+    const dy = p ? p.y - swipe.y0 : 0;
+    swipe = null;
+    if(dy < -EDIT_SWIPE && !V.markup) setMarkup(true);
+    return;
+  }
+  if(swipe && swipe.dir){
+    const dt = Math.max(1, Date.now()-swipe.t);
+    const speed = Math.abs(swipe.dx)/dt;
+    const go = swipe.canTurn && (Math.abs(swipe.dx) > stageW*0.16 || speed > 0.45);
+    settleSwipe(go);
+    return;
+  }
+  swipe = null;
+
+  if(panning){
+    panning = false;
+    // A quick upward flick while zoomed means "let me mark this up", not "pan".
+    if(p && p.hist && p.hist.length > 1 && !V.markup){
+      const last = p.hist[p.hist.length-1];
+      let first = p.hist[0];
+      for(let i = p.hist.length-1; i >= 0; i--){
+        if(last.t - p.hist[i].t >= 70){ first = p.hist[i]; break; }
+      }
+      const dt = last.t - first.t, dy = last.y - first.y;
+      if(dt >= 15 && dy/dt < -PAN_FLICK && (p.y - p.y0) < -PAN_FLICK_DY){
+        panRawX = panRawY = null;
+        clampPan(); redrawInk();
+        setMarkup(true);
+        return;
+      }
+    }
+    // let the page travel back inside its edges rather than teleporting
+    const pb = viewBounds();
+    const tx = Math.min(pb.maxX, Math.max(pb.minX, panRawX == null ? panX : panRawX));
+    const ty = Math.min(pb.maxY, Math.max(pb.minY, panRawY == null ? panY : panRawY));
+    panRawX = panRawY = null;
+    if(Math.abs(tx-panX) > 0.5 || Math.abs(ty-panY) > 0.5){
+      animateView(1, panX, panY, 1, tx, ty, () => {
+        panX = Math.round(tx); panY = Math.round(ty);
+        place(); redrawInk();
+      }, 260);
+    }else{
+      panX = Math.round(tx); panY = Math.round(ty);
+      place(); redrawInk();
+    }
+    return;
+  }
+  if(!p) return;
+  // Judge by how far the finger actually travelled, not by the panning flag's
+  // tighter threshold, and allow a much longer hold.
+  const travel = Math.hypot(p.x - p.x0, p.y - p.y0);
+  if(!p.consumed && travel < TAP_SLOP && (Date.now()-p.t) < TAP_MS && !V.markup) handleTap(p.x - stageL);
+}
+stage.addEventListener('pointerup', pointerFinished);
+stage.addEventListener('pointercancel', e => {
+  const cp = ptrs.get(e.pointerId);
+  ptrs.delete(e.pointerId);
+  if(stroke) endStroke();
+  // A swipe that carries on off the edge of the screen is cancelled rather than
+  // released, so honour it here too instead of silently dropping the gesture.
+  if(swipe && swipe.vert){
+    const dy = cp ? cp.y - swipe.y0 : 0;
+    swipe = null;
+    if(dy < -EDIT_SWIPE && !V.markup) setMarkup(true);
+  }
+  else if(swipe && swipe.dir) settleSwipe(false); else swipe = null;
+  if(pinch){ pinch=null; pagewrap.style.transform=''; inkLayer.style.transform='translate3d(0,0,0)'; clampPan(); redrawInk(); }
+});
+
+function handleTap(x){
+  // narrower dead centre: the middle strip only toggles the chrome, and a tap
+  // that lands there feels like a page turn that failed
+  if(x < stageW*0.44) goPage(V.page-1);
+  else if(x > stageW*0.56) goPage(V.page+1);
+  else showBar($('#bar').classList.contains('hidden'));
+}
+
+/* ---------- swipe, book style: the next page rides in alongside ---------- */
+function prepGhost(dir){
+  const n = V.page + dir;
+  if(!V.pdf || n < 1 || n > V.pdf.numPages) return false;
+  const e = V.cache.get(n);
+  if(!e || e.fit !== V.fit) { schedulePrefetch(); return false; }
+  if(ghostCanvas.width !== e.canvas.width || ghostCanvas.height !== e.canvas.height){
+    ghostCanvas.width = e.canvas.width; ghostCanvas.height = e.canvas.height;
+  }
+  ghostwrap.style.width = e.w+'px'; ghostwrap.style.height = e.h+'px';
+  ghostCanvas.style.width = e.w+'px'; ghostCanvas.style.height = e.h+'px';
+  gctx.setTransform(1,0,0,1,0,0);
+  gctx.drawImage(e.canvas, 0, 0);
+  for(const s of (V.ink[n] || [])) drawStroke(gctx, s, ghostCanvas.width, ghostCanvas.height);
+  ghostwrap.style.visibility = 'visible';
+  return true;
+}
+function moveSwipe(dx, dir, ghost){
+  pagewrap.style.transform = `translate3d(${panX+dx}px,${panY}px,0)`;
+  inkLayer.style.transform = `translate3d(${dx}px,0,0)`;
+  if(ghost) ghostwrap.style.transform = `translate3d(${panX+dx+dir*stageW}px,${panY}px,0)`;
+}
+function settleSwipe(go){
+  const s = swipe; swipe = null;
+  if(!s){ return; }
+  const dir = s.dir, end = go ? -dir*stageW : 0;
+  const ease = 'transform .17s cubic-bezier(.22,.61,.36,1)';
+  pagewrap.style.transition = ease;
+  inkLayer.style.transition = ease;
+  ghostwrap.style.transition = ease;
+  moveSwipe(end, dir, s.ghost);
+  setTimeout(() => {
+    pagewrap.style.transition = ''; inkLayer.style.transition = ''; ghostwrap.style.transition = '';
+    ghostwrap.style.visibility = 'hidden';
+    if(go) goPage(V.page + dir);
+    else { place(); inkLayer.style.transform = 'translate3d(0,0,0)'; }
+  }, 180);
+}
+function cancelSwipe(){
+  if(!swipe) return;
+  swipe = null;
+  ghostwrap.style.visibility = 'hidden';
+  place(); inkLayer.style.transform = 'translate3d(0,0,0)';
+}
+
+/* The page keeps shrinking toward the middle of the screen and fades out while
+   the library fades up behind it, so leaving a score feels like pulling back to
+   the shelf rather than a panel sliding away. */
+/* Where should the page fly to? Straight onto its own tile in the library, with
+   the library already scrolled so that tile sits at the top. If the tile can't be
+   found (say a search filter hides it) we fall back to shrinking toward the
+   middle, so the exit still works no matter what. */
+function libraryTileTarget(id){
+  try{
+    const sc = $('#libScroll');
+    const tile = $('#grid') && $('#grid').querySelector(`[data-id="${id}"]`);
+    if(!sc || !tile) return null;
+    const sheet = tile.querySelector('.sheet') || tile;
+    // put the piece at the top of the library before measuring where it lands
+    sc.scrollTop = Math.max(0, tile.offsetTop - 8);
+    const r = sheet.getBoundingClientRect();
+    if(!r.width || !r.height) return null;
+    return { left:r.left - stageL, top:r.top - stageT, w:r.width };
+  }catch(err){ return null; }
+}
+
+function zoomOutToLibrary(fromS, fromX, fromY){
+  const v = $('#viewer');
+  if(V.exiting) return;
+  V.exiting = true;                       // no touch can interrupt the way out
+  const id = V.id;
+
+  // Render the library underneath first so the tile exists and can be measured.
+  let target = null;
+  try{ renderGrid(); target = libraryTileTarget(id); }catch(err){ target = null; }
+
+  let toS, toX, toY;
+  if(target && V.renderW){
+    toS = target.w / V.renderW;            // shrink to exactly the tile's width
+    toX = target.left;
+    toY = target.top;
+  }else{
+    toS = Math.min(fromS, 1) * 0.3;
+    toX = stageW/2 - toS*(V.renderW/2);
+    toY = stageH/2 - toS*(V.renderH/2);
+  }
+
+  const DUR = 620;                         // a longer, more deliberate pull-back
+  v.style.transition = `opacity ${Math.round(DUR*0.55)}ms ease ${Math.round(DUR*0.4)}ms`;
+  requestAnimationFrame(() => { v.style.opacity = '0'; });
+
+  const seq = ++V.exitSeq;
+  const finish = () => {
+    if(V.dirty) saveInk();
+    v.classList.remove('open');
+    setTimeout(() => {
+      // If a score was opened again in the meantime this teardown is stale, and
+      // running it would tear down the NEW session's document instead.
+      if(V.exitSeq !== seq) return;
+      v.style.transition = ''; v.style.opacity = '';
+      pagewrap.style.transform = ''; inkLayer.style.transform = '';
+      V.pdf = null; V.cache.clear(); V.exiting = false;
+    }, 340);
+  };
+
+  // Belt and braces: however the animation ends - completed, interrupted, or
+  // failing outright - the viewer is always torn down. The exit can never strand.
+  let closed = false;
+  const closeOnce = () => { if(closed) return; closed = true; finish(); };
+  const guard = setTimeout(closeOnce, DUR + 400);
+  try{
+    animateView(fromS, fromX, fromY, toS, toX, toY, () => { clearTimeout(guard); closeOnce(); }, DUR);
+  }catch(err){
+    clearTimeout(guard); closeOnce();
+  }
+}
+
+/* ---------- paging: synchronous when the bitmap is ready ---------- */
+function goPage(n, silent){
+  if(!V.pdf) return false;
+  n = Math.max(1, Math.min(V.pdf.numPages, n));
+  if(n === V.page) return false;
+  if(V.dirty) saveInk();
+  V.page = n; V.zoom = 1;
+  $('#pLabel').textContent = `${n} / ${V.pdf.numPages}`;
+  const e = V.cache.get(n);
+  if(e && e.fit === V.fit){
+    applyEntry(e);
+    centerPage();
+    redrawInk();
+    schedulePrefetch();
+    return true;
+  }
+  renderPage();
+  return false;
+}
+
+/* ---------- strokes: O(1) per pen event ---------- */
+function clearLive(){
+  lctx.setTransform(1,0,0,1,0,0);
+  lctx.clearRect(0,0,liveCanvas.width,liveCanvas.height);
+}
+function beginStroke(e){
+  if(V.erasing){ stroke = {erase:true}; eraseAt(normPt(e.clientX, e.clientY)); return; }
+  const pt = normPt(e.clientX, e.clientY);
+  const hl = V.tool === 'highlight';
+
+  if(V.tool === 'note'){
+    // stamps land on release, so a pinch that starts in markup mode can be
+    // abandoned without leaving a stray note behind
+    stroke = { note:true, id:uid(), t:'n', k:V.note, c:colorNow(), sl:V.stem,
+               w:V.size*NOTE_MULT*V.zoom/V.renderW, p:[pt] };
+    clearLive();
+    drawNoteGlyphAlpha(lctx, stroke, (pt[0]*V.renderW+panX)*inkDpr, (pt[1]*V.renderH+panY)*inkDpr,
+                       stroke.w*V.renderW*inkDpr);
+    return;
+  }
+
+  // w is a FIXED fraction of the page, independent of the zoom you happen to be
+  // drawing at (V.renderW/V.zoom is the page's zoom==1 width). So the nib looks
+  // small zoomed out and big zoomed in, and a mark's size on the page never
+  // changes no matter what zoom it's later viewed at.
+  stroke = { id:uid(), t: hl ? 'h' : 'p', c:colorNow(),
+             w:V.size*(hl?HL_MULT:1)*V.zoom/V.renderW, p:[pt] };
+  if(hl) stroke.a = HL_ALPHA;
+  clearLive();
+  lctx.lineCap='round'; lctx.lineJoin='round';
+  lctx.strokeStyle = stroke.c;
+  lctx.lineWidth = Math.max(1, stroke.w * V.renderW * inkDpr);
+  liveAnchor = pt;
+}
+function extendStroke(e){
+  if(!stroke) return;
+  if(stroke.erase){ eraseAt(normPt(e.clientX, e.clientY)); return; }
+  const S = inkDpr, W = V.renderW, H = V.renderH;
+
+  if(stroke.note){
+    const pt = normPt(e.clientX, e.clientY);
+    stroke.p[0] = pt;
+    clearLive();
+    drawNoteGlyphAlpha(lctx, stroke, (pt[0]*W+panX)*S, (pt[1]*H+panY)*S, stroke.w*W*S);
+    return;
+  }
+
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+  for(const ev of evs){
+    const pt = normPt(ev.clientX, ev.clientY);
+    stroke.p.push(pt);
+  }
+
+  if(stroke.a != null){
+    // A translucent stroke must be laid down as ONE path at one alpha, or every
+    // segment join would double-composite and band the stroke. So the highlighter
+    // repaints its own path each event (bounded by this stroke's own length,
+    // never by how much is already on the page) while the opaque pen keeps the
+    // O(1) incremental append. Overlapping a previous pass still deepens, which
+    // is the behaviour you want from a highlighter.
+    clearLive();
+    lctx.save();
+    lctx.globalAlpha = stroke.a;
+    lctx.lineCap='round'; lctx.lineJoin='round';
+    lctx.strokeStyle = stroke.c;
+    lctx.lineWidth = Math.max(1, stroke.w * W * S);
+    const pts = stroke.p;
+    lctx.beginPath();
+    lctx.moveTo((pts[0][0]*W+panX)*S, (pts[0][1]*H+panY)*S);
+    for(let i=1;i<pts.length-1;i++){
+      lctx.quadraticCurveTo((pts[i][0]*W+panX)*S, (pts[i][1]*H+panY)*S,
+        ((pts[i][0]+pts[i+1][0])/2*W+panX)*S, ((pts[i][1]+pts[i+1][1])/2*H+panY)*S);
+    }
+    const last = pts[pts.length-1];
+    lctx.lineTo((last[0]*W+panX)*S, (last[1]*H+panY)*S);
+    lctx.stroke();
+    lctx.restore();
+    return;
+  }
+
+  // opaque pen: append only the new segment, one path per event
+  lctx.beginPath();
+  lctx.moveTo((liveAnchor[0]*W+panX)*S, (liveAnchor[1]*H+panY)*S);
+  for(let i=stroke.p.length-evs.length;i<stroke.p.length;i++){
+    const pt = stroke.p[i], prev = stroke.p[i-1] || pt;
+    const mid = [(prev[0]+pt[0])/2, (prev[1]+pt[1])/2];
+    lctx.quadraticCurveTo((prev[0]*W+panX)*S, (prev[1]*H+panY)*S, (mid[0]*W+panX)*S, (mid[1]*H+panY)*S);
+    liveAnchor = mid;
+  }
+  lctx.stroke();
+}
+function endStroke(){
+  if(!stroke) return;
+  const s = stroke; stroke = null;
+  clearLive();
+  if(!s.erase && s.p.length){
+    if(s.note && movedFar){ markDirty(); return; }   // dragged, not tapped: no stamp
+    delete s.note;
+    s.b = null; bboxOf(s);
+    strokesHere().push(s);
+    V.undo.push({type:'add', page:V.page, id:s.id});
+    if(V.undo.length > 60) V.undo.shift();
+    paintStroke(ictx, s, inkAtX, inkAtY, inkDpr);   // additive: no full repaint
+  }
+  markDirty();
+}
+function abortStroke(){
+  if(!stroke) return;
+  stroke = null;
+  clearLive();
+}
+function eraseAt(pt){
+  const list = strokesHere();
+  const tol = Math.max(0.012, (V.size*2.6*V.zoom)/V.renderW);   // match the pen's page-fixed sizing
+  let hit = false;
+  for(let i=list.length-1;i>=0;i--){
+    const s = list[i];
+    const b = bboxOf(s);
+    if(pt[0]<b[0]-tol||pt[0]>b[2]+tol||pt[1]<b[1]-tol||pt[1]>b[3]+tol) continue;
+    const near = s.p.some((p,j) => {
+      if(Math.hypot(p[0]-pt[0], p[1]-pt[1]) < tol + s.w/2) return true;
+      if(j === 0) return false;
+      return distToSeg(pt, s.p[j-1], p) < tol + s.w/2;
+    });
+    if(near){ V.undo.push({type:'remove', page:V.page, stroke:s, index:i}); list.splice(i,1); hit = true; }
+  }
+  if(hit) redrawInk();
+}
+function distToSeg(p,a,b){
+  const dx=b[0]-a[0], dy=b[1]-a[1];
+  const len = dx*dx+dy*dy;
+  if(!len) return Math.hypot(p[0]-a[0],p[1]-a[1]);
+  let t = ((p[0]-a[0])*dx + (p[1]-a[1])*dy)/len;
+  t = Math.max(0,Math.min(1,t));
+  return Math.hypot(p[0]-(a[0]+t*dx), p[1]-(a[1]+t*dy));
+}
+
+/* ---------- modes ---------- */
+function showBar(on){
+  $('#bar').classList.toggle('hidden', !on);
+  if(!on) $('#palette').classList.remove('on');
+}
+function setMarkup(on){
+  V.markup = on;
+  V.erasing = false;
+  $('#tPen').classList.toggle('on', on);
+  $('#tErase').classList.remove('on');
+  $('#editFrame').classList.toggle('on', on);
+  for(const id of ['#tColor','#tErase','#tUndo','#mPrev','#mNext','#tPen']) $(id).style.display = on ? 'grid' : 'none';
+  $('#palette').classList.remove('on');
+  if(on){ showBar(true); ensurePresetsLoaded(); refreshPreviewSize(); syncInkPanel(); }
+  else if(V.dirty) saveInk();
+}
+$('#tPen').addEventListener('click', () => setMarkup(!V.markup));
+$('#tColor').addEventListener('click', () => {
+  if(V.erasing){ V.erasing = false; $('#tErase').classList.remove('on'); }
+  const open = $('#palette').classList.toggle('on');
+  if(open){ refreshPreviewSize(); syncInkPanel(); }
+});
+$('#tErase').addEventListener('click', () => {
+  V.erasing = !V.erasing;
+  $('#tErase').classList.toggle('on', V.erasing);
+  if(V.erasing) $('#palette').classList.remove('on');
+});
+$('#mPrev').addEventListener('click', () => goPage(V.page-1));
+$('#mNext').addEventListener('click', () => goPage(V.page+1));
+
+$('#tUndo').addEventListener('click', () => {
+  const u = V.undo.pop();
+  if(!u){ toast('Nothing to undo'); return; }
+  if(u.page !== V.page){ goPage(u.page); setTimeout(()=>applyUndo(u), 0); return; }
+  applyUndo(u);
+});
+function applyUndo(u){
+  const list = V.ink[u.page] || (V.ink[u.page] = []);
+  if(u.type === 'add'){ const i = list.findIndex(s => s.id === u.id); if(i>-1) list.splice(i,1); }
+  else { list.splice(Math.min(u.index, list.length), 0, u.stroke); }
+  redrawInk(); markDirty();
+}
+
+/* ---------- saving ---------- */
+let saveTimer;
+function markDirty(){
+  V.dirty = true;
+  $('#unsaved').classList.add('on');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveInk, 1200);
+}
+async function saveInk(){
+  if(!V.id || V.saving) return;
+  clearTimeout(saveTimer);
+  V.saving = true;
+  const clean = {};
+  for(const k in V.ink) if(V.ink[k] && V.ink[k].length)
+    // keep the fields that define WHAT the mark is, not just where it is:
+    // t (tool), a (alpha) and k (note kind) must survive a reload or highlighters
+    // come back as opaque pen strokes and stamps lose their glyph
+    clean[k] = V.ink[k].map(s => {
+      const o = {id:s.id, c:s.c, w:s.w, p:s.p};
+      if(s.t != null) o.t = s.t;
+      if(s.a != null) o.a = s.a;
+      if(s.k != null) o.k = s.k;
+      if(s.sl != null) o.sl = s.sl;
+      return o;
+    });
+  try{
+    await DB.set(K.ink(V.id), clean);
+    const hasMarks = Object.keys(clean).length > 0;
+    if(V.doc.marked !== hasMarks){ V.doc.marked = hasMarks; saveIndexSoon(); }
+    V.dirty = false;
+    $('#unsaved').classList.remove('on');
+  }catch(err){
+    console.error(err);
+    toast('Could not save markings: ' + err.message, 4000);
+  }
+  V.saving = false;
+}
+
+/* ---------- export a flattened copy ---------- */
+async function exportDoc(id){
+  const doc = S.docs.find(d => d.id === id); if(!doc) return;
+  if(V.id === id && V.dirty) await saveInk();
+  busy(true, 'Building a copy with your markings');
+  try{
+    const blob = await DB.get(K.pdf(id));
+    if(!blob) throw new Error('the original file data is missing');
+    const ink = (V.id === id ? V.ink : (await DB.get(K.ink(id)))) || {};
+    const src = await PDFLib.PDFDocument.load(await blob.arrayBuffer());
+    const pages = src.getPages();
+    for(let i=0;i<pages.length;i++){
+      const list = ink[i+1];
+      if(!list || !list.length) continue;
+      const p = pages[i];
+      const {width, height} = p.getSize();
+      const sc = Math.min(2, 1400/width);
+      const c = document.createElement('canvas');
+      c.width = Math.round(width*sc); c.height = Math.round(height*sc);
+      const cx = c.getContext('2d');
+      for(const s of list) drawStroke(cx, s, c.width, c.height);
+      const png = await (await canvasBlob(c, 'image/png')).arrayBuffer();
+      const img = await src.embedPng(png);
+      p.drawImage(img, {x:0, y:0, width, height});
+    }
+    const bytes = await src.save();
+    const name = (doc.title || 'score').replace(/[^\w\s-]/g,'').trim() + ' (marked).pdf';
+    const file = new File([bytes], name, {type:'application/pdf'});
+    busy(false);
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:name});
+    }else{
+      const url = URL.createObjectURL(new Blob([bytes], {type:'application/pdf'}));
+      const a = document.createElement('a'); a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 4000);
+      toast('Copy ready');
+    }
+  }catch(err){
+    busy(false); console.error(err);
+    if(err && err.name !== 'AbortError') toast('Could not build the copy: ' + err.message, 4000);
+  }
+}
+
+/* ---------- misc ---------- */
+let rt;
+window.addEventListener('resize', () => {
+  if(!$('#viewer').classList.contains('open')) return;
+  clearTimeout(rt); rt = setTimeout(() => { measure(); renderPage(); }, 180);
+});
+window.addEventListener('orientationchange', () => setTimeout(() => { measure(); renderPage(); }, 320));
+document.addEventListener('gesturestart', e => e.preventDefault());
+window.addEventListener('beforeunload', () => { if(V.dirty) saveInk(); });
+document.addEventListener('visibilitychange', () => { if(document.hidden && V.dirty) saveInk(); });
+
+window.addEventListener('error', e => {
+  console.error(e.error || e.message);
+});
+window.addEventListener('unhandledrejection', e => {
+  console.error(e.reason);
+  toast('Something went wrong: ' + (e.reason && e.reason.message ? e.reason.message : 'unknown error'), 3600);
+});
+
+async function boot(){
+  if(window.__loadFail || typeof pdfjsLib === 'undefined' || typeof PDFLib === 'undefined'){
+    showStartupError(
+      (window.__loadFail || 'A required component') +
+      " didn't load. If this is the first time you've opened Stand, you need a " +
+      "connection once so it can cache its libraries. After that it works offline."
+    );
+    return;
+  }
+  try{
+    await setupPdfEngine();
+    syncInkPanel();
+    await loadLibrary();
+  }catch(err){
+    console.error(err);
+    showStartupError('Something unexpected happened while starting up: ' + err.message);
+  }
+}
+// Ask the browser not to evict the library under storage pressure. Installed
+// home-screen web apps are normally granted this.
+async function requestDurableStorage(){
+  try{
+    if(navigator.storage && navigator.storage.persist){
+      if(!(await navigator.storage.persisted())) await navigator.storage.persist();
+    }
+  }catch(e){}
+}
+
+// The service worker caches the app and its libraries so it opens offline.
+function registerServiceWorker(){
+  if(!('serviceWorker' in navigator)) return;
+  if(location.protocol !== 'https:' && location.hostname !== 'localhost') return;
+  navigator.serviceWorker.register('sw.js').catch(err => console.warn('Offline caching unavailable:', err));
+}
+
+boot();
+requestDurableStorage();
+registerServiceWorker();
+</script>
+</body>
+</html>
