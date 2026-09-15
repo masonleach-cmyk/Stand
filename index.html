@@ -1103,30 +1103,16 @@ const TAP_SLOP = 18, TAP_MS = 2000, SWIPE_ARM = 18, PINCH_ENGAGE = 12;
 const nowMs = () => (window.performance && performance.now) ? performance.now() : Date.now();
 const EDIT_SWIPE = 60;    // an upward flick this far opens markup
 
-/* Vertical gestures, and how they are told apart from panning.
-
-   Dragging down leaves the score, with the page following your finger the whole
-   way. At fit there is nothing to pan, so any downward drag follows. Zoomed in
-   the same drag could equally mean "move the page", so the two are separated by
-   SPEED, decided ONCE at the moment the finger leaves the slop: a quick flick is
-   a gesture and never pans, a slow drag is a pan and never exits or opens markup,
-   however it happens to end. Judging at release instead — as this used to — meant
-   a pan always moved the page first and could still be stolen by the way you
-   happened to lift your finger. */
+/* Zoomed in, a vertical drag could mean either "move the page" or "flick to open
+   markup", so the two are told apart by SPEED, decided ONCE at the moment the
+   finger leaves the slop: a quick upward flick is a gesture and the page stays
+   put, a slow drag pans and can no longer be mistaken for a gesture however it
+   ends. Judging at release instead — as this used to — meant a pan always moved
+   the page first and could still be stolen by the way you happened to lift your
+   finger. */
 const PAN_ARM = 12;        // travel before a zoomed drag is judged pan-or-flick
 const FLICK_V = 0.42;      // px per ms: at or above this the drag is a flick
 const FLICK_WINDOW = 60;   // ms of motion the speed is measured over
-const CLOSE_DY = 0.16;     // drag down this fraction of the screen and you're out
-const CLOSE_VEL = 0.5;     // ...or let go moving down this fast (px per ms)
-const CLOSE_MIN_DY = 26;   // ...having travelled at least this far
-
-/* Marking up, a downward flick puts the pen away instead of drawing, so these
-   are deliberately stricter than the thresholds above: the cost of getting it
-   wrong is a mark you meant to keep. The move has to be long, near-vertical,
-   fast, AND have been fast from the moment you touched down, which a drawn
-   downward stroke — even a brisk one — is not. */
-const MARKUP_EXIT_ARM = 55;   // downward travel before the pen is put away
-const MARKUP_EXIT_MS = 200;   // ...and it must get there within this long
 
 /* Speed of the recent vertical motion, positive downward. Measured over a time
    window rather than between the last two events, which can be microseconds
@@ -1150,7 +1136,6 @@ function flickSpeed(hist){
 const MAX_PAGE_PIXELS = 5.5e6;   // ceiling on the page bitmap, whatever the zoom
 
 const stage=$('#stage'), pagewrap=$('#pagewrap'), ghostwrap=$('#ghostwrap'), inkLayer=$('#inkLayer');
-const viewerEl=$('#viewer');
 const pdfCanvas=$('#pdfCanvas'), ghostCanvas=$('#ghostCanvas'),
       inkCanvas=$('#inkCanvas'), liveCanvas=$('#liveCanvas');
 const pctx=pdfCanvas.getContext('2d',{alpha:false});
@@ -1812,7 +1797,6 @@ function redrawInk(){
 /* ---------- gestures ---------- */
 const ptrs = new Map();
 let stroke=null, pinch=null, swipe=null, panning=false, movedFar=false, liveAnchor=null;
-let closeDrag=null;       // a downward drag the page follows, on its way out
 let inkAtX=0, inkAtY=0;   // the pan the ink canvas was last rasterized at
 let panRawX = null, panRawY = null;   // unresisted pan while a drag is live
 
@@ -1820,78 +1804,13 @@ function normPt(cx, cy){
   return [ (cx - stageL - panX)/V.renderW, (cy - stageT - panY)/V.renderH ];
 }
 
-/* ---------- leaving the score: drag down and the viewer goes with you ----------
-   The viewer already lives at translateY(100%) when it is closed and slides up
-   to 0 to open, so leaving is just that same movement run by your finger: the
-   whole viewer follows the drag straight down, uncovering the library that was
-   behind it the whole time. Let go past the threshold and the stylesheet carries
-   it the rest of the way; let go short and it slides back up. No scaling, no
-   flight to a tile — it only ever moves down. */
-let springTimer = null;
-
-function beginCloseDrag(p){
-  abortStroke();
-  cancelSwipe();
-  panning = false; panRawX = panRawY = null;
-  stopViewAnim();
-  endSpring();
-  p.consumed = true;                    // this finger is spoken for: no tap on release
-  // Take the transition off so the viewer answers to the finger and nothing else.
-  viewerEl.style.transition = 'none';
-  // The drag starts from where the finger is NOW, not from where it touched down,
-  // so the viewer slides out from under it instead of jumping by the slop.
-  closeDrag = { ptr:p, y0:p.y, d:0 };
-  moveCloseDrag(0);
-}
-function moveCloseDrag(dy){
-  if(!closeDrag) return;
-  // Down follows one for one; up is resisted, since there is nothing above to go to.
-  const d = dy >= 0 ? dy : dy*RUBBER;
-  closeDrag.d = d;
-  viewerEl.style.transform = `translateY(${d}px)`;
-}
-function finishCloseDrag(){
-  const c = closeDrag; closeDrag = null;
-  if(!c) return;
-  const vel = flickSpeed(c.ptr.hist);              // px per ms, positive downward
-  const go = V.pdf && !V.exiting &&
-             (c.d > stageH*CLOSE_DY || (vel > CLOSE_VEL && c.d > CLOSE_MIN_DY));
-  if(go) slideOutToLibrary();
-  else springBack();
-}
-/* Short of the threshold: give the transform back to the stylesheet, which puts
-   the viewer back at translateY(0) and transitions it there from wherever the
-   finger left it. */
-function springBack(){
-  void viewerEl.offsetHeight;          // commit the dragged position first
-  viewerEl.style.transition = '';
-  viewerEl.style.transform = '';
-  springTimer = setTimeout(() => { springTimer = null; syncStageOrigin(); }, 300);
-}
-/* A touch landing while the viewer is still sliding home would read the stage's
-   position mid-flight and put every mark in the wrong place, so the spring is
-   snapped to its end instead. */
-function endSpring(){
-  if(springTimer == null) return;
-  clearTimeout(springTimer); springTimer = null;
-  viewerEl.style.transition = 'none';
-  viewerEl.style.transform = '';
-  void viewerEl.offsetHeight;
-  viewerEl.style.transition = '';
-  syncStageOrigin();
-}
-
 stage.addEventListener('pointerdown', e => {
   if(!V.pdf || V.exiting) return;
-  // On the way out the page is already following one finger; another joining now
-  // must not arm a pinch underneath it.
-  if(closeDrag) return;
-  endSpring();                                                // never measure a moving stage
   if(ptrs.size === 0){ syncStageOrigin(); stopViewAnim(); }   // fresh origin at the start of every gesture
   // hist is seeded at touch-down so even a gesture delivered in a single move
   // event still has a baseline to measure its speed against
   ptrs.set(e.pointerId, {x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t:Date.now(),
-                         tms:nowMs(), hist:[{y:e.clientY, t:nowMs()}]});
+                         hist:[{y:e.clientY, t:nowMs()}]});
   try{ stage.setPointerCapture(e.pointerId); }catch(err){}
 
   if(ptrs.size === 2){
@@ -1933,17 +1852,9 @@ stage.addEventListener('pointermove', e => {
   p.x = e.clientX; p.y = e.clientY;
   if(Math.abs(p.x-p.x0) > 8 || Math.abs(p.y-p.y0) > 8) movedFar = true;
 
-  // One motion history per finger, kept for every gesture: the pan-or-flick
-  // decision and the close drag's release speed both read it.
+  // Motion history per finger: the pan-or-flick decision at PAN_ARM reads it.
   p.hist.push({y:p.y, t:nowMs()});
   if(p.hist.length > 24) p.hist.shift();
-
-  if(closeDrag){
-    if(closeDrag.ptr !== p) return;
-    e.preventDefault();
-    moveCloseDrag(p.y - closeDrag.y0);
-    return;
-  }
 
   if(pinch){
     const a = ptrs.get(pinch.ids[0]), b = ptrs.get(pinch.ids[1]);
@@ -1984,38 +1895,15 @@ stage.addEventListener('pointermove', e => {
     // swipe, or end as a tap
   }
 
-  if(stroke){
-    e.preventDefault();
-    /* A quick flick down puts the pen away rather than drawing. Judged once, as
-       everywhere else: past the point where it could still qualify the drag is a
-       stroke for good, so a slow drag draws and goes on drawing however it ends. */
-    if(V.markup && !p.judged && !stroke.erase){
-      const dy = p.y - p.y0, ady = Math.abs(dy), adx = Math.abs(p.x - p.x0);
-      const elapsed = nowMs() - p.tms;
-      if(ady >= MARKUP_EXIT_ARM || adx >= MARKUP_EXIT_ARM || elapsed > MARKUP_EXIT_MS){
-        p.judged = true;
-        if(dy > 0 && ady >= MARKUP_EXIT_ARM && ady > adx*1.5 &&
-           elapsed <= MARKUP_EXIT_MS && flickSpeed(p.hist) >= FLICK_V){
-          abortStroke();                 // nothing was committed, so nothing is lost
-          p.consumed = true;
-          setMarkup(false);
-          return;
-        }
-      }
-    }
-    extendStroke(e); return;
-  }
+  if(stroke){ e.preventDefault(); extendStroke(e); return; }
   if(V.markup) return;
 
   if(swipe){
     const dx = p.x - swipe.x0, dy = p.y - swipe.y0;
     if(!swipe.dir && !swipe.vert){
-      // an upward flick anywhere on the page opens markup; a downward one takes
-      // the page with it, back to the library
+      // an upward flick anywhere on the page opens markup
       if(Math.abs(dy) > SWIPE_ARM && Math.abs(dy) > Math.abs(dx)){
-        e.preventDefault();
-        if(dy < 0) swipe.vert = true;
-        else beginCloseDrag(p);
+        if(dy < 0){ swipe.vert = true; e.preventDefault(); }
         return;
       }
     }
@@ -2037,10 +1925,12 @@ stage.addEventListener('pointermove', e => {
 
   if(!movedFar) return;
 
-  /* Zoomed in with the finger on the page, so this drag is either a pan or a
-     vertical flick. Decide once, here, before a single pixel has moved: a quick
-     flick is a gesture and the page stays put, a slow drag pans and can no longer
-     be mistaken for a gesture however it ends. */
+  /* Zoomed in with the finger on the page, so this drag is either a pan or an
+     upward flick to open markup. Decide once, here, before a single pixel has
+     moved: a quick flick is a gesture and the page stays put, a slow drag pans
+     and can no longer be mistaken for a gesture however it ends. A fast
+     DOWNWARD flick is judged the same way so it still doesn't pan, but there is
+     nothing else for it to do. */
   if(!p.judged){
     const adx = Math.abs(p.x-p.x0), ady = Math.abs(p.y-p.y0);
     if(Math.max(adx, ady) < PAN_ARM) return;     // still inside the slop: undecided
@@ -2049,8 +1939,7 @@ stage.addEventListener('pointermove', e => {
     if(ady > adx && Math.abs(v) >= FLICK_V){
       p.consumed = true;                          // a gesture, never a tap
       e.preventDefault();
-      if(v < 0){ if(!V.markup) setMarkup(true); } // flicked up: mark this up
-      else beginCloseDrag(p);                     // flicked down: back to the library
+      if(v < 0 && !V.markup) setMarkup(true);      // flicked up: mark this up
       return;
     }
   }
@@ -2072,11 +1961,6 @@ async function pointerFinished(e){
   const p = ptrs.get(e.pointerId);
   ptrs.delete(e.pointerId);
 
-  if(closeDrag){
-    if(closeDrag.ptr === p) finishCloseDrag();
-    return;
-  }
-
   if(pinch && !pinch.engaged && (!ptrs.has(pinch.ids[0]) || !ptrs.has(pinch.ids[1]))){
     // never became a real pinch — drop it and let this pointer be judged as a tap
     pinch = null;
@@ -2093,8 +1977,8 @@ async function pointerFinished(e){
       pinch = null;
 
       // Where the view should come to rest: the zoom clamped back into range,
-      // and the page pulled back inside its edges. Pinching out now bottoms out
-      // at fit and springs back — leaving the score is the downward drag's job.
+      // and the page pulled back inside its edges. Pinching out bottoms out at
+      // fit and springs back; the back button is what leaves the score.
       const targetZoom = Math.max(1, Math.min(MAX_ZOOM, zoom0*k));
       const s = targetZoom / zoom0;                       // scale vs the current raster
       const newW = V.renderW*s, newH = V.renderH*s;
@@ -2179,12 +2063,6 @@ stage.addEventListener('pointerup', pointerFinished);
 stage.addEventListener('pointercancel', e => {
   const cp = ptrs.get(e.pointerId);
   ptrs.delete(e.pointerId);
-  // A drag that carries on past the bottom of the screen is cancelled rather than
-  // released, so judge it exactly as a release instead of dropping it.
-  if(closeDrag){
-    if(closeDrag.ptr === cp) finishCloseDrag();
-    return;
-  }
   if(stroke) endStroke();
   // A swipe that carries on off the edge of the screen is cancelled rather than
   // released, so honour it here too instead of silently dropping the gesture.
@@ -2248,44 +2126,6 @@ function cancelSwipe(){
   swipe = null;
   ghostwrap.style.visibility = 'hidden';
   place(); inkLayer.style.transform = 'translate3d(0,0,0)';
-}
-
-/* Leaving a score is simply the drag carried through to its end: the viewer keeps
-   going down and off the bottom of the screen, and the library that was behind
-   it all along is what's left. Nothing shrinks and nothing flies anywhere — the
-   stylesheet's own resting place for a closed viewer is translateY(100%), so
-   dropping .open sends it there from wherever the finger left it. */
-function slideOutToLibrary(){
-  if(V.exiting) return;
-  V.exiting = true;                       // no touch can interrupt the way out
-  const seq = ++V.exitSeq;
-  const id = V.id;
-  void viewerEl.offsetHeight;             // commit the dragged position first
-  viewerEl.style.transition = '';
-  viewerEl.style.transform = '';
-  viewerEl.classList.remove('open');
-  setTimeout(async () => {
-    // If a score was opened again in the meantime this teardown is stale, and
-    // running it would tear down the NEW session's document instead.
-    if(V.exitSeq !== seq) return;
-    if(V.dirty) await saveInk();
-    if(V.exitSeq !== seq) return;
-    syncTileMark(id);
-    pagewrap.style.transform = ''; inkLayer.style.transform = '';
-    V.pdf = null; V.cache.clear(); V.exiting = false;
-  }, 340);
-}
-
-/* The one thing about a tile that can go stale while you're inside a score is
-   whether it has marks on it. Touching just that class keeps the library still:
-   re-rendering the grid would rebuild every tile and pop the thumbnails back in
-   while the viewer is halfway down and the library already showing. */
-function syncTileMark(id){
-  try{
-    const tile = $('#grid') && $('#grid').querySelector(`[data-id="${id}"]`);
-    const doc = S.docs.find(d => d.id === id);
-    if(tile && doc) tile.classList.toggle('marked', !!doc.marked);
-  }catch(err){}
 }
 
 /* ---------- paging: synchronous when the bitmap is ready ---------- */
