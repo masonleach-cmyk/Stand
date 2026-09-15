@@ -1119,7 +1119,14 @@ const FLICK_WINDOW = 60;   // ms of motion the speed is measured over
 const CLOSE_DY = 0.16;     // drag down this fraction of the screen and you're out
 const CLOSE_VEL = 0.5;     // ...or let go moving down this fast (px per ms)
 const CLOSE_MIN_DY = 26;   // ...having travelled at least this far
-const CLOSE_SCALE = 0.18;  // how far the page shrinks at the bottom of the pull
+
+/* Marking up, a downward flick puts the pen away instead of drawing, so these
+   are deliberately stricter than the thresholds above: the cost of getting it
+   wrong is a mark you meant to keep. The move has to be long, near-vertical,
+   fast, AND have been fast from the moment you touched down, which a drawn
+   downward stroke — even a brisk one — is not. */
+const MARKUP_EXIT_ARM = 55;   // downward travel before the pen is put away
+const MARKUP_EXIT_MS = 200;   // ...and it must get there within this long
 
 /* Speed of the recent vertical motion, positive downward. Measured over a time
    window rather than between the last two events, which can be microseconds
@@ -1143,6 +1150,7 @@ function flickSpeed(hist){
 const MAX_PAGE_PIXELS = 5.5e6;   // ceiling on the page bitmap, whatever the zoom
 
 const stage=$('#stage'), pagewrap=$('#pagewrap'), ghostwrap=$('#ghostwrap'), inkLayer=$('#inkLayer');
+const viewerEl=$('#viewer');
 const pdfCanvas=$('#pdfCanvas'), ghostCanvas=$('#ghostCanvas'),
       inkCanvas=$('#inkCanvas'), liveCanvas=$('#liveCanvas');
 const pctx=pdfCanvas.getContext('2d',{alpha:false});
@@ -1574,7 +1582,7 @@ async function openDoc(id){
     const blob = await DB.get(K.pdf(id));
     if(!blob){ busy(false); toast("That file's data isn't in storage anymore. Remove it and add the PDF again.", 5000); return; }
     const vEl = $('#viewer');
-    vEl.style.transition = ''; vEl.style.opacity = '';   // never inherit a stranded exit
+    vEl.style.transition = ''; vEl.style.opacity = ''; vEl.style.transform = '';   // never inherit a stranded exit
     V.exiting = false; V.exitSeq++;                      // invalidate any pending teardown
     V.id = id; V.doc = doc; V.page = 1; V.zoom = 1; V.undo = []; V.dirty = false;
     V.cache.clear(); V.fit = 0;
@@ -1812,35 +1820,35 @@ function normPt(cx, cy){
   return [ (cx - stageL - panX)/V.renderW, (cy - stageT - panY)/V.renderH ];
 }
 
-/* ---------- leaving the score: drag down and the page comes with you ----------
-   The page tracks the finger the whole way and shrinks a little as it goes, so
-   the exit is one continuous movement: let go past the threshold and the same
-   transform simply carries on into the flight back to the tile, let go short of
-   it and the page springs back. Nothing is committed until you lift. */
+/* ---------- leaving the score: drag down and the viewer goes with you ----------
+   The viewer already lives at translateY(100%) when it is closed and slides up
+   to 0 to open, so leaving is just that same movement run by your finger: the
+   whole viewer follows the drag straight down, uncovering the library that was
+   behind it the whole time. Let go past the threshold and the stylesheet carries
+   it the rest of the way; let go short and it slides back up. No scaling, no
+   flight to a tile — it only ever moves down. */
+let springTimer = null;
+
 function beginCloseDrag(p){
   abortStroke();
   cancelSwipe();
   panning = false; panRawX = panRawY = null;
   stopViewAnim();
+  endSpring();
   p.consumed = true;                    // this finger is spoken for: no tap on release
+  // Take the transition off so the viewer answers to the finger and nothing else.
+  viewerEl.style.transition = 'none';
   // The drag starts from where the finger is NOW, not from where it touched down,
-  // so the page slides out from under it instead of jumping by the slop.
-  closeDrag = { ptr:p, y0:p.y, baseX:panX, baseY:panY, s:1, tx:panX, ty:panY, d:0 };
+  // so the viewer slides out from under it instead of jumping by the slop.
+  closeDrag = { ptr:p, y0:p.y, d:0 };
   moveCloseDrag(0);
 }
 function moveCloseDrag(dy){
   if(!closeDrag) return;
   // Down follows one for one; up is resisted, since there is nothing above to go to.
   const d = dy >= 0 ? dy : dy*RUBBER;
-  const prog = Math.max(0, Math.min(1, d/(stageH*0.5 || 1)));
-  const s = 1 - CLOSE_SCALE*prog;
-  // Shrink about the middle of the SCREEN, not the middle of the page: zoomed in
-  // the page is far bigger than the stage, and scaling about its centre would
-  // slide whatever you were looking at off sideways.
-  const tx = stageW/2 - s*(stageW/2 - closeDrag.baseX);
-  const ty = stageH/2 - s*(stageH/2 - closeDrag.baseY) + d;
-  closeDrag.s = s; closeDrag.tx = tx; closeDrag.ty = ty; closeDrag.d = d;
-  setViewTransform(s, tx, ty);
+  closeDrag.d = d;
+  viewerEl.style.transform = `translateY(${d}px)`;
 }
 function finishCloseDrag(){
   const c = closeDrag; closeDrag = null;
@@ -1848,11 +1856,29 @@ function finishCloseDrag(){
   const vel = flickSpeed(c.ptr.hist);              // px per ms, positive downward
   const go = V.pdf && !V.exiting &&
              (c.d > stageH*CLOSE_DY || (vel > CLOSE_VEL && c.d > CLOSE_MIN_DY));
-  if(go){ zoomOutToLibrary(c.s, c.tx, c.ty); return; }
-  const settle = () => { place(); redrawInk(); };
-  if(Math.abs(c.s-1) > 0.002 || Math.abs(c.tx-panX) > 0.5 || Math.abs(c.ty-panY) > 0.5)
-    animateView(c.s, c.tx, c.ty, 1, panX, panY, settle, 260);
-  else settle();
+  if(go) slideOutToLibrary();
+  else springBack();
+}
+/* Short of the threshold: give the transform back to the stylesheet, which puts
+   the viewer back at translateY(0) and transitions it there from wherever the
+   finger left it. */
+function springBack(){
+  void viewerEl.offsetHeight;          // commit the dragged position first
+  viewerEl.style.transition = '';
+  viewerEl.style.transform = '';
+  springTimer = setTimeout(() => { springTimer = null; syncStageOrigin(); }, 300);
+}
+/* A touch landing while the viewer is still sliding home would read the stage's
+   position mid-flight and put every mark in the wrong place, so the spring is
+   snapped to its end instead. */
+function endSpring(){
+  if(springTimer == null) return;
+  clearTimeout(springTimer); springTimer = null;
+  viewerEl.style.transition = 'none';
+  viewerEl.style.transform = '';
+  void viewerEl.offsetHeight;
+  viewerEl.style.transition = '';
+  syncStageOrigin();
 }
 
 stage.addEventListener('pointerdown', e => {
@@ -1860,11 +1886,12 @@ stage.addEventListener('pointerdown', e => {
   // On the way out the page is already following one finger; another joining now
   // must not arm a pinch underneath it.
   if(closeDrag) return;
+  endSpring();                                                // never measure a moving stage
   if(ptrs.size === 0){ syncStageOrigin(); stopViewAnim(); }   // fresh origin at the start of every gesture
   // hist is seeded at touch-down so even a gesture delivered in a single move
   // event still has a baseline to measure its speed against
   ptrs.set(e.pointerId, {x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t:Date.now(),
-                         hist:[{y:e.clientY, t:nowMs()}]});
+                         tms:nowMs(), hist:[{y:e.clientY, t:nowMs()}]});
   try{ stage.setPointerCapture(e.pointerId); }catch(err){}
 
   if(ptrs.size === 2){
@@ -1957,7 +1984,27 @@ stage.addEventListener('pointermove', e => {
     // swipe, or end as a tap
   }
 
-  if(stroke){ e.preventDefault(); extendStroke(e); return; }
+  if(stroke){
+    e.preventDefault();
+    /* A quick flick down puts the pen away rather than drawing. Judged once, as
+       everywhere else: past the point where it could still qualify the drag is a
+       stroke for good, so a slow drag draws and goes on drawing however it ends. */
+    if(V.markup && !p.judged && !stroke.erase){
+      const dy = p.y - p.y0, ady = Math.abs(dy), adx = Math.abs(p.x - p.x0);
+      const elapsed = nowMs() - p.tms;
+      if(ady >= MARKUP_EXIT_ARM || adx >= MARKUP_EXIT_ARM || elapsed > MARKUP_EXIT_MS){
+        p.judged = true;
+        if(dy > 0 && ady >= MARKUP_EXIT_ARM && ady > adx*1.5 &&
+           elapsed <= MARKUP_EXIT_MS && flickSpeed(p.hist) >= FLICK_V){
+          abortStroke();                 // nothing was committed, so nothing is lost
+          p.consumed = true;
+          setMarkup(false);
+          return;
+        }
+      }
+    }
+    extendStroke(e); return;
+  }
   if(V.markup) return;
 
   if(swipe){
@@ -2203,76 +2250,42 @@ function cancelSwipe(){
   place(); inkLayer.style.transform = 'translate3d(0,0,0)';
 }
 
-/* The page keeps shrinking toward the middle of the screen and fades out while
-   the library fades up behind it, so leaving a score feels like pulling back to
-   the shelf rather than a panel sliding away. */
-/* Where should the page fly to? Straight onto its own tile in the library, with
-   the library already scrolled so that tile sits at the top. If the tile can't be
-   found (say a search filter hides it) we fall back to shrinking toward the
-   middle, so the exit still works no matter what. */
-function libraryTileTarget(id){
-  try{
-    const sc = $('#libScroll');
-    const tile = $('#grid') && $('#grid').querySelector(`[data-id="${id}"]`);
-    if(!sc || !tile) return null;
-    const sheet = tile.querySelector('.sheet') || tile;
-    // put the piece at the top of the library before measuring where it lands
-    sc.scrollTop = Math.max(0, tile.offsetTop - 8);
-    const r = sheet.getBoundingClientRect();
-    if(!r.width || !r.height) return null;
-    return { left:r.left - stageL, top:r.top - stageT, w:r.width };
-  }catch(err){ return null; }
-}
-
-function zoomOutToLibrary(fromS, fromX, fromY){
-  const v = $('#viewer');
+/* Leaving a score is simply the drag carried through to its end: the viewer keeps
+   going down and off the bottom of the screen, and the library that was behind
+   it all along is what's left. Nothing shrinks and nothing flies anywhere — the
+   stylesheet's own resting place for a closed viewer is translateY(100%), so
+   dropping .open sends it there from wherever the finger left it. */
+function slideOutToLibrary(){
   if(V.exiting) return;
   V.exiting = true;                       // no touch can interrupt the way out
-  const id = V.id;
-
-  // Render the library underneath first so the tile exists and can be measured.
-  let target = null;
-  try{ renderGrid(); target = libraryTileTarget(id); }catch(err){ target = null; }
-
-  let toS, toX, toY;
-  if(target && V.renderW){
-    toS = target.w / V.renderW;            // shrink to exactly the tile's width
-    toX = target.left;
-    toY = target.top;
-  }else{
-    toS = Math.min(fromS, 1) * 0.3;
-    toX = stageW/2 - toS*(V.renderW/2);
-    toY = stageH/2 - toS*(V.renderH/2);
-  }
-
-  const DUR = 620;                         // a longer, more deliberate pull-back
-  v.style.transition = `opacity ${Math.round(DUR*0.55)}ms ease ${Math.round(DUR*0.4)}ms`;
-  requestAnimationFrame(() => { v.style.opacity = '0'; });
-
   const seq = ++V.exitSeq;
-  const finish = () => {
-    if(V.dirty) saveInk();
-    v.classList.remove('open');
-    setTimeout(() => {
-      // If a score was opened again in the meantime this teardown is stale, and
-      // running it would tear down the NEW session's document instead.
-      if(V.exitSeq !== seq) return;
-      v.style.transition = ''; v.style.opacity = '';
-      pagewrap.style.transform = ''; inkLayer.style.transform = '';
-      V.pdf = null; V.cache.clear(); V.exiting = false;
-    }, 340);
-  };
+  const id = V.id;
+  void viewerEl.offsetHeight;             // commit the dragged position first
+  viewerEl.style.transition = '';
+  viewerEl.style.transform = '';
+  viewerEl.classList.remove('open');
+  setTimeout(async () => {
+    // If a score was opened again in the meantime this teardown is stale, and
+    // running it would tear down the NEW session's document instead.
+    if(V.exitSeq !== seq) return;
+    if(V.dirty) await saveInk();
+    if(V.exitSeq !== seq) return;
+    syncTileMark(id);
+    pagewrap.style.transform = ''; inkLayer.style.transform = '';
+    V.pdf = null; V.cache.clear(); V.exiting = false;
+  }, 340);
+}
 
-  // Belt and braces: however the animation ends - completed, interrupted, or
-  // failing outright - the viewer is always torn down. The exit can never strand.
-  let closed = false;
-  const closeOnce = () => { if(closed) return; closed = true; finish(); };
-  const guard = setTimeout(closeOnce, DUR + 400);
+/* The one thing about a tile that can go stale while you're inside a score is
+   whether it has marks on it. Touching just that class keeps the library still:
+   re-rendering the grid would rebuild every tile and pop the thumbnails back in
+   while the viewer is halfway down and the library already showing. */
+function syncTileMark(id){
   try{
-    animateView(fromS, fromX, fromY, toS, toX, toY, () => { clearTimeout(guard); closeOnce(); }, DUR);
-  }catch(err){
-    clearTimeout(guard); closeOnce();
-  }
+    const tile = $('#grid') && $('#grid').querySelector(`[data-id="${id}"]`);
+    const doc = S.docs.find(d => d.id === id);
+    if(tile && doc) tile.classList.toggle('marked', !!doc.marked);
+  }catch(err){}
 }
 
 /* ---------- paging: synchronous when the bitmap is ready ---------- */
