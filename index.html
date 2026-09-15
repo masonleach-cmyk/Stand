@@ -95,7 +95,9 @@ input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
 @media (min-width:560px){.grid{grid-template-columns:repeat(3,1fr)}}
 @media (min-width:820px){.grid{grid-template-columns:repeat(4,1fr)}}
 
-.tile{position:relative;touch-action:manipulation}
+.tile{position:relative;touch-action:manipulation;
+  -webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.tile img,.ghost img{-webkit-user-drag:none;user-drag:none}
 .tile .sheet{
   position:relative;width:100%;aspect-ratio:3/4;background:var(--paper);
   border-radius:3px 7px 7px 3px;overflow:hidden;
@@ -712,7 +714,7 @@ async function renderGrid(){
       const holder = el.querySelector('.sheet');
       if(!holder) return;
       const img = new Image();
-      img.src = src; img.alt = '';
+      img.src = src; img.alt = ""; img.draggable = false;
       holder.replaceChild(img, holder.querySelector('.nothumb'));
     });
     el.querySelector('.more').addEventListener('click', ev => { ev.stopPropagation(); openDetails(d.id); });
@@ -724,94 +726,157 @@ async function renderGrid(){
    Tile gestures — tap to open, long press to rearrange
    ======================================================================= */
 let drag = null;
+const LONG_PRESS = 300;   // ms of stillness before a tile lifts
+const MOVE_SLOP = 10;     // finger travel that means "scrolling", not "lifting"
+
 function attachTileGestures(el, id){
-  let startX=0, startY=0, timer=null, moved=false;
+  let startX=0, startY=0, timer=null, moved=false, kind='touch';
+  const cancelPress = () => { clearTimeout(timer); timer = null; };
 
   el.addEventListener('pointerdown', e => {
     if(e.target.closest('.more')) return;
-    startX = e.clientX; startY = e.clientY; moved = false;
-    timer = setTimeout(() => { if(!moved) beginDrag(el, id, startX, startY); }, 300);
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    startX = e.clientX; startY = e.clientY; moved = false; kind = e.pointerType;
+    cancelPress();
+    timer = setTimeout(() => { timer = null; if(!moved && !drag) beginDrag(el, id, startX, startY, kind); }, LONG_PRESS);
   });
   el.addEventListener('pointermove', e => {
     if(drag) return;
-    if(Math.abs(e.clientX-startX) > 9 || Math.abs(e.clientY-startY) > 9){ moved = true; clearTimeout(timer); }
+    if(Math.abs(e.clientX-startX) > MOVE_SLOP || Math.abs(e.clientY-startY) > MOVE_SLOP){ moved = true; cancelPress(); }
   });
   el.addEventListener('pointerup', e => {
-    clearTimeout(timer);
+    cancelPress();
     if(drag || moved) return;
     if(e.target.closest('.more')) return;
     openDoc(id);
   });
-  el.addEventListener('pointercancel', () => { clearTimeout(timer); });
+  // The browser cancels the pointer the moment it claims the touch for scrolling,
+  // which is exactly when a press should stop counting as a press.
+  el.addEventListener('pointercancel', cancelPress);
+  // A long press must not raise iOS's selection callout or Android's context menu.
+  el.addEventListener('contextmenu', e => e.preventDefault());
 }
 
-function beginDrag(el, id, x, y){
+function beginDrag(el, id, x, y, kind){
   if(navigator.vibrate) navigator.vibrate(8);
   const img = el.querySelector('.sheet img');
   const ghost = document.createElement('div');
   ghost.className = 'ghost';
-  ghost.innerHTML = `<div class="sheet">${img ? `<img src="${img.src}" alt="">` : ''}</div>`;
+  ghost.innerHTML = `<div class="sheet">${img ? `<img src="${img.src}" alt="" draggable="false">` : ''}</div>`;
   document.body.appendChild(ghost);
   el.classList.add('dragging');
-  document.body.style.overflow = 'hidden';
-  $('#libScroll').style.touchAction = 'none';
-  drag = { el, id, ghost, dropSet: undefined };
+  drag = { el, id, ghost, dropSet: undefined, touch: kind !== 'mouse', x, y, scrollDir: 0, raf: 0 };
   moveGhost(x, y);
 
-  window.addEventListener('pointermove', onDragMove, {passive:false});
-  window.addEventListener('pointerup', onDragEnd);
-  window.addEventListener('pointercancel', onDragEnd);
+  /* A touch is arbitrated on its FIRST move: if the browser decides it is a
+     scroll it takes the gesture and cancels the pointer stream outright, which
+     is what stopped this working at all — the drag ended one frame after it
+     began. Claiming the touch here, with a NON-PASSIVE listener that blocks the
+     default, is what keeps it ours. touch-action can't do this job: it is read
+     when the finger lands, long before we know a press is going to be held. */
+  if(drag.touch){
+    document.addEventListener('touchmove', onTouchDragMove, {passive:false});
+    document.addEventListener('touchend', onDragEnd);
+    document.addEventListener('touchcancel', onDragEnd);
+  }else{
+    window.addEventListener('pointermove', onPointerDragMove, {passive:false});
+    window.addEventListener('pointerup', onDragEnd);
+    window.addEventListener('pointercancel', onDragEnd);
+  }
+  autoScrollTick();
 }
+
 function moveGhost(x,y){
   const g = drag.ghost, w = 126, h = w*4/3;
   g.style.left = (x - w/2) + 'px';
   g.style.top = (y - h/2) + 'px';
 }
-function onDragMove(e){
+function onTouchDragMove(e){
+  if(!drag) return;
+  e.preventDefault();                       // hold the gesture: no scrolling underneath
+  const t = e.touches[0];
+  if(t) dragTo(t.clientX, t.clientY);
+}
+function onPointerDragMove(e){
   if(!drag) return;
   e.preventDefault();
-  moveGhost(e.clientX, e.clientY);
+  dragTo(e.clientX, e.clientY);
+}
 
-  drag.ghost.style.display = 'none';
-  const under = document.elementFromPoint(e.clientX, e.clientY);
-  drag.ghost.style.display = '';
-  if(!under) return;
-
-  // auto-scroll near edges
-  const sc = $('#libScroll'), r = sc.getBoundingClientRect();
-  if(e.clientY > r.bottom - 70) sc.scrollTop += 12;
-  else if(e.clientY < r.top + 50) sc.scrollTop -= 12;
+function dragTo(x, y){
+  drag.x = x; drag.y = y;
+  moveGhost(x, y);
 
   $$('.chip').forEach(c => c.classList.remove('drop'));
-  const chip = under.closest('.chip');
-  if(chip && chip.dataset.set !== 'new'){
+  const chip = chipAt(x, y);
+  if(chip){
     chip.classList.add('drop');
     drag.dropSet = (chip.dataset.set === 'all') ? null : chip.dataset.set;
-    return;
+  }else{
+    drag.dropSet = undefined;
+    reposition(x, y);
   }
-  drag.dropSet = undefined;
 
-  const tile = under.closest('.tile');
-  if(tile && tile !== drag.el){
-    const rect = tile.getBoundingClientRect();
-    const after = e.clientY > rect.top + rect.height/2 ||
-                  (Math.abs(e.clientY - (rect.top + rect.height/2)) < rect.height/2 && e.clientX > rect.left + rect.width/2);
-    tile.parentNode.insertBefore(drag.el, after ? tile.nextSibling : tile);
-  }
+  const r = $('#libScroll').getBoundingClientRect();
+  drag.scrollDir = y > r.bottom - 80 ? 1 : (y < r.top + 60 ? -1 : 0);
 }
+
+function chipAt(x, y){
+  drag.ghost.style.display = 'none';
+  const under = document.elementFromPoint(x, y);
+  drag.ghost.style.display = '';
+  const chip = under && under.closest && under.closest('.chip');
+  return (chip && chip.dataset.set !== 'new') ? chip : null;
+}
+
+/* Where the held tile belongs now. Worked out from every other tile's position
+   rather than from whatever happens to sit under the finger: a hit test moves
+   the tile, which changes what is under the finger, which moves it back — the
+   flicker that makes grid dragging feel broken even when it technically works. */
+function reposition(x, y){
+  const grid = $('#grid');
+  const others = Array.from(grid.children).filter(n => n !== drag.el && n.classList.contains('tile'));
+  let idx = 0;
+  for(const t of others){
+    const r = t.getBoundingClientRect();
+    const cy = r.top + r.height/2, cx = r.left + r.width/2;
+    // below this row → past it; above → not; alongside → whichever side of centre
+    const past = y > cy + r.height/2 ? true : (y < cy - r.height/2 ? false : x > cx);
+    if(past) idx++;
+  }
+  const ref = others[idx] || null;
+  if(ref === drag.el.nextElementSibling) return;          // already in that slot
+  if(!ref && drag.el === grid.lastElementChild) return;
+  grid.insertBefore(drag.el, ref);
+}
+
+/* Held near an edge, the library keeps scrolling on its own — without this a
+   reorder can only ever move a tile as far as one screen. */
+function autoScrollTick(){
+  if(!drag) return;
+  if(drag.scrollDir){
+    const sc = $('#libScroll'), before = sc.scrollTop;
+    sc.scrollTop += drag.scrollDir * 10;
+    if(sc.scrollTop !== before) reposition(drag.x, drag.y);
+  }
+  drag.raf = requestAnimationFrame(autoScrollTick);
+}
+
 function onDragEnd(){
   if(!drag) return;
-  window.removeEventListener('pointermove', onDragMove);
+  cancelAnimationFrame(drag.raf);
+  document.removeEventListener('touchmove', onTouchDragMove);
+  document.removeEventListener('touchend', onDragEnd);
+  document.removeEventListener('touchcancel', onDragEnd);
+  window.removeEventListener('pointermove', onPointerDragMove);
   window.removeEventListener('pointerup', onDragEnd);
   window.removeEventListener('pointercancel', onDragEnd);
   drag.ghost.remove();
   drag.el.classList.remove('dragging');
-  document.body.style.overflow = '';
-  $('#libScroll').style.touchAction = '';
   $$('.chip').forEach(c => c.classList.remove('drop'));
 
   const moved = S.docs.find(d => d.id === drag.id);
-  if(drag.dropSet !== undefined){
+  if(drag.dropSet !== undefined && moved){
     moved.set = drag.dropSet;
     saveIndexSoon();
     const name = drag.dropSet === null ? 'All pieces' : (S.sets.find(s=>s.id===drag.dropSet)||{}).name;
