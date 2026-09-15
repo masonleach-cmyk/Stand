@@ -987,6 +987,377 @@ function usableText(s){
   const latin = (t.match(/[A-Za-z0-9]/g) || []).length;
   return latin >= Math.ceil(t.replace(/\s/g,'').length * 0.4);
 }
+/* =======================================================================
+   Recognising a composer in a filename
+
+   Imported scores are nearly always named after their composer — "Bach -
+   Invention 4.pdf", "chopin_nocturne_op9_no2.pdf", "Debussy Clair de Lune" —
+   so the composer field can usually fill itself in. Matching is on whole
+   words, case and accents ignored, and the LONGEST matching name wins, which
+   is how "C.P.E. Bach" beats the plain "Bach" sitting inside it.
+
+   Two things shape the list below. First, where a surname is shared, the bare
+   surname goes to whoever a musician means by default — "Bach" is Johann
+   Sebastian, "Mozart" is Wolfgang — and the others need a first name or
+   initials. Second, a composer whose surname is also an ordinary English word
+   is listed ONLY under their full name: "Piano Part.pdf" must not come out as
+   Arvo Pärt, and "The Barber of Seville" is Rossini, not Samuel Barber. That
+   rule costs a few true matches and prevents a lot of wrong ones, which is the
+   right trade when a wrong name is worse than a blank field.
+   ======================================================================= */
+const COMPOSERS = [
+  // --- medieval and renaissance ---
+  ['Hildegard von Bingen','hildegard|hildegard von bingen'],
+  ['Léonin','leonin'],
+  ['Pérotin','perotin'],
+  ['Guillaume de Machaut','machaut'],
+  ['Francesco Landini','landini'],
+  ['Guillaume Du Fay','du fay|dufay'],
+  ['Gilles Binchois','binchois'],
+  ['Johannes Ockeghem','ockeghem|okeghem'],
+  ['Josquin des Prez','josquin|josquin des prez'],
+  ['Jacob Obrecht','obrecht'],
+  ['Heinrich Isaac','heinrich isaac'],
+  ['Pierre de la Rue','de la rue'],
+  ['Clément Janequin','janequin'],
+  ['Nicolas Gombert','gombert'],
+  ['Cristóbal de Morales','morales|cristobal de morales'],
+  ['Thomas Tallis','tallis'],
+  ['William Byrd','byrd'],
+  ['John Bull','john bull'],
+  ['John Dowland','dowland'],
+  ['Thomas Morley','morley'],
+  ['Orlando Gibbons','gibbons'],
+  ['Thomas Weelkes','weelkes'],
+  ['John Taverner','taverner'],
+  ['Giovanni Pierluigi da Palestrina','palestrina'],
+  ['Orlande de Lassus','lassus|orlando di lasso|di lasso'],
+  ['Tomás Luis de Victoria','de victoria|tomas luis de victoria'],
+  ['Carlo Gesualdo','gesualdo'],
+  ['Luca Marenzio','marenzio'],
+  ['Jan Pieterszoon Sweelinck','sweelinck'],
+  ['Michael Praetorius','praetorius'],
+
+  // --- baroque ---
+  ['Claudio Monteverdi','monteverdi'],
+  ['Giulio Caccini','caccini'],
+  ['Francesco Cavalli','cavalli'],
+  ['Gregorio Allegri','allegri'],
+  ['Girolamo Frescobaldi','frescobaldi'],
+  ['Heinrich Schütz','schutz|schuetz'],
+  ['Johann Jacob Froberger','froberger'],
+  ['Dieterich Buxtehude','buxtehude'],
+  ['Heinrich Ignaz Biber','biber'],
+  ['Jean-Baptiste Lully','lully'],
+  ['Marc-Antoine Charpentier','charpentier'],
+  ['Marin Marais','marais'],
+  ['Élisabeth Jacquet de la Guerre','jacquet de la guerre|de la guerre'],
+  ['John Blow','john blow'],
+  ['Henry Purcell','purcell'],
+  ['Arcangelo Corelli','corelli'],
+  ['Giuseppe Torelli','torelli'],
+  ['Tomaso Albinoni','albinoni'],
+  ['Antonio Vivaldi','vivaldi'],
+  ['Johann Pachelbel','pachelbel'],
+  ['Alessandro Marcello','marcello|alessandro marcello'],
+  ['Benedetto Marcello','benedetto marcello'],
+  ['Jan Dismas Zelenka','zelenka'],
+  ['Christoph Graupner','graupner'],
+  ['Georg Philipp Telemann','telemann'],
+  ['Jean-Philippe Rameau','rameau'],
+  ['François Couperin','couperin|francois couperin'],
+  ['Louis Couperin','louis couperin'],
+  ['Jean-Marie Leclair','leclair'],
+  ['Johann Sebastian Bach','bach|js bach|j s bach|johann sebastian bach'],
+  ['C.P.E. Bach','cpe bach|c p e bach|carl philipp emanuel bach|emanuel bach'],
+  ['J.C. Bach','jc bach|j c bach|johann christian bach'],
+  ['W.F. Bach','wf bach|w f bach|wilhelm friedemann bach'],
+  ['George Frideric Handel','handel|haendel|g f handel|gf handel'],
+  ['Domenico Scarlatti','scarlatti|domenico scarlatti|d scarlatti'],
+  ['Alessandro Scarlatti','alessandro scarlatti|a scarlatti'],
+  ['Giovanni Battista Pergolesi','pergolesi'],
+  ['Giuseppe Tartini','tartini'],
+  ['Francesco Geminiani','geminiani'],
+  ['Pietro Locatelli','locatelli'],
+  ['Giovanni Battista Sammartini','sammartini'],
+  ['Giovanni Gabrieli','gabrieli|giovanni gabrieli'],
+  ['Andrea Gabrieli','andrea gabrieli'],
+  ['Antonio Soler','soler'],
+  ['Christoph Willibald Gluck','gluck'],
+
+  // --- classical ---
+  ['Joseph Haydn','haydn|joseph haydn|franz joseph haydn|f j haydn'],
+  ['Michael Haydn','michael haydn|m haydn'],
+  ['Wolfgang Amadeus Mozart','mozart|wa mozart|w a mozart|wolfgang amadeus mozart'],
+  ['Leopold Mozart','leopold mozart'],
+  ['Ludwig van Beethoven','beethoven'],
+  ['Antonio Salieri','salieri'],
+  ['Muzio Clementi','clementi'],
+  ['Luigi Cherubini','cherubini'],
+  ['Luigi Boccherini','boccherini'],
+  ['Carl Ditters von Dittersdorf','dittersdorf'],
+  ['Johann Stamitz','stamitz'],
+  ['Domenico Cimarosa','cimarosa'],
+  ['Johann Nepomuk Hummel','hummel'],
+  ['John Field','field'],
+  ['Carl Czerny','czerny'],
+  ['Friedrich Kuhlau','kuhlau'],
+  ['Anton Diabelli','diabelli'],
+  ['Fernando Sor','sor'],
+  ['Mauro Giuliani','giuliani'],
+  ['Ferdinando Carulli','carulli'],
+  ['Louis Spohr','spohr'],
+  ['Carl Maria von Weber','weber|carl maria von weber'],
+  ['Gioachino Rossini','rossini'],
+  ['Niccolò Paganini','paganini'],
+  ['Franz Schubert','schubert'],
+  ['Gaetano Donizetti','donizetti'],
+  ['Vincenzo Bellini','bellini'],
+  ['Daniel Auber','auber'],
+
+  // --- romantic ---
+  ['Hector Berlioz','berlioz'],
+  ['Felix Mendelssohn','mendelssohn|felix mendelssohn'],
+  ['Fanny Mendelssohn','fanny mendelssohn|fanny hensel'],
+  ['Frédéric Chopin','chopin'],
+  ['Robert Schumann','schumann|robert schumann|r schumann'],
+  ['Clara Schumann','clara schumann|clara wieck'],
+  ['Franz Liszt','liszt'],
+  ['Richard Wagner','wagner'],
+  ['Giuseppe Verdi','verdi'],
+  ['Charles Gounod','gounod'],
+  ['Jacques Offenbach','offenbach'],
+  ['César Franck','franck'],
+  ['Édouard Lalo','lalo'],
+  ['Bedřich Smetana','smetana'],
+  ['Anton Bruckner','bruckner'],
+  ['Johann Strauss II','strauss|johann strauss|johann strauss ii'],
+  ['Johann Strauss I','johann strauss i'],
+  ['Josef Strauss','josef strauss'],
+  ['Richard Strauss','richard strauss|r strauss'],
+  ['Johannes Brahms','brahms'],
+  ['Alexander Borodin','borodin'],
+  ['Camille Saint-Saëns','saint saens'],
+  ['Léo Delibes','delibes'],
+  ['Georges Bizet','bizet'],
+  ['Modest Mussorgsky','mussorgsky|moussorgsky|musorgsky'],
+  ['Pyotr Ilyich Tchaikovsky','tchaikovsky|tschaikowsky|chaikovsky|tchaikowsky'],
+  ['Antonín Dvořák','dvorak'],
+  ['Edvard Grieg','grieg'],
+  ['Nikolai Rimsky-Korsakov','rimsky korsakov|rimsky'],
+  ['Gabriel Fauré','faure'],
+  ['Isaac Albéniz','albeniz'],
+  ['Emmanuel Chabrier','chabrier'],
+  ['Leoš Janáček','janacek'],
+  ['Edward Elgar','elgar'],
+  ['Giacomo Puccini','puccini'],
+  ['Hugo Wolf','hugo wolf'],
+  ['Gustav Mahler','mahler'],
+  ['Claude Debussy','debussy'],
+  ['Jean Sibelius','sibelius'],
+  ['Carl Nielsen','nielsen'],
+  ['Alexander Glazunov','glazunov'],
+  ['Erik Satie','satie'],
+  ['Alexander Scriabin','scriabin|skryabin'],
+  ['Ralph Vaughan Williams','vaughan williams'],
+  ['Sergei Rachmaninoff','rachmaninoff|rachmaninov|rachmaninow'],
+  ['Gustav Holst','holst'],
+  ['Maurice Ravel','ravel'],
+  ['Manuel de Falla','falla|de falla'],
+  ['Ottorino Respighi','respighi'],
+  ['Ernest Bloch','bloch'],
+  ['Fritz Kreisler','kreisler'],
+  ['Enrique Granados','granados'],
+  ['Paul Dukas','dukas'],
+  ['Jules Massenet','massenet'],
+  ['Max Bruch','bruch'],
+  ['Joseph Joachim','joachim'],
+  ['Henryk Wieniawski','wieniawski'],
+  ['Pablo de Sarasate','sarasate'],
+  ['Henri Vieuxtemps','vieuxtemps'],
+  ['Eugène Ysaÿe','ysaye'],
+  ['Charles-Valentin Alkan','alkan'],
+  ['Louis Moreau Gottschalk','gottschalk'],
+  ['Moritz Moszkowski','moszkowski'],
+  ['Christian Sinding','sinding'],
+  ['Anton Rubinstein','anton rubinstein'],
+  ['Mily Balakirev','balakirev'],
+  ['César Cui','cui'],
+  ['Anton Arensky','arensky'],
+  ['Anatoly Lyadov','lyadov|liadov'],
+  ['Sergei Taneyev','taneyev'],
+  ['Nikolai Medtner','medtner'],
+  ['Max Reger','reger'],
+  ['Ferruccio Busoni','busoni'],
+  ['Josef Suk','suk'],
+  ['Zdeněk Fibich','fibich'],
+  ['Ernest Chausson','chausson'],
+  ['Henri Duparc','duparc'],
+  ['Charles-Marie Widor','widor'],
+  ['Louis Vierne','vierne'],
+  ['Alexandre Guilmant','guilmant'],
+  ['Léon Boëllmann','boellmann'],
+  ['Hubert Parry','parry'],
+  ['Charles Villiers Stanford','stanford'],
+  ['Arthur Sullivan','sullivan'],
+  ['Edward MacDowell','macdowell'],
+  ['Amy Beach','amy beach'],
+  ['Cécile Chaminade','chaminade'],
+  ['Louise Farrenc','farrenc'],
+  ['Samuel Coleridge-Taylor','coleridge taylor'],
+  ['Frederick Delius','delius'],
+
+  // --- twentieth century and after ---
+  ['Arnold Schoenberg','schoenberg|schonberg|schoenburg'],
+  ['Alban Berg','berg|alban berg'],
+  ['Anton Webern','webern'],
+  ['Béla Bartók','bartok'],
+  ['Zoltán Kodály','kodaly'],
+  ['Igor Stravinsky','stravinsky|strawinsky'],
+  ['Sergei Prokofiev','prokofiev|prokofieff'],
+  ['Dmitri Shostakovich','shostakovich|schostakowitsch'],
+  ['Aram Khachaturian','khachaturian|khatchaturian'],
+  ['Dmitry Kabalevsky','kabalevsky'],
+  ['Paul Hindemith','hindemith'],
+  ['Kurt Weill','weill'],
+  ['Carl Orff','orff'],
+  ['Francis Poulenc','poulenc'],
+  ['Darius Milhaud','milhaud'],
+  ['Arthur Honegger','honegger'],
+  ['Georges Auric','auric'],
+  ['Germaine Tailleferre','tailleferre'],
+  ['Jacques Ibert','ibert'],
+  ['André Jolivet','jolivet'],
+  ['Jean Françaix','francaix'],
+  ['Henri Dutilleux','dutilleux'],
+  ['Olivier Messiaen','messiaen'],
+  ['Pierre Boulez','boulez'],
+  ['Karlheinz Stockhausen','stockhausen'],
+  ['György Ligeti','ligeti'],
+  ['Iannis Xenakis','xenakis'],
+  ['Luciano Berio','berio'],
+  ['Luigi Nono','nono'],
+  ['Luigi Dallapiccola','dallapiccola'],
+  ['Gérard Grisey','grisey'],
+  ['Tristan Murail','murail'],
+  ['Brian Ferneyhough','ferneyhough'],
+  ['Benjamin Britten','britten'],
+  ['Michael Tippett','tippett'],
+  ['William Walton','walton'],
+  ['Arnold Bax','bax'],
+  ['Arthur Bliss','arthur bliss'],
+  ['Gerald Finzi','finzi'],
+  ['Herbert Howells','howells'],
+  ['Malcolm Arnold','arnold|malcolm arnold'],
+  ['Peter Maxwell Davies','maxwell davies'],
+  ['Harrison Birtwistle','birtwistle'],
+  ['John Tavener','tavener'],
+  ['James MacMillan','macmillan'],
+  ['Aaron Copland','copland'],
+  ['Samuel Barber','samuel barber'],
+  ['Leonard Bernstein','bernstein'],
+  ['George Gershwin','gershwin'],
+  ['Charles Ives','ives'],
+  ['Henry Cowell','cowell'],
+  ['Edgard Varèse','varese'],
+  ['John Cage','john cage'],
+  ['George Crumb','crumb'],
+  ['Elliott Carter','elliott carter'],
+  ['Milton Babbitt','babbitt'],
+  ['George Rochberg','rochberg'],
+  ['William Schuman','william schuman'],
+  ['Walter Piston','walter piston'],
+  ['Howard Hanson','hanson'],
+  ['Alan Hovhaness','hovhaness'],
+  ['Ned Rorem','rorem'],
+  ['John Corigliano','corigliano'],
+  ['William Grant Still','william grant still|w grant still'],
+  ['Florence Price','florence price'],
+  ['Margaret Bonds','margaret bonds'],
+  ['Heitor Villa-Lobos','villa lobos'],
+  ['Alberto Ginastera','ginastera'],
+  ['Astor Piazzolla','piazzolla'],
+  ['Silvestre Revueltas','revueltas'],
+  ['Carlos Chávez','chavez'],
+  ['Joaquín Rodrigo','rodrigo'],
+  ['Joaquín Turina','turina'],
+  ['Federico Mompou','mompou'],
+  ['Tōru Takemitsu','takemitsu'],
+  ['Krzysztof Penderecki','penderecki'],
+  ['Witold Lutosławski','lutoslawski'],
+  ['Henryk Górecki','gorecki'],
+  ['Karol Szymanowski','szymanowski'],
+  ['Sofia Gubaidulina','gubaidulina'],
+  ['Alfred Schnittke','schnittke'],
+  ['Giya Kancheli','kancheli'],
+  ['Valentin Silvestrov','silvestrov'],
+  ['Einojuhani Rautavaara','rautavaara'],
+  ['Kaija Saariaho','saariaho'],
+  ['Pēteris Vasks','vasks'],
+  ['Peter Sculthorpe','sculthorpe'],
+  ['Arvo Pärt','arvo part'],
+  ['Philip Glass','philip glass'],
+  ['Steve Reich','reich'],
+  ['Terry Riley','terry riley'],
+  ['John Adams','john adams'],
+  ['Michael Nyman','nyman'],
+  ['Max Richter','max richter'],
+  ['Ludovico Einaudi','einaudi'],
+  ['Osvaldo Golijov','golijov'],
+  ['Thomas Adès','ades'],
+  ['Nico Muhly','muhly'],
+  ['Kevin Puts','kevin puts'],
+  ['Jennifer Higdon','higdon'],
+  ['Caroline Shaw','caroline shaw'],
+  ['Jessie Montgomery','jessie montgomery'],
+  ['Joan Tower','joan tower'],
+  ['Ellen Taaffe Zwilich','zwilich'],
+  ['Libby Larsen','libby larsen'],
+  ['Shulamit Ran','shulamit ran'],
+  ['Unsuk Chin','unsuk chin'],
+  ['Tan Dun','tan dun'],
+  ['Bright Sheng','bright sheng'],
+  ['Gabriela Lena Frank','gabriela lena frank'],
+  ['Frank Bridge','frank bridge']
+];
+
+/* Accents off, punctuation to spaces, everything lower case, so that "DVOŘÁK",
+   "Dvorak" and "dvořák_op72" all reduce to the same thing. A few letters don't
+   decompose on their own and are spelled out by hand. */
+function normText(s){
+  return String(s || '')
+    .replace(/ß/g,'ss').replace(/[øØ]/g,'o').replace(/[æÆ]/g,'ae')
+    .replace(/[œŒ]/g,'oe').replace(/[łŁ]/g,'l').replace(/[đĐ]/g,'d')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,' ')
+    .trim();
+}
+
+// Flattened once at load: every spelling, longest first, so the most specific
+// name always gets the first look.
+const COMPOSER_KEYS = (() => {
+  const out = [];
+  for(const [name, keys] of COMPOSERS)
+    for(const raw of keys.split('|')){
+      const key = normText(raw);
+      if(key) out.push({ key, name });
+    }
+  out.sort((a,b) => b.key.length - a.key.length);
+  return out;
+})();
+
+/* The composer named in a piece of text, or '' if none is. Matching is on whole
+   words — padding both sides with a space is what stops "Bach" being found
+   inside "Bachelor" while still finding it in "bach-invention-4". */
+function matchComposer(text){
+  const hay = ' ' + normText(text) + ' ';
+  if(hay.length < 4) return '';
+  for(const c of COMPOSER_KEYS)
+    if(hay.includes(' ' + c.key + ' ')) return c.name;
+  return '';
+}
+
 function cleanName(n){
   return n.replace(/\.pdf$/i,'').replace(/[_]+/g,' ').replace(/\s{2,}/g,' ').trim();
 }
@@ -1009,14 +1380,24 @@ async function importFile(file){
   const thumb = await canvasBlob(c, 'image/jpeg', 0.72);
 
   // title from PDF metadata when it is there, otherwise the filename
-  let title = cleanName(file.name), composer = '';
+  let title = cleanName(file.name), author = '';
   try{
     const md = await pdf.getMetadata();
     if(md && md.info){
       if(usableText(md.info.Title)) title = md.info.Title.trim();
-      if(usableText(md.info.Author)) composer = md.info.Author.trim();
+      if(usableText(md.info.Author)) author = md.info.Author.trim();
     }
   }catch(e){}
+
+  /* Composer: a name we recognise in the PDF's own author field first, since
+     that field is meant to hold exactly this; then one recognised in the title
+     or the filename, which is where it usually actually is. Failing all three,
+     fall back to whatever the author field said verbatim — often a real name we
+     simply don't have on the list, and better than nothing. A recognised name
+     is also returned in its canonical spelling, so "BACH, J.S." and
+     "js_bach" both land as Johann Sebastian Bach. */
+  const composer = matchComposer(author) || matchComposer(title) ||
+                   matchComposer(cleanName(file.name)) || author;
 
   const doc = { id, title, composer, keyInfo:'', notes:'', set:S.set, pages:pdf.numPages,
                 added:Date.now(), bytes:buf.byteLength, marked:false };
