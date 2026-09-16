@@ -187,6 +187,12 @@ input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
 /* ink layers are viewport-sized, never page-sized, so cost never grows with zoom */
 .inklayer{position:absolute;inset:0;pointer-events:none;will-change:transform;transform:translate3d(0,0,0)}
 .inklayer canvas{position:absolute;left:0;top:0}
+/* a page still being drawn: a quiet spinner in the corner, so a tap on an
+   unprepared page visibly did something even with the bar hidden */
+.stage::after{content:'';position:absolute;top:calc(var(--safe-t) + 14px);right:14px;z-index:6;
+  width:18px;height:18px;border-radius:50%;border:2px solid rgba(0,0,0,.12);border-top-color:var(--pencil);
+  opacity:0;transition:opacity .15s;pointer-events:none}
+.stage.loading::after{opacity:1;animation:sp .8s linear infinite}
 
 /* one borderless row, floating clear of the page */
 /* The bar is only its buttons as far as touch is concerned. As a solid strip it
@@ -590,6 +596,17 @@ const DB = {
     return true;
   },
   keep(k, v){ mem.set(k, v); },
+  // every key starting with prefix (keys only, no values read)
+  async keys(prefix){
+    if(idbBroken) return [];
+    try{ return await idbRun('readonly', s => s.getAllKeys(IDBKeyRange.bound(prefix, prefix + '\uffff'))); }
+    catch(e){ return []; }
+  },
+  async delPrefix(prefix){
+    for(const k of [...mem.keys()]) if(k.startsWith(prefix)) mem.delete(k);
+    if(idbBroken) return;
+    try{ await idbRun('readwrite', s => s.delete(IDBKeyRange.bound(prefix, prefix + '\uffff'))); }catch(e){}
+  },
   async del(k){
     mem.delete(k);
     if(idbBroken) return;
@@ -602,7 +619,8 @@ const K = {
   pdf:id=>'pdf:'+id,
   thumb:id=>'thumb:'+id,
   ink:id=>'ink:'+id,
-  presets:'settings:presets'
+  presets:'settings:presets',
+  rasters:'cache:rasters'      // bookkeeping for saved page images (see Raster)
 };
 
 async function estimateUsage(){
@@ -2321,9 +2339,14 @@ async function importFile(file){
   // documents in memory for the rest of the session.
   try{ await pdf.destroy(); }catch(err){}
 
+  const persist = async () => { await DB.set(K.pdf(id), file); await DB.set(K.thumb(id), thumb); };
   try{
-    await DB.set(K.pdf(id), file);
-    await DB.set(K.thumb(id), thumb);
+    try{ await persist(); }
+    catch(err){
+      // Saved page images are only a speed-up; a score always outranks them.
+      if(!(await Raster.purgeAll())) throw err;
+      await persist();
+    }
   }catch(err){
     console.error(err);
     doc.sessionOnly = true;
@@ -2334,6 +2357,7 @@ async function importFile(file){
   thumbCache.set(id, URL.createObjectURL(thumb));
   S.docs.unshift(doc);
   await saveIndexNow();
+  if(!doc.sessionOnly) Prep.add(id);
 }
 
 /* =======================================================================
@@ -2383,8 +2407,9 @@ $('#dDelete').addEventListener('click', async () => {
   }
   armDoc = null; clearTimeout(armTimer);
   await DB.del(K.pdf(d.id)); await DB.del(K.thumb(d.id)); await DB.del(K.ink(d.id));
+  S.docs = S.docs.filter(x => x.id !== d.id);   // first, so a save in flight can't re-add its pages
+  await Raster.forget(d.id);
   dropThumb(d.id);
-  S.docs = S.docs.filter(x => x.id !== d.id);
   hideModals(); await saveIndexNow(); await renderAll(); toast('Removed');
 });
 
@@ -2447,6 +2472,10 @@ $('#q').addEventListener('input', e => { S.query = e.target.value; renderGrid();
    5. Page turns are bitmap swaps. Neighbours are pre-rasterized, so a turn is a
       synchronous drawImage with no await anywhere in the path. Taps therefore
       queue properly: three fast taps advance three pages.
+   6. pdf.js draws a page once, ever. Each fit-size page is saved as a
+      screen-sized JPEG, so a heavy scan's full-resolution image is decoded one
+      time per screen shape instead of on every visit; after that a page is a
+      native image decode of a few milliseconds.
    ======================================================================= */
 const V = {
   id:null, doc:null, pdf:null, page:1,
@@ -2541,7 +2570,7 @@ function sizeInkLayer(){
   inkDpr = d;
 }
 function pageDpr(w,h){
-  const d = Math.min(window.devicePixelRatio || 1, 2);
+  const d = dprCap();
   const px = w*h*d*d;
   return px > MAX_PAGE_PIXELS ? d * Math.sqrt(MAX_PAGE_PIXELS/px) : d;
 }
@@ -2934,6 +2963,7 @@ async function openDoc(id){
     const vEl = $('#viewer');
     vEl.style.transition = ''; vEl.style.opacity = ''; vEl.style.transform = '';   // never inherit a stranded exit
     V.exiting = false; V.exitSeq++;                      // invalidate any pending teardown
+    Prep.pause(); abortPrefetch(); unblank(); shownPage = 0;
     if(V.pdf){ const prev = V.pdf; V.pdf = null;
       try{ const r = prev.destroy(); if(r && r.catch) r.catch(()=>{}); }catch(err){} }
     V.id = id; V.doc = doc; V.page = 1; V.zoom = 1; V.undo = []; V.dirty = false;
@@ -2941,6 +2971,8 @@ async function openDoc(id){
     V.ink = (await DB.get(K.ink(id))) || {};
     for(const k in V.ink) for(const s of V.ink[k]) s.b = null;   // recompute bounds lazily
     V.pdf = await pdfjsLib.getDocument({data: new Uint8Array(await blob.arrayBuffer())}).promise;
+    await Raster.open(id);
+    lastNav = nowMs();
     setMarkup(false);
     showBar(true);
     $('#viewer').classList.add('open');
@@ -2957,7 +2989,9 @@ async function openDoc(id){
 $('#vBack').addEventListener('click', async () => {
   if(V.dirty) await saveInk();
   $('#viewer').classList.remove('open');
-  setTimeout(closeDocument, 300);
+  // openDoc bumps exitSeq, so a score opened again within the slide-out isn't torn down
+  const seq = V.exitSeq;
+  setTimeout(() => { if(seq === V.exitSeq) closeDocument(); }, 300);
   renderGrid();
 });
 
@@ -2967,13 +3001,20 @@ $('#vBack').addEventListener('click', async () => {
    exactly when memory is short, so an afternoon of opening and closing scores
    ends with a tab that gets killed. */
 function closeDocument(){
+  if(V.pdf && V.id && stageW){
+    const sk = stageKey();
+    for(let n = 1; n <= V.pdf.numPages; n++) if(!Raster.has(n, sk)){ Prep.add(V.id); break; }
+  }
   abortPrefetch();
   clearTimeout(sweepTimer);
+  unblank(); shownPage = 0;
   const doc = V.pdf;
   V.pdf = null;
   if(doc){ try{ const r = doc.destroy(); if(r && r.catch) r.catch(()=>{}); }catch(err){} }
+  nudgeLive();
   clearCache();
   freeGhost();
+  Prep.resume();
   if(pdfCanvas.width > 1){ pdfCanvas.width = 1; pdfCanvas.height = 1; }
   if(liveCanvas.width > 1){ liveCanvas.width = 1; liveCanvas.height = 1; }
 }
@@ -2993,7 +3034,8 @@ function closeDocument(){
 const CACHE_MAX = 6;             // pages, at most
 const CACHE_PIXELS = 8e6;        // ...and roughly 32MB of bitmap, whichever binds first
 
-function stageKey(){ return Math.round(stageW) + 'x' + Math.round(stageH); }
+function dprCap(){ return Math.min(window.devicePixelRatio || 1, 2); }
+function stageKey(w = stageW, h = stageH){ return Math.round(w) + 'x' + Math.round(h) + '@' + dprCap(); }
 
 /* Once a page is a bitmap in our cache, pdf.js no longer needs the page itself —
    and what it is holding is not small: the decoded images and embedded fonts of
@@ -3012,7 +3054,7 @@ function sweepSoon(){
   // a document-wide sweep once the paging has settled, for anything the
   // per-page release missed
   sweepTimer = setTimeout(() => {
-    if(!V.pdf || V.rendering || liveTask || prefetchTask) return;
+    if(!V.pdf || V.rendering || liveTask || bgJob) return;
     // document-wide cleanup returns a PROMISE and rejects if anything is still
     // rendering; a bare try/catch never sees that and it surfaces as an error.
     try{ const r = V.pdf.cleanup(); if(r && r.catch) r.catch(()=>{}); }catch(err){}
@@ -3026,11 +3068,28 @@ function freeGhost(){
   if(ghostCanvas.width > 1){ ghostCanvas.width = 1; ghostCanvas.height = 1; }
 }
 
-/* Dropping the reference isn't enough on iOS — the backing store lingers until
-   the collector gets round to it, which is exactly when memory is tight.
-   Resizing to zero hands it back now. */
+/* An entry's bitmap is a canvas when pdf.js drew it and an ImageBitmap when it
+   came back from storage. Both draw the same way, and both have to be handed
+   back explicitly — dropping the reference isn't enough on iOS, the backing
+   store lingers until the collector gets round to it, which is exactly when
+   memory is tight. A page still waiting to be saved keeps its pixels until the
+   save has taken its copy, then lets go. */
+function releaseSource(s){
+  if(!s) return;
+  if(typeof s.close === 'function'){ try{ s.close(); }catch(err){} }
+  else { s.width = 0; s.height = 0; }
+}
 function freeEntry(e){
-  if(e && e.canvas){ e.canvas.width = 0; e.canvas.height = 0; }
+  if(!e || !e.canvas) return;
+  if(e.saving){ e.freeLater = true; return; }
+  releaseSource(e.canvas);
+}
+function putCache(n, e){
+  const old = V.cache.get(n);
+  if(old && old !== e) freeEntry(old);
+  e.n = n;
+  V.cache.set(n, e);
+  trimCache();
 }
 function clearCache(){
   for(const e of V.cache.values()) freeEntry(e);
@@ -3054,73 +3113,546 @@ function trimCache(){
   }
 }
 
-/* Prefetching is speculative by definition, so it must never hold up a real
-   page turn: a navigation cancels it outright rather than waiting it out. */
-let prefetchTimer = null, prefetchTask = null, prefetchGen = 0;
-function schedulePrefetch(){
-  clearTimeout(prefetchTimer);
-  prefetchTimer = setTimeout(prefetchNeighbors, 80);
+/* ---------- saved page images ----------
+
+   pdf.js decodes a scanned page's full-resolution image every single time it
+   draws that page. A 600 dpi scan is 30-odd megapixels of JPEG, JBIG2 or
+   JPEG 2000, decoded in JavaScript, when the phone only ever shows about one
+   megapixel of it. That decode is nearly all of the wait on a high-resolution
+   score, and it was paid again every time the score was opened.
+
+   So every page pdf.js draws at fit size is also saved, as the screen-sized
+   JPEG it ends up as anyway. Next time that page comes back from storage and is
+   decoded natively in milliseconds, and pdf.js isn't involved at all. While a
+   score sits idle on the stand the rest of its pages are prepared the same
+   way, so repeats, D.S. jumps and skipping ahead land instantly too.
+
+   These are purely a speed-up: kept per screen shape (portrait and landscape
+   separately), capped in total with the least recently opened scores dropped
+   first, and thrown away wholesale whenever a real score needs the space. */
+const RASTER_V = 1;                  // bump if page geometry ever changes
+const RASTER_TYPE = 'image/jpeg', RASTER_Q = 0.9;
+const RASTER_BUDGET = 300e6;         // bytes across the whole library, at most
+const WARM_WHOLE_SCORE = true;       // prepare every page while idle, not just neighbours
+const WARM_DELAY = 1500;             // ms without a page turn before that starts
+
+function decodeImage(blob){
+  if(window.createImageBitmap){
+    return createImageBitmap(blob).catch(() => decodeViaImg(blob));
+  }
+  return decodeViaImg(blob);
 }
-function abortPrefetch(){
-  prefetchGen++;
-  clearTimeout(prefetchTimer);
-  if(prefetchTask){ try{ prefetchTask.cancel(); }catch(err){} prefetchTask = null; }
+async function decodeViaImg(blob){
+  const url = URL.createObjectURL(blob);
+  try{
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    c.getContext('2d', {alpha:false}).drawImage(img, 0, 0);
+    return c;
+  }finally{ URL.revokeObjectURL(url); }
 }
-async function prefetchNeighbors(){
-  if(!V.pdf || V.zoom !== 1) return;
-  const gen = ++prefetchGen;
-  const sk = stageKey();
-  const want = [V.page+1, V.page-1, V.page+2, V.page+3]
-    .filter(n => n>=1 && n<=V.pdf.numPages && !V.cache.has(n));
-  for(const n of want){
-    if(gen !== prefetchGen || V.rendering || V.zoom !== 1 || V.cache.has(n)) return;
+/* Background work waits for a moment when nothing is being drawn or touched, so
+   it never lands in the middle of a page turn or a pen stroke. */
+async function quietMoment(){
+  const t0 = nowMs();
+  do{ await new Promise(r => setTimeout(r, 50)); }
+  while((V.rendering || ptrs.size) && nowMs() - t0 < 4000);
+}
+
+const Raster = {
+  doc:null, have:new Set(), queued:new Set(), queue:[], pumping:false, waiters:[],
+  index:null, indexTimer:null, budgetBytes:0, off:false,
+
+  prefix(id){ return 'raster:' + id + ':'; },
+  key(id, sk, n){ return this.prefix(id) + 'v' + RASTER_V + ':' + sk + ':' + n; },
+  usable(){ return !this.off && !idbBroken; },
+  wanted(id){
+    const d = S.docs.find(x => x.id === id);
+    return !!d && !d.sessionOnly;
+  },
+
+  async loadIndex(){
+    if(!this.index){
+      const v = await DB.get(K.rasters);
+      if(!this.index) this.index = (v && typeof v === 'object') ? v : {};
+    }
+    return this.index;
+  },
+  saveIndexSoon(){
+    clearTimeout(this.indexTimer);
+    this.indexTimer = setTimeout(() => {
+      if(this.index && !idbBroken) idbRun('readwrite', s => s.put(this.index, K.rasters)).catch(() => {});
+    }, 800);
+  },
+  async budget(){
+    if(!this.budgetBytes){
+      let b = RASTER_BUDGET;
+      const u = await estimateUsage();
+      if(u && u.quota) b = Math.min(b, u.quota * 0.15);
+      this.budgetBytes = Math.max(b, 30e6);
+    }
+    return this.budgetBytes;
+  },
+
+  // Which pages of this score are already saved: one keys-only read on open,
+  // so every later check is a Set lookup with no storage round trip.
+  async open(id){
+    this.doc = id; this.have = new Set();
+    if(!this.usable()) return;
+    const keys = await DB.keys(this.prefix(id));
+    if(this.doc !== id) return;
+    for(const k of keys) this.have.add(k);
+    const ix = await this.loadIndex();
+    (ix[id] || (ix[id] = {bytes:0, t:0})).t = Date.now();
+    this.saveIndexSoon();
+  },
+  has(n, sk){ return this.doc !== null && this.have.has(this.key(this.doc, sk, n)); },
+
+  async load(id, sk, n){
+    const key = this.key(id, sk, n);
+    if(!this.have.has(key)) return null;
+    let rec = null;
+    try{ rec = await idbRun('readonly', s => s.get(key)); }catch(err){}
+    if(!rec || !rec.blob){ this.have.delete(key); return null; }
     try{
-      const page = await V.pdf.getPage(n);
-      if(gen !== prefetchGen || V.rendering) return;
-      // every page is measured on its own: in a mixed-size document the
-      // neighbour's fit is not the current page's fit, and rendering it at the
-      // wrong scale produced a cache entry that could never be used
-      const base = page.getViewport({scale:1});
-      const fit = Math.min(stageW/base.width, stageH/base.height);
-      const vp = page.getViewport({scale: fit});
-      const w = Math.floor(vp.width), h = Math.floor(vp.height);
-      const d = pageDpr(w,h);
-      const c = document.createElement('canvas');
-      c.width = Math.floor(w*d); c.height = Math.floor(h*d);
-      const cx = c.getContext('2d', {alpha:false});
-      cx.fillStyle = '#fff'; cx.fillRect(0,0,c.width,c.height);
-      const task = page.render({ canvasContext: cx, viewport: page.getViewport({scale: fit*d}) });
-      prefetchTask = task;
-      await task.promise;
-      prefetchTask = null;
-      if(gen !== prefetchGen || V.zoom !== 1){ c.width = c.height = 0; return; }
-      V.cache.set(n, {canvas:c, fit, w, h, sk});
-      trimCache();
-      releasePage(page);
+      const img = await decodeImage(rec.blob);
+      return {canvas:img, fit:rec.fit, w:rec.w, h:rec.h, sk, saved:true};
     }catch(err){
-      prefetchTask = null;
-      if(err && err.name === 'RenderingCancelledException') return;
-      /* any other failed prefetch just means the live render does it later */
+      // unreadable: forget it, and pdf.js draws the page again
+      this.have.delete(key); DB.del(key);
+      return null;
+    }
+  },
+
+  save(id, n, e){
+    if(!this.usable() || !id || !e || e.saved || !e.canvas || typeof e.canvas.close === 'function') return;
+    if(!this.wanted(id)) return;
+    const key = this.key(id, e.sk, n);
+    if(this.have.has(key) || this.queued.has(key)) return;
+    // never let unsaved pages pile up in memory behind a slow disk
+    while(this.queue.length >= 3){
+      const old = this.queue.shift();
+      this.queued.delete(old.key);
+      this.settle(old.e);
+    }
+    e.saving = true;
+    this.queued.add(key);
+    this.queue.push({id, n, e, key});
+    this.pump();
+  },
+  settle(e){
+    e.saving = false;
+    if(e.freeLater){ e.freeLater = false; releaseSource(e.canvas); }
+  },
+  async pump(){
+    if(this.pumping) return;
+    this.pumping = true;
+    try{
+      while(this.queue.length){
+        await quietMoment();
+        const job = this.queue.shift();
+        if(!job) break;
+        this.queued.delete(job.key);
+        try{
+          if(this.usable() && job.e.canvas.width){
+            const blob = await canvasBlob(job.e.canvas, RASTER_TYPE, RASTER_Q);
+            this.settle(job.e);                 // the encoder has its copy
+            if(await this.write(job.id, job.key, {blob, fit:job.e.fit, w:job.e.w, h:job.e.h})) job.e.saved = true;
+          }
+        }catch(err){ /* not saved: pdf.js draws it next time, as before */ }
+        finally{ this.settle(job.e); }
+      }
+    }finally{
+      this.pumping = false;
+      const w = this.waiters; this.waiters = [];
+      w.forEach(r => r());
+    }
+  },
+  drained(){
+    if(!this.pumping && !this.queue.length) return Promise.resolve();
+    return new Promise(r => this.waiters.push(r));
+  },
+
+  async write(id, key, rec){
+    if(!this.wanted(id)) return false;          // removed while it was being encoded
+    const put = () => idbRun('readwrite', s => s.put(rec, key));
+    try{ await put(); }
+    catch(err){
+      // Most likely full. Make room from other scores and try once more;
+      // failing that, stop for this session — nothing here is essential.
+      await this.evict(id, 0);
+      try{ await put(); }catch(e2){ this.off = true; return false; }
+    }
+    if(id === this.doc) this.have.add(key);
+    const ix = await this.loadIndex();
+    const ent = ix[id] || (ix[id] = {bytes:0, t:Date.now()});
+    ent.bytes = (ent.bytes || 0) + rec.blob.size;
+    this.saveIndexSoon();
+    let total = 0; for(const k in ix) total += ix[k].bytes || 0;
+    const cap = await this.budget();
+    if(total > cap) await this.evict(id, cap * 0.75);
+    return true;
+  },
+
+  // drop whole scores, least recently opened first, until the total fits
+  async evict(keepId, limit){
+    const ix = await this.loadIndex();
+    let total = 0; for(const k in ix) total += ix[k].bytes || 0;
+    const ids = Object.keys(ix).filter(k => k !== keepId)
+      .sort((a,b) => (ix[a].t || 0) - (ix[b].t || 0));
+    for(const id of ids){
+      if(total <= limit) break;
+      total -= ix[id].bytes || 0;
+      delete ix[id];
+      await DB.delPrefix(this.prefix(id));
+    }
+    this.saveIndexSoon();
+  },
+
+  async forget(id){
+    const ix = await this.loadIndex();
+    delete ix[id];
+    this.saveIndexSoon();
+    if(this.doc === id) this.have = new Set();
+    await DB.delPrefix(this.prefix(id));
+  },
+
+  // A score always outranks pictures of scores. Returns whether anything was freed.
+  async purgeAll(){
+    if(idbBroken) return false;
+    let n = 0;
+    try{ n = await idbRun('readonly', s => s.count(IDBKeyRange.bound('raster:', 'raster:\uffff'))); }
+    catch(err){}
+    if(!n) return false;
+    for(const j of this.queue){ this.queued.delete(j.key); this.settle(j.e); }
+    this.queue = [];
+    await DB.delPrefix('raster:');
+    this.index = {}; this.have = new Set(); this.budgetBytes = 0;
+    try{ await idbRun('readwrite', s => s.put(this.index, K.rasters)); }catch(err){}
+    return true;
+  }
+};
+
+
+/* ---------- preparing scores from the library ----------
+
+   A score you've just added, or one you closed before every page was
+   prepared, carries on being prepared while you're in the library, so the
+   first time you play from it is as quick as every time after. It runs on its
+   own pdf.js document, one page at a time, only with a real worker thread
+   (parsing on the main thread would freeze the library), and it stands aside
+   the moment a score is opened. The viewer is laid out even while it's
+   hidden, so the stage it measures is the one the pages will be shown on. */
+const Prep = {
+  queue:[], running:false, hold:false, task:null, timer:null,
+  add(id){
+    if(!this.queue.includes(id)) this.queue.push(id);
+    this.kick();
+  },
+  kick(ms){
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.run(), ms == null ? 1500 : ms);
+  },
+  pause(){
+    this.hold = true;
+    clearTimeout(this.timer);
+    if(this.task){ try{ this.task.cancel(); }catch(err){} }
+  },
+  resume(){
+    this.hold = false;
+    if(this.queue.length) this.kick();
+  },
+  async run(){
+    if(this.running || this.hold || !usingRealWorker || !Raster.usable()) return;
+    this.running = true;
+    try{
+      while(this.queue.length && !this.hold){
+        if(document.hidden){ this.kick(3000); return; }
+        const finished = await this.prepare(this.queue[0]);
+        if(!finished) return;              // interrupted: picked up again on resume
+        this.queue.shift();
+      }
+    }catch(err){ console.warn('page preparation stopped:', err); }
+    finally{ this.running = false; }
+  },
+  // true when the score is done (or can't be done), false when interrupted
+  async prepare(id){
+    const sw = stage.clientWidth, sh = stage.clientHeight;
+    if(!sw || !sh || !Raster.wanted(id)) return true;
+    const sk = stageKey(sw, sh);
+    const have = new Set(await DB.keys(Raster.prefix(id)));
+    const blob = await DB.get(K.pdf(id));
+    if(!blob || this.hold) return !blob;
+    const pdf = await pdfjsLib.getDocument({data: new Uint8Array(await blob.arrayBuffer())}).promise;
+    try{
+      for(let n = 1; n <= pdf.numPages; n++){
+        if(this.hold) return false;
+        if(!Raster.wanted(id) || !Raster.usable()) return true;
+        if(have.has(Raster.key(id, sk, n))) continue;
+        await Raster.drained();
+        await quietMoment();
+        if(this.hold || document.hidden) return false;
+        const page = await pdf.getPage(n);
+        const g = pageGeom(page, 1, sw, sh);
+        const {c, task} = rasterize(page, g);
+        this.task = task;
+        try{ await task.promise; }
+        catch(err){
+          releaseSource(c);
+          if(err && err.name === 'RenderingCancelledException') return false;
+          continue;                        // one bad page shouldn't stop the rest
+        }finally{
+          this.task = null;
+          releasePage(page);
+        }
+        const e = {canvas:c, fit:g.fit, w:g.w, h:g.h, sk};
+        Raster.save(id, n, e);
+        freeEntry(e);                      // memory lets go once it's written
+        if(n % 8 === 0){ try{ const r = pdf.cleanup(); if(r && r.catch) r.catch(()=>{}); }catch(err){} }
+      }
+      await Raster.drained();
+      return true;
+    }finally{
+      try{ const r = pdf.destroy(); if(r && r.catch) r.catch(()=>{}); }catch(err){}
     }
   }
+};
+
+/* ---------- drawing a page ---------- */
+function pageGeom(page, zoom, sw = stageW, sh = stageH){
+  const base = page.getViewport({scale:1});
+  // every page is measured on its own: in a mixed-size document the
+  // neighbour's fit is not the current page's fit
+  const fit = Math.min(sw/base.width, sh/base.height);
+  const css = fit * zoom;
+  const vp = page.getViewport({scale: css});
+  const w = Math.floor(vp.width), h = Math.floor(vp.height);
+  const d = pageDpr(w, h);
+  return {fit, css, w, h, d, bw: Math.floor(w*d), bh: Math.floor(h*d)};
+}
+/* Always into a fresh, off-screen canvas. The visible one is only ever touched
+   by a single drawImage once a page is complete, so a zoom re-render leaves the
+   stretched page up instead of flashing white, and the finished canvas becomes
+   the cache entry as-is instead of being copied into one. */
+function rasterize(page, g){
+  const c = document.createElement('canvas');
+  c.width = g.bw; c.height = g.bh;
+  const cx = c.getContext('2d', {alpha:false});
+  cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height);
+  const task = page.render({ canvasContext: cx, viewport: page.getViewport({scale: g.css*g.d}) });
+  return {c, task};
+}
+function sizePageBox(w, h){
+  pagewrap.style.width = w+'px'; pagewrap.style.height = h+'px';
+  pdfCanvas.style.width = w+'px'; pdfCanvas.style.height = h+'px';
+}
+
+/* ---------- background preparation ----------
+
+   One page at a time, chosen afresh each time from wherever you are now: the
+   next two pages and the previous one first, then — once the score has sat
+   idle for a moment — every other page not yet saved.
+
+   A page turn no longer throws this work away. It used to cancel whatever was
+   being prepared and start the page from scratch, so tapping while the next
+   page of a heavy scan was 90% drawn cost the whole draw again. Now, if the
+   page you tap to is the one being prepared, the turn simply waits for it to
+   finish. Work is only cancelled when pdf.js is needed for something you are
+   actually waiting on, and a draw that completes anyway is still kept. */
+let bgTimer = null, bgJob = null, lastNav = 0, warmCount = 0;
+
+function schedulePrefetch(ms){
+  clearTimeout(bgTimer);
+  bgTimer = setTimeout(runBackground, ms == null ? 60 : ms);
+}
+function abortPrefetch(){
+  clearTimeout(bgTimer);
+  const job = bgJob; bgJob = null;
+  if(job){
+    job.dead = true;
+    if(job.task){ try{ job.task.cancel(); }catch(err){} }
+  }
+}
+function nextBackgroundPage(sk){
+  const p = V.page, N = V.pdf.numPages;
+  for(const n of [p+1, p+2, p-1, p+3]){
+    if(n < 1 || n > N) continue;
+    const e = V.cache.get(n);
+    if(!e || e.sk !== sk) return {n, near:true};
+  }
+  if(!WARM_WHOLE_SCORE || !usingRealWorker || !Raster.usable() || !Raster.wanted(V.id)) return null;
+  // forward from here first, then back towards the start
+  for(let i = 0; i < N; i++){
+    const n = p + i <= N ? p + i : N - i;
+    if(Raster.has(n, sk)) continue;
+    const e = V.cache.get(n);
+    if(e && e.sk === sk){ if(!e.saved) Raster.save(V.id, n, e); continue; }
+    return {n, near:false};
+  }
+  return null;
+}
+function runBackground(){
+  if(bgJob || !V.pdf || V.rendering || V.zoom !== 1 || V.exiting) return;
+  const sk = stageKey();
+  const next = nextBackgroundPage(sk);
+  if(!next){ sweepSoon(); return; }
+  if(!next.near){
+    const wait = WARM_DELAY - (nowMs() - lastNav);
+    if(wait > 0){ schedulePrefetch(wait); return; }
+    if(V.markup || ptrs.size){ schedulePrefetch(WARM_DELAY); return; }
+    // a long warm-up otherwise accumulates pdf.js's document-wide caches
+    if(++warmCount % 8 === 0){
+      try{ const r = V.pdf.cleanup(); if(r && r.catch) r.catch(()=>{}); }catch(err){}
+    }
+  }
+  const job = startJob(next.n, sk, next.near);
+  job.promise.then(() => { if(!job.dead) schedulePrefetch(job.near ? 0 : 30); });
+}
+function startJob(n, sk, near){
+  const pdf = V.pdf, id = V.id;
+  const job = {n, sk, near, task:null, dead:false, adopted:false};
+  bgJob = job;
+  job.promise = (async () => {
+    try{
+      // one warm page's pixels in memory at a time
+      if(!near) await Raster.drained();
+      if(job.dead || pdf !== V.pdf) return null;
+      let e = Raster.has(n, sk) ? await Raster.load(id, sk, n) : null;
+      if(!e){
+        // the reader's own render always goes first
+        if(job.dead || pdf !== V.pdf || (V.rendering && !job.adopted)) return null;
+        const page = await pdf.getPage(n);
+        if(job.dead || pdf !== V.pdf || (V.rendering && !job.adopted)) return null;
+        const g = pageGeom(page, 1);
+        const {c, task} = rasterize(page, g);
+        job.task = task;
+        try{ await task.promise; }
+        catch(err){ releaseSource(c); throw err; }
+        finally{ job.task = null; releasePage(page); }
+        e = {canvas:c, fit:g.fit, w:g.w, h:g.h, sk};
+      }
+      // A draw that finished is worth keeping even if the job was called off;
+      // only a different document or screen shape makes it useless.
+      if(pdf !== V.pdf || sk !== stageKey()){ freeEntry(e); return null; }
+      Raster.save(id, n, e);
+      if(near || job.adopted || Math.abs(n - V.page) <= 3) putCache(n, e);
+      else freeEntry(e);                          // saved; memory doesn't need it
+      return e;
+    }catch(err){
+      return null;          // cancelled or failed: the live render covers it
+    }finally{
+      if(bgJob === job) bgJob = null;
+    }
+  })();
+  return job;
+}
+
+/* ---------- the visible page ---------- */
+let liveTask = null;
+let shownPage = 0;           // the page whose pixels are on pdfCanvas right now
+let wakeLive = null;
+function nudgeLive(){ const w = wakeLive; wakeLive = null; if(w) w(); }
+function untilSuperseded(){ return new Promise(r => { wakeLive = r; }); }
+
+/* A page that isn't ready yet: if it takes longer than a blink, clear the old
+   one away and show a small spinner, so the tap visibly registered even with
+   the bar hidden. Anything faster — a saved page, say — never flashes. */
+let blankTimer = null;
+function blankSoon(){
+  if(blankTimer) return;
+  blankTimer = setTimeout(() => {
+    blankTimer = null;
+    pctx.setTransform(1,0,0,1,0,0);
+    pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+    ictx.setTransform(1,0,0,1,0,0);
+    ictx.clearRect(0, 0, inkCanvas.width, inkCanvas.height);
+    shownPage = 0;
+    stage.classList.add('loading');
+  }, 120);
+}
+function unblank(){
+  clearTimeout(blankTimer); blankTimer = null;
+  stage.classList.remove('loading');
 }
 
 /* Paint a cached page synchronously. No awaits: this is what makes taps instant.
    The entry carries its own fit, so landing on a page of a different size lands
    with the right geometry too. */
 function applyEntry(e){
+  if(!e || !e.canvas || !e.canvas.width) return false;
   V.fit = e.fit;
   V.renderW = e.w; V.renderH = e.h;
-  pagewrap.style.width = e.w+'px'; pagewrap.style.height = e.h+'px';
-  pdfCanvas.style.width = e.w+'px'; pdfCanvas.style.height = e.h+'px';
+  sizePageBox(e.w, e.h);
   if(pdfCanvas.width !== e.canvas.width || pdfCanvas.height !== e.canvas.height){
     pdfCanvas.width = e.canvas.width; pdfCanvas.height = e.canvas.height;
   }
   pctx.setTransform(1,0,0,1,0,0);
   pctx.drawImage(e.canvas, 0, 0);
+  shownPage = e.n;
+  unblank();
+  return true;
 }
 
-let liveTask = null;
+/* Get page n at fit size, fastest route first: a background draw already under
+   way, then a saved image, then pdf.js. Returns null when superseded. */
+async function fetchForView(n, sk, pdf){
+  const job = bgJob;
+  if(job && job.n === n && job.sk === sk){
+    job.adopted = true;
+    await Promise.race([job.promise, untilSuperseded()]);
+    wakeLive = null;
+    if(pdf !== V.pdf) return null;
+    if(V.want !== null){ job.adopted = false; return null; }
+    const e = V.cache.get(n);
+    if(e && e.sk === sk) return e;
+    // it came to nothing (cancelled or failed): draw it here instead
+  }else if(job && job.task){
+    // pdf.js is busy with a page you aren't waiting for
+    abortPrefetch();
+  }
+
+  if(Raster.has(n, sk)){
+    const e = await Raster.load(V.id, sk, n);
+    if(e){
+      if(pdf !== V.pdf || sk !== stageKey()){ freeEntry(e); return null; }
+      putCache(n, e);
+      return e;
+    }
+  }
+
+  if(V.want !== null) return null;
+  const page = await pdf.getPage(n);
+  if(V.want !== null || pdf !== V.pdf) return null;
+  const g = pageGeom(page, 1);
+  const {c, task} = rasterize(page, g);
+  liveTask = task;
+  try{ await task.promise; }
+  catch(err){
+    releaseSource(c);
+    if(err && err.name === 'RenderingCancelledException'){
+      // cancelled with nowhere newer to go: ask for this page again
+      if(V.want === null) V.want = V.page;
+      return null;
+    }
+    throw err;
+  }finally{
+    liveTask = null;
+    /* Whatever became of the render, pdf.js has now parsed this page and is
+       holding its images and fonts. Releasing only on success meant every
+       abandoned page of a fast tap-through stayed resident — which is how
+       a few seconds of tapping reached gigabytes and got the tab killed. */
+    releasePage(page);
+  }
+  if(pdf !== V.pdf || sk !== stageKey()){ releaseSource(c); return null; }
+  // Finished is finished: even if you've already tapped on, keep it.
+  const e = {canvas:c, fit:g.fit, w:g.w, h:g.h, sk};
+  Raster.save(V.id, n, e);
+  putCache(n, e);
+  return e;
+}
 
 async function renderPage(keepPan){
   if(!V.pdf) return;
@@ -3131,79 +3663,76 @@ async function renderPage(keepPan){
   if(V.rendering){
     V.want = V.page;
     if(liveTask){ try{ liveTask.cancel(); }catch(err){} }
+    nudgeLive();
     return;
   }
   V.rendering = true;
-  abortPrefetch();
+  const pdf = V.pdf;
   try{
     let guard = 0;
     do{
       V.want = null;
       const target = V.page;
       dropStale();
-      const page = await V.pdf.getPage(target);
-      if(V.want !== null) continue;                  // superseded while fetching
-      const base = page.getViewport({scale:1});
-      const fit = Math.min(stageW/base.width, stageH/base.height);
-      V.fit = fit;
-
       const sk = stageKey();
-      const cached = V.zoom === 1 ? V.cache.get(target) : null;
-      if(cached && cached.sk === sk){
-        applyEntry(cached);
-      }else{
-        const css = fit * V.zoom;
-        const vp = page.getViewport({scale: css});
-        const w = Math.floor(vp.width), h = Math.floor(vp.height);
-        const d = pageDpr(w,h);
-        V.renderW = w; V.renderH = h;
-        pagewrap.style.width = w+'px'; pagewrap.style.height = h+'px';
-        pdfCanvas.style.width = w+'px'; pdfCanvas.style.height = h+'px';
-        const bw = Math.floor(w*d), bh = Math.floor(h*d);
-        if(pdfCanvas.width !== bw || pdfCanvas.height !== bh){ pdfCanvas.width = bw; pdfCanvas.height = bh; }
-        pctx.setTransform(1,0,0,1,0,0);
-        pctx.fillStyle = '#fff'; pctx.fillRect(0,0,bw,bh);
 
+      if(V.zoom === 1){
+        let e = V.cache.get(target);
+        if(!e || e.sk !== sk){
+          if(shownPage !== target) blankSoon();
+          e = await fetchForView(target, sk, pdf);
+          if(pdf !== V.pdf) return;
+          if(V.want !== null) continue;             // superseded while fetching
+          if(!e){ V.want = V.page; continue; }
+        }
+        if(!applyEntry(e)){ V.want = V.page; continue; }
+      }else{
+        // zoomed: pdf.js is needed now, for this page, at this scale
+        if(bgJob) abortPrefetch();
+        const page = await pdf.getPage(target);
+        if(pdf !== V.pdf) return;
+        if(V.want !== null) continue;
+        const g = pageGeom(page, V.zoom);
+        V.fit = g.fit;
+        const {c, task} = rasterize(page, g);
+        liveTask = task;
         let cancelled = false;
-        try{
-          const task = page.render({ canvasContext: pctx, viewport: page.getViewport({scale: css*d}) });
-          liveTask = task;
-          await task.promise;
-        }catch(err){
+        try{ await task.promise; }
+        catch(err){
           if(err && err.name === 'RenderingCancelledException') cancelled = true;
-          else throw err;
+          else { releaseSource(c); throw err; }
         }finally{
           liveTask = null;
-          /* Whatever became of the render, pdf.js has now parsed this page and is
-             holding its images and fonts. Releasing only on success meant every
-             abandoned page of a fast tap-through stayed resident — which is how
-             a few seconds of tapping reached gigabytes and got the tab killed. */
           releasePage(page);
         }
-        // superseded: don't snapshot half a page, and don't settle the view on
-        // a page we are already moving away from
-        // Cancelled with nowhere newer to go would leave a half-painted page
-        // on screen, so ask for this one again rather than stopping here.
+        if(pdf !== V.pdf){ releaseSource(c); return; }
+        // Cancelled with nowhere newer to go would leave the page soft, so ask
+        // for it again rather than stopping here.
         if(cancelled && V.want === null) V.want = V.page;
-        if(cancelled || V.want !== null) continue;
-
-        if(V.zoom === 1 && V.page === target){
-          const snap = document.createElement('canvas');
-          snap.width = bw; snap.height = bh;
-          snap.getContext('2d',{alpha:false}).drawImage(pdfCanvas, 0, 0);
-          V.cache.set(target, {canvas:snap, fit, w, h, sk});
-          trimCache();
-        }
+        if(cancelled || V.want !== null){ releaseSource(c); continue; }
+        // Swap the crisp page in, in one go. Until now the stretched bitmap
+        // stayed on screen rather than a blank one.
+        V.renderW = g.w; V.renderH = g.h;
+        sizePageBox(g.w, g.h);
+        if(pdfCanvas.width !== g.bw || pdfCanvas.height !== g.bh){ pdfCanvas.width = g.bw; pdfCanvas.height = g.bh; }
+        pctx.setTransform(1,0,0,1,0,0);
+        pctx.drawImage(c, 0, 0);
+        releaseSource(c);
+        shownPage = target;
+        unblank();
       }
       if(keepPan) clampPan(); else centerPage();
       redrawInk();
     } while(V.want !== null && (V.page = V.want) && ++guard < 200);
 
     $('#pLabel').textContent = `${V.page} / ${V.pdf.numPages}`;
-    schedulePrefetch();
-    sweepSoon();
   }catch(err){ console.error(err); }
-  V.rendering = false;
+  finally{
+    V.rendering = false;
+    unblank();
+    if(pdf === V.pdf){ schedulePrefetch(); sweepSoon(); }
+    else if(V.pdf && V.want !== null){ V.want = null; renderPage(); }   // a new score asked while the old one wound down
+  }
 }
 
 /* ---------- ink ---------- */
@@ -3654,22 +4183,24 @@ function goPage(n, silent){
   if(n === V.page) return false;
   if(V.dirty) saveInk();
   V.page = n; V.zoom = 1;
+  lastNav = nowMs();
   $('#pLabel').textContent = `${n} / ${V.pdf.numPages}`;
   const e = V.cache.get(n);
   if(e && e.sk === stageKey()){
-    /* A render already in flight is for a page we have just left, and pdf.js
-       paints progressively — left alone it would draw the old page over this
-       one a moment from now. Redirect it and cancel its work. */
+    /* A render already in flight is for a page we have just left, and would
+       otherwise land on top of this one a moment from now. Redirect it. */
     if(V.rendering){
       V.want = n;
       if(liveTask){ try{ liveTask.cancel(); }catch(err){} }
+      nudgeLive();
     }
     // the whole point: a cached neighbour is painted in this tick, no awaits
-    applyEntry(e);
-    centerPage();
-    redrawInk();
-    schedulePrefetch();
-    return true;
+    if(applyEntry(e)){
+      centerPage();
+      redrawInk();
+      schedulePrefetch();
+      return true;
+    }
   }
   renderPage();
   return false;
@@ -3941,9 +4472,9 @@ async function exportDoc(id){
 let rt;
 window.addEventListener('resize', () => {
   if(!$('#viewer').classList.contains('open')) return;
-  clearTimeout(rt); rt = setTimeout(() => { measure(); renderPage(); }, 180);
+  clearTimeout(rt); rt = setTimeout(() => { abortPrefetch(); measure(); renderPage(); }, 180);
 });
-window.addEventListener('orientationchange', () => setTimeout(() => { measure(); renderPage(); }, 320));
+window.addEventListener('orientationchange', () => setTimeout(() => { abortPrefetch(); measure(); renderPage(); }, 320));
 document.addEventListener('gesturestart', e => e.preventDefault());
 window.addEventListener('beforeunload', () => { if(V.dirty) saveInk(); });
 document.addEventListener('visibilitychange', () => { if(document.hidden && V.dirty) saveInk(); });

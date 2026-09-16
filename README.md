@@ -53,6 +53,22 @@ Deleting the app from your home screen deletes its scores with it. Anything you
 want to keep, export first with the share button in the viewer — that writes a
 flattened PDF with your markings burned in.
 
+## Fast page turns
+
+High-resolution scans are slow to draw, so Stand draws each page once and keeps
+a screen-sized picture of it alongside the score. After that, turning to that
+page is near-instant, including after closing and reopening the app.
+
+Pages are prepared in the background: a newly added score while you're in the
+library, and the rest of an open score once you pause on a page. Leave a new
+score for a minute before a gig and every page is ready. Portrait and landscape
+are prepared separately.
+
+These pictures are only a speed-up. They're capped at about 300 MB (less on a
+nearly full phone), the least recently opened scores are dropped first, and
+they're cleared automatically whenever a new PDF needs the space. Removing a
+score removes its pictures. Your markings are never part of them.
+
 ## Changing the app later
 
 Edit `index.html`, then bump `CACHE` in `sw.js` (`stand-v1` → `stand-v2`) and
