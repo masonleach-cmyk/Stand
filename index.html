@@ -2931,7 +2931,7 @@ async function openDoc(id){
     vEl.style.transition = ''; vEl.style.opacity = ''; vEl.style.transform = '';   // never inherit a stranded exit
     V.exiting = false; V.exitSeq++;                      // invalidate any pending teardown
     V.id = id; V.doc = doc; V.page = 1; V.zoom = 1; V.undo = []; V.dirty = false;
-    V.cache.clear(); V.fit = 0;
+    clearCache(); V.fit = 0;
     V.ink = (await DB.get(K.ink(id))) || {};
     for(const k in V.ink) for(const s of V.ink[k]) s.b = null;   // recompute bounds lazily
     V.pdf = await pdfjsLib.getDocument({data: new Uint8Array(await blob.arrayBuffer())}).promise;
@@ -2951,44 +2951,110 @@ async function openDoc(id){
 $('#vBack').addEventListener('click', async () => {
   if(V.dirty) await saveInk();
   $('#viewer').classList.remove('open');
-  setTimeout(()=>{ V.pdf = null; V.cache.clear(); }, 300);
+  setTimeout(()=>{ V.pdf = null; clearCache(); }, 300);
   renderGrid();
 });
 
-/* ---------- page bitmap cache ---------- */
-function trimCache(){
-  if(V.cache.size <= 8) return;
-  const keys = [...V.cache.keys()].sort((a,b) => Math.abs(a-V.page) - Math.abs(b-V.page));
-  for(const k of keys.slice(8)) V.cache.delete(k);
+/* ---------- page bitmap cache ----------
+
+   An entry is valid for the STAGE it was drawn for, not for the fit factor of
+   whatever page happens to be showing. That distinction matters: a scanned
+   score whose cover is A4 and whose music pages are Letter has a different fit
+   per page, and treating a fit change as "the cache is stale" threw the whole
+   thing away on every single turn — which is why some PDFs paged smoothly and
+   others re-rendered from scratch every time.
+
+   The budget is in PIXELS rather than pages. Eight pages of a small vector
+   score is 24MB; eight pages of a large scan is several times that, and iOS
+   kills a tab that asks for too much canvas at once. */
+const CACHE_MAX = 8;             // pages, at most
+const CACHE_PIXELS = 12e6;       // ...and roughly 48MB of bitmap, whichever binds first
+
+function stageKey(){ return Math.round(stageW) + 'x' + Math.round(stageH); }
+
+/* Dropping the reference isn't enough on iOS — the backing store lingers until
+   the collector gets round to it, which is exactly when memory is tight.
+   Resizing to zero hands it back now. */
+function freeEntry(e){
+  if(e && e.canvas){ e.canvas.width = 0; e.canvas.height = 0; }
 }
-let prefetchTimer = null;
+function clearCache(){
+  for(const e of V.cache.values()) freeEntry(e);
+  V.cache.clear();
+}
+function dropStale(){
+  const sk = stageKey();
+  for(const [k, e] of V.cache) if(e.sk !== sk){ freeEntry(e); V.cache.delete(k); }
+}
+function trimCache(){
+  const keys = [...V.cache.keys()].sort((a,b) => Math.abs(a-V.page) - Math.abs(b-V.page));
+  let px = 0, kept = 0;
+  for(const k of keys){
+    const e = V.cache.get(k);
+    px += e.canvas.width * e.canvas.height;
+    kept++;
+    // always keep the page you're on and one either side, whatever their size
+    if(kept > CACHE_MAX || (kept > 3 && px > CACHE_PIXELS)){
+      freeEntry(e); V.cache.delete(k);
+    }
+  }
+}
+
+/* Prefetching is speculative by definition, so it must never hold up a real
+   page turn: a navigation cancels it outright rather than waiting it out. */
+let prefetchTimer = null, prefetchTask = null, prefetchGen = 0;
 function schedulePrefetch(){
   clearTimeout(prefetchTimer);
   prefetchTimer = setTimeout(prefetchNeighbors, 80);
 }
+function abortPrefetch(){
+  prefetchGen++;
+  clearTimeout(prefetchTimer);
+  if(prefetchTask){ try{ prefetchTask.cancel(); }catch(err){} prefetchTask = null; }
+}
 async function prefetchNeighbors(){
-  if(!V.pdf || V.zoom !== 1 || !V.fit) return;
+  if(!V.pdf || V.zoom !== 1) return;
+  const gen = ++prefetchGen;
+  const sk = stageKey();
   const want = [V.page+1, V.page-1, V.page+2, V.page+3]
     .filter(n => n>=1 && n<=V.pdf.numPages && !V.cache.has(n));
   for(const n of want){
-    if(V.rendering || V.zoom !== 1 || V.cache.has(n)) break;
+    if(gen !== prefetchGen || V.rendering || V.zoom !== 1 || V.cache.has(n)) return;
     try{
       const page = await V.pdf.getPage(n);
-      const vp = page.getViewport({scale: V.fit});
+      if(gen !== prefetchGen || V.rendering) return;
+      // every page is measured on its own: in a mixed-size document the
+      // neighbour's fit is not the current page's fit, and rendering it at the
+      // wrong scale produced a cache entry that could never be used
+      const base = page.getViewport({scale:1});
+      const fit = Math.min(stageW/base.width, stageH/base.height);
+      const vp = page.getViewport({scale: fit});
       const w = Math.floor(vp.width), h = Math.floor(vp.height);
       const d = pageDpr(w,h);
       const c = document.createElement('canvas');
       c.width = Math.floor(w*d); c.height = Math.floor(h*d);
       const cx = c.getContext('2d', {alpha:false});
       cx.fillStyle = '#fff'; cx.fillRect(0,0,c.width,c.height);
-      await page.render({ canvasContext: cx, viewport: page.getViewport({scale: V.fit*d}) }).promise;
-      if(V.zoom === 1){ V.cache.set(n, {canvas:c, fit:V.fit, w, h}); trimCache(); }
-    }catch(err){ /* a failed prefetch just means the live render does it later */ }
+      const task = page.render({ canvasContext: cx, viewport: page.getViewport({scale: fit*d}) });
+      prefetchTask = task;
+      await task.promise;
+      prefetchTask = null;
+      if(gen !== prefetchGen || V.zoom !== 1){ c.width = c.height = 0; return; }
+      V.cache.set(n, {canvas:c, fit, w, h, sk});
+      trimCache();
+    }catch(err){
+      prefetchTask = null;
+      if(err && err.name === 'RenderingCancelledException') return;
+      /* any other failed prefetch just means the live render does it later */
+    }
   }
 }
 
-/* Paint a cached page synchronously. No awaits: this is what makes taps instant. */
+/* Paint a cached page synchronously. No awaits: this is what makes taps instant.
+   The entry carries its own fit, so landing on a page of a different size lands
+   with the right geometry too. */
 function applyEntry(e){
+  V.fit = e.fit;
   V.renderW = e.w; V.renderH = e.h;
   pagewrap.style.width = e.w+'px'; pagewrap.style.height = e.h+'px';
   pdfCanvas.style.width = e.w+'px'; pdfCanvas.style.height = e.h+'px';
@@ -2999,23 +3065,36 @@ function applyEntry(e){
   pctx.drawImage(e.canvas, 0, 0);
 }
 
+let liveTask = null;
+
 async function renderPage(keepPan){
   if(!V.pdf) return;
-  if(V.rendering){ V.want = V.page; return; }
+  /* Already drawing? Record where we actually want to be and CANCEL what's in
+     flight. Without this, tapping through ten pages rendered all ten in full,
+     one after another, before the tenth appeared — every intermediate one a
+     page nobody would ever see. */
+  if(V.rendering){
+    V.want = V.page;
+    if(liveTask){ try{ liveTask.cancel(); }catch(err){} }
+    return;
+  }
   V.rendering = true;
+  abortPrefetch();
   try{
     let guard = 0;
     do{
       V.want = null;
       const target = V.page;
+      dropStale();
       const page = await V.pdf.getPage(target);
+      if(V.want !== null) continue;                  // superseded while fetching
       const base = page.getViewport({scale:1});
       const fit = Math.min(stageW/base.width, stageH/base.height);
-      if(V.fit && Math.abs(V.fit - fit) > 0.0005) V.cache.clear();
       V.fit = fit;
 
+      const sk = stageKey();
       const cached = V.zoom === 1 ? V.cache.get(target) : null;
-      if(cached && cached.fit === V.fit){
+      if(cached && cached.sk === sk){
         applyEntry(cached);
       }else{
         const css = fit * V.zoom;
@@ -3029,18 +3108,36 @@ async function renderPage(keepPan){
         if(pdfCanvas.width !== bw || pdfCanvas.height !== bh){ pdfCanvas.width = bw; pdfCanvas.height = bh; }
         pctx.setTransform(1,0,0,1,0,0);
         pctx.fillStyle = '#fff'; pctx.fillRect(0,0,bw,bh);
-        await page.render({ canvasContext: pctx, viewport: page.getViewport({scale: css*d}) }).promise;
+
+        let cancelled = false;
+        try{
+          const task = page.render({ canvasContext: pctx, viewport: page.getViewport({scale: css*d}) });
+          liveTask = task;
+          await task.promise;
+        }catch(err){
+          if(err && err.name === 'RenderingCancelledException') cancelled = true;
+          else throw err;
+        }finally{
+          liveTask = null;
+        }
+        // superseded: don't snapshot half a page, and don't settle the view on
+        // a page we are already moving away from
+        // Cancelled with nowhere newer to go would leave a half-painted page
+        // on screen, so ask for this one again rather than stopping here.
+        if(cancelled && V.want === null) V.want = V.page;
+        if(cancelled || V.want !== null) continue;
+
         if(V.zoom === 1 && V.page === target){
           const snap = document.createElement('canvas');
           snap.width = bw; snap.height = bh;
           snap.getContext('2d',{alpha:false}).drawImage(pdfCanvas, 0, 0);
-          V.cache.set(target, {canvas:snap, fit:V.fit, w, h});
+          V.cache.set(target, {canvas:snap, fit, w, h, sk});
           trimCache();
         }
       }
       if(keepPan) clampPan(); else centerPage();
       redrawInk();
-    } while(V.want !== null && (V.page = V.want) && ++guard < 60);
+    } while(V.want !== null && (V.page = V.want) && ++guard < 200);
 
     $('#pLabel').textContent = `${V.page} / ${V.pdf.numPages}`;
     schedulePrefetch();
@@ -3449,7 +3546,7 @@ function prepGhost(dir){
   const n = V.page + dir;
   if(!V.pdf || n < 1 || n > V.pdf.numPages) return false;
   const e = V.cache.get(n);
-  if(!e || e.fit !== V.fit) { schedulePrefetch(); return false; }
+  if(!e || e.sk !== stageKey()) { schedulePrefetch(); return false; }
   if(ghostCanvas.width !== e.canvas.width || ghostCanvas.height !== e.canvas.height){
     ghostCanvas.width = e.canvas.width; ghostCanvas.height = e.canvas.height;
   }
@@ -3498,7 +3595,15 @@ function goPage(n, silent){
   V.page = n; V.zoom = 1;
   $('#pLabel').textContent = `${n} / ${V.pdf.numPages}`;
   const e = V.cache.get(n);
-  if(e && e.fit === V.fit){
+  if(e && e.sk === stageKey()){
+    /* A render already in flight is for a page we have just left, and pdf.js
+       paints progressively — left alone it would draw the old page over this
+       one a moment from now. Redirect it and cancel its work. */
+    if(V.rendering){
+      V.want = n;
+      if(liveTask){ try{ liveTask.cancel(); }catch(err){} }
+    }
+    // the whole point: a cached neighbour is painted in this tick, no awaits
     applyEntry(e);
     centerPage();
     redrawInk();
