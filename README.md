@@ -69,6 +69,26 @@ nearly full phone), the least recently opened scores are dropped first, and
 they're cleared automatically whenever a new PDF needs the space. Removing a
 score removes its pictures. Your markings are never part of them.
 
+## Composers
+
+A piece's composer is picked from a list rather than typed, so a name is
+always spelled the same way. Tap the Composer field in a piece's details and
+search — spelling mistakes are fine. If nobody matches, choose Unknown or add
+them.
+
+The people button beside the search bar opens the full list: every composer
+Stand can recognise from a filename, grouped by period. You can filter to the
+ones in your library or the ones you added. Composers you add can be renamed
+or removed; renaming updates every piece that uses them, and removing one sets
+those pieces to Unknown. Pieces carrying a name from before the list existed
+appear at the top, ready to add or replace.
+
+For Beethoven, Chopin, Debussy, Mozart, Rachmaninoff and Scriabin, tap
+**Works ›** to see their complete catalogue, grouped by kind or set. Works you
+have a score for are highlighted and open with a tap; the rest are greyed out.
+A piece counts as long as its title includes the work's catalogue number or
+nickname.
+
 ## Changing the app later
 
 Edit `index.html`, then bump `CACHE` in `sw.js` (`stand-v1` → `stand-v2`) and

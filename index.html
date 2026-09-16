@@ -227,6 +227,7 @@ html{touch-action:manipulation}
 .prow.quiet .nm{color:var(--text-dim)}
 .prow .badge{flex:none;font-size:10.5px;padding:2px 7px;border-radius:9px;background:var(--slate-3);color:var(--text-dim);border:1px solid var(--line)}
 .prow .badge.warn{color:#C9A45C}
+.prow .badge.works{color:var(--pencil-hi);border-color:rgba(74,111,165,.45);padding:5px 10px;font-size:12px}
 .pnote{padding:14px 10px 6px;color:var(--text-faint);font-size:13.5px}
 mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 
@@ -241,6 +242,19 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .sheetmodal.compact .btnrow{margin-top:14px}
 .hint{font-size:11.5px;color:var(--text-faint);margin-top:5px;line-height:1.4}
 .ceinfo{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-top:2px}
+#mWorks{z-index:44}
+.btn.wide{width:100%;margin-top:12px}
+.wrow{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:10px}
+.wrow .nm{display:block;font-size:14.5px;line-height:1.3;color:var(--text)}
+.wrow .sub{display:block;font-size:12px;color:var(--pencil-hi);margin-top:2px}
+.wrow.missing{opacity:.34}
+.wrow.missing .nm{color:var(--text-dim)}
+.wrow.owned{background:rgba(74,111,165,.10);margin:2px 0}
+.wrow.owned:active{background:var(--slate-3)}
+.wdocs{padding:0 0 4px 14px}
+.wdocs button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;font-size:13.5px;color:var(--text)}
+.wdocs button:active{background:var(--slate-3)}
+.wdocs button::before{content:'↳ ';color:var(--text-faint)}
 .linkbtn.inline{padding:0;min-width:0;font-size:inherit;text-align:left}
 #ceShow{flex:1.3}
 
@@ -625,12 +639,32 @@ svg{display:block}
     </div>
   </div>
   <div class="pchips" id="clChips">
-    <button class="chip on" data-f="all">All</button>
-    <button class="chip" data-f="library">In my library</button>
+    <button class="chip on" data-f="library">In my library</button>
+    <button class="chip" data-f="all">All</button>
     <button class="chip" data-f="added">Added by me</button>
   </div>
   <div class="pcount" id="clCount"></div>
   <div class="plist" id="clList"></div>
+</div>
+
+<div class="panel" id="mWorks" aria-label="Complete works">
+  <div class="panel-head">
+    <button class="linkbtn" id="wkBack">Back</button>
+    <h3 id="wkHead">Works</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="searchrow">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7688" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input id="wkQ" type="search" placeholder="Search works, e.g. Op. 27" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+  </div>
+  <div class="pchips" id="wkChips">
+    <button class="chip on" data-f="all">Complete works</button>
+    <button class="chip" data-f="mine">Only mine</button>
+  </div>
+  <div class="pcount" id="wkCount"></div>
+  <div class="plist" id="wkList"></div>
 </div>
 
 <div class="backdrop top" id="backdrop2"></div>
@@ -642,6 +676,7 @@ svg{display:block}
     <div class="hint" id="ceHint">Used to fill in the composer when you add a PDF. Avoid ordinary words that could turn up in any filename.</div></div>
   <div class="field"><label for="ceEra">Period</label><select id="ceEra"></select></div>
   <div class="ceinfo" id="ceInfo"></div>
+  <button class="btn wide" id="ceWorks">Complete works</button>
   <div class="btnrow">
     <button class="btn danger" id="ceDelete" aria-label="Remove composer">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6.5 7l.8 12.1A1.5 1.5 0 008.8 20.5h6.4a1.5 1.5 0 001.5-1.4L17.5 7"/></svg>
@@ -2441,7 +2476,7 @@ function findWork(composer, text){
 
   const mv = movementNumber(hay);
   const title = nicknameFirst(found.title);
-  return { title: mv ? title + ' — Movement ' + mv : title, tier };
+  return { title: mv ? title + ' — Movement ' + mv : title, tier, key: found.key };
 }
 
 /* A piece people know by its nickname is listed under it:
@@ -2554,6 +2589,7 @@ function hideModals(){
   $('#backdrop').classList.remove('on'); $('#backdrop2').classList.remove('on');
   $$('.sheetmodal').forEach(m=>m.classList.remove('on'));
   $('#mComposer').classList.remove('on');
+  $('#mWorks').classList.remove('on');
   editingId=null; editingSet=null;
 }
 $('#backdrop').addEventListener('click', hideModals);
@@ -2723,14 +2759,15 @@ function composerSub(e, used){
   const n = used.get(e.name) || 0;
   if(n) bits.push(n === 1 ? '1 piece' : n + ' pieces');
   const w = WORKS[e.name] ? WORKS[e.name].length : 0;
-  if(w) bits.push(w + ' works recognised');
+  if(w) bits.push(n ? `${ownedWorks(e.name).size} of ${w} works` : `${w} works catalogued`);
   return bits.join(' · ');
 }
 const TICK = '<svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-function composerRow(e, used, attrs, selected){
+function composerRow(e, used, attrs, selected, worksLink){
+  const works = worksLink && WORKS[e.name] ? `<span class="badge works" data-works="${esc(e.name)}">Works ›</span>` : '';
   return `<button class="prow${selected ? ' sel' : ''}" ${attrs}>
     <span class="tx"><span class="nm">${esc(e.name)}</span><span class="sub">${esc(composerSub(e, used))}</span></span>
-    ${e.custom ? '<span class="badge">Added</span>' : ''}${selected ? TICK : ''}</button>`;
+    ${e.custom ? '<span class="badge">Added</span>' : ''}${works}${selected ? TICK : ''}</button>`;
 }
 
 /* ---------- the details field ---------- */
@@ -2811,6 +2848,7 @@ $('#cpManage').addEventListener('click', () => { $('#cpQ').blur(); openComposerL
 const CL = { filter:'all', fromPicker:false };
 function openComposerList(fromPicker){
   CL.fromPicker = !!fromPicker;
+  CL.filter = 'library';          // what you own first; All is one tap away
   $('#clQ').value = '';
   renderComposerList();
   $('#clList').scrollTop = 0;
@@ -2845,7 +2883,7 @@ function renderComposerList(){
     h += '<h4>In your library, not on the list</h4>' + strays.map(n =>
       `<button class="prow" data-stray="${esc(n)}"><span class="tx"><span class="nm">${esc(n)}</span><span class="sub">${stray.get(n) === 1 ? '1 piece' : stray.get(n) + ' pieces'} · tap to add or replace</span></span><span class="badge warn">Not listed</span></button>`).join('');
   }
-  const row = e => composerRow(e, used, `data-open="${esc(e.name)}"`, false);
+  const row = e => composerRow(e, used, `data-open="${esc(e.name)}"`, false, true);
   if(q){
     h += list.length ? list.map(row).join('')
       : `<div class="pnote">No composer matches “${esc(q)}”.</div><button class="prow act" data-new="${esc(q)}"><span class="tx"><span class="nm">Add “${esc(q)}” as a new composer</span></span></button>`;
@@ -2867,6 +2905,8 @@ $('#clChips').addEventListener('click', e => {
   CL.filter = c.dataset.f; renderComposerList(); $('#clList').scrollTop = 0;
 });
 $('#clList').addEventListener('click', e => {
+  const wl = e.target.closest('[data-works]');
+  if(wl){ $('#clQ').blur(); return openWorks(wl.dataset.works); }
   const b = e.target.closest('button'); if(!b) return;
   $('#clQ').blur();
   if(b.dataset.open != null) openComposerEditor(findComposer(b.dataset.open), {});
@@ -2924,6 +2964,11 @@ function openComposerEditor(entry, opts){
   $('#ceDelete').style.display = entry && !builtin ? '' : 'none';
   $('#ceSave').style.display = builtin ? 'none' : '';
   $('#ceShow').style.display = entry && n ? '' : 'none';
+  $('#ceWorks').style.display = w ? '' : 'none';
+  if(w){
+    const have = ownedWorks(entry.name).size;
+    $('#ceWorks').textContent = `Complete works · ${have} of ${w} in your library`;
+  }
   $('#ceCancel').textContent = builtin ? 'Close' : 'Cancel';
   $('#backdrop2').classList.add('on');
   $('#mComposerEdit').classList.add('on');
@@ -3012,6 +3057,132 @@ $('#ceShow').addEventListener('click', () => {
   hideModals();
   S.query = name; $('#q').value = name;
   renderGrid();
+});
+
+
+/* ---------- complete works ----------
+   Everything catalogued for a composer, in catalogue order, grouped by kind.
+   Works you have a score for stand out and open it; the rest are greyed.
+   A piece is matched to its work the way an import is — by catalogue number or
+   nickname in its title — so a piece you've renamed still counts as long as
+   the title still says which work it is. */
+function workKeyOf(d){
+  if(!d.composer || !WORK_INDEX[d.composer]) return null;
+  const r = findWork(d.composer, d.title);
+  return r && r.tier <= 2 ? r.key : null;
+}
+function ownedWorks(name){
+  const m = new Map();
+  for(const d of S.docs){
+    if(d.composer !== name) continue;
+    const k = workKeyOf(d);
+    if(k == null) continue;
+    if(!m.has(k)) m.set(k, []);
+    m.get(k).push(d);
+  }
+  return m;
+}
+function workGenre(t){
+  return t.replace(/\s*“[^”]*”/g, '')
+          .replace(/\s+No\.\s.*$/, '')
+          .replace(/\s+in\s+[A-G](?:-(?:flat|sharp))?\s+(?:major|minor).*$/, '')
+          .replace(/[,(].*$/, '')
+          .trim() || 'Other works';
+}
+/* Which heading a work sits under. A movement of a set sits with the set —
+   L75/1 with L75, "Suite bergamasque" — whether the catalogue lists the set
+   itself or only names it in brackets, "(Préludes, Book 1 No. 1)". Everything
+   else goes by kind: Piano Sonata, Nocturne. Kinds with only a work or two are
+   gathered under "Other works" rather than each getting a heading. */
+function workGroups(works){
+  const titleOf = new Map(works.map(([k, t]) => [k, t]));
+  const raw = (k, t) => {
+    const slash = k.lastIndexOf('/');
+    if(slash > 0 && titleOf.has(k.slice(0, slash))) return titleOf.get(k.slice(0, slash)).replace(/\s*“[^”]*”/g, '');
+    const inSet = /\(([^()]+?)\s+No\.\s*\d+[^()]*\)\s*$/.exec(t);
+    if(inSet) return inSet[1].replace(/,\s*$/, '');
+    // the set's own entry heads its movements
+    if(works.some(([k2]) => k2.startsWith(k + '/'))) return t.replace(/\s*“[^”]*”/g, '');
+    return workGenre(t);
+  };
+  const count = new Map();
+  for(const [k, t] of works){ const g = raw(k, t); count.set(g, (count.get(g) || 0) + 1); }
+  return (k, t) => { const g = raw(k, t); return count.get(g) >= 3 ? g : 'Other works'; };
+}
+const WK = { name:null, filter:'all', open:new Set() };
+function openWorks(name){
+  WK.name = name; WK.filter = 'all'; WK.open = new Set();
+  $('#wkHead').textContent = name;
+  $('#wkQ').value = '';
+  renderWorks();
+  $('#wkList').scrollTop = 0;
+  $('#mWorks').classList.add('on');
+}
+function renderWorks(){
+  const works = WORKS[WK.name] || [];
+  const owned = ownedWorks(WK.name);
+  const q = normWork($('#wkQ').value || '');
+  $$('#wkChips .chip').forEach(c => c.classList.toggle('on', c.dataset.f === WK.filter));
+  $('#wkCount').textContent = `You have ${owned.size} of ${works.length} works` +
+    (owned.size ? ' · tap one to open it' : '');
+  const groupOf = workGroups(works);
+  const groups = new Map();
+  for(const [key, title] of works){
+    const have = owned.get(key);
+    if(WK.filter === 'mine' && !have) continue;
+    const shown = nicknameFirst(title);
+    if(q && !normWork(shown + ' ' + key).includes(q)) continue;
+    const g = groupOf(key, title);
+    if(!groups.has(g)) groups.set(g, []);
+    groups.get(g).push({ key, shown, have });
+  }
+  // the catch-all goes last
+  if(groups.has('Other works')){ const o = groups.get('Other works'); groups.delete('Other works'); groups.set('Other works', o); }
+  let h = '';
+  for(const [g, list] of groups){
+    const n = list.filter(w => w.have).length;
+    h += `<h4>${esc(g)}${n ? ` · ${n} of ${list.length}` : ''}</h4>`;
+    for(const w of list){
+      if(!w.have){
+        h += `<div class="wrow missing"><span class="nm">${esc(w.shown)}</span></div>`;
+        continue;
+      }
+      const many = w.have.length > 1;
+      h += `<button class="wrow owned" data-work="${esc(w.key)}"><span class="nm">${esc(w.shown)}</span>` +
+           `<span class="sub">${many ? `${w.have.length} scores · tap to choose` : 'In your library'}</span></button>`;
+      if(many && WK.open.has(w.key))
+        h += '<div class="wdocs">' + [...w.have].sort((x, y) => x.title.localeCompare(y.title, undefined, {numeric:true})).map(d => `<button data-doc="${esc(d.id)}">${esc(d.title)}</button>`).join('') + '</div>';
+    }
+  }
+  if(!h) h = `<div class="pnote">${WK.filter === 'mine' ? 'None of your pieces are matched to this catalogue yet. A piece is matched when its title includes the catalogue number or nickname.' : 'No works match.'}</div>`;
+  $('#wkList').innerHTML = h;
+}
+function openPieceFromWorks(id){
+  $('#mWorks').classList.remove('on');
+  $('#mComposers').classList.remove('on');
+  closeComposerEditor();
+  hideModals();
+  openDoc(id);
+}
+$('#wkList').addEventListener('click', e => {
+  const d = e.target.closest('[data-doc]');
+  if(d) return openPieceFromWorks(d.dataset.doc);
+  const w = e.target.closest('[data-work]'); if(!w) return;
+  const docs = ownedWorks(WK.name).get(w.dataset.work) || [];
+  if(docs.length === 1) return openPieceFromWorks(docs[0].id);
+  WK.open.has(w.dataset.work) ? WK.open.delete(w.dataset.work) : WK.open.add(w.dataset.work);
+  renderWorks();
+});
+$('#wkChips').addEventListener('click', e => {
+  const c = e.target.closest('.chip'); if(!c) return;
+  WK.filter = c.dataset.f; renderWorks(); $('#wkList').scrollTop = 0;
+});
+$('#wkQ').addEventListener('input', renderWorks);
+$('#wkBack').addEventListener('click', () => { $('#wkQ').blur(); $('#mWorks').classList.remove('on'); });
+$('#ceWorks').addEventListener('click', () => {
+  const name = CE.entry && CE.entry.name; if(!name) return;
+  closeComposerEditor();
+  openWorks(name);
 });
 
 /* ---------- sets ---------- */
