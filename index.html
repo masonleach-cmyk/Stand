@@ -116,7 +116,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
 /* Two lines are always reserved, so a one-line title doesn't pull the next row
    up and leave the grid ragged. overflow-wrap lets an unbroken filename split
    rather than push the column wider. */
-.tile .t{font-family:var(--serif);font-size:15px;line-height:1.25;color:var(--text);
+.tile .t{font-family:var(--serif);font-size:13px;line-height:1.28;color:var(--text);
   overflow-wrap:anywhere;min-height:2.5em;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 /* Composer and page count sit on their own lines: sharing one line meant a long
@@ -175,6 +175,67 @@ input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
 .btn.go{background:var(--pencil);border-color:var(--pencil);color:#fff;font-weight:500}
 .btn.danger{color:var(--red);flex:none;width:52px}
 .btn:active{transform:scale(.985)}
+
+
+/* ---------- piece details: tighter type ---------- */
+#mDetails h3{font-size:17px;margin-bottom:12px}
+#mDetails .field{margin-bottom:10px}
+#mDetails .field label{font-size:11.5px;margin-bottom:4px}
+#mDetails .field input,#mDetails .field textarea,#mDetails .field select,#mDetails .pickfield{font-size:14.5px;padding:9px 11px;border-radius:9px}
+#mDetails .field textarea{min-height:64px}
+#mDetails .btn{height:44px;font-size:14px}
+#mDetails .btnrow{margin-top:14px}
+
+/* a field you choose into rather than type into */
+.pickfield{width:100%;display:flex;align-items:center;gap:6px;text-align:left;min-height:40px;
+  background:var(--slate);border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--text)}
+.pickfield .v{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pickfield svg{flex:none;color:var(--text-faint)}
+.pickfield.unset .v{color:var(--text-faint)}
+.pickfield.stray .v::after{content:' · not on list';color:#C9A45C;font-size:.85em}
+
+/* ---------- composer picker and list ---------- */
+.panel{position:fixed;inset:0;z-index:40;background:var(--slate);display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .26s cubic-bezier(.32,.72,0,1);visibility:hidden}
+.panel.on{transform:none;visibility:visible}
+#mComposers{z-index:36}
+.panel-head{display:flex;align-items:center;gap:8px;padding:calc(var(--safe-t) + 10px) 12px 8px;flex:none}
+.panel-head h3{flex:1;margin:0;text-align:center;font-family:var(--serif);font-weight:600;font-size:17px}
+.linkbtn{color:var(--pencil-hi);font-size:15px;padding:8px;min-width:64px;text-align:left}
+.panel-head .linkbtn:last-child{text-align:right}
+.panel .searchrow{padding:2px 16px 8px}
+.pchips{display:flex;gap:8px;padding:2px 16px 4px;flex:none;overflow-x:auto;scrollbar-width:none}
+.pcount{padding:4px 18px 0;font-size:12px;color:var(--text-faint);flex:none}
+.plist{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 10px calc(var(--safe-b) + 28px)}
+.plist h4{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-faint);margin:16px 8px 4px}
+.prow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:9px 10px;border-radius:10px;min-height:46px}
+.prow:active{background:var(--slate-3)}
+.prow .tx{flex:1;min-width:0}
+.prow .nm,.prow .sub{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .nm{font-size:15px;color:var(--text)}
+.prow .sub{font-size:12px;color:var(--text-faint);margin-top:1px}
+.prow.sel{background:rgba(74,111,165,.16)}
+.prow .tick{color:var(--pencil-hi);flex:none}
+.prow.act .nm{color:var(--pencil-hi)}
+.prow.quiet .nm{color:var(--text-dim)}
+.prow .badge{flex:none;font-size:10.5px;padding:2px 7px;border-radius:9px;background:var(--slate-3);color:var(--text-dim);border:1px solid var(--line)}
+.prow .badge.warn{color:#C9A45C}
+.pnote{padding:14px 10px 6px;color:var(--text-faint);font-size:13.5px}
+mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
+
+.backdrop.top{z-index:46}
+.sheetmodal.top{z-index:47}
+.sheetmodal.compact h3{font-size:17px;margin-bottom:12px}
+.sheetmodal.compact .field{margin-bottom:10px}
+.sheetmodal.compact .field label{font-size:11.5px;margin-bottom:4px}
+.sheetmodal.compact .field input,.sheetmodal.compact .field select{font-size:14.5px;padding:9px 11px;border-radius:9px}
+.sheetmodal.compact .field input:disabled{opacity:.7}
+.sheetmodal.compact .btn{height:44px;font-size:14px}
+.sheetmodal.compact .btnrow{margin-top:14px}
+.hint{font-size:11.5px;color:var(--text-faint);margin-top:5px;line-height:1.4}
+.ceinfo{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-top:2px}
+.linkbtn.inline{padding:0;min-width:0;font-size:inherit;text-align:left}
+#ceShow{flex:1.3}
 
 /* ---------- viewer: bounded, GPU-composited layers ---------- */
 .stage{position:absolute;inset:0;overflow:hidden;touch-action:none;background:#000;contain:strict}
@@ -375,6 +436,9 @@ svg{display:block}
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7688" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
       <input id="q" type="search" placeholder="Find a piece" autocomplete="off" autocorrect="off" spellcheck="false">
     </div>
+    <button class="iconbtn" id="composersBtn" aria-label="Composers">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9AA3B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M3.5 19.5c.6-3.3 2.8-5.2 5.5-5.2s4.9 1.9 5.5 5.2"/><path d="M15.5 5.5h5M15.5 9.5h5M17 13.5h3.5"/></svg>
+    </button>
     <button class="iconbtn primary" id="addBtn" aria-label="Add sheet music">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     </button>
@@ -504,7 +568,8 @@ svg{display:block}
   <h3>Piece details</h3>
   <div class="field"><label for="dTitle">Title</label><input id="dTitle" type="text"></div>
   <div class="row2">
-    <div class="field"><label for="dComposer">Composer</label><input id="dComposer" type="text"></div>
+    <div class="field"><label for="dComposer">Composer</label>
+      <button type="button" class="pickfield" id="dComposer"><span class="v"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
     <div class="field"><label for="dKey">Key or tempo</label><input id="dKey" type="text" placeholder="B♭ · ♩=132"></div>
   </div>
   <div class="field"><label for="dSet">Set</label><select id="dSet"></select></div>
@@ -518,6 +583,63 @@ svg{display:block}
     </button>
     <button class="btn" id="dCancel">Cancel</button>
     <button class="btn go" id="dSave">Save details</button>
+  </div>
+</div>
+
+
+<!-- ===================== COMPOSERS ===================== -->
+<div class="panel" id="mComposer" aria-label="Choose a composer">
+  <div class="panel-head">
+    <button class="linkbtn" id="cpCancel">Cancel</button>
+    <h3>Composer</h3>
+    <button class="linkbtn" id="cpManage">Edit list</button>
+  </div>
+  <div class="searchrow">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7688" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input id="cpQ" type="search" placeholder="Search, e.g. Beethoven" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+  </div>
+  <div class="plist" id="cpList"></div>
+</div>
+
+<div class="panel" id="mComposers" aria-label="Composer list">
+  <div class="panel-head">
+    <button class="linkbtn" id="clDone">Done</button>
+    <h3>Composers</h3>
+    <button class="linkbtn" id="clAdd">Add</button>
+  </div>
+  <div class="searchrow">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7688" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input id="clQ" type="search" placeholder="Search composers" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+  </div>
+  <div class="pchips" id="clChips">
+    <button class="chip on" data-f="all">All</button>
+    <button class="chip" data-f="library">In my library</button>
+    <button class="chip" data-f="added">Added by me</button>
+  </div>
+  <div class="pcount" id="clCount"></div>
+  <div class="plist" id="clList"></div>
+</div>
+
+<div class="backdrop top" id="backdrop2"></div>
+<div class="sheetmodal compact top" id="mComposerEdit">
+  <div class="grab"></div>
+  <h3 id="ceHead">New composer</h3>
+  <div class="field"><label for="ceName">Name</label><input id="ceName" type="text" placeholder="Full name, e.g. Florence Price" autocomplete="off"></div>
+  <div class="field"><label for="ceKeys">Also recognised in filenames as</label><input id="ceKeys" type="text" placeholder="Surname, other spellings — comma separated" autocomplete="off" autocapitalize="off">
+    <div class="hint" id="ceHint">Used to fill in the composer when you add a PDF. Avoid ordinary words that could turn up in any filename.</div></div>
+  <div class="field"><label for="ceEra">Period</label><select id="ceEra"></select></div>
+  <div class="ceinfo" id="ceInfo"></div>
+  <div class="btnrow">
+    <button class="btn danger" id="ceDelete" aria-label="Remove composer">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6.5 7l.8 12.1A1.5 1.5 0 008.8 20.5h6.4a1.5 1.5 0 001.5-1.4L17.5 7"/></svg>
+    </button>
+    <button class="btn" id="ceShow">Show pieces</button>
+    <button class="btn" id="ceCancel">Cancel</button>
+    <button class="btn go" id="ceSave">Save</button>
   </div>
 </div>
 
@@ -622,7 +744,8 @@ const K = {
   thumb:id=>'thumb:'+id,
   ink:id=>'ink:'+id,
   presets:'settings:presets',
-  rasters:'cache:rasters'      // bookkeeping for saved page images (see Raster)
+  rasters:'cache:rasters',     // bookkeeping for saved page images (see Raster)
+  composers:'settings:composers'   // composers you've added yourself
 };
 
 async function estimateUsage(){
@@ -654,6 +777,8 @@ const esc = s => (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','
 async function loadLibrary(){
   const idx = await DB.get(K.index);
   if(idx){ S.docs = idx.docs || []; S.sets = idx.sets || []; }
+  await loadComposers();
+  if(nicknameMigrate()) await saveIndexNow();
   S.ready = true;
   await renderAll();
 }
@@ -1043,318 +1168,318 @@ function usableText(s){
    ======================================================================= */
 const COMPOSERS = [
   // --- medieval and renaissance ---
-  ['Hildegard von Bingen','hildegard|hildegard von bingen'],
-  ['Léonin','leonin'],
-  ['Pérotin','perotin'],
-  ['Guillaume de Machaut','machaut'],
-  ['Francesco Landini','landini'],
-  ['Guillaume Du Fay','du fay|dufay'],
-  ['Gilles Binchois','binchois'],
-  ['Johannes Ockeghem','ockeghem|okeghem'],
-  ['Josquin des Prez','josquin|josquin des prez'],
-  ['Jacob Obrecht','obrecht'],
-  ['Heinrich Isaac','heinrich isaac'],
-  ['Pierre de la Rue','de la rue'],
-  ['Clément Janequin','janequin'],
-  ['Nicolas Gombert','gombert'],
-  ['Cristóbal de Morales','morales|cristobal de morales'],
-  ['Thomas Tallis','tallis'],
-  ['William Byrd','byrd'],
-  ['John Bull','john bull'],
-  ['John Dowland','dowland'],
-  ['Thomas Morley','morley'],
-  ['Orlando Gibbons','gibbons'],
-  ['Thomas Weelkes','weelkes'],
-  ['John Taverner','taverner'],
-  ['Giovanni Pierluigi da Palestrina','palestrina'],
-  ['Orlande de Lassus','lassus|orlando di lasso|di lasso'],
-  ['Tomás Luis de Victoria','de victoria|tomas luis de victoria'],
-  ['Carlo Gesualdo','gesualdo'],
-  ['Luca Marenzio','marenzio'],
-  ['Jan Pieterszoon Sweelinck','sweelinck'],
-  ['Michael Praetorius','praetorius'],
+  ['Hildegard von Bingen','hildegard|hildegard von bingen','Medieval & Renaissance'],
+  ['Léonin','leonin','Medieval & Renaissance'],
+  ['Pérotin','perotin','Medieval & Renaissance'],
+  ['Guillaume de Machaut','machaut','Medieval & Renaissance'],
+  ['Francesco Landini','landini','Medieval & Renaissance'],
+  ['Guillaume Du Fay','du fay|dufay','Medieval & Renaissance'],
+  ['Gilles Binchois','binchois','Medieval & Renaissance'],
+  ['Johannes Ockeghem','ockeghem|okeghem','Medieval & Renaissance'],
+  ['Josquin des Prez','josquin|josquin des prez','Medieval & Renaissance'],
+  ['Jacob Obrecht','obrecht','Medieval & Renaissance'],
+  ['Heinrich Isaac','heinrich isaac','Medieval & Renaissance'],
+  ['Pierre de la Rue','de la rue','Medieval & Renaissance'],
+  ['Clément Janequin','janequin','Medieval & Renaissance'],
+  ['Nicolas Gombert','gombert','Medieval & Renaissance'],
+  ['Cristóbal de Morales','morales|cristobal de morales','Medieval & Renaissance'],
+  ['Thomas Tallis','tallis','Medieval & Renaissance'],
+  ['William Byrd','byrd','Medieval & Renaissance'],
+  ['John Bull','john bull','Medieval & Renaissance'],
+  ['John Dowland','dowland','Medieval & Renaissance'],
+  ['Thomas Morley','morley','Medieval & Renaissance'],
+  ['Orlando Gibbons','gibbons','Medieval & Renaissance'],
+  ['Thomas Weelkes','weelkes','Medieval & Renaissance'],
+  ['John Taverner','taverner','Medieval & Renaissance'],
+  ['Giovanni Pierluigi da Palestrina','palestrina','Medieval & Renaissance'],
+  ['Orlande de Lassus','lassus|orlando di lasso|di lasso','Medieval & Renaissance'],
+  ['Tomás Luis de Victoria','de victoria|tomas luis de victoria','Medieval & Renaissance'],
+  ['Carlo Gesualdo','gesualdo','Medieval & Renaissance'],
+  ['Luca Marenzio','marenzio','Medieval & Renaissance'],
+  ['Jan Pieterszoon Sweelinck','sweelinck','Medieval & Renaissance'],
+  ['Michael Praetorius','praetorius','Medieval & Renaissance'],
 
   // --- baroque ---
-  ['Claudio Monteverdi','monteverdi'],
-  ['Giulio Caccini','caccini'],
-  ['Francesco Cavalli','cavalli'],
-  ['Gregorio Allegri','allegri'],
-  ['Girolamo Frescobaldi','frescobaldi'],
-  ['Heinrich Schütz','schutz|schuetz'],
-  ['Johann Jacob Froberger','froberger'],
-  ['Dieterich Buxtehude','buxtehude'],
-  ['Heinrich Ignaz Biber','biber'],
-  ['Jean-Baptiste Lully','lully'],
-  ['Marc-Antoine Charpentier','charpentier'],
-  ['Marin Marais','marais'],
-  ['Élisabeth Jacquet de la Guerre','jacquet de la guerre|de la guerre'],
-  ['John Blow','john blow'],
-  ['Henry Purcell','purcell'],
-  ['Arcangelo Corelli','corelli'],
-  ['Giuseppe Torelli','torelli'],
-  ['Tomaso Albinoni','albinoni'],
-  ['Antonio Vivaldi','vivaldi'],
-  ['Johann Pachelbel','pachelbel'],
-  ['Alessandro Marcello','marcello|alessandro marcello'],
-  ['Benedetto Marcello','benedetto marcello'],
-  ['Jan Dismas Zelenka','zelenka'],
-  ['Christoph Graupner','graupner'],
-  ['Georg Philipp Telemann','telemann'],
-  ['Jean-Philippe Rameau','rameau'],
-  ['François Couperin','couperin|francois couperin'],
-  ['Louis Couperin','louis couperin'],
-  ['Jean-Marie Leclair','leclair'],
-  ['Johann Sebastian Bach','bach|js bach|j s bach|johann sebastian bach'],
-  ['C.P.E. Bach','cpe bach|c p e bach|carl philipp emanuel bach|emanuel bach'],
-  ['J.C. Bach','jc bach|j c bach|johann christian bach'],
-  ['W.F. Bach','wf bach|w f bach|wilhelm friedemann bach'],
-  ['George Frideric Handel','handel|haendel|g f handel|gf handel'],
-  ['Domenico Scarlatti','scarlatti|domenico scarlatti|d scarlatti'],
-  ['Alessandro Scarlatti','alessandro scarlatti|a scarlatti'],
-  ['Giovanni Battista Pergolesi','pergolesi'],
-  ['Giuseppe Tartini','tartini'],
-  ['Francesco Geminiani','geminiani'],
-  ['Pietro Locatelli','locatelli'],
-  ['Giovanni Battista Sammartini','sammartini'],
-  ['Giovanni Gabrieli','gabrieli|giovanni gabrieli'],
-  ['Andrea Gabrieli','andrea gabrieli'],
-  ['Antonio Soler','soler'],
-  ['Christoph Willibald Gluck','gluck'],
+  ['Claudio Monteverdi','monteverdi','Baroque'],
+  ['Giulio Caccini','caccini','Baroque'],
+  ['Francesco Cavalli','cavalli','Baroque'],
+  ['Gregorio Allegri','allegri','Baroque'],
+  ['Girolamo Frescobaldi','frescobaldi','Baroque'],
+  ['Heinrich Schütz','schutz|schuetz','Baroque'],
+  ['Johann Jacob Froberger','froberger','Baroque'],
+  ['Dieterich Buxtehude','buxtehude','Baroque'],
+  ['Heinrich Ignaz Biber','biber','Baroque'],
+  ['Jean-Baptiste Lully','lully','Baroque'],
+  ['Marc-Antoine Charpentier','charpentier','Baroque'],
+  ['Marin Marais','marais','Baroque'],
+  ['Élisabeth Jacquet de la Guerre','jacquet de la guerre|de la guerre','Baroque'],
+  ['John Blow','john blow','Baroque'],
+  ['Henry Purcell','purcell','Baroque'],
+  ['Arcangelo Corelli','corelli','Baroque'],
+  ['Giuseppe Torelli','torelli','Baroque'],
+  ['Tomaso Albinoni','albinoni','Baroque'],
+  ['Antonio Vivaldi','vivaldi','Baroque'],
+  ['Johann Pachelbel','pachelbel','Baroque'],
+  ['Alessandro Marcello','marcello|alessandro marcello','Baroque'],
+  ['Benedetto Marcello','benedetto marcello','Baroque'],
+  ['Jan Dismas Zelenka','zelenka','Baroque'],
+  ['Christoph Graupner','graupner','Baroque'],
+  ['Georg Philipp Telemann','telemann','Baroque'],
+  ['Jean-Philippe Rameau','rameau','Baroque'],
+  ['François Couperin','couperin|francois couperin','Baroque'],
+  ['Louis Couperin','louis couperin','Baroque'],
+  ['Jean-Marie Leclair','leclair','Baroque'],
+  ['Johann Sebastian Bach','bach|js bach|j s bach|johann sebastian bach','Baroque'],
+  ['C.P.E. Bach','cpe bach|c p e bach|carl philipp emanuel bach|emanuel bach','Baroque'],
+  ['J.C. Bach','jc bach|j c bach|johann christian bach','Baroque'],
+  ['W.F. Bach','wf bach|w f bach|wilhelm friedemann bach','Baroque'],
+  ['George Frideric Handel','handel|haendel|g f handel|gf handel','Baroque'],
+  ['Domenico Scarlatti','scarlatti|domenico scarlatti|d scarlatti','Baroque'],
+  ['Alessandro Scarlatti','alessandro scarlatti|a scarlatti','Baroque'],
+  ['Giovanni Battista Pergolesi','pergolesi','Baroque'],
+  ['Giuseppe Tartini','tartini','Baroque'],
+  ['Francesco Geminiani','geminiani','Baroque'],
+  ['Pietro Locatelli','locatelli','Baroque'],
+  ['Giovanni Battista Sammartini','sammartini','Baroque'],
+  ['Giovanni Gabrieli','gabrieli|giovanni gabrieli','Baroque'],
+  ['Andrea Gabrieli','andrea gabrieli','Baroque'],
+  ['Antonio Soler','soler','Baroque'],
+  ['Christoph Willibald Gluck','gluck','Baroque'],
 
   // --- classical ---
-  ['Joseph Haydn','haydn|joseph haydn|franz joseph haydn|f j haydn'],
-  ['Michael Haydn','michael haydn|m haydn'],
-  ['Wolfgang Amadeus Mozart','mozart|wa mozart|w a mozart|wolfgang amadeus mozart'],
-  ['Leopold Mozart','leopold mozart'],
-  ['Ludwig van Beethoven','beethoven'],
-  ['Antonio Salieri','salieri'],
-  ['Muzio Clementi','clementi'],
-  ['Luigi Cherubini','cherubini'],
-  ['Luigi Boccherini','boccherini'],
-  ['Carl Ditters von Dittersdorf','dittersdorf'],
-  ['Johann Stamitz','stamitz'],
-  ['Domenico Cimarosa','cimarosa'],
-  ['Johann Nepomuk Hummel','hummel'],
-  ['John Field','field'],
-  ['Carl Czerny','czerny'],
-  ['Friedrich Kuhlau','kuhlau'],
-  ['Anton Diabelli','diabelli'],
-  ['Fernando Sor','sor'],
-  ['Mauro Giuliani','giuliani'],
-  ['Ferdinando Carulli','carulli'],
-  ['Louis Spohr','spohr'],
-  ['Carl Maria von Weber','weber|carl maria von weber'],
-  ['Gioachino Rossini','rossini'],
-  ['Niccolò Paganini','paganini'],
-  ['Franz Schubert','schubert'],
-  ['Gaetano Donizetti','donizetti'],
-  ['Vincenzo Bellini','bellini'],
-  ['Daniel Auber','auber'],
+  ['Joseph Haydn','haydn|joseph haydn|franz joseph haydn|f j haydn','Classical'],
+  ['Michael Haydn','michael haydn|m haydn','Classical'],
+  ['Wolfgang Amadeus Mozart','mozart|wa mozart|w a mozart|wolfgang amadeus mozart','Classical'],
+  ['Leopold Mozart','leopold mozart','Classical'],
+  ['Ludwig van Beethoven','beethoven','Classical'],
+  ['Antonio Salieri','salieri','Classical'],
+  ['Muzio Clementi','clementi','Classical'],
+  ['Luigi Cherubini','cherubini','Classical'],
+  ['Luigi Boccherini','boccherini','Classical'],
+  ['Carl Ditters von Dittersdorf','dittersdorf','Classical'],
+  ['Johann Stamitz','stamitz','Classical'],
+  ['Domenico Cimarosa','cimarosa','Classical'],
+  ['Johann Nepomuk Hummel','hummel','Classical'],
+  ['John Field','field','Classical'],
+  ['Carl Czerny','czerny','Classical'],
+  ['Friedrich Kuhlau','kuhlau','Classical'],
+  ['Anton Diabelli','diabelli','Classical'],
+  ['Fernando Sor','sor','Classical'],
+  ['Mauro Giuliani','giuliani','Classical'],
+  ['Ferdinando Carulli','carulli','Classical'],
+  ['Louis Spohr','spohr','Classical'],
+  ['Carl Maria von Weber','weber|carl maria von weber','Classical'],
+  ['Gioachino Rossini','rossini','Classical'],
+  ['Niccolò Paganini','paganini','Classical'],
+  ['Franz Schubert','schubert','Classical'],
+  ['Gaetano Donizetti','donizetti','Classical'],
+  ['Vincenzo Bellini','bellini','Classical'],
+  ['Daniel Auber','auber','Classical'],
 
   // --- romantic ---
-  ['Hector Berlioz','berlioz'],
-  ['Felix Mendelssohn','mendelssohn|felix mendelssohn'],
-  ['Fanny Mendelssohn','fanny mendelssohn|fanny hensel'],
-  ['Frédéric Chopin','chopin'],
-  ['Robert Schumann','schumann|robert schumann|r schumann'],
-  ['Clara Schumann','clara schumann|clara wieck'],
-  ['Franz Liszt','liszt'],
-  ['Richard Wagner','wagner'],
-  ['Giuseppe Verdi','verdi'],
-  ['Charles Gounod','gounod'],
-  ['Jacques Offenbach','offenbach'],
-  ['César Franck','franck'],
-  ['Édouard Lalo','lalo'],
-  ['Bedřich Smetana','smetana'],
-  ['Anton Bruckner','bruckner'],
-  ['Johann Strauss II','strauss|johann strauss|johann strauss ii'],
-  ['Johann Strauss I','johann strauss i'],
-  ['Josef Strauss','josef strauss'],
-  ['Richard Strauss','richard strauss|r strauss'],
-  ['Johannes Brahms','brahms'],
-  ['Alexander Borodin','borodin'],
-  ['Camille Saint-Saëns','saint saens'],
-  ['Léo Delibes','delibes'],
-  ['Georges Bizet','bizet'],
-  ['Modest Mussorgsky','mussorgsky|moussorgsky|musorgsky'],
-  ['Pyotr Ilyich Tchaikovsky','tchaikovsky|tschaikowsky|chaikovsky|tchaikowsky'],
-  ['Antonín Dvořák','dvorak'],
-  ['Edvard Grieg','grieg'],
-  ['Nikolai Rimsky-Korsakov','rimsky korsakov|rimsky'],
-  ['Gabriel Fauré','faure'],
-  ['Isaac Albéniz','albeniz'],
-  ['Emmanuel Chabrier','chabrier'],
-  ['Leoš Janáček','janacek'],
-  ['Edward Elgar','elgar'],
-  ['Giacomo Puccini','puccini'],
-  ['Hugo Wolf','hugo wolf'],
-  ['Gustav Mahler','mahler'],
-  ['Claude Debussy','debussy'],
-  ['Jean Sibelius','sibelius'],
-  ['Carl Nielsen','nielsen'],
-  ['Alexander Glazunov','glazunov'],
-  ['Erik Satie','satie'],
-  ['Alexander Scriabin','scriabin|skryabin'],
-  ['Ralph Vaughan Williams','vaughan williams'],
-  ['Sergei Rachmaninoff','rachmaninoff|rachmaninov|rachmaninow'],
-  ['Gustav Holst','holst'],
-  ['Maurice Ravel','ravel'],
-  ['Manuel de Falla','falla|de falla'],
-  ['Ottorino Respighi','respighi'],
-  ['Ernest Bloch','bloch'],
-  ['Fritz Kreisler','kreisler'],
-  ['Enrique Granados','granados'],
-  ['Paul Dukas','dukas'],
-  ['Jules Massenet','massenet'],
-  ['Max Bruch','bruch'],
-  ['Joseph Joachim','joachim'],
-  ['Henryk Wieniawski','wieniawski'],
-  ['Pablo de Sarasate','sarasate'],
-  ['Henri Vieuxtemps','vieuxtemps'],
-  ['Eugène Ysaÿe','ysaye'],
-  ['Charles-Valentin Alkan','alkan'],
-  ['Louis Moreau Gottschalk','gottschalk'],
-  ['Moritz Moszkowski','moszkowski'],
-  ['Christian Sinding','sinding'],
-  ['Anton Rubinstein','anton rubinstein'],
-  ['Mily Balakirev','balakirev'],
-  ['César Cui','cui'],
-  ['Anton Arensky','arensky'],
-  ['Anatoly Lyadov','lyadov|liadov'],
-  ['Sergei Taneyev','taneyev'],
-  ['Nikolai Medtner','medtner'],
-  ['Max Reger','reger'],
-  ['Ferruccio Busoni','busoni'],
-  ['Josef Suk','suk'],
-  ['Zdeněk Fibich','fibich'],
-  ['Ernest Chausson','chausson'],
-  ['Henri Duparc','duparc'],
-  ['Charles-Marie Widor','widor'],
-  ['Louis Vierne','vierne'],
-  ['Alexandre Guilmant','guilmant'],
-  ['Léon Boëllmann','boellmann'],
-  ['Hubert Parry','parry'],
-  ['Charles Villiers Stanford','stanford'],
-  ['Arthur Sullivan','sullivan'],
-  ['Edward MacDowell','macdowell'],
-  ['Amy Beach','amy beach'],
-  ['Cécile Chaminade','chaminade'],
-  ['Louise Farrenc','farrenc'],
-  ['Samuel Coleridge-Taylor','coleridge taylor'],
-  ['Frederick Delius','delius'],
+  ['Hector Berlioz','berlioz','Romantic'],
+  ['Felix Mendelssohn','mendelssohn|felix mendelssohn','Romantic'],
+  ['Fanny Mendelssohn','fanny mendelssohn|fanny hensel','Romantic'],
+  ['Frédéric Chopin','chopin','Romantic'],
+  ['Robert Schumann','schumann|robert schumann|r schumann','Romantic'],
+  ['Clara Schumann','clara schumann|clara wieck','Romantic'],
+  ['Franz Liszt','liszt','Romantic'],
+  ['Richard Wagner','wagner','Romantic'],
+  ['Giuseppe Verdi','verdi','Romantic'],
+  ['Charles Gounod','gounod','Romantic'],
+  ['Jacques Offenbach','offenbach','Romantic'],
+  ['César Franck','franck','Romantic'],
+  ['Édouard Lalo','lalo','Romantic'],
+  ['Bedřich Smetana','smetana','Romantic'],
+  ['Anton Bruckner','bruckner','Romantic'],
+  ['Johann Strauss II','strauss|johann strauss|johann strauss ii','Romantic'],
+  ['Johann Strauss I','johann strauss i','Romantic'],
+  ['Josef Strauss','josef strauss','Romantic'],
+  ['Richard Strauss','richard strauss|r strauss','Romantic'],
+  ['Johannes Brahms','brahms','Romantic'],
+  ['Alexander Borodin','borodin','Romantic'],
+  ['Camille Saint-Saëns','saint saens','Romantic'],
+  ['Léo Delibes','delibes','Romantic'],
+  ['Georges Bizet','bizet','Romantic'],
+  ['Modest Mussorgsky','mussorgsky|moussorgsky|musorgsky','Romantic'],
+  ['Pyotr Ilyich Tchaikovsky','tchaikovsky|tschaikowsky|chaikovsky|tchaikowsky','Romantic'],
+  ['Antonín Dvořák','dvorak','Romantic'],
+  ['Edvard Grieg','grieg','Romantic'],
+  ['Nikolai Rimsky-Korsakov','rimsky korsakov|rimsky','Romantic'],
+  ['Gabriel Fauré','faure','Romantic'],
+  ['Isaac Albéniz','albeniz','Romantic'],
+  ['Emmanuel Chabrier','chabrier','Romantic'],
+  ['Leoš Janáček','janacek','Romantic'],
+  ['Edward Elgar','elgar','Romantic'],
+  ['Giacomo Puccini','puccini','Romantic'],
+  ['Hugo Wolf','hugo wolf','Romantic'],
+  ['Gustav Mahler','mahler','Romantic'],
+  ['Claude Debussy','debussy','Romantic'],
+  ['Jean Sibelius','sibelius','Romantic'],
+  ['Carl Nielsen','nielsen','Romantic'],
+  ['Alexander Glazunov','glazunov','Romantic'],
+  ['Erik Satie','satie','Romantic'],
+  ['Alexander Scriabin','scriabin|skryabin','Romantic'],
+  ['Ralph Vaughan Williams','vaughan williams','Romantic'],
+  ['Sergei Rachmaninoff','rachmaninoff|rachmaninov|rachmaninow','Romantic'],
+  ['Gustav Holst','holst','Romantic'],
+  ['Maurice Ravel','ravel','Romantic'],
+  ['Manuel de Falla','falla|de falla','Romantic'],
+  ['Ottorino Respighi','respighi','Romantic'],
+  ['Ernest Bloch','bloch','Romantic'],
+  ['Fritz Kreisler','kreisler','Romantic'],
+  ['Enrique Granados','granados','Romantic'],
+  ['Paul Dukas','dukas','Romantic'],
+  ['Jules Massenet','massenet','Romantic'],
+  ['Max Bruch','bruch','Romantic'],
+  ['Joseph Joachim','joachim','Romantic'],
+  ['Henryk Wieniawski','wieniawski','Romantic'],
+  ['Pablo de Sarasate','sarasate','Romantic'],
+  ['Henri Vieuxtemps','vieuxtemps','Romantic'],
+  ['Eugène Ysaÿe','ysaye','Romantic'],
+  ['Charles-Valentin Alkan','alkan','Romantic'],
+  ['Louis Moreau Gottschalk','gottschalk','Romantic'],
+  ['Moritz Moszkowski','moszkowski','Romantic'],
+  ['Christian Sinding','sinding','Romantic'],
+  ['Anton Rubinstein','anton rubinstein','Romantic'],
+  ['Mily Balakirev','balakirev','Romantic'],
+  ['César Cui','cui','Romantic'],
+  ['Anton Arensky','arensky','Romantic'],
+  ['Anatoly Lyadov','lyadov|liadov','Romantic'],
+  ['Sergei Taneyev','taneyev','Romantic'],
+  ['Nikolai Medtner','medtner','Romantic'],
+  ['Max Reger','reger','Romantic'],
+  ['Ferruccio Busoni','busoni','Romantic'],
+  ['Josef Suk','suk','Romantic'],
+  ['Zdeněk Fibich','fibich','Romantic'],
+  ['Ernest Chausson','chausson','Romantic'],
+  ['Henri Duparc','duparc','Romantic'],
+  ['Charles-Marie Widor','widor','Romantic'],
+  ['Louis Vierne','vierne','Romantic'],
+  ['Alexandre Guilmant','guilmant','Romantic'],
+  ['Léon Boëllmann','boellmann','Romantic'],
+  ['Hubert Parry','parry','Romantic'],
+  ['Charles Villiers Stanford','stanford','Romantic'],
+  ['Arthur Sullivan','sullivan','Romantic'],
+  ['Edward MacDowell','macdowell','Romantic'],
+  ['Amy Beach','amy beach','Romantic'],
+  ['Cécile Chaminade','chaminade','Romantic'],
+  ['Louise Farrenc','farrenc','Romantic'],
+  ['Samuel Coleridge-Taylor','coleridge taylor','Romantic'],
+  ['Frederick Delius','delius','Romantic'],
 
   // --- twentieth century and after ---
-  ['Arnold Schoenberg','schoenberg|schonberg|schoenburg'],
-  ['Alban Berg','berg|alban berg'],
-  ['Anton Webern','webern'],
-  ['Béla Bartók','bartok'],
-  ['Zoltán Kodály','kodaly'],
-  ['Igor Stravinsky','stravinsky|strawinsky'],
-  ['Sergei Prokofiev','prokofiev|prokofieff'],
-  ['Dmitri Shostakovich','shostakovich|schostakowitsch'],
-  ['Aram Khachaturian','khachaturian|khatchaturian'],
-  ['Dmitry Kabalevsky','kabalevsky'],
-  ['Paul Hindemith','hindemith'],
-  ['Kurt Weill','weill'],
-  ['Carl Orff','orff'],
-  ['Francis Poulenc','poulenc'],
-  ['Darius Milhaud','milhaud'],
-  ['Arthur Honegger','honegger'],
-  ['Georges Auric','auric'],
-  ['Germaine Tailleferre','tailleferre'],
-  ['Jacques Ibert','ibert'],
-  ['André Jolivet','jolivet'],
-  ['Jean Françaix','francaix'],
-  ['Henri Dutilleux','dutilleux'],
-  ['Olivier Messiaen','messiaen'],
-  ['Pierre Boulez','boulez'],
-  ['Karlheinz Stockhausen','stockhausen'],
-  ['György Ligeti','ligeti'],
-  ['Iannis Xenakis','xenakis'],
-  ['Luciano Berio','berio'],
-  ['Luigi Nono','nono'],
-  ['Luigi Dallapiccola','dallapiccola'],
-  ['Gérard Grisey','grisey'],
-  ['Tristan Murail','murail'],
-  ['Brian Ferneyhough','ferneyhough'],
-  ['Benjamin Britten','britten'],
-  ['Michael Tippett','tippett'],
-  ['William Walton','walton'],
-  ['Arnold Bax','bax'],
-  ['Arthur Bliss','arthur bliss'],
-  ['Gerald Finzi','finzi'],
-  ['Herbert Howells','howells'],
-  ['Malcolm Arnold','arnold|malcolm arnold'],
-  ['Peter Maxwell Davies','maxwell davies'],
-  ['Harrison Birtwistle','birtwistle'],
-  ['John Tavener','tavener'],
-  ['James MacMillan','macmillan'],
-  ['Aaron Copland','copland'],
-  ['Samuel Barber','samuel barber'],
-  ['Leonard Bernstein','bernstein'],
-  ['George Gershwin','gershwin'],
-  ['Charles Ives','ives'],
-  ['Henry Cowell','cowell'],
-  ['Edgard Varèse','varese'],
-  ['John Cage','john cage'],
-  ['George Crumb','crumb'],
-  ['Elliott Carter','elliott carter'],
-  ['Milton Babbitt','babbitt'],
-  ['George Rochberg','rochberg'],
-  ['William Schuman','william schuman'],
-  ['Walter Piston','walter piston'],
-  ['Howard Hanson','hanson'],
-  ['Alan Hovhaness','hovhaness'],
-  ['Ned Rorem','rorem'],
-  ['John Corigliano','corigliano'],
-  ['William Grant Still','william grant still|w grant still'],
-  ['Florence Price','florence price'],
-  ['Margaret Bonds','margaret bonds'],
-  ['Heitor Villa-Lobos','villa lobos'],
-  ['Alberto Ginastera','ginastera'],
-  ['Astor Piazzolla','piazzolla'],
-  ['Silvestre Revueltas','revueltas'],
-  ['Carlos Chávez','chavez'],
-  ['Joaquín Rodrigo','rodrigo'],
-  ['Joaquín Turina','turina'],
-  ['Federico Mompou','mompou'],
-  ['Tōru Takemitsu','takemitsu'],
-  ['Krzysztof Penderecki','penderecki'],
-  ['Witold Lutosławski','lutoslawski'],
-  ['Henryk Górecki','gorecki'],
-  ['Karol Szymanowski','szymanowski'],
-  ['Sofia Gubaidulina','gubaidulina'],
-  ['Alfred Schnittke','schnittke'],
-  ['Giya Kancheli','kancheli'],
-  ['Valentin Silvestrov','silvestrov'],
-  ['Einojuhani Rautavaara','rautavaara'],
-  ['Kaija Saariaho','saariaho'],
-  ['Pēteris Vasks','vasks'],
-  ['Peter Sculthorpe','sculthorpe'],
-  ['Arvo Pärt','arvo part'],
-  ['Philip Glass','philip glass'],
-  ['Steve Reich','reich'],
-  ['Terry Riley','terry riley'],
-  ['John Adams','john adams'],
-  ['Michael Nyman','nyman'],
-  ['Max Richter','max richter'],
-  ['Ludovico Einaudi','einaudi'],
-  ['Osvaldo Golijov','golijov'],
-  ['Thomas Adès','ades'],
-  ['Nico Muhly','muhly'],
-  ['Kevin Puts','kevin puts'],
-  ['Jennifer Higdon','higdon'],
-  ['Caroline Shaw','caroline shaw'],
-  ['Jessie Montgomery','jessie montgomery'],
-  ['Joan Tower','joan tower'],
-  ['Ellen Taaffe Zwilich','zwilich'],
-  ['Libby Larsen','libby larsen'],
-  ['Shulamit Ran','shulamit ran'],
-  ['Unsuk Chin','unsuk chin'],
-  ['Tan Dun','tan dun'],
-  ['Bright Sheng','bright sheng'],
-  ['Gabriela Lena Frank','gabriela lena frank'],
-  ['Frank Bridge','frank bridge']
+  ['Arnold Schoenberg','schoenberg|schonberg|schoenburg','20th century & after'],
+  ['Alban Berg','berg|alban berg','20th century & after'],
+  ['Anton Webern','webern','20th century & after'],
+  ['Béla Bartók','bartok','20th century & after'],
+  ['Zoltán Kodály','kodaly','20th century & after'],
+  ['Igor Stravinsky','stravinsky|strawinsky','20th century & after'],
+  ['Sergei Prokofiev','prokofiev|prokofieff','20th century & after'],
+  ['Dmitri Shostakovich','shostakovich|schostakowitsch','20th century & after'],
+  ['Aram Khachaturian','khachaturian|khatchaturian','20th century & after'],
+  ['Dmitry Kabalevsky','kabalevsky','20th century & after'],
+  ['Paul Hindemith','hindemith','20th century & after'],
+  ['Kurt Weill','weill','20th century & after'],
+  ['Carl Orff','orff','20th century & after'],
+  ['Francis Poulenc','poulenc','20th century & after'],
+  ['Darius Milhaud','milhaud','20th century & after'],
+  ['Arthur Honegger','honegger','20th century & after'],
+  ['Georges Auric','auric','20th century & after'],
+  ['Germaine Tailleferre','tailleferre','20th century & after'],
+  ['Jacques Ibert','ibert','20th century & after'],
+  ['André Jolivet','jolivet','20th century & after'],
+  ['Jean Françaix','francaix','20th century & after'],
+  ['Henri Dutilleux','dutilleux','20th century & after'],
+  ['Olivier Messiaen','messiaen','20th century & after'],
+  ['Pierre Boulez','boulez','20th century & after'],
+  ['Karlheinz Stockhausen','stockhausen','20th century & after'],
+  ['György Ligeti','ligeti','20th century & after'],
+  ['Iannis Xenakis','xenakis','20th century & after'],
+  ['Luciano Berio','berio','20th century & after'],
+  ['Luigi Nono','nono','20th century & after'],
+  ['Luigi Dallapiccola','dallapiccola','20th century & after'],
+  ['Gérard Grisey','grisey','20th century & after'],
+  ['Tristan Murail','murail','20th century & after'],
+  ['Brian Ferneyhough','ferneyhough','20th century & after'],
+  ['Benjamin Britten','britten','20th century & after'],
+  ['Michael Tippett','tippett','20th century & after'],
+  ['William Walton','walton','20th century & after'],
+  ['Arnold Bax','bax','20th century & after'],
+  ['Arthur Bliss','arthur bliss','20th century & after'],
+  ['Gerald Finzi','finzi','20th century & after'],
+  ['Herbert Howells','howells','20th century & after'],
+  ['Malcolm Arnold','arnold|malcolm arnold','20th century & after'],
+  ['Peter Maxwell Davies','maxwell davies','20th century & after'],
+  ['Harrison Birtwistle','birtwistle','20th century & after'],
+  ['John Tavener','tavener','20th century & after'],
+  ['James MacMillan','macmillan','20th century & after'],
+  ['Aaron Copland','copland','20th century & after'],
+  ['Samuel Barber','samuel barber','20th century & after'],
+  ['Leonard Bernstein','bernstein','20th century & after'],
+  ['George Gershwin','gershwin','20th century & after'],
+  ['Charles Ives','ives','20th century & after'],
+  ['Henry Cowell','cowell','20th century & after'],
+  ['Edgard Varèse','varese','20th century & after'],
+  ['John Cage','john cage','20th century & after'],
+  ['George Crumb','crumb','20th century & after'],
+  ['Elliott Carter','elliott carter','20th century & after'],
+  ['Milton Babbitt','babbitt','20th century & after'],
+  ['George Rochberg','rochberg','20th century & after'],
+  ['William Schuman','william schuman','20th century & after'],
+  ['Walter Piston','walter piston','20th century & after'],
+  ['Howard Hanson','hanson','20th century & after'],
+  ['Alan Hovhaness','hovhaness','20th century & after'],
+  ['Ned Rorem','rorem','20th century & after'],
+  ['John Corigliano','corigliano','20th century & after'],
+  ['William Grant Still','william grant still|w grant still','20th century & after'],
+  ['Florence Price','florence price','20th century & after'],
+  ['Margaret Bonds','margaret bonds','20th century & after'],
+  ['Heitor Villa-Lobos','villa lobos','20th century & after'],
+  ['Alberto Ginastera','ginastera','20th century & after'],
+  ['Astor Piazzolla','piazzolla','20th century & after'],
+  ['Silvestre Revueltas','revueltas','20th century & after'],
+  ['Carlos Chávez','chavez','20th century & after'],
+  ['Joaquín Rodrigo','rodrigo','20th century & after'],
+  ['Joaquín Turina','turina','20th century & after'],
+  ['Federico Mompou','mompou','20th century & after'],
+  ['Tōru Takemitsu','takemitsu','20th century & after'],
+  ['Krzysztof Penderecki','penderecki','20th century & after'],
+  ['Witold Lutosławski','lutoslawski','20th century & after'],
+  ['Henryk Górecki','gorecki','20th century & after'],
+  ['Karol Szymanowski','szymanowski','20th century & after'],
+  ['Sofia Gubaidulina','gubaidulina','20th century & after'],
+  ['Alfred Schnittke','schnittke','20th century & after'],
+  ['Giya Kancheli','kancheli','20th century & after'],
+  ['Valentin Silvestrov','silvestrov','20th century & after'],
+  ['Einojuhani Rautavaara','rautavaara','20th century & after'],
+  ['Kaija Saariaho','saariaho','20th century & after'],
+  ['Pēteris Vasks','vasks','20th century & after'],
+  ['Peter Sculthorpe','sculthorpe','20th century & after'],
+  ['Arvo Pärt','arvo part','20th century & after'],
+  ['Philip Glass','philip glass','20th century & after'],
+  ['Steve Reich','reich','20th century & after'],
+  ['Terry Riley','terry riley','20th century & after'],
+  ['John Adams','john adams','20th century & after'],
+  ['Michael Nyman','nyman','20th century & after'],
+  ['Max Richter','max richter','20th century & after'],
+  ['Ludovico Einaudi','einaudi','20th century & after'],
+  ['Osvaldo Golijov','golijov','20th century & after'],
+  ['Thomas Adès','ades','20th century & after'],
+  ['Nico Muhly','muhly','20th century & after'],
+  ['Kevin Puts','kevin puts','20th century & after'],
+  ['Jennifer Higdon','higdon','20th century & after'],
+  ['Caroline Shaw','caroline shaw','20th century & after'],
+  ['Jessie Montgomery','jessie montgomery','20th century & after'],
+  ['Joan Tower','joan tower','20th century & after'],
+  ['Ellen Taaffe Zwilich','zwilich','20th century & after'],
+  ['Libby Larsen','libby larsen','20th century & after'],
+  ['Shulamit Ran','shulamit ran','20th century & after'],
+  ['Unsuk Chin','unsuk chin','20th century & after'],
+  ['Tan Dun','tan dun','20th century & after'],
+  ['Bright Sheng','bright sheng','20th century & after'],
+  ['Gabriela Lena Frank','gabriela lena frank','20th century & after'],
+  ['Frank Bridge','frank bridge','20th century & after']
 ];
 
 /* Accents off, punctuation to spaces, everything lower case, so that "DVOŘÁK",
@@ -1372,16 +1497,36 @@ function normText(s){
 
 // Flattened once at load: every spelling, longest first, so the most specific
 // name always gets the first look.
-const COMPOSER_KEYS = (() => {
-  const out = [];
-  for(const [name, keys] of COMPOSERS)
-    for(const raw of keys.split('|')){
-      const key = normText(raw);
-      if(key) out.push({ key, name });
-    }
-  out.sort((a,b) => b.key.length - a.key.length);
-  return out;
-})();
+// Rebuilt whenever you add, change or remove a composer of your own, so the
+// list you can pick from and the list filenames are matched against are the same.
+let COMPOSER_KEYS = [];
+let customComposers = [];            // [{name, keys, era}] — ones you've added
+let composerEntries = [];            // everything, for the picker and the list
+const ERAS = ['Medieval & Renaissance','Baroque','Classical','Romantic','20th century & after'];
+
+function splitSpellings(str){
+  return String(str || '').split(/[|,]/).map(x => x.trim()).filter(Boolean);
+}
+function rebuildComposers(){
+  const keys = [], entries = [];
+  const addEntry = (name, spellings, era, custom) => {
+    const nkeys = [...new Set(spellings.map(normText).filter(Boolean))];
+    for(const key of nkeys) keys.push({ key, name });
+    const words = new Set();
+    for(const k of [normText(name), ...nkeys]) for(const w of k.split(' ')) if(w) words.add(w);
+    const parts = normText(name).split(' ');
+    entries.push({ name, spellings, era: era || '', custom, norm: normText(name), keyset: nkeys,
+                   words: [...words], sortKey: parts[parts.length-1] + ' ' + normText(name) });
+  };
+  for(const [name, k, era] of COMPOSERS) addEntry(name, k.split('|'), era, false);
+  // your own: always matched on the full name, plus whatever spellings you gave
+  for(const c of customComposers) addEntry(c.name, [c.name, ...splitSpellings(c.keys)], c.era, true);
+  keys.sort((a,b) => b.key.length - a.key.length);
+  entries.sort((a,b) => a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0);
+  COMPOSER_KEYS = keys;
+  composerEntries = entries;
+}
+rebuildComposers();
 
 /* The composer named in a piece of text, or '' if none is. Matching is on whole
    words — padding both sides with a space is what stops "Bach" being found
@@ -2272,7 +2417,21 @@ function findWork(composer, text){
   if(!found) return null;
 
   const mv = movementNumber(hay);
-  return { title: mv ? found.title + ' — Movement ' + mv : found.title, tier };
+  const title = nicknameFirst(found.title);
+  return { title: mv ? title + ' — Movement ' + mv : title, tier };
+}
+
+/* A piece people know by its nickname is listed under it:
+   "Piano Sonata No. 14 in C-sharp minor, Op. 27 No. 2 “Moonlight”" becomes
+   "Moonlight — Piano Sonata No. 14 in C-sharp minor, Op. 27 No. 2", so it
+   reads — and sorts in your head — the way you'd ask for it. A title that
+   already starts with its name ("“The Wish” (Życzenie)") is left alone. */
+function nicknameFirst(t){
+  const m = /\s*“([^”]+)”/.exec(t);
+  if(!m || m.index === 0) return t;
+  const rest = (t.slice(0, m.index) + t.slice(m.index + m[0].length))
+    .replace(/\s+,/g, ',').replace(/\s{2,}/g, ' ').trim();
+  return m[1] + ' — ' + rest;
 }
 
 function cleanName(n){
@@ -2330,8 +2489,9 @@ async function importFile(file){
     const found = identifyWork(cleanName(file.name)) || identifyWork(title);
     if(found){ composer = found.composer; guess = found.title; }
   }
-  // A real name we simply don't have on the list is better than nothing.
-  if(!composer) composer = author;
+  // Nothing recognised means Unknown. The PDF's author field is as often the
+  // editor or the scanner as the composer, and the composer has to be one
+  // from your list; you can pick or add the right one in the piece's details.
   if(guess) title = guess;
 
   const doc = { id, title, composer, keyInfo:'', notes:'', set:S.set, pages:pdf.numPages,
@@ -2367,7 +2527,12 @@ async function importFile(file){
    ======================================================================= */
 let editingId = null;
 function showModal(el){ $('#backdrop').classList.add('on'); el.classList.add('on'); }
-function hideModals(){ $('#backdrop').classList.remove('on'); $$('.sheetmodal').forEach(m=>m.classList.remove('on')); editingId=null; editingSet=null; }
+function hideModals(){
+  $('#backdrop').classList.remove('on'); $('#backdrop2').classList.remove('on');
+  $$('.sheetmodal').forEach(m=>m.classList.remove('on'));
+  $('#mComposer').classList.remove('on');
+  editingId=null; editingSet=null;
+}
 $('#backdrop').addEventListener('click', hideModals);
 $('#dCancel').addEventListener('click', hideModals);
 $('#sCancel').addEventListener('click', hideModals);
@@ -2376,7 +2541,7 @@ function openDetails(id){
   const d = S.docs.find(x => x.id === id); if(!d) return;
   editingId = id;
   $('#dTitle').value = d.title || '';
-  $('#dComposer').value = d.composer || '';
+  setComposerField(d.composer || '');
   $('#dKey').value = d.keyInfo || '';
   $('#dNotes').value = d.notes || '';
   $('#dSet').innerHTML = `<option value="">All pieces, no set</option>` +
@@ -2392,7 +2557,7 @@ $('#dExport').addEventListener('click', () => {
 $('#dSave').addEventListener('click', async () => {
   const d = S.docs.find(x => x.id === editingId); if(!d) return hideModals();
   d.title = $('#dTitle').value.trim() || 'Untitled';
-  d.composer = $('#dComposer').value.trim();
+  d.composer = $('#dComposer').dataset.value || '';
   d.keyInfo = $('#dKey').value.trim();
   d.notes = $('#dNotes').value.trim();
   d.set = $('#dSet').value || null;
@@ -2413,6 +2578,417 @@ $('#dDelete').addEventListener('click', async () => {
   await Raster.forget(d.id);
   dropThumb(d.id);
   hideModals(); await saveIndexNow(); await renderAll(); toast('Removed');
+});
+
+/* =======================================================================
+   Composers
+
+   The composer of a piece is chosen from a list, never typed freely, so the
+   same person is always spelled the same way and the library search, the
+   filename matching and this list all agree. The list is the built-in one the
+   importer recognises, plus any you add; everything on it can be predicted
+   from a filename. Anything else is Unknown until you pick or add someone.
+   ======================================================================= */
+async function loadComposers(){
+  const v = await DB.get(K.composers);
+  customComposers = Array.isArray(v) ? v.filter(c => c && c.name) : [];
+  rebuildComposers();
+}
+async function saveComposers(){
+  rebuildComposers();
+  try{ await DB.set(K.composers, customComposers); }
+  catch(e){ toast('Could not save the composer list. ' + e.message); }
+}
+function findComposer(name){
+  const n = normText(name);
+  return n ? composerEntries.find(e => e.norm === n) || null : null;
+}
+function usageCounts(){
+  const m = new Map();
+  for(const d of S.docs) if(d.composer) m.set(d.composer, (m.get(d.composer) || 0) + 1);
+  return m;
+}
+// names pieces carry that aren't on the list — from before the list existed
+function strayComposers(){
+  const out = new Map();
+  for(const d of S.docs)
+    if(d.composer && !findComposer(d.composer)) out.set(d.composer, (out.get(d.composer) || 0) + 1);
+  return out;
+}
+
+/* Titles autofilled before nicknames moved to the front are updated once, but
+   only titles that are exactly a catalogue title — anything you typed or
+   edited yourself is left alone. */
+function nicknameMigrate(){
+  const map = new Map();
+  for(const c in WORKS) for(const [, t] of WORKS[c]){
+    const n = nicknameFirst(t);
+    if(n !== t) map.set(t, n);
+  }
+  let changed = false;
+  for(const d of S.docs){
+    if(!d.title) continue;
+    const m = /^(.*?)( — Movement \d+)?$/.exec(d.title);
+    const to = map.get(m[1]);
+    if(to){ d.title = to + (m[2] || ''); changed = true; }
+  }
+  return changed;
+}
+
+/* ---------- search that forgives spelling ----------
+   Each word you type has to match a word of the name or one of its spellings:
+   exactly, as the start of it, inside it, or within a few typing mistakes
+   (more allowed the longer the word), so "beethoveen" and "rachmaninov" still
+   find their man. Transposed letters count as one mistake. */
+function editDistance(a, b, cap){
+  if(Math.abs(a.length - b.length) > cap) return cap + 1;
+  let p2 = null, p = Array.from({length: b.length + 1}, (_, j) => j);
+  for(let i = 1; i <= a.length; i++){
+    const c = [i];
+    let low = i;
+    for(let j = 1; j <= b.length; j++){
+      let v = Math.min(p[j] + 1, c[j-1] + 1, p[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+      if(p2 && i > 1 && j > 1 && a[i-1] === b[j-2] && a[i-2] === b[j-1]) v = Math.min(v, p2[j-2] + 1);
+      c[j] = v;
+      if(v < low) low = v;
+    }
+    if(low > cap) return cap + 1;
+    p2 = p; p = c;
+  }
+  return p[b.length];
+}
+function wordScore(q, w){
+  if(w === q) return 0;
+  if(w.startsWith(q)) return 0.2;
+  if(q.length >= 3 && w.includes(q)) return 0.6;
+  const cap = q.length < 4 ? 0 : q.length < 6 ? 1 : q.length < 9 ? 2 : 3;
+  if(!cap) return Infinity;
+  let d = editDistance(q, w, cap);
+  // a partly typed name: compare against the start of the word too
+  for(let L = q.length - 1; L <= q.length + 1; L++)
+    if(L > 0 && L < w.length) d = Math.min(d, editDistance(q, w.slice(0, L), cap));
+  return d <= cap ? 1 + d : Infinity;
+}
+function searchComposers(query){
+  const qs = normText(query).split(' ').filter(Boolean);
+  if(!qs.length) return [];
+  const used = usageCounts();
+  const hits = [];
+  for(const e of composerEntries){
+    let total = 0;
+    for(const q of qs){
+      let best = Infinity;
+      for(const w of e.words){ const sc = wordScore(q, w); if(sc < best) best = sc; if(!best) break; }
+      if(best === Infinity){ total = Infinity; break; }
+      total += best;
+    }
+    if(total === Infinity) continue;
+    // the spelling a musician means by default ("bach", "mozart") comes first
+    const whole = qs.join(' ');
+    if(e.keyset.includes(whole)) total -= 0.5;
+    else if(whole.length >= 5 && e.keyset.some(k => editDistance(whole, k, 2) <= 2)) total -= 0.25;
+    if(e.norm.startsWith(whole)) total -= 0.3;
+    hits.push({ e, total, used: used.get(e.name) || 0 });
+  }
+  hits.sort((a,b) => a.total - b.total || b.used - a.used || (a.e.sortKey < b.e.sortKey ? -1 : 1));
+  return hits.map(h => h.e);
+}
+
+function composerSub(e, used){
+  const bits = [];
+  if(e.era) bits.push(e.era);
+  const n = used.get(e.name) || 0;
+  if(n) bits.push(n === 1 ? '1 piece' : n + ' pieces');
+  const w = WORKS[e.name] ? WORKS[e.name].length : 0;
+  if(w) bits.push(w + ' works recognised');
+  return bits.join(' · ');
+}
+const TICK = '<svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function composerRow(e, used, attrs, selected){
+  return `<button class="prow${selected ? ' sel' : ''}" ${attrs}>
+    <span class="tx"><span class="nm">${esc(e.name)}</span><span class="sub">${esc(composerSub(e, used))}</span></span>
+    ${e.custom ? '<span class="badge">Added</span>' : ''}${selected ? TICK : ''}</button>`;
+}
+
+/* ---------- the details field ---------- */
+function setComposerField(v){
+  const el = $('#dComposer');
+  el.dataset.value = v || '';
+  el.querySelector('.v').textContent = v || 'Unknown';
+  el.classList.toggle('unset', !v);
+  el.classList.toggle('stray', !!v && !findComposer(v));
+}
+$('#dComposer').addEventListener('click', () => {
+  openComposerPicker($('#dComposer').dataset.value || '', name => setComposerField(name));
+});
+
+/* ---------- picker ---------- */
+const CP = { onPick:null, value:'' };
+function openComposerPicker(current, onPick){
+  CP.onPick = onPick; CP.value = current;
+  $('#cpQ').value = '';
+  renderPicker();
+  $('#cpList').scrollTop = 0;
+  $('#mComposer').classList.add('on');
+  // synchronously, inside the tap, or iOS won't raise the keyboard
+  try{ $('#cpQ').focus({preventScroll:true}); }catch(e){}
+}
+function closeComposerPicker(){ $('#mComposer').classList.remove('on'); $('#cpQ').blur(); }
+function pickComposer(name){
+  closeComposerPicker();
+  if(CP.onPick) CP.onPick(name);
+}
+function renderPicker(){
+  const q = $('#cpQ').value.trim();
+  const used = usageCounts();
+  const cur = CP.value;
+  const unknown = `<button class="prow quiet${cur ? '' : ' sel'}" data-pick=""><span class="tx"><span class="nm">Unknown composer</span></span>${cur ? '' : TICK}</button>`;
+  let h = '';
+  if(!q){
+    if(cur && !findComposer(cur)){
+      h += `<h4>Current</h4><button class="prow sel" data-pick="${esc(cur)}"><span class="tx"><span class="nm">${esc(cur)}</span><span class="sub">Not on the list — add it, or pick someone below</span></span><span class="badge warn">Not listed</span>${TICK}</button>`;
+      h += `<button class="prow act" data-add="${esc(cur)}"><span class="tx"><span class="nm">Add “${esc(cur)}” to the list</span></span></button>`;
+    }
+    const mine = composerEntries.filter(e => used.has(e.name))
+      .sort((a,b) => used.get(b.name) - used.get(a.name));
+    if(mine.length) h += '<h4>In your library</h4>' + mine.map(e => composerRow(e, used, `data-pick="${esc(e.name)}"`, e.name === cur)).join('');
+    h += '<h4>Not known</h4>' + unknown;
+    h += '<h4>All composers</h4>' + composerEntries.map(e => composerRow(e, used, `data-pick="${esc(e.name)}"`, e.name === cur)).join('');
+  }else{
+    const hits = searchComposers(q).slice(0, 60);
+    if(hits.length) h += hits.map(e => composerRow(e, used, `data-pick="${esc(e.name)}"`, e.name === cur)).join('');
+    else h += `<div class="pnote">No composer on the list matches “${esc(q)}”.</div>`;
+    const exact = findComposer(q);
+    h += '<h4>' + (hits.length ? 'Not listed?' : 'Instead') + '</h4>';
+    if(!exact) h += `<button class="prow act" data-add="${esc(q)}"><span class="tx"><span class="nm">Add “${esc(q)}” as a new composer</span></span></button>`;
+    h += unknown;
+  }
+  $('#cpList').innerHTML = h;
+}
+$('#cpQ').addEventListener('input', () => { renderPicker(); $('#cpList').scrollTop = 0; });
+$('#cpQ').addEventListener('keydown', e => {
+  if(e.key !== 'Enter') return;
+  const first = $('#cpList').querySelector('[data-pick]:not([data-pick=""]), [data-add]');
+  if(first) first.click();
+});
+$('#cpList').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.hasAttribute('data-pick')) return pickComposer(b.getAttribute('data-pick'));
+  if(b.hasAttribute('data-add')){
+    const name = b.getAttribute('data-add');
+    $('#cpQ').blur();
+    openComposerEditor(null, { name, renameFrom: findComposer(name) ? null : (name === CP.value ? name : null),
+      onSaved: saved => pickComposer(saved) });
+  }
+});
+$('#cpCancel').addEventListener('click', closeComposerPicker);
+$('#cpManage').addEventListener('click', () => { $('#cpQ').blur(); openComposerList(true); });
+
+/* ---------- the list ---------- */
+const CL = { filter:'all', fromPicker:false };
+function openComposerList(fromPicker){
+  CL.fromPicker = !!fromPicker;
+  $('#clQ').value = '';
+  renderComposerList();
+  $('#clList').scrollTop = 0;
+  $('#mComposers').style.zIndex = fromPicker ? 42 : '';
+  $('#mComposers').classList.add('on');
+}
+function closeComposerList(){
+  $('#mComposers').classList.remove('on');
+  $('#clQ').blur();
+  // the picker behind may be showing names that just changed
+  if(CL.fromPicker && $('#mComposer').classList.contains('on')){
+    if(CP.value && !findComposer(CP.value) && !usageCounts().has(CP.value)) CP.value = '';
+    renderPicker();
+  }
+  if(editingId) setComposerField($('#dComposer').dataset.value || '');
+}
+function renderComposerList(){
+  const q = $('#clQ').value.trim();
+  const used = usageCounts(), stray = strayComposers();
+  const f = CL.filter;
+  $$('#clChips .chip').forEach(c => c.classList.toggle('on', c.dataset.f === f));
+  let list = q ? searchComposers(q) : composerEntries;
+  if(f === 'library') list = list.filter(e => used.has(e.name));
+  if(f === 'added') list = list.filter(e => e.custom);
+  const added = composerEntries.filter(e => e.custom).length;
+  $('#clCount').textContent = `${composerEntries.length} composers` +
+    (added ? ` · ${added} added by you` : '') + ' · all recognised in filenames';
+
+  let h = '';
+  const strays = [...stray.keys()].filter(n => !q || searchLike(n, q));
+  if(strays.length && f !== 'added'){
+    h += '<h4>In your library, not on the list</h4>' + strays.map(n =>
+      `<button class="prow" data-stray="${esc(n)}"><span class="tx"><span class="nm">${esc(n)}</span><span class="sub">${stray.get(n) === 1 ? '1 piece' : stray.get(n) + ' pieces'} · tap to add or replace</span></span><span class="badge warn">Not listed</span></button>`).join('');
+  }
+  const row = e => composerRow(e, used, `data-open="${esc(e.name)}"`, false);
+  if(q){
+    h += list.length ? list.map(row).join('')
+      : `<div class="pnote">No composer matches “${esc(q)}”.</div><button class="prow act" data-new="${esc(q)}"><span class="tx"><span class="nm">Add “${esc(q)}” as a new composer</span></span></button>`;
+  }else if(!list.length){
+    h += `<div class="pnote">${f === 'added' ? 'You haven’t added any composers yet. Use Add to put someone on the list.' : 'No pieces in your library have a composer from the list yet.'}</div>`;
+  }else{
+    // grouped by period; your own without a period at the end
+    for(const era of [...ERAS, '']){
+      const group = list.filter(e => e.era === era);
+      if(group.length) h += `<h4>${era || 'Other'}</h4>` + group.map(row).join('');
+    }
+  }
+  $('#clList').innerHTML = h;
+}
+function searchLike(name, q){ return normText(name).includes(normText(q)); }
+$('#clQ').addEventListener('input', renderComposerList);
+$('#clChips').addEventListener('click', e => {
+  const c = e.target.closest('.chip'); if(!c) return;
+  CL.filter = c.dataset.f; renderComposerList(); $('#clList').scrollTop = 0;
+});
+$('#clList').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  $('#clQ').blur();
+  if(b.dataset.open != null) openComposerEditor(findComposer(b.dataset.open), {});
+  else if(b.dataset.new != null) openComposerEditor(null, { name: b.dataset.new });
+  else if(b.dataset.stray != null) openComposerEditor(null, { name: b.dataset.stray, renameFrom: b.dataset.stray });
+});
+$('#clAdd').addEventListener('click', () => openComposerEditor(null, { name: $('#clQ').value.trim() }));
+$('#clDone').addEventListener('click', closeComposerList);
+$('#composersBtn').addEventListener('click', () => openComposerList(false));
+
+/* ---------- add / edit ---------- */
+const CE = { entry:null, opts:{}, arm:false, armTimer:null };
+$('#ceEra').innerHTML = '<option value="">Not set</option>' + ERAS.map(e => `<option>${esc(e)}</option>`).join('');
+function openComposerEditor(entry, opts){
+  CE.entry = entry; CE.opts = opts || {}; CE.arm = false;
+  $('#ceKeys').dataset.touched = entry ? '1' : '';
+  const builtin = !!entry && !entry.custom;
+  const used = usageCounts();
+  let name = entry ? entry.name : (CE.opts.name || '');
+  // a typed search is often lower case; give it capitals as a start
+  if(!entry && name && name === name.toLowerCase()) name = name.replace(/(^|[\s-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
+  $('#ceHead').textContent = !entry ? 'New composer' : builtin ? 'Composer' : 'Edit composer';
+  $('#ceName').value = name;
+  $('#ceKeys').value = entry ? (builtin ? entry.spellings.join(', ')
+                                        : entry.spellings.filter(k => normText(k) !== entry.norm).join(', '))
+                             : suggestSpelling(name);
+  $('#ceEra').value = entry ? entry.era : '';
+  for(const id of ['#ceName', '#ceKeys', '#ceEra']) $(id).disabled = builtin;
+  $('#ceHint').textContent = builtin
+    ? 'Built in. These are the spellings recognised when you add a PDF.'
+    : 'Used to fill in the composer when you add a PDF. Avoid ordinary words that could turn up in any filename.';
+  const n = entry ? (used.get(entry.name) || 0) : (CE.opts.renameFrom ? (strayComposers().get(CE.opts.renameFrom) || 0) : 0);
+  const w = entry && WORKS[entry.name] ? WORKS[entry.name].length : 0;
+  const info = [];
+  if(n){
+    const pieces = n === 1 ? '1 piece in your library' : n + ' pieces in your library';
+    info.push(CE.opts.renameFrom && !entry
+      ? `${pieces} ${n === 1 ? 'says' : 'say'} “${esc(CE.opts.renameFrom)}” and will use this name.`
+      : pieces + '.');
+  }
+  if(w) info.push(`${w} of their works are recognised by title and catalogue number.`);
+  if(CE.opts.renameFrom && !entry){
+    const alt = searchComposers(CE.opts.renameFrom).slice(0, 1)[0];
+    if(alt) info.push(`Or is it <button class="linkbtn inline" id="ceUse">${esc(alt.name)}</button>? Tap to use that instead.`);
+  }
+  $('#ceInfo').innerHTML = info.join('<br>');
+  const useBtn = $('#ceUse');
+  if(useBtn) useBtn.addEventListener('click', async () => {
+    const target = useBtn.textContent;
+    await renameInLibrary(CE.opts.renameFrom, target);
+    closeComposerEditor(); afterComposerChange();
+    toast(`Now ${target}`);
+    if(CE.opts.onSaved) CE.opts.onSaved(target);
+  });
+  $('#ceDelete').style.display = entry && !builtin ? '' : 'none';
+  $('#ceSave').style.display = builtin ? 'none' : '';
+  $('#ceShow').style.display = entry && n ? '' : 'none';
+  $('#ceCancel').textContent = builtin ? 'Close' : 'Cancel';
+  $('#backdrop2').classList.add('on');
+  $('#mComposerEdit').classList.add('on');
+  if(!entry && !name) try{ $('#ceName').focus({preventScroll:true}); }catch(e){}
+}
+function closeComposerEditor(){
+  $('#mComposerEdit').classList.remove('on');
+  $('#backdrop2').classList.remove('on');
+  for(const id of ['#ceName', '#ceKeys']) $(id).blur();
+}
+function suggestSpelling(name){
+  const parts = String(name || '').trim().split(/\s+/);
+  const last = parts[parts.length - 1] || '';
+  return parts.length > 1 && normText(last).length >= 4 ? last : '';
+}
+$('#ceName').addEventListener('input', () => {
+  if(!CE.entry && !$('#ceKeys').dataset.touched) $('#ceKeys').value = suggestSpelling($('#ceName').value);
+});
+$('#ceKeys').addEventListener('input', () => { $('#ceKeys').dataset.touched = '1'; });
+$('#ceCancel').addEventListener('click', closeComposerEditor);
+$('#backdrop2').addEventListener('click', closeComposerEditor);
+
+async function renameInLibrary(from, to){
+  let n = 0;
+  for(const d of S.docs) if(d.composer === from){ d.composer = to; n++; }
+  if(n) await saveIndexNow();
+  return n;
+}
+function afterComposerChange(){
+  if($('#mComposers').classList.contains('on')) renderComposerList();
+  if($('#mComposer').classList.contains('on')) renderPicker();
+  if(editingId) setComposerField($('#dComposer').dataset.value || '');
+  renderAll();
+}
+$('#ceSave').addEventListener('click', async () => {
+  const name = $('#ceName').value.trim().replace(/\s+/g, ' ');
+  if(!name){ toast('Give the composer a name'); return; }
+  const clash = findComposer(name);
+  if(clash && clash !== CE.entry){ toast(`${clash.name} is already on the list`); return; }
+  const keys = splitSpellings($('#ceKeys').value)
+    .filter(k => normText(k).length >= 3 && normText(k) !== normText(name));
+  const era = $('#ceEra').value;
+  const old = CE.entry ? CE.entry.name : null;
+  if(CE.entry){
+    const c = customComposers.find(x => x.name === old);
+    if(c){ c.name = name; c.keys = keys.join(', '); c.era = era; }
+  }else{
+    customComposers.push({ name, keys: keys.join(', '), era });
+  }
+  await saveComposers();
+  const from = old || CE.opts.renameFrom;
+  if(from && from !== name){
+    await renameInLibrary(from, name);
+    if(editingId && $('#dComposer').dataset.value === from) setComposerField(name);
+    if(CP.value === from) CP.value = name;
+  }
+  $('#ceKeys').dataset.touched = '';
+  closeComposerEditor();
+  afterComposerChange();
+  toast(old ? 'Composer updated' : `${name} added`);
+  if(CE.opts.onSaved) CE.opts.onSaved(name);
+});
+$('#ceDelete').addEventListener('click', async () => {
+  const e = CE.entry; if(!e || !e.custom) return;
+  const n = usageCounts().get(e.name) || 0;
+  if(!CE.arm){
+    CE.arm = true;
+    toast(n ? `Tap again to remove ${e.name}. ${n === 1 ? 'Its piece' : `Its ${n} pieces`} will become Unknown.` : `Tap again to remove ${e.name}.`, 4000);
+    clearTimeout(CE.armTimer); CE.armTimer = setTimeout(() => { CE.arm = false; }, 4000);
+    return;
+  }
+  CE.arm = false;
+  customComposers = customComposers.filter(x => x.name !== e.name);
+  await saveComposers();
+  await renameInLibrary(e.name, '');
+  if(editingId && $('#dComposer').dataset.value === e.name) setComposerField('');
+  if(CP.value === e.name) CP.value = '';
+  closeComposerEditor();
+  afterComposerChange();
+  toast('Removed from the list');
+});
+$('#ceShow').addEventListener('click', () => {
+  const name = CE.entry && CE.entry.name; if(!name) return;
+  closeComposerEditor();
+  $('#mComposers').classList.remove('on');
+  hideModals();
+  S.query = name; $('#q').value = name;
+  renderGrid();
 });
 
 /* ---------- sets ---------- */
