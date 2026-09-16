@@ -45,6 +45,13 @@ input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
 :focus-visible{outline:2px solid var(--pencil-hi);outline-offset:2px;border-radius:4px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+/* No double-tap zoom anywhere, and no page zoom at all inside the viewer. A
+   pinch that began on a bar button or the palette used to zoom the WHOLE app,
+   which could push the back button off screen and throw touch positions off. */
+html{touch-action:manipulation}
+#viewer{touch-action:none}
+#viewer .palette{touch-action:pan-y}
+
 /* ---------- screens ---------- */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;background:#000}
 #viewer{transform:translateY(100%);transition:transform .26s cubic-bezier(.32,.72,0,1);z-index:20;background:#000}
@@ -270,6 +277,8 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 }
 .bar button{pointer-events:auto}
 .bar.hidden{opacity:0;transform:translateY(10px);pointer-events:none}
+/* invisible buttons must not catch touches meant for the page */
+.bar.hidden button{pointer-events:none}
 .bar button{
   height:44px;min-width:44px;padding:0 10px;border-radius:10px;
   display:grid;place-items:center;color:rgba(255,255,255,.82);
@@ -690,9 +699,23 @@ function idb(){
   return idbPromise;
 }
 
+/* iOS drops the database connection now and then, usually while the app is
+   in the background, and every later transaction on the dead connection fails
+   ("Connection to Indexed Database server lost"). So a connection that fails
+   to start a transaction is thrown away and reopened, once. */
 function idbRun(mode, fn){
+  return idbRunOnce(mode, fn).catch(err => {
+    if(!err || !err.__noTxn) throw err;
+    try{ err.db && err.db.close(); }catch(e){}
+    idbPromise = null;
+    return idbRunOnce(mode, fn);
+  });
+}
+function idbRunOnce(mode, fn){
   return idb().then(db => new Promise((res, rej) => {
-    const t = db.transaction(IDB_STORE, mode);
+    let t;
+    try{ t = db.transaction(IDB_STORE, mode); }
+    catch(err){ const e2 = err instanceof Error ? err : new Error(String(err)); e2.__noTxn = true; e2.db = db; return rej(e2); }
     const req = fn(t.objectStore(IDB_STORE));
     // A failed request aborts the transaction; capture its error first so the
     // message names the real cause (usually the quota being full).
@@ -3163,7 +3186,9 @@ function place(){
 }
 /* One helper drives every live view change — pinch, rubber-band pan and the
    settle animation all just set (scale, translate) with origin 0 0. */
+let inkShifted = false;          // ink layer moved off its rasterized position
 function setViewTransform(s, tx, ty){
+  inkShifted = true;
   pagewrap.style.transformOrigin = '0 0';
   pagewrap.style.transform = `translate3d(${tx}px,${ty}px,0) scale(${s})`;
   inkLayer.style.transformOrigin = '0 0';
@@ -3533,6 +3558,24 @@ document.addEventListener('pointerup', e => {
 });
 document.addEventListener('pointercancel', () => { outsideTouch = null; });
 
+// iOS's own pinch-to-zoom arrives as gesture events; the app does its own zoom.
+for(const t of ['gesturestart', 'gesturechange', 'gestureend'])
+  document.addEventListener(t, e => e.preventDefault(), {passive:false});
+// If the page gets zoomed anyway, snap it back and re-read positions.
+if(window.visualViewport){
+  visualViewport.addEventListener('resize', () => {
+    if(visualViewport.scale > 1.01){
+      const m = document.querySelector('meta[name=viewport]');
+      if(m){
+        const c = m.content;
+        m.content = c.replace('initial-scale=1', 'initial-scale=1.0001');
+        setTimeout(() => { m.content = c; }, 60);
+      }
+    }
+    if(V.pdf) syncStageOrigin();
+  });
+}
+
 
 
 /* ---------- open ---------- */
@@ -3547,6 +3590,7 @@ async function openDoc(id){
     vEl.style.transition = ''; vEl.style.opacity = ''; vEl.style.transform = '';   // never inherit a stranded exit
     V.exiting = false; V.exitSeq++;                      // invalidate any pending teardown
     Prep.pause(); abortPrefetch(); unblank(); shownPage = 0;
+    resetGestures();
     if(V.pdf){ const prev = V.pdf; V.pdf = null;
       try{ const r = prev.destroy(); if(r && r.catch) r.catch(()=>{}); }catch(err){} }
     V.id = id; V.doc = doc; V.page = 1; V.zoom = 1; V.undo = []; V.dirty = false;
@@ -3570,7 +3614,13 @@ async function openDoc(id){
 }
 
 $('#vBack').addEventListener('click', async () => {
-  if(V.dirty) await saveInk();
+  if(!$('#viewer').classList.contains('open')) return;
+  resetGestures();
+  /* Save first, but never wait on it for long. iOS storage occasionally stalls
+     (typically after the app has been in the background), and waiting on it
+     indefinitely is what made the back button do nothing. The save carries on
+     regardless, from a copy of the markings taken as it starts. */
+  if(V.dirty) await Promise.race([saveInk(), new Promise(r => setTimeout(r, 1200))]);
   $('#viewer').classList.remove('open');
   // openDoc bumps exitSeq, so a score opened again within the slide-out isn't torn down
   const seq = V.exitSeq;
@@ -3584,6 +3634,7 @@ $('#vBack').addEventListener('click', async () => {
    exactly when memory is short, so an afternoon of opening and closing scores
    ends with a tab that gets killed. */
 function closeDocument(){
+  resetGestures();
   if(V.pdf && V.id && stageW){
     const sk = stageKey();
     for(let n = 1; n <= V.pdf.numPages; n++) if(!Raster.has(n, sk)){ Prep.add(V.id); break; }
@@ -4445,6 +4496,7 @@ function paintStroke(ctx, s, ox, oy, S){
 // Full repaint: only on page change, zoom, pan-end, erase, undo. Culls offscreen marks.
 function redrawInk(){
   inkAtX = panX; inkAtY = panY;
+  inkShifted = false;
   inkLayer.style.transform = 'translate3d(0,0,0)';
   ictx.setTransform(1,0,0,1,0,0);
   ictx.clearRect(0,0,inkCanvas.width,inkCanvas.height);
@@ -4468,16 +4520,55 @@ let stroke=null, pinch=null, swipe=null, panning=false, movedFar=false, liveAnch
 let inkAtX=0, inkAtY=0;   // the pan the ink canvas was last rasterized at
 let panRawX = null, panRawY = null;   // unresisted pan while a drag is live
 
+/* Put every gesture back to rest: no fingers, no pan or pinch in flight, the
+   page inside its edges and the ink layer exactly over it.
+
+   The live pen stroke is drawn on a canvas inside the ink layer, positioned
+   from panX. While a pan is live that layer is shifted to follow the page, and
+   only the END of the pan puts it back. iOS sometimes cancels a touch instead of
+   ending it, and a cancelled pan never ended: the layer stayed shifted, so from
+   then on every stroke landed that far from your finger. A touch whose end
+   never arrived at all was worse — it stayed "down" forever, so each new touch
+   counted as a second finger: strokes were refused, drags zoomed against a
+   phantom, and the page stopped behaving. */
+function resetGestures(){
+  for(const id of ptrs.keys()){ try{ stage.releasePointerCapture(id); }catch(err){} }
+  ptrs.clear();
+  if(!V.pdf){ stroke = null; pinch = null; swipe = null; panning = false; panRawX = panRawY = null; return; }
+  if(stroke) endStroke();
+  if(swipe){ if(swipe.dir) settleSwipe(false); swipe = null; }
+  pinch = null;
+  stopViewAnim();
+  panning = false; movedFar = false;
+  panRawX = panRawY = null;
+  clampPan();                // drops any leftover pinch scale, back inside the edges
+  redrawInk();               // ink layer back over the page
+}
+document.addEventListener('visibilitychange', () => { if(document.hidden) resetGestures(); });
+window.addEventListener('pagehide', resetGestures);
+window.addEventListener('blur', () => { if(ptrs.size) resetGestures(); });
+
 function normPt(cx, cy){
   return [ (cx - stageL - panX)/V.renderW, (cy - stageT - panY)/V.renderH ];
 }
 
 stage.addEventListener('pointerdown', e => {
   if(!V.pdf || V.exiting) return;
-  if(ptrs.size === 0){ syncStageOrigin(); stopViewAnim(); }   // fresh origin at the start of every gesture
+  /* A primary pointer means no other pointer of its kind is really down, so any
+     still on record lost their release somewhere. (Kind matters: a resting
+     finger is legitimately down while an Apple Pencil touches.) */
+  if(e.isPrimary){
+    for(const [id, q] of ptrs) if(q.type === e.pointerType){ resetGestures(); break; }
+  }
+  // Settle any running view animation first, on EVERY touch: a second finger
+  // landing while the last pinch was still gliding into place used to start its
+  // pinch from numbers the animation was about to overwrite.
+  stopViewAnim();
+  syncStageOrigin();
+  if(ptrs.size === 0 && (panning || panRawX != null || pinch || inkShifted)) resetGestures();
   // hist is seeded at touch-down so even a gesture delivered in a single move
   // event still has a baseline to measure its speed against
-  ptrs.set(e.pointerId, {x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t:Date.now(),
+  ptrs.set(e.pointerId, {x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t:Date.now(),type:e.pointerType,
                          hist:[{y:e.clientY, t:nowMs()}]});
   try{ stage.setPointerCapture(e.pointerId); }catch(err){}
 
@@ -4621,6 +4712,7 @@ stage.addEventListener('pointermove', e => {
   panX = rubber(panRawX, pb.minX, pb.maxX);
   panY = rubber(panRawY, pb.minY, pb.maxY);
   place();
+  inkShifted = true;
   inkLayer.style.transformOrigin = '0 0';
   inkLayer.style.transform = `translate3d(${panX-inkAtX}px,${panY-inkAtY}px,0)`;
 }, {passive:false});
@@ -4728,7 +4820,8 @@ async function pointerFinished(e){
   if(!p.consumed && travel < TAP_SLOP && (Date.now()-p.t) < TAP_MS && !V.markup) handleTap(p.x - stageL);
 }
 stage.addEventListener('pointerup', pointerFinished);
-stage.addEventListener('pointercancel', e => {
+function cancelPointer(e){
+  if(!ptrs.has(e.pointerId)) return;
   const cp = ptrs.get(e.pointerId);
   ptrs.delete(e.pointerId);
   if(stroke) endStroke();
@@ -4740,8 +4833,21 @@ stage.addEventListener('pointercancel', e => {
     if(dy < -EDIT_SWIPE && !V.markup) setMarkup(true);
   }
   else if(swipe && swipe.dir) settleSwipe(false); else swipe = null;
-  if(pinch){ pinch=null; pagewrap.style.transform=''; inkLayer.style.transform='translate3d(0,0,0)'; clampPan(); redrawInk(); }
-});
+  // Any pan or pinch this finger was part of ends here, and ends cleanly.
+  if(pinch || panning || !ptrs.size){
+    pinch = null;
+    panning = false;
+    panRawX = panRawY = null;
+    stopViewAnim();
+    clampPan();
+    redrawInk();
+    for(const q of ptrs.values()){ q.x0 = q.x; q.y0 = q.y; q.consumed = true; }
+  }
+}
+stage.addEventListener('pointercancel', cancelPointer);
+// Capture lost while the finger is still on record is a cancel by another name.
+// (After a normal release the pointer is already gone, so this does nothing.)
+stage.addEventListener('lostpointercapture', cancelPointer);
 
 function handleTap(x){
   // narrower dead centre: the middle strip only toggles the chrome, and a tap
@@ -4832,6 +4938,7 @@ function clearLive(){
   lctx.clearRect(0,0,liveCanvas.width,liveCanvas.height);
 }
 function beginStroke(e){
+  if(inkShifted && !viewAnim) redrawInk();     // the live canvas must sit exactly over the page
   if(V.erasing){ stroke = {erase:true}; eraseAt(normPt(e.clientX, e.clientY)); return; }
   const pt = normPt(e.clientX, e.clientY);
   const hl = V.tool === 'highlight';
@@ -4873,7 +4980,9 @@ function extendStroke(e){
     return;
   }
 
-  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+  // an empty coalesced list is legal; the event itself is always a sample
+  const co = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
+  const evs = co && co.length ? co : [e];
   for(const ev of evs){
     const pt = normPt(ev.clientX, ev.clientY);
     stroke.p.push(pt);
@@ -5019,6 +5128,7 @@ async function saveInk(){
   if(!V.id || V.saving) return;
   clearTimeout(saveTimer);
   V.saving = true;
+  const id = V.id, doc = V.doc;
   const clean = {};
   for(const k in V.ink) if(V.ink[k] && V.ink[k].length)
     // keep the fields that define WHAT the mark is, not just where it is:
@@ -5033,16 +5143,16 @@ async function saveInk(){
       return o;
     });
   try{
-    await DB.set(K.ink(V.id), clean);
+    await DB.set(K.ink(id), clean);
     const hasMarks = Object.keys(clean).length > 0;
-    if(V.doc.marked !== hasMarks){ V.doc.marked = hasMarks; saveIndexSoon(); }
-    V.dirty = false;
-    $('#unsaved').classList.remove('on');
+    if(doc && doc.marked !== hasMarks){ doc.marked = hasMarks; saveIndexSoon(); }
+    if(V.id === id){ V.dirty = false; $('#unsaved').classList.remove('on'); }
   }catch(err){
     console.error(err);
     toast('Could not save markings: ' + err.message, 4000);
+  }finally{
+    V.saving = false;
   }
-  V.saving = false;
 }
 
 /* ---------- export a flattened copy ---------- */
