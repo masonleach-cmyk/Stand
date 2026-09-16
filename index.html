@@ -2316,6 +2316,10 @@ async function importFile(file){
 
   const doc = { id, title, composer, keyInfo:'', notes:'', set:S.set, pages:pdf.numPages,
                 added:Date.now(), bytes:buf.byteLength, marked:false };
+  // The copy opened to read the page count and draw the thumbnail is finished
+  // with. Left undestroyed, importing a dozen scores left a dozen parsed
+  // documents in memory for the rest of the session.
+  try{ await pdf.destroy(); }catch(err){}
 
   try{
     await DB.set(K.pdf(id), file);
@@ -2930,6 +2934,8 @@ async function openDoc(id){
     const vEl = $('#viewer');
     vEl.style.transition = ''; vEl.style.opacity = ''; vEl.style.transform = '';   // never inherit a stranded exit
     V.exiting = false; V.exitSeq++;                      // invalidate any pending teardown
+    if(V.pdf){ const prev = V.pdf; V.pdf = null;
+      try{ const r = prev.destroy(); if(r && r.catch) r.catch(()=>{}); }catch(err){} }
     V.id = id; V.doc = doc; V.page = 1; V.zoom = 1; V.undo = []; V.dirty = false;
     clearCache(); V.fit = 0;
     V.ink = (await DB.get(K.ink(id))) || {};
@@ -2951,9 +2957,26 @@ async function openDoc(id){
 $('#vBack').addEventListener('click', async () => {
   if(V.dirty) await saveInk();
   $('#viewer').classList.remove('open');
-  setTimeout(()=>{ V.pdf = null; clearCache(); }, 300);
+  setTimeout(closeDocument, 300);
   renderGrid();
 });
+
+/* Closing a score has to hand everything back, not just drop the references.
+   pdf.js holds the parsed document and its worker until destroy() is called,
+   and a canvas keeps its backing store until it is resized — on iOS both linger
+   exactly when memory is short, so an afternoon of opening and closing scores
+   ends with a tab that gets killed. */
+function closeDocument(){
+  abortPrefetch();
+  clearTimeout(sweepTimer);
+  const doc = V.pdf;
+  V.pdf = null;
+  if(doc){ try{ const r = doc.destroy(); if(r && r.catch) r.catch(()=>{}); }catch(err){} }
+  clearCache();
+  freeGhost();
+  if(pdfCanvas.width > 1){ pdfCanvas.width = 1; pdfCanvas.height = 1; }
+  if(liveCanvas.width > 1){ liveCanvas.width = 1; liveCanvas.height = 1; }
+}
 
 /* ---------- page bitmap cache ----------
 
@@ -2967,10 +2990,41 @@ $('#vBack').addEventListener('click', async () => {
    The budget is in PIXELS rather than pages. Eight pages of a small vector
    score is 24MB; eight pages of a large scan is several times that, and iOS
    kills a tab that asks for too much canvas at once. */
-const CACHE_MAX = 8;             // pages, at most
-const CACHE_PIXELS = 12e6;       // ...and roughly 48MB of bitmap, whichever binds first
+const CACHE_MAX = 6;             // pages, at most
+const CACHE_PIXELS = 8e6;        // ...and roughly 32MB of bitmap, whichever binds first
 
 function stageKey(){ return Math.round(stageW) + 'x' + Math.round(stageH); }
+
+/* Once a page is a bitmap in our cache, pdf.js no longer needs the page itself —
+   and what it is holding is not small: the decoded images and embedded fonts of
+   a scanned score run to tens of megabytes per page. Nothing was ever releasing
+   them, so paging through a long scan grew without limit until iOS killed the
+   tab. That is the "a problem repeatedly occurred" crash. */
+function releasePage(page){
+  // pdf.js refuses, loudly, if the page is still rendering — which is fine, the
+  // sweep below will get it. It must not become an unhandled rejection.
+  try{ const r = page && page.cleanup && page.cleanup(); if(r && r.catch) r.catch(()=>{}); }
+  catch(err){}
+}
+let sweepTimer = null;
+function sweepSoon(){
+  clearTimeout(sweepTimer);
+  // a document-wide sweep once the paging has settled, for anything the
+  // per-page release missed
+  sweepTimer = setTimeout(() => {
+    if(!V.pdf || V.rendering || liveTask || prefetchTask) return;
+    // document-wide cleanup returns a PROMISE and rejects if anything is still
+    // rendering; a bare try/catch never sees that and it surfaces as an error.
+    try{ const r = V.pdf.cleanup(); if(r && r.catch) r.catch(()=>{}); }catch(err){}
+  }, 1200);
+}
+
+/* The ghost is a full page bitmap that only exists during a swipe. Left
+   allocated it is a second full-size canvas sitting idle for the whole session. */
+function freeGhost(){
+  ghostwrap.style.visibility = 'hidden';
+  if(ghostCanvas.width > 1){ ghostCanvas.width = 1; ghostCanvas.height = 1; }
+}
 
 /* Dropping the reference isn't enough on iOS — the backing store lingers until
    the collector gets round to it, which is exactly when memory is tight.
@@ -2993,8 +3047,8 @@ function trimCache(){
     const e = V.cache.get(k);
     px += e.canvas.width * e.canvas.height;
     kept++;
-    // always keep the page you're on and one either side, whatever their size
-    if(kept > CACHE_MAX || (kept > 3 && px > CACHE_PIXELS)){
+    // always keep the page you're on and its neighbour, whatever their size
+    if(kept > CACHE_MAX || (kept > 2 && px > CACHE_PIXELS)){
       freeEntry(e); V.cache.delete(k);
     }
   }
@@ -3042,6 +3096,7 @@ async function prefetchNeighbors(){
       if(gen !== prefetchGen || V.zoom !== 1){ c.width = c.height = 0; return; }
       V.cache.set(n, {canvas:c, fit, w, h, sk});
       trimCache();
+      releasePage(page);
     }catch(err){
       prefetchTask = null;
       if(err && err.name === 'RenderingCancelledException') return;
@@ -3119,6 +3174,11 @@ async function renderPage(keepPan){
           else throw err;
         }finally{
           liveTask = null;
+          /* Whatever became of the render, pdf.js has now parsed this page and is
+             holding its images and fonts. Releasing only on success meant every
+             abandoned page of a fast tap-through stayed resident — which is how
+             a few seconds of tapping reached gigabytes and got the tab killed. */
+          releasePage(page);
         }
         // superseded: don't snapshot half a page, and don't settle the view on
         // a page we are already moving away from
@@ -3141,6 +3201,7 @@ async function renderPage(keepPan){
 
     $('#pLabel').textContent = `${V.page} / ${V.pdf.numPages}`;
     schedulePrefetch();
+    sweepSoon();
   }catch(err){ console.error(err); }
   V.rendering = false;
 }
@@ -3574,7 +3635,7 @@ function settleSwipe(go){
   moveSwipe(end, dir, s.ghost);
   setTimeout(() => {
     pagewrap.style.transition = ''; inkLayer.style.transition = ''; ghostwrap.style.transition = '';
-    ghostwrap.style.visibility = 'hidden';
+    freeGhost();
     if(go) goPage(V.page + dir);
     else { place(); inkLayer.style.transform = 'translate3d(0,0,0)'; }
   }, 180);
@@ -3582,7 +3643,7 @@ function settleSwipe(go){
 function cancelSwipe(){
   if(!swipe) return;
   swipe = null;
-  ghostwrap.style.visibility = 'hidden';
+  freeGhost();
   place(); inkLayer.style.transform = 'translate3d(0,0,0)';
 }
 
