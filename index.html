@@ -184,6 +184,8 @@ input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
 }
 .ghostwrap{visibility:hidden}
 .pagewrap canvas,.ghostwrap canvas{display:block;width:100%;height:100%}
+/* the sharp zoomed page sits over the fit-size one, which is never disturbed */
+.pagewrap .zoomc{position:absolute;left:0;top:0;visibility:hidden}
 /* ink layers are viewport-sized, never page-sized, so cost never grows with zoom */
 .inklayer{position:absolute;inset:0;pointer-events:none;will-change:transform;transform:translate3d(0,0,0)}
 .inklayer canvas{position:absolute;left:0;top:0}
@@ -394,7 +396,7 @@ svg{display:block}
 <div class="screen" id="viewer">
   <div class="stage" id="stage">
     <div class="ghostwrap" id="ghostwrap"><canvas id="ghostCanvas"></canvas></div>
-    <div class="pagewrap" id="pagewrap"><canvas id="pdfCanvas"></canvas></div>
+    <div class="pagewrap" id="pagewrap"><canvas id="pdfCanvas"></canvas><canvas class="zoomc" id="zoomA"></canvas><canvas class="zoomc" id="zoomB"></canvas></div>
     <div class="inklayer" id="inkLayer">
       <canvas id="inkCanvas"></canvas>
       <canvas id="liveCanvas"></canvas>
@@ -2533,6 +2535,8 @@ const stage=$('#stage'), pagewrap=$('#pagewrap'), ghostwrap=$('#ghostwrap'), ink
 const pdfCanvas=$('#pdfCanvas'), ghostCanvas=$('#ghostCanvas'),
       inkCanvas=$('#inkCanvas'), liveCanvas=$('#liveCanvas');
 const pctx=pdfCanvas.getContext('2d',{alpha:false});
+const zoomCanvases=[$('#zoomA'), $('#zoomB')];
+let zoomShown = null;         // the zoom canvas currently on top, if any
 const gctx=ghostCanvas.getContext('2d',{alpha:false});
 const ictx=inkCanvas.getContext('2d');
 const lctx=liveCanvas.getContext('2d');
@@ -2561,8 +2565,11 @@ function syncStageOrigin(){
 function sizeInkLayer(){
   const d = Math.min(window.devicePixelRatio || 1, 2);
   const w = Math.round(stageW*d), h = Math.round(stageH*d);
-  if(inkCanvas.width !== w || inkCanvas.height !== h){
-    for(const c of [inkCanvas, liveCanvas]){
+  /* Each canvas is checked on its own. closeDocument() shrinks the live canvas
+     to free it, and checking only the ink canvas left it at 1x1 for every score
+     opened afterwards, so a stroke only appeared once it was committed. */
+  for(const c of [inkCanvas, liveCanvas]){
+    if(c.width !== w || c.height !== h){
       c.width = w; c.height = h;
       c.style.width = stageW+'px'; c.style.height = stageH+'px';
     }
@@ -3017,6 +3024,7 @@ function closeDocument(){
   Prep.resume();
   if(pdfCanvas.width > 1){ pdfCanvas.width = 1; pdfCanvas.height = 1; }
   if(liveCanvas.width > 1){ liveCanvas.width = 1; liveCanvas.height = 1; }
+  hideZoom();
 }
 
 /* ---------- page bitmap cache ----------
@@ -3159,7 +3167,7 @@ async function decodeViaImg(blob){
 async function quietMoment(){
   const t0 = nowMs();
   do{ await new Promise(r => setTimeout(r, 50)); }
-  while((V.rendering || ptrs.size) && nowMs() - t0 < 4000);
+  while((V.rendering || handsBusy()) && (V.markup || V.zoom !== 1 || nowMs() - t0 < 4000));
 }
 
 const Raster = {
@@ -3502,7 +3510,7 @@ function runBackground(){
   if(!next.near){
     const wait = WARM_DELAY - (nowMs() - lastNav);
     if(wait > 0){ schedulePrefetch(wait); return; }
-    if(V.markup || ptrs.size){ schedulePrefetch(WARM_DELAY); return; }
+    if(handsBusy()){ schedulePrefetch(WARM_DELAY); return; }
     // a long warm-up otherwise accumulates pdf.js's document-wide caches
     if(++warmCount % 8 === 0){
       try{ const r = V.pdf.cleanup(); if(r && r.catch) r.catch(()=>{}); }catch(err){}
@@ -3528,6 +3536,7 @@ function startJob(n, sk, near){
         if(job.dead || pdf !== V.pdf || (V.rendering && !job.adopted)) return null;
         const g = pageGeom(page, 1);
         const {c, task} = rasterize(page, g);
+        politely(task, () => job.adopted || job.dead);
         job.task = task;
         try{ await task.promise; }
         catch(err){ releaseSource(c); throw err; }
@@ -3551,6 +3560,33 @@ function startJob(n, sk, near){
 }
 
 /* ---------- the visible page ---------- */
+
+/* Zoomed renders go into whichever zoom canvas is hidden, drawn off-screen and
+   then shown in one step, while the fit-size page underneath stays exactly as
+   it was. Zooming in costs no copy and never resizes the page you're looking
+   at; zooming back out just hides the overlay. Only one zoomed bitmap is kept. */
+function hideZoom(){
+  for(const c of zoomCanvases){
+    c.style.visibility = 'hidden';
+    if(c.width > 1){ c.width = 1; c.height = 1; }
+  }
+  zoomShown = null;
+}
+function spareZoomCanvas(){ return zoomCanvases[0] === zoomShown ? zoomCanvases[1] : zoomCanvases[0]; }
+
+/* Is someone touching, pinching, drawing or watching an animation? Background
+   work waits while they are: pdf.js paints on the main thread, and one big
+   scanned image can hold it long enough to make a pinch or pen stroke stutter. */
+function handsBusy(){
+  if(!V.pdf) return false;     // nothing open: the library is never held up by stale viewer state
+  return ptrs.size > 0 || !!viewAnim || !!pinch || !!swipe || panning || V.markup || V.zoom !== 1;
+}
+function politely(task, exempt){
+  task.onContinue = cont => {
+    const go = () => { if(!handsBusy() || (exempt && exempt())) cont(); else setTimeout(go, 80); };
+    go();
+  };
+}
 let liveTask = null;
 let shownPage = 0;           // the page whose pixels are on pdfCanvas right now
 let wakeLive = null;
@@ -3569,6 +3605,7 @@ function blankSoon(){
     pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pdfCanvas.width, pdfCanvas.height);
     ictx.setTransform(1,0,0,1,0,0);
     ictx.clearRect(0, 0, inkCanvas.width, inkCanvas.height);
+    hideZoom();
     shownPage = 0;
     stage.classList.add('loading');
   }, 120);
@@ -3591,6 +3628,7 @@ function applyEntry(e){
   }
   pctx.setTransform(1,0,0,1,0,0);
   pctx.drawImage(e.canvas, 0, 0);
+  hideZoom();
   shownPage = e.n;
   unblank();
   return true;
@@ -3694,7 +3732,14 @@ async function renderPage(keepPan){
         if(V.want !== null) continue;
         const g = pageGeom(page, V.zoom);
         V.fit = g.fit;
-        const {c, task} = rasterize(page, g);
+        // draw straight into the hidden zoom canvas: no extra canvas, no copy
+        const c = spareZoomCanvas();
+        c.style.visibility = 'hidden';
+        c.width = g.bw; c.height = g.bh;
+        const zx = c.getContext('2d', {alpha:false});
+        zx.setTransform(1,0,0,1,0,0);
+        zx.fillStyle = '#fff'; zx.fillRect(0, 0, c.width, c.height);
+        const task = page.render({ canvasContext: zx, viewport: page.getViewport({scale: g.css*g.d}) });
         liveTask = task;
         let cancelled = false;
         try{ await task.promise; }
@@ -3710,14 +3755,13 @@ async function renderPage(keepPan){
         // for it again rather than stopping here.
         if(cancelled && V.want === null) V.want = V.page;
         if(cancelled || V.want !== null){ releaseSource(c); continue; }
-        // Swap the crisp page in, in one go. Until now the stretched bitmap
-        // stayed on screen rather than a blank one.
+        // Show the crisp page in one step, over the stretched fit-size one.
         V.renderW = g.w; V.renderH = g.h;
         sizePageBox(g.w, g.h);
-        if(pdfCanvas.width !== g.bw || pdfCanvas.height !== g.bh){ pdfCanvas.width = g.bw; pdfCanvas.height = g.bh; }
-        pctx.setTransform(1,0,0,1,0,0);
-        pctx.drawImage(c, 0, 0);
-        releaseSource(c);
+        c.style.visibility = 'visible';
+        const prev = zoomShown;
+        zoomShown = c;
+        if(prev && prev !== c){ prev.style.visibility = 'hidden'; prev.width = 1; prev.height = 1; }
         shownPage = target;
         unblank();
       }
@@ -4358,6 +4402,7 @@ function setMarkup(on){
   $('#palette').classList.remove('on');
   if(on){ showBar(true); ensurePresetsLoaded(); refreshPreviewSize(); syncInkPanel(); }
   else if(V.dirty) saveInk();
+  if(!on && V.pdf) schedulePrefetch(WARM_DELAY);
 }
 $('#tPen').addEventListener('click', () => setMarkup(!V.markup));
 $('#tColor').addEventListener('click', () => {
