@@ -287,11 +287,72 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .mrow .chev{color:var(--text-faint)}
 .mrow.cur{background:rgba(74,111,165,.16)}
 .mrow.cur .num{background:var(--pencil);border-color:var(--pencil);color:#fff}
-.mv-num{font-family:var(--serif);font-size:40px;line-height:1;color:var(--pencil-hi);margin:10px 8px 6px}
-.mvdots{display:flex;gap:6px;margin:16px 8px 0;flex-wrap:wrap}
-.mvdots button{width:9px;height:9px;border-radius:50%;background:var(--slate-3);border:1px solid var(--line);padding:0}
-.mvdots button.on{background:var(--pencil-hi);border-color:var(--pencil-hi)}
-.mvnav{flex:none;display:flex;gap:10px;padding:10px 16px calc(var(--safe-b) + 14px);border-top:1px solid var(--line);background:var(--slate)}
+/* ---- movement pager: a fixed stage that slides, a list that stays put ---- */
+#mvBody.mvwrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:0}
+.mvwrap .eyebrow{flex:none;margin:6px 18px 8px}
+.mv-viewport{flex:none;height:clamp(230px,38vh,340px);margin:0 12px;overflow:hidden;border-radius:16px;
+  background:linear-gradient(180deg,var(--slate-2),rgba(35,41,51,.6));border:1px solid var(--line);
+  touch-action:pan-y;position:relative;
+  /* a selection would turn a drag into the browser's own drag-and-drop */
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.mv-track{display:flex;height:100%;will-change:transform;transition:transform .46s cubic-bezier(.22,.8,.24,1)}
+.mv-track.drag{transition:none}
+.mv-card{flex:0 0 100%;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 16px;
+  opacity:.35;transform:scale(.94);transition:opacity .46s ease,transform .46s cubic-bezier(.22,.8,.24,1)}
+.mv-card.on{opacity:1;transform:none}
+.mv-card .mv-num{font-family:var(--serif);font-size:34px;line-height:1;color:var(--pencil-hi);margin:0 0 4px}
+.mv-card h2{font-family:var(--serif);font-weight:600;font-size:20px;line-height:1.22;margin:0 0 8px;color:var(--text)}
+.mv-card .wchips{margin:0 0 10px}
+.mv-card p{font-size:14.5px;line-height:1.55;color:var(--text);margin:8px 0 0}
+.mvdots{flex:none;display:flex;justify-content:center;gap:7px;margin:10px 16px 2px;flex-wrap:wrap}
+.mvdots button{width:8px;height:8px;border-radius:4px;background:var(--slate-3);border:1px solid var(--line);padding:0;
+  transition:width .36s cubic-bezier(.22,.8,.24,1),background .36s}
+.mvdots button.on{width:22px;background:var(--pencil-hi);border-color:var(--pencil-hi)}
+.mvwrap h5{flex:none;margin:12px 18px 4px}
+.mv-list{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;padding:0 10px 12px}
+.mv-hl{position:absolute;left:10px;right:10px;top:0;height:0;border-radius:10px;pointer-events:none;
+  background:rgba(74,111,165,.2);box-shadow:inset 0 0 0 1px rgba(111,149,204,.35);
+  transition:transform .46s cubic-bezier(.22,.8,.24,1),height .46s cubic-bezier(.22,.8,.24,1)}
+.mv-hl.drag{transition:none}
+.mv-list .mrow{position:relative;background:none}
+.mv-list .mrow .num{transition:background .4s,border-color .4s,color .4s}
+.mv-list .mrow .nm{transition:color .4s}
+
+/* ---- difficulty thermometer ---- */
+.thermo{display:flex;align-items:center;gap:0;margin:2px 0}
+.th-bulb{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;position:relative;z-index:1;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),transparent 55%),var(--c);
+  box-shadow:0 0 0 3px var(--slate-3),0 0 14px -2px var(--c);color:#fff;font-weight:700;font-size:14px;
+  text-shadow:0 1px 2px rgba(0,0,0,.35);transform:scale(.6);transition:transform .5s cubic-bezier(.34,1.56,.64,1) .45s}
+.th-tube{flex:1;height:14px;margin-left:-6px;border-radius:0 7px 7px 0;background:var(--slate-3);position:relative;overflow:hidden;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}
+.th-fill{position:absolute;left:0;top:0;bottom:0;width:0;overflow:hidden;border-radius:0 7px 7px 0;
+  transition:width .9s cubic-bezier(.22,.8,.24,1) .1s}
+.th-grad{height:100%;background:linear-gradient(90deg,#34c46a 0%,#9bd14a 28%,#e8c63e 50%,#f08a3a 74%,#e2453b 100%)}
+.th-lo{position:absolute;left:0;top:0;bottom:0;background:rgba(15,18,24,.55)}
+.th-ticks{position:absolute;inset:0;display:flex}
+.th-ticks i{flex:1;border-right:1px solid rgba(15,18,24,.45)}
+.th-ticks i:last-child{border-right:0}
+.thermo.go .th-fill{width:var(--w)}
+.thermo.go .th-bulb{transform:none}
+.th-cap{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px;color:var(--text-dim);margin:6px 2px 0}
+.th-cap b{color:var(--text);font-weight:600}
+.th-cap .ab{font-size:11.5px;padding:2px 8px;border-radius:9px;border:1px solid var(--line);color:var(--text-dim);white-space:nowrap}
+.th-scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-faint);margin:3px 2px 0 36px}
+.diff{margin:0 8px 14px;padding:12px 12px 10px;border:1px solid var(--line);border-radius:12px}
+.diff .src{font-size:11px;color:var(--text-faint);margin-top:8px;line-height:1.4}
+.mv-card .diff{margin:12px 0 0;padding:10px}
+.lvl{flex:none;float:right;margin-left:6px;min-width:22px;height:18px;padding:0 5px;border-radius:9px;font-size:11px;font-weight:700;
+  line-height:18px;text-align:center;color:#fff;background:var(--c);text-shadow:0 1px 1px rgba(0,0,0,.3)}
+
+/* ---- sort switch ---- */
+.sortseg{position:relative;display:flex;margin:2px 16px 6px;padding:3px;border-radius:10px;background:var(--slate-3);border:1px solid var(--line);flex:none}
+.sortseg button{flex:1;position:relative;z-index:1;height:30px;font-size:13px;color:var(--text-dim);transition:color .3s}
+.sortseg button.on{color:var(--text)}
+.sortseg .sortknob{position:absolute;top:3px;height:30px;left:3px;border-radius:8px;background:var(--slate);box-shadow:0 1px 3px rgba(0,0,0,.35);
+  transition:transform .38s cubic-bezier(.22,.8,.24,1)}
+.seg-label{flex:none;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--text-faint);margin:6px 18px 0}
+.mvnav{flex:none;display:flex;gap:10px;padding:10px 16px calc(var(--safe-b) + 14px);border-top:1px solid var(--line);background:var(--slate);position:relative;z-index:2}
 .mvnav .btn{flex:1;height:44px;font-size:14px}
 .mvnav .btn:disabled{opacity:.35}
 .linkbtn.inline{padding:0;min-width:0;font-size:inherit;text-align:left}
@@ -698,6 +759,14 @@ svg{display:block}
       <input id="wkQ" type="search" placeholder="Search titles, numbers or descriptions" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
   </div>
+  <div class="seg-label" id="wkSortLabel">Sort by</div>
+  <div class="sortseg" id="wkSort">
+    <span class="sortknob"></span>
+    <button data-s="type" class="on">Type</button>
+    <button data-s="date">Written</button>
+    <button data-s="period">Period</button>
+    <button data-s="opus">Opus</button>
+  </div>
   <div class="pchips" id="wkChips">
     <button class="chip on" data-f="all">Complete works</button>
     <button class="chip" data-f="mine">Only mine</button>
@@ -721,7 +790,7 @@ svg{display:block}
     <h3 id="mvTop"></h3>
     <span class="linkbtn" aria-hidden="true"></span>
   </div>
-  <div class="plist wd" id="mvBody"></div>
+  <div class="mvwrap" id="mvBody"></div>
   <div class="mvnav">
     <button class="btn" id="mvPrev">‹ Previous</button>
     <button class="btn" id="mvNext">Next ›</button>
@@ -3580,6 +3649,14 @@ const WORK_NOTES = {
    is like and why it matters, and a note on each movement. Beethoven only,
    for now. c composed, pl place, per creative period, pub published,
    ded dedication, prem first performance, parts [name, key, note]. */
+/* Henle difficulty levels (G. Henle Verlag, henle.de): 1–9, graded by the effort
+   of preparing a piece for performance — 1–3 easy, 4–6 medium, 7–9 difficult.
+   Solo piano works only, as Henle publishes them: h level, lo lowest level in a
+   set, parts one level per piece of a set, abrsm the ABRSM grade Henle lists. */
+const DIFFICULTY = {
+  "Ludwig van Beethoven": {"2/1": {"h": 6}, "2/2": {"h": 7, "abrsm": "Grade 7"}, "2/3": {"h": 7, "abrsm": "LRSM"}, "7": {"h": 8, "abrsm": "LRSM"}, "10/1": {"h": 7, "abrsm": "ARSM"}, "10/2": {"h": 7, "abrsm": "ARSM"}, "10/3": {"h": 7, "abrsm": "LRSM"}, "13": {"h": 7, "abrsm": "ARSM / Grade 8"}, "14/1": {"h": 6, "abrsm": "Grade 8"}, "14/2": {"h": 6, "abrsm": "ARSM"}, "22": {"h": 7}, "26": {"h": 7, "abrsm": "ARSM"}, "27/1": {"h": 8}, "27/2": {"h": 7, "abrsm": "ARSM"}, "28": {"h": 7}, "31/1": {"h": 8, "abrsm": "LRSM"}, "31/2": {"h": 8, "abrsm": "LRSM"}, "31/3": {"h": 7, "abrsm": "LRSM"}, "49/1": {"h": 3}, "49/2": {"h": 3}, "53": {"h": 9, "abrsm": "FRSM"}, "54": {"h": 7, "abrsm": "ARSM"}, "57": {"h": 9, "abrsm": "FRSM"}, "78": {"h": 7}, "79": {"h": 6}, "81a": {"h": 7, "abrsm": "LRSM"}, "90": {"h": 7, "abrsm": "ARSM"}, "101": {"h": 9, "abrsm": "FRSM"}, "106": {"h": 9}, "109": {"h": 8, "abrsm": "FRSM"}, "110": {"h": 8, "abrsm": "FRSM"}, "111": {"h": 9, "abrsm": "FRSM"}, "129": {"h": 7}, "WoO57": {"h": 6}, "WoO59": {"h": 3}, "WoO60": {"h": 4}, "34": {"h": 7, "abrsm": "ARSM"}, "35": {"h": 8, "abrsm": "FRSM"}, "WoO80": {"h": 7, "abrsm": "ARSM"}, "120": {"h": 9}, "33": {"h": 7, "lo": 4, "parts": [6, 6, 4, 5, 7, 4, 6]}, "119": {"h": 6, "lo": 3, "parts": [4, 5, 4, 4, 5, 6, 6, 4, 4, 3, 4], "partAbrsm": {"0": "Grade 5"}}, "126": {"h": 6, "lo": 5, "parts": [6, 6, 6, 6, 5, 6]}},
+};
+
 const WORK_DETAILS = {
   "Ludwig van Beethoven": {
     "2/1":{"c": "1793–95", "pl": "Vienna", "per": "Early (first Vienna years)", "pub": "1796", "ded": "Joseph Haydn", "about": "The first of the three sonatas Beethoven chose to open his published piano sonatas, and the most compact. Its opening theme is a rising arpeggio that snaps into a sharp turn, and the whole work is lean and urgent. A song-like Adagio, reworked from an earlier piano quartet, offers a brief respite before a stormy, driving finale.", "ctx": "Beethoven had arrived in Vienna in late 1792 to study with Haydn. Dedicating his first three sonatas to his teacher was a public gesture of respect, though their relationship was cooler than the dedication suggests. Presenting four-movement sonatas, with a minuet as in a symphony, signalled serious ambition.", "parts": [["Allegro", "F minor", "Sonata form built from a rising ‘rocket’ arpeggio; terse and restless."], ["Adagio", "F major", "A gracious, ornamented song adapted from his early Piano Quartet WoO 36."], ["Menuetto: Allegretto", "F minor", "A shadowy minuet with a smoother trio in F major."], ["Prestissimo", "F minor", "A stormy finale of pounding triplets, relieved by a calmer middle episode."]]},
@@ -4551,7 +4628,29 @@ function workGroups(works){
   for(const [k, t] of works){ const g = raw(k, t); count.set(g, (count.get(g) || 0) + 1); }
   return (k, t) => { const g = raw(k, t); return count.get(g) >= 3 ? g : 'Other works'; };
 }
-const WK = { name:null, filter:'all', open:new Set() };
+const WK = { name:null, filter:'all', open:new Set(), sort:(() => { try{ return localStorage.getItem('stand.worksSort') || 'type'; }catch(e){ return 'type'; } })() };
+const PERIOD_ORDER = ['Bonn years', 'Early (first Vienna years)', 'Middle (‘heroic’ period)', 'Late'];
+/* Catalogue order: opus numbers first (Op. 81a after Op. 81), then WoO. */
+function opusOrder(key){
+  let m;
+  if((m = /^WoO\s?(\d+)/.exec(key))) return [1, +m[1], 0];
+  if((m = /^(\d+)([a-z]?)(?:\/(\d+))?$/.exec(key))) return [0, +m[1] + (m[2] ? 0.5 : 0), +(m[3] || 0)];
+  return [2, 0, 0];
+}
+function opusHeading(key){
+  const [kind, n] = opusOrder(key);
+  if(kind === 1) return 'WoO (works without opus number)';
+  if(kind === 2) return 'Other';
+  const lo = Math.floor((Math.floor(n) - 1) / 10) * 10 + 1;
+  return `Op. ${lo}–${lo + 9}`;
+}
+const yearOf = c => { const m = /(\d{4})/.exec(c || ''); return m ? +m[1] : 9999; };
+function placeSortKnob(){
+  const seg = $('#wkSort'), on = seg.querySelector('button.on'), knob = seg.querySelector('.sortknob');
+  if(!on) return;
+  knob.style.width = on.offsetWidth + 'px';
+  knob.style.transform = `translateX(${on.offsetLeft - 3}px)`;
+}
 function openWorks(name){
   WK.name = name; WK.filter = 'all'; WK.open = new Set();
   $('#wkHead').textContent = name;
@@ -4570,28 +4669,59 @@ function renderWorks(){
     (hasDetails ? ' · tap any work for details' : owned.size ? ' · tap one to open it' : '');
   const groupOf = workGroups(works);
   const details = WORK_DETAILS[WK.name] || {};
+  const canSort = !!WORK_DETAILS[WK.name];
+  const sortMode = canSort ? WK.sort : 'type';
+  $('#wkSort').style.display = $('#wkSortLabel').style.display = canSort ? '' : 'none';
+  $$('#wkSort button').forEach(b => b.classList.toggle('on', b.dataset.s === sortMode));
+  if(canSort) requestAnimationFrame(placeSortKnob);
   const groups = new Map();
-  for(const [key, title] of works){
+  let ordered = works.map((w, i) => ({ w, i }));
+  if(sortMode !== 'type'){
+    const yr = x => yearOf((details[x.w[0]] || {}).c);
+    const pr = x => { const p = PERIOD_ORDER.indexOf((details[x.w[0]] || {}).per); return p < 0 ? 9 : p; };
+    const op = x => opusOrder(x.w[0]);
+    const byOpus = (a, b) => { const A = op(a), B = op(b); return A[0] - B[0] || A[1] - B[1] || A[2] - B[2]; };
+    ordered.sort(sortMode === 'opus' ? (a, b) => byOpus(a, b) || a.i - b.i
+      : (a, b) => (sortMode === 'period' ? pr(a) - pr(b) : 0) || yr(a) - yr(b) || a.i - b.i);
+  }
+  const heading = (key, title) => {
+    const dd = details[key] || {};
+    if(sortMode === 'date') return yearOf(dd.c) === 9999 ? 'Undated' : String(yearOf(dd.c));
+    if(sortMode === 'period') return dd.per || 'Other';
+    if(sortMode === 'opus') return opusHeading(key);
+    return groupOf(key, title);
+  };
+  for(const { w: [key, title] } of ordered){
     const have = owned.get(key);
     if(WK.filter === 'mine' && !have) continue;
     const shown = nicknameFirst(title);
     const note = (WORK_NOTES[WK.name] || {})[key] || '';
     if(q && !normWork(shown + ' ' + key + ' ' + note).includes(q)) continue;
-    const g = groupOf(key, title);
+    const g = heading(key, title);
     if(!groups.has(g)) groups.set(g, []);
-    groups.get(g).push({ key, shown, have, note });
+    groups.get(g).push({ key, shown, have, note, when: (sortMode === 'date' || sortMode === 'period') && details[key] ? details[key].c : '' });
+  }
+  // period headings carry their span of years
+  if(sortMode === 'period'){
+    for(const [g, list] of [...groups]){
+      const ys = list.map(w => yearOf((details[w.key] || {}).c)).filter(y => y < 9999);
+      if(ys.length){ groups.delete(g); groups.set(`${g} · ${Math.min(...ys)}–${Math.max(...ys)}`, list); }
+    }
   }
   // the catch-all goes last
-  if(groups.has('Other works')){ const o = groups.get('Other works'); groups.delete('Other works'); groups.set('Other works', o); }
+  if(sortMode === 'type' && groups.has('Other works')){ const o = groups.get('Other works'); groups.delete('Other works'); groups.set('Other works', o); }
   let h = '';
   for(const [g, list] of groups){
     const n = list.filter(w => w.have).length;
     h += `<h4>${esc(g)}${n ? ` · ${n} of ${list.length}` : ''}</h4>`;
     for(const w of list){
-      const more = details[w.key] ? `<span class="chev">›</span>` : '';
+      const dl = difficultyOf(WK.name, w.key);
+      const more = (details[w.key] ? `<span class="chev">›</span>` : '') +
+        (dl ? `<span class="lvl" style="--c:${levelColor(dl.h)}" title="Henle level">${dl.lo && dl.lo < dl.h ? dl.lo + '–' : ''}${dl.h}</span>` : '');
+      const noteText = (w.when ? w.when + ' · ' : '') + (w.note || '');
       if(!w.have){
         const inner = `${more}<span class="nm">${esc(w.shown)}</span>` +
-                      (w.note ? `<span class="ds">${esc(w.note)}</span>` : '');
+                      (noteText ? `<span class="ds">${esc(noteText)}</span>` : '');
         h += details[w.key]
           ? `<button class="wrow missing" data-detail="${esc(w.key)}">${inner}</button>`
           : `<div class="wrow missing">${inner}</div>`;
@@ -4599,7 +4729,7 @@ function renderWorks(){
       }
       const many = w.have.length > 1;
       h += `<button class="wrow owned" data-work="${esc(w.key)}"${details[w.key] ? ` data-detail="${esc(w.key)}"` : ''}>${more}<span class="nm">${esc(w.shown)}</span>` +
-           (w.note ? `<span class="ds">${esc(w.note)}</span>` : '') +
+           (noteText ? `<span class="ds">${esc(noteText)}</span>` : '') +
            `<span class="sub">${many ? `${w.have.length} scores · tap to choose` : 'In your library'}</span></button>`;
       if(many && WK.open.has(w.key))
         h += '<div class="wdocs">' + [...w.have].sort((x, y) => x.title.localeCompare(y.title, undefined, {numeric:true})).map(d => `<button data-doc="${esc(d.id)}">${esc(d.title)}</button>`).join('') + '</div>';
@@ -4633,6 +4763,13 @@ $('#wkChips').addEventListener('click', e => {
   WK.filter = c.dataset.f; renderWorks(); $('#wkList').scrollTop = 0;
 });
 $('#wkQ').addEventListener('input', renderWorks);
+$('#wkSort').addEventListener('click', e => {
+  const b = e.target.closest('button[data-s]'); if(!b || b.dataset.s === WK.sort) return;
+  WK.sort = b.dataset.s;
+  try{ localStorage.setItem('stand.worksSort', WK.sort); }catch(err){}
+  renderWorks();
+  $('#wkList').scrollTop = 0;
+});
 $('#wkBack').addEventListener('click', () => { $('#wkQ').blur(); $('#mWorks').classList.remove('on'); });
 $('#ceWorks').addEventListener('click', () => {
   const name = CE.entry && CE.entry.name; if(!name) return;
@@ -4640,6 +4777,53 @@ $('#ceWorks').addEventListener('click', () => {
   openWorks(name);
 });
 
+
+/* ---------- difficulty ---------- */
+const HENLE_WORD = lv => lv <= 3 ? 'Easy' : lv <= 6 ? 'Medium' : 'Difficult';
+// green → yellow → red, matching the thermometer's gradient
+function levelColor(lv){
+  const stops = [[0,[52,196,106]],[.28,[155,209,74]],[.5,[232,198,62]],[.74,[240,138,58]],[1,[226,69,59]]];
+  const t = Math.max(0, Math.min(1, (lv - .5) / 9));
+  let i = 0; while(i < stops.length - 2 && t > stops[i+1][0]) i++;
+  const [t0, a] = stops[i], [t1, b] = stops[i+1], f = (t - t0) / (t1 - t0);
+  return `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * f)).join(',')})`;
+}
+function difficultyOf(composer, key){ return (DIFFICULTY[composer] || {})[key] || null; }
+function thermometer(lv, lo){
+  const w = (lv / 9 * 100).toFixed(1) + '%';
+  return `<div class="thermo" style="--c:${levelColor(lv)};--w:${w};--lv:${lv}">
+    <div class="th-bulb">${lv}</div>
+    <div class="th-tube">
+      <div class="th-fill"><div class="th-grad" style="width:calc(900% / ${lv})"></div>
+        ${lo && lo < lv ? `<div class="th-lo" style="width:${((lo - 1) / lv * 100).toFixed(1)}%"></div>` : ''}</div>
+      <div class="th-ticks">${'<i></i>'.repeat(9)}</div>
+    </div></div>`;
+}
+function difficultyBlock(composer, key, part){
+  const d = difficultyOf(composer, key);
+  if(!d) return '';
+  let lv = d.h, lo = d.lo, cap, abrsm = d.abrsm;
+  if(part != null && d.parts){
+    lv = d.parts[part]; lo = null;
+    abrsm = d.partAbrsm && d.partAbrsm[part];
+    cap = `<b>Level ${lv}</b> of 9 · ${HENLE_WORD(lv)}`;
+  }else if(lo && lo < lv){
+    cap = `<b>Levels ${lo}–${lv}</b> across the pieces`;
+  }else{
+    cap = `<b>Level ${lv}</b> of 9 · ${HENLE_WORD(lv)}` + (part != null ? ' · whole work' : '');
+  }
+  return `<div class="diff">
+    ${thermometer(lv, lo)}
+    <div class="th-scale"><span>Easy</span><span>Medium</span><span>Difficult</span></div>
+    <div class="th-cap"><span>${cap}</span>${abrsm ? `<span class="ab">ABRSM ${esc(abrsm)}</span>` : ''}</div>
+    ${part == null ? '<div class="src">Henle difficulty level (G. Henle Verlag), graded 1–9 by the work needed to prepare a piece for performance.</div>' : ''}
+  </div>`;
+}
+// fill thermometers once they're on screen, so the rise is seen
+function animateThermos(root){
+  requestAnimationFrame(() => requestAnimationFrame(() =>
+    root.querySelectorAll('.thermo:not(.go)').forEach(t => t.classList.add('go'))));
+}
 
 /* ---------- a work in depth ----------
    Tapping a work that has details opens its own page: when and where it was
@@ -4671,6 +4855,11 @@ function partsLabel(key, parts){
 function partNumber(key, i, parts){
   return partsLabel(key, parts) === 'Movements' ? (ROMAN_NUM[i] || String(i + 1)) : String(i + 1);
 }
+function partLevelPill(composer, key, i){
+  const d = difficultyOf(composer, key);
+  const lv = d && d.parts ? d.parts[i] : null;
+  return lv ? `<span class="lvl" style="--c:${levelColor(lv)};float:none">${lv}</span>` : '';
+}
 function workEntry(composer, key){
   return (WORKS[composer] || []).find(w => w[0] === key);
 }
@@ -4689,6 +4878,7 @@ function openWorkDetail(composer, key){
     ${t.nick ? `<div class="nick">“${esc(t.nick)}”</div>` : ''}
     ${note ? `<div class="lead">${esc(note)}</div>` : ''}
     <div class="wchips"><span>${esc(catalogueLabel(key))}</span>${t.tonality ? `<span>${esc(t.tonality)}</span>` : ''}<span>${esc(d.per)}</span></div>
+    ${difficultyOf(composer, key) ? `<h5>Difficulty</h5>${difficultyBlock(composer, key)}` : ''}
     <dl class="facts">
       ${fact('Composed', d.c)}${fact('Written in', d.pl)}${fact('Period', d.per)}
       ${fact('First heard', d.prem)}${fact('Published', d.pub)}${fact('Dedicated to', d.ded)}
@@ -4704,12 +4894,13 @@ function openWorkDetail(composer, key){
     h += `<h5>${esc(partsLabel(key, d.parts))} · ${d.parts.length}</h5>` + d.parts.map((p, i) =>
       `<button class="mrow" data-part="${i}"><span class="num">${partNumber(key, i, d.parts)}</span>
         <span class="tx"><span class="nm">${esc(p[0])}</span><span class="sub">${esc(p[1])}</span></span>
-        <span class="chev">›</span></button>`).join('');
+        ${partLevelPill(composer, key, i)}<span class="chev">›</span></button>`).join('');
   }
   $('#wdTop').textContent = catalogueLabel(key);
   $('#wdBody').innerHTML = h;
   $('#wdBody').scrollTop = 0;
   $('#mWork').classList.add('on');
+  animateThermos($('#wdBody'));
 }
 $('#wdBody').addEventListener('click', e => {
   const doc = e.target.closest('[data-doc]');
@@ -4722,51 +4913,161 @@ $('#wdBack').addEventListener('click', () => {
   if($('#mWorks').classList.contains('on')) renderWorks();
 });
 
-function openMovement(i){
+/* ---------- movement pager ----------
+   The description sits on a fixed-size stage that slides sideways, following
+   the finger; the list of movements below is built once and never moves. A
+   soft highlight glides from row to row as the stage turns, tracking the drag
+   itself, so the next movement lights up as it slides into view. */
+const MV = { built:null, count:0, index:0, rows:[] };
+
+function buildMovements(){
   const d = WORK_DETAILS[WD.composer][WD.key];
   const parts = d.parts || [];
-  if(!parts.length) return;
-  WD.index = Math.max(0, Math.min(parts.length - 1, i));
-  const p = parts[WD.index];
   const w = workEntry(WD.composer, WD.key);
   const label = partsLabel(WD.key, parts);
-  const unit = label === 'Movements' ? 'Movement' : label === 'Songs' ? 'Song'
-             : label === 'Bagatelles' || label === 'Pieces' ? 'Piece' : 'Part';
-  $('#mvTop').textContent = `${unit} ${WD.index + 1} of ${parts.length}`;
+  const hasPartLevels = !!(difficultyOf(WD.composer, WD.key) || {}).parts;
+  MV.count = parts.length;
+  MV.unit = label === 'Movements' ? 'Movement' : label === 'Songs' ? 'Song'
+          : label === 'Bagatelles' || label === 'Pieces' ? 'Piece' : 'Part';
   $('#mvBody').innerHTML = `
     <div class="eyebrow">${esc(nicknameFirst(w[1]))}</div>
-    <div class="mv-num">${partNumber(WD.key, WD.index, parts)}</div>
-    <h2>${esc(p[0])}</h2>
-    <div class="wchips"><span>${esc(p[1])}</span><span>${esc(catalogueLabel(WD.key))}</span></div>
-    <p>${esc(p[2])}</p>
-    <div class="mvdots">${parts.map((_, j) => `<button class="${j === WD.index ? 'on' : ''}" data-go="${j}" aria-label="${unit} ${j + 1}"></button>`).join('')}</div>
+    <div class="mv-viewport" id="mvViewport"><div class="mv-track" id="mvTrack">
+      ${parts.map((p, j) => `<section class="mv-card" data-i="${j}">
+        <div class="mv-num">${partNumber(WD.key, j, parts)}</div>
+        <h2>${esc(p[0])}</h2>
+        <div class="wchips"><span>${esc(p[1])}</span><span>${esc(catalogueLabel(WD.key))}</span></div>
+        <p>${esc(p[2])}</p>
+        ${difficultyOf(WD.composer, WD.key) ? difficultyBlock(WD.composer, WD.key, j) : ''}
+      </section>`).join('')}
+    </div></div>
+    <div class="mvdots" id="mvDots">${parts.map((_, j) => `<button data-go="${j}" aria-label="${MV.unit} ${j + 1}"></button>`).join('')}</div>
     <h5>All ${esc(label.toLowerCase())}</h5>
-    ${parts.map((q, j) => `<button class="mrow${j === WD.index ? ' cur' : ''}" data-go="${j}"><span class="num">${partNumber(WD.key, j, parts)}</span>
-      <span class="tx"><span class="nm">${esc(q[0])}</span><span class="sub">${esc(q[1])}</span></span></button>`).join('')}`;
-  $('#mvPrev').disabled = WD.index === 0;
-  $('#mvNext').disabled = WD.index === parts.length - 1;
-  $('#mvBody').scrollTop = 0;
-  $('#mMove').classList.add('on');
+    <div class="mv-list" id="mvList"><div class="mv-hl" id="mvHl"></div>
+      ${parts.map((q, j) => `<button class="mrow" data-go="${j}"><span class="num">${partNumber(WD.key, j, parts)}</span>
+        <span class="tx"><span class="nm">${esc(q[0])}</span><span class="sub">${esc(q[1])}</span></span>
+        ${hasPartLevels ? partLevelPill(WD.composer, WD.key, j) : ''}</button>`).join('')}
+    </div>`;
+  MV.rows = [...$('#mvList').querySelectorAll('.mrow')];
+  MV.built = WD.composer + '|' + WD.key;
+  bindPagerDrag();
 }
-$('#mvPrev').addEventListener('click', () => openMovement(WD.index - 1));
-$('#mvNext').addEventListener('click', () => openMovement(WD.index + 1));
+
+function highlightAt(pos, dragging){
+  // pos may be fractional mid-drag: blend between two rows
+  const hl = $('#mvHl'); if(!hl || !MV.rows.length) return;
+  const i0 = Math.max(0, Math.min(MV.rows.length - 1, Math.floor(pos)));
+  const i1 = Math.min(MV.rows.length - 1, i0 + 1);
+  const f = Math.max(0, Math.min(1, pos - i0));
+  const r0 = MV.rows[i0], r1 = MV.rows[i1];
+  const top = r0.offsetTop + (r1.offsetTop - r0.offsetTop) * f;
+  const h = r0.offsetHeight + (r1.offsetHeight - r0.offsetHeight) * f;
+  hl.classList.toggle('drag', !!dragging);
+  hl.style.height = h + 'px';
+  hl.style.transform = `translateY(${top}px)`;
+}
+
+function showMovement(i, animate){
+  MV.index = Math.max(0, Math.min(MV.count - 1, i));
+  WD.index = MV.index;
+  const track = $('#mvTrack');
+  track.classList.toggle('drag', !animate);
+  track.style.transform = `translate3d(${-MV.index * 100}%,0,0)`;
+  if(!animate){ void track.offsetWidth; track.classList.remove('drag'); }
+  track.querySelectorAll('.mv-card').forEach((c, j) => {
+    const on = j === MV.index;
+    c.classList.toggle('on', on);
+    if(on){ c.scrollTop = 0; animateThermos(c); }
+  });
+  $$('#mvDots button').forEach((b, j) => b.classList.toggle('on', j === MV.index));
+  MV.rows.forEach((r, j) => r.classList.toggle('cur', j === MV.index));
+  const hl = $('#mvHl');
+  if(!animate && hl){ hl.classList.add('drag'); }
+  highlightAt(MV.index, false);
+  if(!animate && hl){ void hl.offsetWidth; hl.classList.remove('drag'); }
+  // keep the current row in view without jolting the list
+  const list = $('#mvList'), row = MV.rows[MV.index];
+  if(list && row){
+    const top = row.offsetTop - 6, bottom = row.offsetTop + row.offsetHeight + 6;
+    if(top < list.scrollTop) list.scrollTo({top, behavior: animate ? 'smooth' : 'auto'});
+    else if(bottom > list.scrollTop + list.clientHeight)
+      list.scrollTo({top: bottom - list.clientHeight, behavior: animate ? 'smooth' : 'auto'});
+  }
+  $('#mvTop').textContent = `${MV.unit} ${MV.index + 1} of ${MV.count}`;
+  $('#mvPrev').disabled = MV.index === 0;
+  $('#mvNext').disabled = MV.index === MV.count - 1;
+}
+
+function openMovement(i){
+  const d = WORK_DETAILS[WD.composer][WD.key];
+  if(!d.parts || !d.parts.length) return;
+  const fresh = MV.built !== WD.composer + '|' + WD.key;
+  if(fresh) buildMovements();
+  const wasOpen = $('#mMove').classList.contains('on');
+  $('#mMove').classList.add('on');
+  // rows have no size until the panel is laid out
+  requestAnimationFrame(() => showMovement(i, wasOpen && !fresh));
+}
+
+function bindPagerDrag(){
+  const vp = $('#mvViewport'), track = $('#mvTrack');
+  let sx = 0, sy = 0, st = 0, dx = 0, id = null, mode = null, lastX = 0, lastT = 0, vx = 0;
+  vp.addEventListener('pointerdown', e => {
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    id = e.pointerId; sx = lastX = e.clientX; sy = e.clientY; st = lastT = performance.now();
+    dx = 0; vx = 0; mode = null;
+  });
+  vp.addEventListener('pointermove', e => {
+    if(e.pointerId !== id) return;
+    const mx = e.clientX - sx, my = e.clientY - sy;
+    if(!mode){
+      if(Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+      mode = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
+      if(mode === 'x'){ try{ vp.setPointerCapture(id); }catch(err){} track.classList.add('drag'); }
+    }
+    if(mode !== 'x') return;
+    const now = performance.now();
+    vx = (e.clientX - lastX) / Math.max(1, now - lastT) * 0.8 + vx * 0.2;
+    lastX = e.clientX; lastT = now;
+    dx = mx;
+    const W = vp.clientWidth;
+    // resist past the first and last movement
+    const edge = (MV.index === 0 && dx > 0) || (MV.index === MV.count - 1 && dx < 0);
+    const eff = edge ? dx * 0.3 : dx;
+    track.style.transform = `translate3d(calc(${-MV.index * 100}% + ${eff}px),0,0)`;
+    // the highlight follows the drag between rows
+    const pos = Math.max(0, Math.min(MV.count - 1, MV.index - eff / W));
+    highlightAt(pos, true);
+    e.preventDefault();
+  });
+  const end = e => {
+    if(e.pointerId !== id) return;
+    id = null;
+    if(mode !== 'x'){ mode = null; return; }
+    mode = null;
+    track.classList.remove('drag');
+    const W = vp.clientWidth;
+    let next = MV.index;
+    if(e.type !== 'pointercancel'){
+      // a real swipe: far enough, or a quick flick that still travelled a little
+      if(dx < -W * 0.2 || (vx < -0.45 && dx < -40)) next++;
+      else if(dx > W * 0.2 || (vx > 0.45 && dx > 40)) next--;
+    }
+    showMovement(next, true);
+  };
+  vp.addEventListener('pointerup', end);
+  vp.addEventListener('pointercancel', end);
+  // a drag must not also count as a tap on something inside the card
+  vp.addEventListener('click', e => { if(Math.abs(dx) > 8){ e.stopPropagation(); e.preventDefault(); } }, true);
+}
+
+$('#mvPrev').addEventListener('click', () => showMovement(MV.index - 1, true));
+$('#mvNext').addEventListener('click', () => showMovement(MV.index + 1, true));
 $('#mvBack').addEventListener('click', () => $('#mMove').classList.remove('on'));
 $('#mvBody').addEventListener('click', e => {
   const g = e.target.closest('[data-go]');
-  if(g) openMovement(+g.dataset.go);
+  if(g) showMovement(+g.dataset.go, true);
 });
-// swipe sideways between movements
-(() => {
-  let sx = null, sy = null;
-  const el = $('#mMove');
-  el.addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; }, {passive:true});
-  el.addEventListener('touchend', e => {
-    if(sx == null) return;
-    const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
-    sx = null;
-    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) openMovement(WD.index + (dx < 0 ? 1 : -1));
-  }, {passive:true});
-})();
+window.addEventListener('resize', () => { if($('#mMove').classList.contains('on')) showMovement(MV.index, false); });
 
 /* ---------- sets ---------- */
 let editingSet = null;
