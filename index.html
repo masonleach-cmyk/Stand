@@ -466,6 +466,7 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .th-label.est{margin-top:14px}
 .th-cap.sub{margin-top:4px;font-size:11.5px;color:var(--text-faint)}
 .lvl.est{background:transparent;color:var(--c);box-shadow:inset 0 0 0 1.5px var(--c);text-shadow:none}
+.lvl.np{background:transparent;color:var(--text-faint);box-shadow:inset 0 0 0 1.5px var(--slate-3);text-shadow:none}
 .dyk{margin:0 8px 14px;padding-left:20px;font-size:14px;line-height:1.5;color:var(--text)}
 .dyk li{margin-bottom:6px}
 .dyk li::marker{color:var(--pencil-hi)}
@@ -3897,9 +3898,21 @@ const WORK_NOTES = {
    est: OUR per-movement estimates on Henle's scale. Henle rates a sonata as a
    single unit and publishes no movement levels, so these are calibrated so the
    hardest movement equals Henle's level for the whole work, and are always
-   shown labelled as estimates. */
+   shown labelled as estimates.
+   Beyond the solo piano music: ap marks a level that is OUR estimate of the
+   piano part of a concerto, sonata with another instrument, trio or song, on
+   the same scale — shown as an estimate, never as Henle's own figure. np marks
+   a work with no piano part at all, which gets a plain note instead of a level.
+   pt says which part the level is for. */
 const DIFFICULTY = {
-  "Ludwig van Beethoven": {"2/1": {"h": 6, "est": [5, 4, 4, 6]}, "2/2": {"h": 7, "abrsm": "Grade 7", "est": [7, 5, 5, 6]}, "2/3": {"h": 7, "abrsm": "LRSM", "est": [7, 6, 6, 7]}, "7": {"h": 8, "abrsm": "LRSM", "est": [8, 6, 6, 7]}, "10/1": {"h": 7, "abrsm": "ARSM", "est": [7, 6, 6]}, "10/2": {"h": 7, "abrsm": "ARSM", "est": [6, 5, 7]}, "10/3": {"h": 7, "abrsm": "LRSM", "est": [7, 6, 5, 6]}, "13": {"h": 7, "abrsm": "ARSM / Grade 8", "est": [7, 5, 6]}, "14/1": {"h": 6, "abrsm": "Grade 8", "est": [6, 5, 6]}, "14/2": {"h": 6, "abrsm": "ARSM", "est": [6, 5, 6]}, "22": {"h": 7, "est": [7, 6, 6, 7]}, "26": {"h": 7, "abrsm": "ARSM", "est": [6, 6, 6, 7]}, "27/1": {"h": 8, "est": [6, 7, 5, 8]}, "27/2": {"h": 7, "abrsm": "ARSM", "est": [4, 4, 7]}, "28": {"h": 7, "est": [6, 5, 6, 7]}, "31/1": {"h": 8, "abrsm": "LRSM", "est": [8, 7, 7]}, "31/2": {"h": 8, "abrsm": "LRSM", "est": [7, 6, 8]}, "31/3": {"h": 7, "abrsm": "LRSM", "est": [7, 7, 5, 7]}, "49/1": {"h": 3, "est": [3, 3]}, "49/2": {"h": 3, "est": [3, 3]}, "53": {"h": 9, "abrsm": "FRSM", "est": [9, 6, 9]}, "54": {"h": 7, "abrsm": "ARSM", "est": [6, 7]}, "57": {"h": 9, "abrsm": "FRSM", "est": [9, 6, 9]}, "78": {"h": 7, "est": [6, 7]}, "79": {"h": 6, "est": [6, 4, 5]}, "81a": {"h": 7, "abrsm": "LRSM", "est": [7, 6, 7]}, "90": {"h": 7, "abrsm": "ARSM", "est": [7, 6]}, "101": {"h": 9, "abrsm": "FRSM", "est": [6, 8, 6, 9]}, "106": {"h": 9, "est": [9, 8, 8, 9]}, "109": {"h": 8, "abrsm": "FRSM", "est": [7, 7, 8]}, "110": {"h": 8, "abrsm": "FRSM", "est": [6, 6, 8]}, "111": {"h": 9, "abrsm": "FRSM", "est": [9, 9]}, "129": {"h": 7}, "WoO57": {"h": 6}, "WoO59": {"h": 3}, "WoO60": {"h": 4}, "34": {"h": 7, "abrsm": "ARSM"}, "35": {"h": 8, "abrsm": "FRSM"}, "WoO80": {"h": 7, "abrsm": "ARSM"}, "120": {"h": 9}, "33": {"h": 7, "lo": 4, "parts": [6, 6, 4, 5, 7, 4, 6]}, "119": {"h": 6, "lo": 3, "parts": [4, 5, 4, 4, 5, 6, 6, 4, 4, 3, 4], "partAbrsm": {"0": "Grade 5"}}, "126": {"h": 6, "lo": 5, "parts": [6, 6, 6, 6, 5, 6]}},
+  "Ludwig van Beethoven": {"2/1": {"h": 6, "est": [5, 4, 4, 6]}, "2/2": {"h": 7, "abrsm": "Grade 7", "est": [7, 5, 5, 6]}, "2/3": {"h": 7, "abrsm": "LRSM", "est": [7, 6, 6, 7]}, "7": {"h": 8, "abrsm": "LRSM", "est": [8, 6, 6, 7]}, "10/1": {"h": 7, "abrsm": "ARSM", "est": [7, 6, 6]}, "10/2": {"h": 7, "abrsm": "ARSM", "est": [6, 5, 7]}, "10/3": {"h": 7, "abrsm": "LRSM", "est": [7, 6, 5, 6]}, "13": {"h": 7, "abrsm": "ARSM / Grade 8", "est": [7, 5, 6]}, "14/1": {"h": 6, "abrsm": "Grade 8", "est": [6, 5, 6]}, "14/2": {"h": 6, "abrsm": "ARSM", "est": [6, 5, 6]}, "22": {"h": 7, "est": [7, 6, 6, 7]}, "26": {"h": 7, "abrsm": "ARSM", "est": [6, 6, 6, 7]}, "27/1": {"h": 8, "est": [6, 7, 5, 8]}, "27/2": {"h": 7, "abrsm": "ARSM", "est": [4, 4, 7]}, "28": {"h": 7, "est": [6, 5, 6, 7]}, "31/1": {"h": 8, "abrsm": "LRSM", "est": [8, 7, 7]}, "31/2": {"h": 8, "abrsm": "LRSM", "est": [7, 6, 8]}, "31/3": {"h": 7, "abrsm": "LRSM", "est": [7, 7, 5, 7]}, "49/1": {"h": 3, "est": [3, 3]}, "49/2": {"h": 3, "est": [3, 3]}, "53": {"h": 9, "abrsm": "FRSM", "est": [9, 6, 9]}, "54": {"h": 7, "abrsm": "ARSM", "est": [6, 7]}, "57": {"h": 9, "abrsm": "FRSM", "est": [9, 6, 9]}, "78": {"h": 7, "est": [6, 7]}, "79": {"h": 6, "est": [6, 4, 5]}, "81a": {"h": 7, "abrsm": "LRSM", "est": [7, 6, 7]}, "90": {"h": 7, "abrsm": "ARSM", "est": [7, 6]}, "101": {"h": 9, "abrsm": "FRSM", "est": [6, 8, 6, 9]}, "106": {"h": 9, "est": [9, 8, 8, 9]}, "109": {"h": 8, "abrsm": "FRSM", "est": [7, 7, 8]}, "110": {"h": 8, "abrsm": "FRSM", "est": [6, 6, 8]}, "111": {"h": 9, "abrsm": "FRSM", "est": [9, 9]}, "129": {"h": 7}, "WoO57": {"h": 6}, "WoO59": {"h": 3}, "WoO60": {"h": 4}, "34": {"h": 7, "abrsm": "ARSM"}, "35": {"h": 8, "abrsm": "FRSM"}, "WoO80": {"h": 7, "abrsm": "ARSM"}, "120": {"h": 9}, "33": {"h": 7, "lo": 4, "parts": [6, 6, 4, 5, 7, 4, 6]}, "119": {"h": 6, "lo": 3, "parts": [4, 5, 4, 4, 5, 6, 6, 4, 4, 3, 4], "partAbrsm": {"0": "Grade 5"}}, "126": {"h": 6, "lo": 5, "parts": [6, 6, 6, 6, 5, 6]},
+    /* Works with a piano part that Henle grades in its own editions. */
+    "15": {"h": 7, "pt": "Piano part, from Henle’s piano reduction"}, "58": {"h": 7, "pt": "Piano part, from Henle’s piano reduction"},
+    /* A piano part Henle publishes no level for: OUR estimate on the same
+       scale, judged against the graded solo works, and always shown as one. */
+    "19": {"h": 7, "pt": "Piano part", "ap": 1}, "37": {"h": 7, "pt": "Piano part", "ap": 1}, "73": {"h": 8, "pt": "Piano part", "ap": 1}, "56": {"h": 7, "pt": "Piano part", "ap": 1}, "12/1": {"h": 6, "pt": "Piano part", "ap": 1}, "12/2": {"h": 6, "pt": "Piano part", "ap": 1}, "12/3": {"h": 6, "pt": "Piano part", "ap": 1}, "23": {"h": 6, "pt": "Piano part", "ap": 1}, "24": {"h": 6, "pt": "Piano part", "ap": 1}, "30/1": {"h": 6, "pt": "Piano part", "ap": 1}, "30/2": {"h": 7, "pt": "Piano part", "ap": 1}, "30/3": {"h": 6, "pt": "Piano part", "ap": 1}, "47": {"h": 8, "pt": "Piano part", "ap": 1}, "96": {"h": 7, "pt": "Piano part", "ap": 1}, "5/1": {"h": 6, "pt": "Piano part", "ap": 1}, "5/2": {"h": 7, "pt": "Piano part", "ap": 1}, "69": {"h": 7, "pt": "Piano part", "ap": 1}, "102/1": {"h": 6, "pt": "Piano part", "ap": 1}, "102/2": {"h": 7, "pt": "Piano part", "ap": 1}, "1/1": {"h": 6, "pt": "Piano part", "ap": 1}, "1/2": {"h": 7, "pt": "Piano part", "ap": 1}, "1/3": {"h": 7, "pt": "Piano part", "ap": 1}, "70/1": {"h": 6, "pt": "Piano part", "ap": 1}, "70/2": {"h": 6, "pt": "Piano part", "ap": 1}, "97": {"h": 7, "pt": "Piano part", "ap": 1}, "WoO39": {"h": 5, "pt": "Piano part", "ap": 1}, "16": {"h": 6, "pt": "Piano part", "ap": 1}, "80": {"h": 7, "pt": "Piano part", "ap": 1}, "40": {"h": 4, "pt": "Piano part of the reduction", "ap": 1}, "50": {"h": 4, "pt": "Piano part of the reduction", "ap": 1}, "46": {"h": 5, "pt": "Piano accompaniment", "ap": 1}, "98": {"h": 4, "pt": "Piano accompaniment", "ap": 1}, "WoO134": {"h": 3, "pt": "Piano accompaniment", "ap": 1}, "WoO81": {"h": 3, "pt": "Solo piano", "ap": 1},
+    /* No piano part, so no piano level to give. */
+    "21": {"np": 1, "pt": "Symphony"}, "36": {"np": 1, "pt": "Symphony"}, "55": {"np": 1, "pt": "Symphony"}, "60": {"np": 1, "pt": "Symphony"}, "67": {"np": 1, "pt": "Symphony"}, "68": {"np": 1, "pt": "Symphony"}, "92": {"np": 1, "pt": "Symphony"}, "93": {"np": 1, "pt": "Symphony"}, "125": {"np": 1, "pt": "Symphony with voices"}, "84": {"np": 1, "pt": "Concert overture"}, "62": {"np": 1, "pt": "Concert overture"}, "43": {"np": 1, "pt": "Ballet music"}, "61": {"np": 1, "pt": "Violin and orchestra"}, "20": {"np": 1, "pt": "Septet for winds and strings"}, "18/1": {"np": 1, "pt": "String quartet"}, "18/2": {"np": 1, "pt": "String quartet"}, "18/3": {"np": 1, "pt": "String quartet"}, "18/4": {"np": 1, "pt": "String quartet"}, "18/5": {"np": 1, "pt": "String quartet"}, "18/6": {"np": 1, "pt": "String quartet"}, "59/1": {"np": 1, "pt": "String quartet"}, "59/2": {"np": 1, "pt": "String quartet"}, "59/3": {"np": 1, "pt": "String quartet"}, "74": {"np": 1, "pt": "String quartet"}, "95": {"np": 1, "pt": "String quartet"}, "127": {"np": 1, "pt": "String quartet"}, "130": {"np": 1, "pt": "String quartet"}, "131": {"np": 1, "pt": "String quartet"}, "132": {"np": 1, "pt": "String quartet"}, "135": {"np": 1, "pt": "String quartet"}, "133": {"np": 1, "pt": "String quartet"}, "72": {"np": 1, "pt": "Opera"}, "123": {"np": 1, "pt": "Mass for soloists, choir and orchestra"}},
 };
 
 const WORK_DETAILS = {
@@ -4728,7 +4741,7 @@ function pieceLevel(d){
   const mine = S.rate[docRateId(d)];
   if(mine) return { lv: mine, mine: true };
   const k = workKeyOf(d), dl = k != null ? difficultyOf(d.composer, k) : null;
-  return dl ? { lv: dl.h, mine: false } : null;
+  return dl && dl.h ? { lv: dl.h, mine: false, ap: !!dl.ap } : null;
 }
 function pieceRow(d){
   const k = workKeyOf(d);
@@ -4753,7 +4766,7 @@ function pieceRow(d){
     desc = (d.notes ? d.notes + ' · ' : '') + more.join(' · ');
   }
   const pl = pieceLevel(d);
-  const lvl = pl ? `<span class="lvl${pl.mine ? ' est' : ''}" style="--c:${levelColor(pl.lv)}" title="${pl.mine ? 'Your rating' : 'Henle level'}">${pl.lv}</span>` : '';
+  const lvl = pl ? `<span class="lvl${pl.mine || pl.ap ? ' est' : ''}" style="--c:${levelColor(pl.lv)}" title="${pl.mine ? 'Your rating' : pl.ap ? 'Piano part, estimated on Henle’s scale' : 'Henle level'}">${pl.ap && !pl.mine ? '≈' : ''}${pl.lv}</span>` : '';
   const hasPage = k != null && (WORK_DETAILS[d.composer] || {})[k];
   return `<div class="prow piece" role="button" tabindex="0" data-doc="${esc(d.id)}">
     <span class="tx"><span class="nm">${esc(name)}</span><span class="sub">${esc(bits.join(' · '))}</span>${desc ? `<span class="ds">${esc(desc)}</span>` : ''}</span>
@@ -5227,7 +5240,9 @@ function renderWorks(){
     for(const w of list){
       const dl = difficultyOf(WK.name, w.key);
       const more = (details[w.key] ? `<span class="chev">›</span>` : '') +
-        (dl ? `<span class="lvl" style="--c:${levelColor(dl.h)}" title="Henle level">${dl.lo && dl.lo < dl.h ? dl.lo + '–' : ''}${dl.h}</span>` : '');
+        (dl && dl.np ? `<span class="lvl np" title="Not a piano piece">–</span>`
+          : dl && dl.ap ? `<span class="lvl est" style="--c:${levelColor(dl.h)}" title="Piano part, estimated on Henle’s scale">≈${dl.h}</span>`
+          : dl ? `<span class="lvl" style="--c:${levelColor(dl.h)}" title="Henle level">${dl.lo && dl.lo < dl.h ? dl.lo + '–' : ''}${dl.h}</span>` : '');
       const noteText = (w.when ? w.when + ' · ' : '') + (w.note || '');
       const pr = w.prog;
       const progLine = pr.p ? `<span class="sub">${progressTag(pr.p, pr.l)}${pr.parts && !pr.l && pr.tried ? ` <span style="color:var(--text-faint)">${pr.done ? pr.done + ' of ' + pr.parts + ' learned' : pr.tried + ' of ' + pr.parts + ' practiced'}</span>` : ''}</span>` : '';
@@ -5323,6 +5338,13 @@ function difficultyBlock(composer, key, part, rate){
   const src = '<div class="src">Henle difficulty level (G. Henle Verlag), graded 1–9 by the work needed to prepare a piece for performance.</div>';
   const scale = '<div class="th-scale"><span>Easy</span><span>Medium</span><span>Difficult</span></div>';
   const ab = x => x ? `<span class="ab">ABRSM ${esc(x)}</span>` : '';
+  // nothing for a pianist to play, so no level — say so where one would be
+  if(d.np) return `<div class="diff"><div class="th-cap"><span><b>Not a piano piece</b>${d.pt ? ' · ' + esc(d.pt) : ''}</span></div>
+    <div class="src">Henle levels grade what a pianist has to play, and this work has no piano part.</div>${rate}</div>`;
+  // a piano part Henle publishes no level for: our estimate, marked as one
+  if(d.ap) return `<div class="diff"><div class="th-label est">${esc(d.pt || 'Piano part')} · estimate</div>${thermometer(d.h, null, true)}${scale}
+    <div class="th-cap"><span><b>≈ ${d.h}</b> of 9 · ${HENLE_WORD(d.h)}</span></div>${rate}
+    <div class="src">Henle grades solo piano music; it publishes no level for this piano part. This estimate uses Henle’s scale, judged against the works it does grade.</div></div>`;
   // a piece of a set that Henle rates individually
   if(part != null && d.parts){
     const lv = d.parts[part];
@@ -5357,6 +5379,10 @@ function difficultyMini(composer, key, part, rate){
   rate = rate || '';
   if(!d) return rate ? `<div class="diff mini solo">${rate}</div>` : '';
   const ab = x => x ? `<span class="ab">ABRSM ${esc(x)}</span>` : '';
+  if(d.np) return `<div class="diff mini"><div class="th-cap"><span><b>Not a piano piece</b>${d.pt ? ' · ' + esc(d.pt) : ''}</span></div>${rate}</div>`;
+  if(d.ap) return `<div class="diff mini">
+    <div class="th-cap"><span>${esc(d.pt || 'Piano part')} · <b>≈ ${d.h}</b> · estimate</span></div>
+    ${thermometer(d.h, null, true)}${rate}</div>`;
   if(d.parts){
     const lv = d.parts[part];
     return `<div class="diff mini">
