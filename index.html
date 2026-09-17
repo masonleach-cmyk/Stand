@@ -96,14 +96,32 @@ html{touch-action:manipulation}
 .chip .n{font-size:12px;color:inherit;opacity:.62}
 .chip.add{color:var(--text-faint);border-style:dashed}
 .libprog{padding:8px 20px 0}
-.mainchips{padding:14px 20px 2px}
+html,body{background:var(--slate)}
+.mainseg{margin:14px 20px 0 !important}
+.mainseg button{height:32px;font-size:14px;font-weight:500}
+.fbar{display:flex;align-items:center;gap:10px;padding:10px 20px 2px;flex:none;min-height:44px}
+.ftoggle{display:flex;align-items:center;gap:7px;height:32px;padding:0 12px 0 10px;border-radius:16px;
+  border:1px solid var(--line);background:var(--slate-2);color:var(--text-dim);font-size:13.5px;max-width:72%;min-width:0}
+.ftoggle span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftoggle svg{flex:none}
+.ftoggle .chev{transition:transform .2s}
+.ftoggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.ftoggle.active{color:var(--text);border-color:rgba(110,147,201,.55)}
+.fclear{font-size:13px;color:var(--pencil-hi);padding:6px 2px;flex:none}
+.fbar .pcount{margin-left:auto;padding:0 !important;white-space:nowrap}
+.fpanel{flex:none;display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease;margin:0 20px}
+.fpanel.open{grid-template-rows:1fr}
+.fpanel > .fin{min-height:0;overflow:hidden}
+.fgroup{padding-top:10px}
+.fpanel .fin > .fgroup:last-child{padding-bottom:12px;border-bottom:1px solid var(--line)}
+#library:not(.pieces) .fgroup.pc,#library.pieces .fgroup.cm{display:none}
+.flabel{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-faint);margin:0 2px 6px}
+.fchips{display:flex;flex-wrap:wrap;gap:6px}
+.fchips button{height:30px;padding:0 12px;border-radius:15px;font-size:13px;color:var(--text-dim);
+  background:var(--slate-2);border:1px solid var(--line)}
+.fchips button.on{background:var(--pencil);border-color:var(--pencil);color:#fff}
+.wlink.sm{font-size:11.5px;padding:3px 9px}
 #library .searchrow{padding-top:14px}
-.pieceopts{display:none;flex:none}
-#library.pieces .pieceopts{display:block}
-#library .sets{padding:10px 20px 0}
-#library .seg-label{margin:10px 22px 4px}
-#library .sortseg{margin:0 20px 4px}
-#library .pcount{padding:8px 22px 0}
 #library .plist{padding-left:12px;padding-right:12px}
 .chipgap{flex:none;width:10px}
 /* iPad first: every full-screen page keeps its content in a readable column */
@@ -122,6 +140,7 @@ html{touch-action:manipulation}
 /* a piece in the main menu */
 .prow.piece{align-items:flex-start;cursor:pointer}
 .prow.piece .tx{padding-top:1px}
+.prow.piece .nm{white-space:normal;overflow:visible;line-height:1.3}
 .prow .ds{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   font-size:12.5px;line-height:1.38;color:var(--text-dim);margin-top:3px}
 .prow .side{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
@@ -719,7 +738,7 @@ svg{display:block}
   <div class="searchrow">
     <div class="search">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7688" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
-      <input id="clQ" type="search" placeholder="Search composers and pieces" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <input id="clQ" type="search" placeholder="Search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <button class="iconbtn" id="clAdd" aria-label="Add a composer">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9AA3B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M3.5 19.5c.6-3.3 2.8-5.2 5.5-5.2s4.9 1.9 5.5 5.2"/><path d="M18 8v6M15 11h6"/></svg>
@@ -729,34 +748,53 @@ svg{display:block}
     </button>
   </div>
 
-  <div class="pchips mainchips" id="clChips">
-    <button class="chip" data-f="pieces">All pieces</button>
-    <button class="chip on" data-f="library">My composers</button>
-    <button class="chip" data-f="all">All composers</button>
-    <button class="chip" data-f="added">Added by me</button>
+  <div class="sortseg mainseg" id="mainSeg">
+    <span class="sortknob"></span>
+    <button data-v="pieces">Pieces</button>
+    <button data-v="composers">Composers</button>
   </div>
-  <div class="pieceopts" id="pieceOpts">
-    <div class="sets" id="sets"></div>
-    <div class="pchips libprog" id="progChips">
-      <button class="chip on" data-p="all">Any progress</button>
-      <button class="chip" data-p="none">Not practiced</button>
-      <button class="chip" data-p="practiced">Practiced</button>
-      <button class="chip" data-p="learned">Learned</button>
-      <span class="chipgap"></span>
-      <button class="chip" data-m="all">Any source</button>
-      <button class="chip" data-m="cat">In the catalogue</button>
-      <button class="chip" data-m="other">Not catalogued</button>
-    </div>
-    <div class="seg-label">Sort by</div>
-    <div class="sortseg" id="pcSort">
-      <span class="sortknob"></span>
-      <button data-s="order" class="on">Added</button>
-      <button data-s="title">Title</button>
-      <button data-s="composer">Composer</button>
-      <button data-s="level">Difficulty</button>
-    </div>
+
+  <div class="fbar">
+    <button class="ftoggle" id="fToggle" aria-expanded="false" aria-controls="fPanel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span id="fSummary">Filter and sort</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <button class="fclear" id="fClear" hidden>Clear filters</button>
+    <span class="pcount" id="clCount"></span>
   </div>
-  <div class="pcount" id="clCount"></div>
+  <div class="fpanel" id="fPanel"><div class="fin">
+    <div class="fgroup pc">
+      <div class="flabel">Sort by</div>
+      <div class="fchips" id="pcSort">
+        <button data-s="order">Recently added</button>
+        <button data-s="title">Title</button>
+        <button data-s="composer">Composer</button>
+        <button data-s="level">Difficulty</button>
+      </div>
+    </div>
+    <div class="fgroup pc">
+      <div class="flabel">Progress</div>
+      <div class="fchips" id="progChips">
+        <button data-p="all">Any</button>
+        <button data-p="none">Not practiced</button>
+        <button data-p="practiced">Practiced</button>
+        <button data-p="learned">Learned</button>
+      </div>
+    </div>
+    <div class="fgroup pc">
+      <div class="flabel">Catalogue</div>
+      <div class="fchips" id="srcChips">
+        <button data-m="all">Any</button>
+        <button data-m="cat">Matched to a work</button>
+        <button data-m="other">Not matched</button>
+      </div>
+    </div>
+    <div class="fgroup cm">
+      <div class="flabel">Show</div>
+      <div class="fchips" id="clChips">
+        <button data-f="library">My composers</button>
+        <button data-f="all">All composers</button>
+        <button data-f="added">Added by me</button>
+      </div>
+    </div>
+  </div></div>
   <div class="plist mainlist" id="clList"></div>
   <div class="empty" id="empty" style="display:none">
     <h2>Nothing on the stand yet</h2>
@@ -914,7 +952,6 @@ svg{display:block}
       <button type="button" class="pickfield" id="dComposer"><span class="v"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
     <div class="field"><label for="dKey">Key or tempo</label><input id="dKey" type="text" placeholder="B♭ · ♩=132"></div>
   </div>
-  <div class="field"><label for="dSet">Set</label><select id="dSet"></select></div>
   <div class="field"><label for="dNotes">Notes</label><textarea id="dNotes" placeholder="Cuts, repeats, who you played it with."></textarea></div>
   <div class="fi-label">Progress</div>
   <div class="progress">
@@ -1023,19 +1060,6 @@ svg{display:block}
     <button class="btn" id="ceShow">Show pieces</button>
     <button class="btn" id="ceCancel">Cancel</button>
     <button class="btn go" id="ceSave">Save</button>
-  </div>
-</div>
-
-<div class="sheetmodal" id="mSet">
-  <div class="grab"></div>
-  <h3 id="setHead">New set</h3>
-  <div class="field"><label for="sName">Name</label><input id="sName" type="text" placeholder="Wedding gig, Recital, Big band"></div>
-  <div class="btnrow">
-    <button class="btn danger" id="sDelete" aria-label="Delete set">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6.5 7l.8 12.1A1.5 1.5 0 008.8 20.5h6.4a1.5 1.5 0 001.5-1.4L17.5 7"/></svg>
-    </button>
-    <button class="btn" id="sCancel">Cancel</button>
-    <button class="btn go" id="sSave">Save set</button>
   </div>
 </div>
 
@@ -1197,7 +1221,6 @@ async function saveIndexNow(){
 function visibleDocs(){
   const q = ($('#clQ').value || '').trim().toLowerCase();
   return S.docs.filter(d => {
-    if(S.set !== null && d.set !== S.set) return false;
     if(S.prog === 'none' && d.practiced) return false;
     if(S.prog === 'practiced' && !d.practiced) return false;
     if(S.prog === 'learned' && !d.learned) return false;
@@ -1230,14 +1253,14 @@ function canvasBlob(c, type, q){
 }
 
 async function renderAll(){ renderSets(); renderProgChips(); await renderGrid(); renderCount(); }
-function renderProgChips(){
-  $$('#progChips .chip').forEach(c => c.classList.toggle('on', c.dataset.p ? c.dataset.p === S.prog : c.dataset.m === S.src));
-}
+function renderProgChips(){}
 $('#progChips').addEventListener('click', e => {
-  const c = e.target.closest('.chip'); if(!c) return;
-  if(c.dataset.p) S.prog = c.dataset.p;
-  if(c.dataset.m) S.src = c.dataset.m;
-  renderAll(); $('#clList').scrollTop = 0;
+  const c = e.target.closest('button[data-p]'); if(!c) return;
+  S.prog = c.dataset.p; renderAll(); $('#clList').scrollTop = 0;
+});
+$('#srcChips').addEventListener('click', e => {
+  const c = e.target.closest('button[data-m]'); if(!c) return;
+  S.src = c.dataset.m; renderAll(); $('#clList').scrollTop = 0;
 });
 
 function renderCount(){
@@ -1245,28 +1268,8 @@ function renderCount(){
   $('#count').textContent = n === 0 ? '' : n + (n===1 ? ' piece' : ' pieces');
 }
 
-function renderSets(){
-  const wrap = $('#sets');
-  const all = `<button class="chip ${S.set===null?'on':''}" data-set="all">All pieces <span class="n">${S.docs.length}</span></button>`;
-  const sets = S.sets.map(s => {
-    const n = S.docs.filter(d => d.set === s.id).length;
-    return `<button class="chip ${S.set===s.id?'on':''}" data-set="${s.id}">${esc(s.name)} <span class="n">${n}</span></button>`;
-  }).join('');
-  wrap.innerHTML = all + sets + `<button class="chip add" data-set="new">New set</button>`;
-  wrap.querySelectorAll('.chip').forEach(c => {
-    c.addEventListener('click', () => {
-      const v = c.dataset.set;
-      if(v === 'new') return openSetModal(null);
-      if(v === 'all'){ S.set = null; }
-      else if(S.set === v){ return openSetModal(v); }   // tap an active set again to rename
-      else S.set = v;
-      renderAll();
-    });
-  });
-}
+function renderSets(){}
 
-// The main menu replaced the thumbnail grid; everything that used to redraw the
-// grid now redraws the menu.
 async function renderGrid(){ renderComposerList(); }
 async function renderGridOld(){
   const grid = $('#grid');
@@ -4310,7 +4313,7 @@ async function importFile(file){
   // from your list; you can pick or add the right one in the piece's details.
   if(guess) title = guess;
 
-  const doc = { id, title, composer, keyInfo:'', notes:'', set:S.set, pages:pdf.numPages,
+  const doc = { id, title, composer, keyInfo:'', notes:'', pages:pdf.numPages,
                 added:Date.now(), bytes:buf.byteLength, marked:false };
   // The copy opened to read the page count and draw the thumbnail is finished
   // with. Left undestroyed, importing a dozen scores left a dozen parsed
@@ -4351,11 +4354,10 @@ function hideModals(){
   $('#mWorks').classList.remove('on');
   $('#mWork').classList.remove('on');
   $('#mMove').classList.remove('on');
-  editingId=null; editingSet=null;
+  editingId=null;
 }
 $('#backdrop').addEventListener('click', hideModals);
 $('#dCancel').addEventListener('click', hideModals);
-$('#sCancel').addEventListener('click', hideModals);
 
 function openDetails(id){
   const d = S.docs.find(x => x.id === id); if(!d) return;
@@ -4364,9 +4366,6 @@ function openDetails(id){
   setComposerField(d.composer || '');
   $('#dKey').value = d.keyInfo || '';
   $('#dNotes').value = d.notes || '';
-  $('#dSet').innerHTML = `<option value="">All pieces, no set</option>` +
-    S.sets.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
-  $('#dSet').value = d.set || '';
   setProgressToggles($('#dPracticed'), $('#dLearned'), !!d.practiced, !!d.learned);
   renderFileInfo(d);
   $('#dRate').innerHTML = rateBlock(docRateId(d), workKeyOf(d) != null ? 'Your difficulty rating · same as on the work’s page' : 'Your difficulty rating');
@@ -4491,7 +4490,6 @@ $('#dSave').addEventListener('click', async () => {
   d.learned = $('#dLearned').getAttribute('aria-checked') === 'true' && d.practiced;
   d.keyInfo = $('#dKey').value.trim();
   d.notes = $('#dNotes').value.trim();
-  d.set = $('#dSet').value || null;
   hideModals(); await saveIndexNow(); await renderAll(); toast('Details saved');
 });
 let armDoc = null, armTimer;
@@ -4720,7 +4718,9 @@ $('#cpCancel').addEventListener('click', closeComposerPicker);
    catalogued work shows the work's own title and description; anything else
    shows what the file itself tells us. */
 const CL = { filter:(() => { try{ return localStorage.getItem('stand.menu') || 'library'; }catch(e){ return 'library'; } })(),
+             cfilter:(() => { try{ return localStorage.getItem('stand.composerFilter') || 'library'; }catch(e){ return 'library'; } })(),
              sort:(() => { try{ return localStorage.getItem('stand.pieceSort') || 'order'; }catch(e){ return 'order'; } })() };
+if(CL.filter !== 'pieces') CL.filter = CL.cfilter;
 function openComposerList(){ hideModals(); renderComposerList(); }
 function closeComposerList(){}
 const docRateId = d => { const k = workKeyOf(d); return k != null ? `w|${d.composer}|${k}` : `d|${d.id}`; };
@@ -4744,11 +4744,9 @@ function pieceRow(d){
     name = d.title || 'Untitled';
     bits.push(d.composer || 'Unknown composer');
     if(d.keyInfo) bits.push(d.keyInfo);
-    const set = d.set && S.sets.find(x => x.id === d.set);
     const more = [];
     if(d.pages) more.push(d.pages + (d.pages === 1 ? ' page' : ' pages'));
     if(d.bytes) more.push(fmtBytes(d.bytes));
-    if(set) more.push('Set: ' + set.name);
     if(d.added) more.push('Added ' + fmtDate(d.added));
     const pi = d.pdfInfo || {};
     if(pi.title && normWork(pi.title) !== normWork(name)) more.push('PDF title: ' + pi.title);
@@ -4761,16 +4759,14 @@ function pieceRow(d){
     <span class="tx"><span class="nm">${esc(name)}</span><span class="sub">${esc(bits.join(' · '))}</span>${desc ? `<span class="ds">${esc(desc)}</span>` : ''}</span>
     <span class="side"><span class="row">${progressTag(d.practiced, d.learned)}${lvl}
       <button class="dbtn" data-details="${esc(d.id)}" aria-label="Piece details for ${esc(name)}">···</button></span>
-      ${hasPage ? `<button class="wlink" data-wd="${esc(d.composer)}" data-wk="${esc(k)}">About the work ›</button>` : ''}</span>
+      ${hasPage ? `<button class="wlink sm" data-wd="${esc(d.composer)}" data-wk="${esc(k)}">About ›</button>` : ''}</span>
   </div>`;
 }
 function renderPieces(){
   const docs = visibleDocs();
   const q = ($('#clQ').value || '').trim();
-  $$('#pcSort button').forEach(b => b.classList.toggle('on', b.dataset.s === CL.sort));
-  requestAnimationFrame(() => placeSortKnobIn('#pcSort'));
   $('#clCount').textContent = S.docs.length
-    ? (docs.length === S.docs.length ? `${docs.length} ${docs.length === 1 ? 'piece' : 'pieces'}` : `${docs.length} of ${S.docs.length} pieces`)
+    ? (docs.length === S.docs.length ? `${docs.length} ${docs.length === 1 ? 'piece' : 'pieces'}` : `${docs.length} of ${S.docs.length}`)
     : '';
   if(!S.docs.length) return '';
   if(!docs.length){
@@ -4813,8 +4809,7 @@ function renderComposerList(){
   if(!S.ready) return;
   const q = $('#clQ').value.trim();
   const f = CL.filter;
-  $$('#clChips .chip').forEach(c => c.classList.toggle('on', c.dataset.f === f));
-  $('#library').classList.toggle('pieces', f === 'pieces');
+  syncMenuControls();
   $('#empty').style.display = !S.docs.length && f === 'pieces' ? 'block' : 'none';
   if(f === 'pieces'){ $('#clList').innerHTML = renderPieces(); return; }
 
@@ -4824,8 +4819,7 @@ function renderComposerList(){
   if(f === 'library') list = list.filter(e => used.has(e.name) || WORKS[e.name]);
   if(f === 'added') list = list.filter(e => e.custom);
   const added = composerEntries.filter(e => e.custom).length;
-  $('#clCount').textContent = f === 'library' ? 'Your composers, and those whose complete works you can browse'
-    : `${composerEntries.length} composers` + (added ? ` · ${added} added by you` : '') + ' · all recognised in filenames';
+  $('#clCount').textContent = `${list.length} ${list.length === 1 ? 'composer' : 'composers'}`;
 
   let h = '';
   const strays = [...stray.keys()].filter(n => !q || searchLike(n, q));
@@ -4853,11 +4847,54 @@ function renderComposerList(){
 }
 function searchLike(name, q){ return normText(name).includes(normText(q)); }
 $('#clQ').addEventListener('input', renderComposerList);
-$('#clChips').addEventListener('click', e => {
-  const c = e.target.closest('.chip'); if(!c) return;
-  CL.filter = c.dataset.f;
+/* One switch between pieces and composers; everything else folds away under
+   a single filter button whose label says what is currently applied. */
+const SORT_NAMES = { order:'Recently added', title:'Title', composer:'Composer', level:'Difficulty' };
+const PROG_NAMES = { none:'Not practiced', practiced:'Practiced', learned:'Learned' };
+const SRC_NAMES = { cat:'Matched', other:'Not matched' };
+const COMP_NAMES = { library:'My composers', all:'All composers', added:'Added by me' };
+function syncMenuControls(){
+  const pieces = CL.filter === 'pieces';
+  $('#library').classList.toggle('pieces', pieces);
+  $$('#mainSeg button').forEach(b => b.classList.toggle('on', (b.dataset.v === 'pieces') === pieces));
+  requestAnimationFrame(() => placeSortKnobIn('#mainSeg'));
+  $$('#pcSort button').forEach(b => b.classList.toggle('on', b.dataset.s === CL.sort));
+  $$('#progChips button').forEach(b => b.classList.toggle('on', b.dataset.p === S.prog));
+  $$('#srcChips button').forEach(b => b.classList.toggle('on', b.dataset.m === S.src));
+  $$('#clChips button').forEach(b => b.classList.toggle('on', b.dataset.f === CL.cfilter));
+  let parts, active;
+  if(pieces){
+    const filters = [PROG_NAMES[S.prog], SRC_NAMES[S.src]].filter(Boolean);
+    active = filters.length > 0;
+    parts = [SORT_NAMES[CL.sort], ...filters];
+  }else{
+    active = CL.cfilter !== 'library';
+    parts = [COMP_NAMES[CL.cfilter]];
+  }
+  $('#fSummary').textContent = parts.join(' · ');
+  $('#fToggle').classList.toggle('active', active);
+  $('#fClear').hidden = !active;
+}
+$('#mainSeg').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]'); if(!b) return;
+  CL.filter = b.dataset.v === 'pieces' ? 'pieces' : CL.cfilter;
   try{ localStorage.setItem('stand.menu', CL.filter); }catch(err){}
   renderComposerList(); $('#clList').scrollTop = 0;
+});
+$('#clChips').addEventListener('click', e => {
+  const c = e.target.closest('button[data-f]'); if(!c) return;
+  CL.filter = CL.cfilter = c.dataset.f;
+  try{ localStorage.setItem('stand.menu', CL.filter); localStorage.setItem('stand.composerFilter', CL.cfilter); }catch(err){}
+  renderComposerList(); $('#clList').scrollTop = 0;
+});
+$('#fToggle').addEventListener('click', () => {
+  const open = $('#fPanel').classList.toggle('open');
+  $('#fToggle').setAttribute('aria-expanded', String(open));
+});
+$('#fClear').addEventListener('click', () => {
+  if(CL.filter === 'pieces'){ S.prog = 'all'; S.src = 'all'; }
+  else { CL.filter = CL.cfilter = 'library'; try{ localStorage.setItem('stand.menu', 'library'); localStorage.setItem('stand.composerFilter', 'library'); }catch(err){} }
+  renderComposerList();
 });
 $('#pcSort').addEventListener('click', e => {
   const b = e.target.closest('button[data-s]'); if(!b || b.dataset.s === CL.sort) return;
@@ -4865,7 +4902,7 @@ $('#pcSort').addEventListener('click', e => {
   try{ localStorage.setItem('stand.pieceSort', CL.sort); }catch(err){}
   renderComposerList(); $('#clList').scrollTop = 0;
 });
-window.addEventListener('resize', () => placeSortKnobIn('#pcSort'));
+window.addEventListener('resize', () => placeSortKnobIn('#mainSeg'));
 $('#clList').addEventListener('click', e => {
   const det = e.target.closest('[data-details]');
   if(det){ $('#clQ').blur(); return openDetails(det.dataset.details); }
@@ -5023,7 +5060,7 @@ $('#ceShow').addEventListener('click', () => {
   const name = CE.entry && CE.entry.name; if(!name) return;
   closeComposerEditor();
   hideModals();
-  CL.filter = 'pieces'; $('#clQ').value = name;
+  CL.filter = 'pieces'; S.prog = 'all'; S.src = 'all'; $('#clQ').value = name;
   renderComposerList(); $('#clList').scrollTop = 0;
 });
 
@@ -5872,41 +5909,6 @@ $('#mvBody').addEventListener('click', e => {
   if(g) showMovement(+g.dataset.go, true);
 });
 window.addEventListener('resize', () => { if($('#mMove').classList.contains('on')) showMovement(MV.index, false); });
-
-/* ---------- sets ---------- */
-let editingSet = null;
-function openSetModal(id){
-  editingSet = id;
-  const s = id ? S.sets.find(x=>x.id===id) : null;
-  $('#setHead').textContent = s ? 'Rename set' : 'New set';
-  $('#sName').value = s ? s.name : '';
-  $('#sDelete').style.display = s ? '' : 'none';
-  showModal($('#mSet'));
-  setTimeout(()=>$('#sName').focus(), 260);
-}
-$('#sSave').addEventListener('click', async () => {
-  const name = $('#sName').value.trim();
-  if(!name){ toast('Give the set a name'); return; }
-  if(editingSet){ S.sets.find(s=>s.id===editingSet).name = name; }
-  else { const id = uid(); S.sets.push({id, name}); S.set = id; }
-  hideModals(); await saveIndexNow(); await renderAll();
-});
-let armSet = null, armSetTimer;
-$('#sDelete').addEventListener('click', async () => {
-  const s = S.sets.find(x=>x.id===editingSet); if(!s) return;
-  if(armSet !== s.id){
-    armSet = s.id;
-    toast(`Tap again to delete “${s.name}”. The pieces stay in your library.`, 4000);
-    clearTimeout(armSetTimer); armSetTimer = setTimeout(()=>{ armSet = null; }, 4000);
-    return;
-  }
-  armSet = null; clearTimeout(armSetTimer);
-  S.docs.forEach(d => { if(d.set === s.id) d.set = null; });
-  S.sets = S.sets.filter(x => x.id !== s.id);
-  if(S.set === s.id) S.set = null;
-  hideModals(); await saveIndexNow(); await renderAll();
-});
-
 
 /* =======================================================================
    Viewer
