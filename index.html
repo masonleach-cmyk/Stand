@@ -96,6 +96,65 @@ html{touch-action:manipulation}
 .chip .n{font-size:12px;color:inherit;opacity:.62}
 .chip.add{color:var(--text-faint);border-style:dashed}
 .libprog{padding:8px 20px 0}
+.mainchips{padding:14px 20px 2px}
+#library .searchrow{padding-top:14px}
+.pieceopts{display:none;flex:none}
+#library.pieces .pieceopts{display:block}
+#library .sets{padding:10px 20px 0}
+#library .seg-label{margin:10px 22px 4px}
+#library .sortseg{margin:0 20px 4px}
+#library .pcount{padding:8px 22px 0}
+#library .plist{padding-left:12px;padding-right:12px}
+.chipgap{flex:none;width:10px}
+/* iPad first: every full-screen page keeps its content in a readable column */
+#library{background:var(--slate)}
+@media (min-width:700px){
+  body .sheetmodal{left:50%;right:auto;width:620px;border-radius:18px 18px 0 0;border-left:1px solid var(--line);border-right:1px solid var(--line);
+    transform:translate(-50%,101%)}
+  body .sheetmodal.on{transform:translate(-50%,0)}
+}
+#library,.panel{padding-left:max(0px,calc((100% - 860px) / 2));padding-right:max(0px,calc((100% - 860px) / 2))}
+@media (min-width:700px){
+  .plist .prow{padding:11px 12px}
+  .plist .prow .nm{font-size:16px}
+  .plist .prow .sub{font-size:13px}
+}
+/* a piece in the main menu */
+.prow.piece{align-items:flex-start;cursor:pointer}
+.prow.piece .tx{padding-top:1px}
+.prow .ds{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  font-size:12.5px;line-height:1.38;color:var(--text-dim);margin-top:3px}
+.prow .side{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.prow .side .row{display:flex;gap:6px;align-items:center}
+.prow .side .lvl{float:none;margin:0}
+.dbtn{flex:none;width:38px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--slate-3);border:1px solid var(--line);color:var(--text-dim);font-weight:700;letter-spacing:.08em}
+.dbtn:active{background:var(--line)}
+.wlink{flex:none;font-size:12px;padding:5px 10px;border-radius:9px;color:var(--pencil-hi);border:1px solid rgba(74,111,165,.45);background:none}
+/* page editing */
+.panel-head .editbtn{display:flex;justify-content:flex-end;align-items:center}
+.editbtn.on{color:#fff;font-weight:600}
+[contenteditable]{-webkit-user-select:text;user-select:text;outline:none;border-radius:6px;
+  box-shadow:0 0 0 1px rgba(110,147,201,.45);background:rgba(74,111,165,.08);cursor:text;min-height:1.2em}
+[contenteditable]:focus{box-shadow:0 0 0 2px var(--pencil-hi);background:rgba(74,111,165,.14)}
+[contenteditable]:empty::before{content:attr(data-ph);color:var(--text-faint)}
+.editnote{margin:0 8px 12px;padding:9px 12px;border-radius:10px;font-size:13px;line-height:1.4;color:var(--text-dim);
+  background:rgba(74,111,165,.12);border:1px solid rgba(74,111,165,.35)}
+.wd .restore{margin:16px 8px 8px;color:var(--red);font-size:14px;padding:8px 0}
+.wd .addfact{margin:0 8px 10px 28px;color:var(--pencil-hi);font-size:13.5px;padding:4px 0}
+.wd div.mrow{cursor:default}
+/* your own difficulty rating: the thermometer, made to be set by touch */
+.rate{margin-top:14px}
+.rate .thermo{touch-action:none;cursor:pointer}
+.rate .th-bulb,.rate .th-fill{transition-delay:0s}
+.rate.live .th-fill{transition:width .12s ease}
+.rate.live .th-bulb{transition:none}
+.rate .thermo.unset .th-bulb{background:var(--slate-2);color:var(--text-faint);box-shadow:0 0 0 2px var(--line) inset,0 0 0 3px var(--slate-3);text-shadow:none}
+.rate .th-cap button{font-size:12px;color:var(--pencil-hi);padding:0 2px}
+.th-label.mine{color:var(--pencil-hi)}
+.diff.mini .rate{margin-top:8px}
+.diff.solo .rate{margin-top:0}
+#mDetails .rate{margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
 .libprog .chip{height:30px;padding:0 12px;font-size:13px;border-radius:15px}
 
 /* ---------- grid ---------- */
@@ -511,13 +570,46 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 /* Size and Stem sit side by side in note mode; only those two are visible, so
    the two-column grid puts them next to each other. Both shrink to leave room
    for the preview box alongside. */
-.palette.noteMode .knobGrid{grid-template-columns:1fr 1fr;gap:10px 10px}
-.palette.noteMode .knob{width:96px;height:96px}
-.palette.noteMode .knobDot{width:5px;height:12px;top:26%}
+.palette.noteMode .knobGrid{grid-template-columns:repeat(3,1fr);gap:10px 10px}
+.palette.noteMode .knob{width:84px;height:84px}
+.palette.noteMode .knobDot{width:5px;height:12px;top:28%}
+@media (max-width:560px){ .palette.noteMode .workArea{flex-direction:column} }
 .palette.noteMode .knobName{font-size:10px}
 /* stem length only means anything for stamps */
-.knobWrap.stem{display:none}
-.palette.noteMode .knobWrap.stem{display:flex}
+.knobWrap.stem,.knobWrap.tilt,.knobWrap.tsize{display:none}
+.palette.noteMode .knobWrap.stem,.palette.noteMode .knobWrap.tilt{display:flex}
+.palette.textMode .knobWrap.tsize{display:flex}
+.palette.textMode .knobWrap.pen{display:none}
+.palette.textMode .presetrow{margin-top:14px}
+/* stem direction switch — note mode only */
+.noteOpts{display:none;align-items:center;justify-content:space-between;margin:0 2px 14px;font-size:14px;color:var(--text)}
+.palette.noteMode .noteOpts{display:flex}
+.switch{position:relative;width:52px;height:31px;border-radius:16px;background:rgba(255,255,255,.14);flex:none;transition:background .2s}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;
+  box-shadow:0 2px 4px rgba(0,0,0,.35);transition:transform .2s cubic-bezier(.3,.7,.3,1)}
+.switch[aria-checked="true"]{background:var(--pencil)}
+.switch[aria-checked="true"]::after{transform:translateX(21px)}
+/* text tool */
+.textSel{display:none;margin-bottom:14px}
+.palette.textMode .textSel{display:block}
+.textRow{display:flex;gap:8px;align-items:stretch}
+.textRow input{flex:1;min-width:0;height:44px;border-radius:11px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  color:var(--text);padding:0 12px;font-size:16px;outline:none}
+.textRow input:focus{border-color:var(--pencil-hi)}
+.tchip{flex:none;min-width:44px;height:44px;padding:0 12px;border-radius:11px;display:flex;align-items:center;justify-content:center;gap:6px;
+  background:rgba(255,255,255,.08);color:var(--text);font-weight:600;font-size:15px;touch-action:none;cursor:grab;
+  -webkit-user-select:none;user-select:none;border:1px solid transparent}
+.tchip.on{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.16)}
+.tchip .grip{opacity:.55}
+.fingerRow{display:flex;align-items:center;gap:8px;margin-top:10px}
+.fingerRow .flabel{font-size:12px;color:var(--text-faint);margin-right:auto}
+.fingerRow .tchip{width:44px;padding:0;font-size:18px;font-style:italic}
+.thint{font-size:11.5px;color:var(--text-faint);margin-top:8px}
+.palette.dragging{opacity:.1;transition:opacity .12s}
+.textGhost{position:fixed;z-index:60;left:0;top:0;pointer-events:none;display:none;white-space:pre;font-weight:600;
+  font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;line-height:1;transform:translate(-50%,-50%);
+  text-shadow:0 0 1px rgba(255,255,255,.9),0 1px 8px rgba(255,255,255,.6)}
+.textGhost::after{content:"";position:absolute;left:50%;top:calc(100% + 6px);width:2px;height:18px;margin-left:-1px;background:rgba(74,111,165,.8);border-radius:1px}
 /* colour is forced black for stamps, so the swatches would be misleading here */
 .palette.noteMode .presetrow{display:none}
 
@@ -558,16 +650,24 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .knobLed{position:absolute;width:5.4%;height:5.4%;border-radius:50%;transform:translate(-50%,-50%);
   background:#3A3F48;will-change:background-color}
 .knobFace{
-  position:absolute;inset:21%;border-radius:50%;
+  position:absolute;inset:22%;border-radius:50%;
   background:linear-gradient(180deg,#2C333D,#1A1F27);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 3px 10px rgba(0,0,0,.5);
 }
 .knobArm{position:absolute;inset:0;pointer-events:none}
 .knobDot{
-  position:absolute;left:50%;top:27%;width:5px;height:11px;border-radius:3px;
+  position:absolute;left:50%;top:28.5%;width:5px;height:11px;border-radius:3px;
   transform:translate(-50%,-50%);background:#fff;box-shadow:0 0 6px rgba(255,255,255,.55);
 }
 
+@media (min-width:700px){
+  .palette{left:auto;right:16px;width:560px;max-height:min(82vh,780px)}
+  .knob{width:96px;height:96px}
+  .palette.noteMode .knob{width:100px;height:100px}
+  .palette .knobDot{width:6px;height:13px}
+  .knobName{font-size:10.5px}
+  .knobGrid{gap:12px 10px}
+}
 .presetrow{display:flex;align-items:center;gap:10px;margin-top:18px}
 .swatches{display:flex;gap:8px;flex:1}
 .swatches button{width:44px;height:44px;border-radius:12px;flex:none}
@@ -606,7 +706,7 @@ svg{display:block}
   </div>
 </div>
 
-<!-- ===================== LIBRARY ===================== -->
+<!-- ===================== MAIN MENU ===================== -->
 <div class="screen" id="library">
   <div class="lib-head">
     <div class="wordmark">
@@ -619,31 +719,49 @@ svg{display:block}
   <div class="searchrow">
     <div class="search">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7688" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
-      <input id="q" type="search" placeholder="Find a piece" autocomplete="off" autocorrect="off" spellcheck="false">
+      <input id="clQ" type="search" placeholder="Search composers and pieces" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
-    <button class="iconbtn" id="composersBtn" aria-label="Composers">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9AA3B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M3.5 19.5c.6-3.3 2.8-5.2 5.5-5.2s4.9 1.9 5.5 5.2"/><path d="M15.5 5.5h5M15.5 9.5h5M17 13.5h3.5"/></svg>
+    <button class="iconbtn" id="clAdd" aria-label="Add a composer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9AA3B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M3.5 19.5c.6-3.3 2.8-5.2 5.5-5.2s4.9 1.9 5.5 5.2"/><path d="M18 8v6M15 11h6"/></svg>
     </button>
     <button class="iconbtn primary" id="addBtn" aria-label="Add sheet music">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     </button>
   </div>
 
-  <div class="sets" id="sets"></div>
-  <div class="pchips libprog" id="progChips">
-    <button class="chip on" data-p="all">Any progress</button>
-    <button class="chip" data-p="none">Not practiced</button>
-    <button class="chip" data-p="practiced">Practiced</button>
-    <button class="chip" data-p="learned">Learned</button>
+  <div class="pchips mainchips" id="clChips">
+    <button class="chip" data-f="pieces">All pieces</button>
+    <button class="chip on" data-f="library">My composers</button>
+    <button class="chip" data-f="all">All composers</button>
+    <button class="chip" data-f="added">Added by me</button>
   </div>
-
-  <div class="scroll" id="libScroll">
-    <div class="grid" id="grid"></div>
-    <div class="empty" id="empty" style="display:none">
-      <h2>Nothing on the stand yet</h2>
-      <p>Add a PDF and it will appear here.</p>
-      <button id="emptyAdd">Add sheet music</button>
+  <div class="pieceopts" id="pieceOpts">
+    <div class="sets" id="sets"></div>
+    <div class="pchips libprog" id="progChips">
+      <button class="chip on" data-p="all">Any progress</button>
+      <button class="chip" data-p="none">Not practiced</button>
+      <button class="chip" data-p="practiced">Practiced</button>
+      <button class="chip" data-p="learned">Learned</button>
+      <span class="chipgap"></span>
+      <button class="chip" data-m="all">Any source</button>
+      <button class="chip" data-m="cat">In the catalogue</button>
+      <button class="chip" data-m="other">Not catalogued</button>
     </div>
+    <div class="seg-label">Sort by</div>
+    <div class="sortseg" id="pcSort">
+      <span class="sortknob"></span>
+      <button data-s="order" class="on">Added</button>
+      <button data-s="title">Title</button>
+      <button data-s="composer">Composer</button>
+      <button data-s="level">Difficulty</button>
+    </div>
+  </div>
+  <div class="pcount" id="clCount"></div>
+  <div class="plist mainlist" id="clList"></div>
+  <div class="empty" id="empty" style="display:none">
+    <h2>Nothing on the stand yet</h2>
+    <p>Add a PDF and it will appear under All pieces and its composer.</p>
+    <button id="emptyAdd">Add sheet music</button>
   </div>
 </div>
 
@@ -664,9 +782,26 @@ svg{display:block}
       <button data-tool="pen" class="on">Pen</button>
       <button data-tool="highlight">Highlighter</button>
       <button data-tool="note">Note</button>
+      <button data-tool="text">Text</button>
     </div>
 
     <div class="noteSel" id="noteSel"></div>
+    <div class="noteOpts">
+      <span>Stem down</span>
+      <button type="button" class="switch" id="flipSw" role="switch" aria-checked="false" aria-label="Stem down"></button>
+    </div>
+
+    <div class="textSel" id="textSel">
+      <div class="textRow">
+        <input id="textIn" type="text" maxlength="60" placeholder="Type text" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done">
+        <div class="tchip" id="textChip" data-typed="1" aria-label="Drag your text onto the page"><svg class="grip" width="12" height="16" viewBox="0 0 12 16" fill="currentColor"><circle cx="3" cy="3" r="1.4"/><circle cx="9" cy="3" r="1.4"/><circle cx="3" cy="8" r="1.4"/><circle cx="9" cy="8" r="1.4"/><circle cx="3" cy="13" r="1.4"/><circle cx="9" cy="13" r="1.4"/></svg><span>Drag</span></div>
+      </div>
+      <div class="fingerRow">
+        <span class="flabel">Fingering</span>
+        <div class="tchip f" data-text="1">1</div><div class="tchip f" data-text="2">2</div><div class="tchip f" data-text="3">3</div><div class="tchip f" data-text="4">4</div><div class="tchip f" data-text="5">5</div>
+      </div>
+      <div class="thint">Drag a box onto the page, or pick one and tap where it goes.</div>
+    </div>
 
     <div class="workArea" id="workArea">
     <div class="penPreview" id="previewBox"><canvas id="penPreview"></canvas></div>
@@ -695,7 +830,7 @@ svg{display:block}
         </div>
         <span class="knobName">Lightness</span>
       </div>
-      <div class="knobWrap">
+      <div class="knobWrap pen">
         <div class="knob" id="knobSize">
           <div class="knobTrack" id="knobSizeTrack"></div>
           <div class="knobFace"></div>
@@ -710,6 +845,22 @@ svg{display:block}
           <div class="knobArm" id="knobStemArm"><i class="knobDot"></i></div>
         </div>
         <span class="knobName">Stem</span>
+      </div>
+      <div class="knobWrap tilt">
+        <div class="knob" id="knobTilt">
+          <div class="knobTrack" id="knobTiltTrack"></div>
+          <div class="knobFace"></div>
+          <div class="knobArm" id="knobTiltArm"><i class="knobDot"></i></div>
+        </div>
+        <span class="knobName">Tilt</span>
+      </div>
+      <div class="knobWrap tsize">
+        <div class="knob" id="knobText">
+          <div class="knobTrack" id="knobTextTrack"></div>
+          <div class="knobFace"></div>
+          <div class="knobArm" id="knobTextArm"><i class="knobDot"></i></div>
+        </div>
+        <span class="knobName">Text size</span>
       </div>
     </div>
     </div>
@@ -770,6 +921,7 @@ svg{display:block}
     <button type="button" class="ptog" id="dPracticed" role="checkbox" aria-checked="false"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Practiced</button>
     <button type="button" class="ptog learned" id="dLearned" role="checkbox" aria-checked="false"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Learned</button>
   </div>
+  <div id="dRate"></div>
   <div class="fi-label">File</div>
   <dl class="fileinfo" id="dFile"></dl>
   <div class="btnrow" style="margin-bottom:10px">
@@ -790,7 +942,7 @@ svg{display:block}
   <div class="panel-head">
     <button class="linkbtn" id="cpCancel">Cancel</button>
     <h3>Composer</h3>
-    <button class="linkbtn" id="cpManage">Edit list</button>
+    <span class="linkbtn" aria-hidden="true"></span>
   </div>
   <div class="searchrow">
     <div class="search">
@@ -799,27 +951,6 @@ svg{display:block}
     </div>
   </div>
   <div class="plist" id="cpList"></div>
-</div>
-
-<div class="panel" id="mComposers" aria-label="Composer list">
-  <div class="panel-head">
-    <button class="linkbtn" id="clDone">Done</button>
-    <h3>Composers</h3>
-    <button class="linkbtn" id="clAdd">Add</button>
-  </div>
-  <div class="searchrow">
-    <div class="search">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7688" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
-      <input id="clQ" type="search" placeholder="Search composers" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-    </div>
-  </div>
-  <div class="pchips" id="clChips">
-    <button class="chip on" data-f="library">In my library</button>
-    <button class="chip" data-f="all">All</button>
-    <button class="chip" data-f="added">Added by me</button>
-  </div>
-  <div class="pcount" id="clCount"></div>
-  <div class="plist" id="clList"></div>
 </div>
 
 <div class="panel" id="mWorks" aria-label="Complete works">
@@ -857,7 +988,7 @@ svg{display:block}
   <div class="panel-head">
     <button class="linkbtn" id="wdBack">Back</button>
     <h3 id="wdTop"></h3>
-    <span class="linkbtn" aria-hidden="true"></span>
+    <button class="linkbtn editbtn" id="wdEdit" aria-label="Edit this page"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></button>
   </div>
   <div class="plist wd" id="wdBody"></div>
 </div>
@@ -866,7 +997,7 @@ svg{display:block}
   <div class="panel-head">
     <button class="linkbtn" id="mvBack">Back</button>
     <h3 id="mvTop"></h3>
-    <span class="linkbtn" aria-hidden="true"></span>
+    <button class="linkbtn editbtn" id="mvEdit" aria-label="Edit this page"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></button>
   </div>
   <div class="mvwrap" id="mvBody"></div>
   <div class="mvnav">
@@ -911,6 +1042,7 @@ svg{display:block}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><div><div class="spin"></div><p id="busyText">Working</p></div></div>
 <input type="file" id="picker" accept="application/pdf,.pdf" multiple style="position:fixed;left:-9999px">
+<div class="textGhost" id="textGhost"></div>
 <input type="file" id="workPicker" accept="application/pdf,.pdf" style="position:fixed;left:-9999px">
 
 <script>
@@ -1013,7 +1145,9 @@ const K = {
   presets:'settings:presets',
   rasters:'cache:rasters',     // bookkeeping for saved page images (see Raster)
   composers:'settings:composers',  // composers you've added yourself
-  progress:'library:progress'      // practiced / learned for individual movements
+  progress:'library:progress',     // practiced / learned for individual movements
+  ratings:'library:ratings',       // your own difficulty ratings
+  workEdits:'library:workEdits'    // your changes to the text of work and movement pages
 };
 
 async function estimateUsage(){
@@ -1027,7 +1161,7 @@ async function estimateUsage(){
 }
 
 /* ---------- app state ---------- */
-const S = { docs:[], sets:[], set:null, query:'', ready:false, prog:'all', mv:{} };
+const S = { docs:[], sets:[], set:null, query:'', ready:false, prog:'all', src:'all', mv:{}, rate:{}, wedit:{} };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
 /* ---------- small helpers ---------- */
@@ -1046,6 +1180,8 @@ async function loadLibrary(){
   const idx = await DB.get(K.index);
   if(idx){ S.docs = idx.docs || []; S.sets = idx.sets || []; }
   try{ S.mv = (await DB.get(K.progress)) || {}; }catch(e){ S.mv = {}; }
+  try{ S.rate = (await DB.get(K.ratings)) || {}; }catch(e){ S.rate = {}; }
+  try{ S.wedit = (await DB.get(K.workEdits)) || {}; }catch(e){ S.wedit = {}; }
   await loadComposers();
   if(nicknameMigrate()) await saveIndexNow();
   S.ready = true;
@@ -1059,14 +1195,17 @@ async function saveIndexNow(){
 }
 
 function visibleDocs(){
-  const q = S.query.trim().toLowerCase();
+  const q = ($('#clQ').value || '').trim().toLowerCase();
   return S.docs.filter(d => {
     if(S.set !== null && d.set !== S.set) return false;
     if(S.prog === 'none' && d.practiced) return false;
     if(S.prog === 'practiced' && !d.practiced) return false;
     if(S.prog === 'learned' && !d.learned) return false;
+    if(S.src !== 'all' && (S.src === 'cat') !== (workKeyOf(d) != null)) return false;
     if(!q) return true;
-    return [d.title,d.composer,d.keyInfo,d.notes].some(f => (f||'').toLowerCase().includes(q));
+    const k = workKeyOf(d);
+    const extra = k != null ? [workShown(d.composer, k), workInfo(d.composer, k).note, catalogueLabel(k)] : [];
+    return [d.title,d.composer,d.keyInfo,d.notes,...extra].some(f => (f||'').toLowerCase().includes(q));
   });
 }
 
@@ -1092,11 +1231,13 @@ function canvasBlob(c, type, q){
 
 async function renderAll(){ renderSets(); renderProgChips(); await renderGrid(); renderCount(); }
 function renderProgChips(){
-  $$('#progChips .chip').forEach(c => c.classList.toggle('on', c.dataset.p === S.prog));
+  $$('#progChips .chip').forEach(c => c.classList.toggle('on', c.dataset.p ? c.dataset.p === S.prog : c.dataset.m === S.src));
 }
 $('#progChips').addEventListener('click', e => {
   const c = e.target.closest('.chip'); if(!c) return;
-  S.prog = c.dataset.p; renderAll(); $('#libScroll').scrollTop = 0;
+  if(c.dataset.p) S.prog = c.dataset.p;
+  if(c.dataset.m) S.src = c.dataset.m;
+  renderAll(); $('#clList').scrollTop = 0;
 });
 
 function renderCount(){
@@ -1124,7 +1265,10 @@ function renderSets(){
   });
 }
 
-async function renderGrid(){
+// The main menu replaced the thumbnail grid; everything that used to redraw the
+// grid now redraws the menu.
+async function renderGrid(){ renderComposerList(); }
+async function renderGridOld(){
   const grid = $('#grid');
   const docs = visibleDocs();
   grid.innerHTML = '';
@@ -4225,6 +4369,7 @@ function openDetails(id){
   $('#dSet').value = d.set || '';
   setProgressToggles($('#dPracticed'), $('#dLearned'), !!d.practiced, !!d.learned);
   renderFileInfo(d);
+  $('#dRate').innerHTML = rateBlock(docRateId(d), workKeyOf(d) != null ? 'Your difficulty rating · same as on the work’s page' : 'Your difficulty rating');
   showModal($('#mDetails'));
   $('#mDetails').scrollTop = 0;
 }
@@ -4569,41 +4714,118 @@ $('#cpList').addEventListener('click', e => {
   }
 });
 $('#cpCancel').addEventListener('click', closeComposerPicker);
-$('#cpManage').addEventListener('click', () => { $('#cpQ').blur(); openComposerList(true); });
 
-/* ---------- the list ---------- */
-const CL = { filter:'all', fromPicker:false };
-function openComposerList(fromPicker){
-  CL.fromPicker = !!fromPicker;
-  CL.filter = 'library';          // what you own first; All is one tap away
-  $('#clQ').value = '';
-  renderComposerList();
-  $('#clList').scrollTop = 0;
-  $('#mComposers').style.zIndex = fromPicker ? 42 : '';
-  $('#mComposers').classList.add('on');
+/* ---------- the main menu ----------
+   Composers, grouped by period, and every piece you have. A piece matched to a
+   catalogued work shows the work's own title and description; anything else
+   shows what the file itself tells us. */
+const CL = { filter:(() => { try{ return localStorage.getItem('stand.menu') || 'library'; }catch(e){ return 'library'; } })(),
+             sort:(() => { try{ return localStorage.getItem('stand.pieceSort') || 'order'; }catch(e){ return 'order'; } })() };
+function openComposerList(){ hideModals(); renderComposerList(); }
+function closeComposerList(){}
+const docRateId = d => { const k = workKeyOf(d); return k != null ? `w|${d.composer}|${k}` : `d|${d.id}`; };
+function pieceLevel(d){
+  const mine = S.rate[docRateId(d)];
+  if(mine) return { lv: mine, mine: true };
+  const k = workKeyOf(d), dl = k != null ? difficultyOf(d.composer, k) : null;
+  return dl ? { lv: dl.h, mine: false } : null;
 }
-function closeComposerList(){
-  $('#mComposers').classList.remove('on');
-  $('#clQ').blur();
-  // the picker behind may be showing names that just changed
-  if(CL.fromPicker && $('#mComposer').classList.contains('on')){
-    if(CP.value && !findComposer(CP.value) && !usageCounts().has(CP.value)) CP.value = '';
-    renderPicker();
+function pieceRow(d){
+  const k = workKeyOf(d);
+  const bits = [], tags = [];
+  let name, desc = '';
+  if(k != null){
+    name = workShown(d.composer, k);
+    bits.push(d.composer, catalogueLabel(k));
+    desc = workInfo(d.composer, k).note || '';
+    // a score of one movement, or a renamed copy, keeps its own title visible
+    if(normWork(d.title) !== normWork(name)) desc = d.title + (desc ? ' · ' + desc : '');
+  }else{
+    name = d.title || 'Untitled';
+    bits.push(d.composer || 'Unknown composer');
+    if(d.keyInfo) bits.push(d.keyInfo);
+    const set = d.set && S.sets.find(x => x.id === d.set);
+    const more = [];
+    if(d.pages) more.push(d.pages + (d.pages === 1 ? ' page' : ' pages'));
+    if(d.bytes) more.push(fmtBytes(d.bytes));
+    if(set) more.push('Set: ' + set.name);
+    if(d.added) more.push('Added ' + fmtDate(d.added));
+    const pi = d.pdfInfo || {};
+    if(pi.title && normWork(pi.title) !== normWork(name)) more.push('PDF title: ' + pi.title);
+    desc = (d.notes ? d.notes + ' · ' : '') + more.join(' · ');
   }
-  if(editingId) setComposerField($('#dComposer').dataset.value || '');
+  const pl = pieceLevel(d);
+  const lvl = pl ? `<span class="lvl${pl.mine ? ' est' : ''}" style="--c:${levelColor(pl.lv)}" title="${pl.mine ? 'Your rating' : 'Henle level'}">${pl.lv}</span>` : '';
+  const hasPage = k != null && (WORK_DETAILS[d.composer] || {})[k];
+  return `<div class="prow piece" role="button" tabindex="0" data-doc="${esc(d.id)}">
+    <span class="tx"><span class="nm">${esc(name)}</span><span class="sub">${esc(bits.join(' · '))}</span>${desc ? `<span class="ds">${esc(desc)}</span>` : ''}</span>
+    <span class="side"><span class="row">${progressTag(d.practiced, d.learned)}${lvl}
+      <button class="dbtn" data-details="${esc(d.id)}" aria-label="Piece details for ${esc(name)}">···</button></span>
+      ${hasPage ? `<button class="wlink" data-wd="${esc(d.composer)}" data-wk="${esc(k)}">About the work ›</button>` : ''}</span>
+  </div>`;
+}
+function renderPieces(){
+  const docs = visibleDocs();
+  const q = ($('#clQ').value || '').trim();
+  $$('#pcSort button').forEach(b => b.classList.toggle('on', b.dataset.s === CL.sort));
+  requestAnimationFrame(() => placeSortKnobIn('#pcSort'));
+  $('#clCount').textContent = S.docs.length
+    ? (docs.length === S.docs.length ? `${docs.length} ${docs.length === 1 ? 'piece' : 'pieces'}` : `${docs.length} of ${S.docs.length} pieces`)
+    : '';
+  if(!S.docs.length) return '';
+  if(!docs.length){
+    return `<div class="pnote">${q ? 'No piece matches that search.' :
+      S.prog === 'none' ? 'Every piece here has been practiced.' :
+      S.prog !== 'all' ? `Nothing here is marked ${S.prog} yet. Mark progress in a piece’s details.` : 'No pieces fit these filters.'}</div>`;
+  }
+  const titleOf = d => { const k = workKeyOf(d); return k != null ? workShown(d.composer, k) : (d.title || ''); };
+  const list = [...docs];
+  const coll = (a, b) => a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'});
+  let groups;
+  if(CL.sort === 'title'){
+    list.sort((a, b) => coll(titleOf(a), titleOf(b)));
+    groups = [['', list]];
+  }else if(CL.sort === 'composer'){
+    const m = new Map();
+    const sk = n => { if(!n) return '\uffff'; const e = findComposer(n); return e ? e.sortKey : normText(n); };
+    list.sort((a, b) => (sk(a.composer) < sk(b.composer) ? -1 : sk(a.composer) > sk(b.composer) ? 1 : 0) || coll(titleOf(a), titleOf(b)));
+    for(const d of list){ const g = d.composer || 'Unknown composer'; if(!m.has(g)) m.set(g, []); m.get(g).push(d); }
+    groups = [...m];
+  }else if(CL.sort === 'level'){
+    const lv = d => { const p = pieceLevel(d); return p ? p.lv : 99; };
+    list.sort((a, b) => lv(a) - lv(b) || coll(titleOf(a), titleOf(b)));
+    const m = new Map();
+    for(const d of list){ const v = lv(d); const g = v === 99 ? 'Not rated' : `Level ${v} · ${HENLE_WORD(v)}`; if(!m.has(g)) m.set(g, []); m.get(g).push(d); }
+    groups = [...m];
+  }else{
+    groups = [['', list]];
+  }
+  return groups.map(([g, ds]) => (g ? `<h4>${esc(g)} · ${ds.length}</h4>` : '') + ds.map(pieceRow).join('')).join('');
+}
+function placeSortKnobIn(sel){
+  const seg = $(sel); if(!seg) return;
+  const on = seg.querySelector('button.on'), knob = seg.querySelector('.sortknob');
+  if(!on || !on.offsetWidth) return;
+  knob.style.width = on.offsetWidth + 'px';
+  knob.style.transform = `translateX(${on.offsetLeft - 3}px)`;
 }
 function renderComposerList(){
+  if(!S.ready) return;
   const q = $('#clQ').value.trim();
-  const used = usageCounts(), stray = strayComposers();
   const f = CL.filter;
   $$('#clChips .chip').forEach(c => c.classList.toggle('on', c.dataset.f === f));
+  $('#library').classList.toggle('pieces', f === 'pieces');
+  $('#empty').style.display = !S.docs.length && f === 'pieces' ? 'block' : 'none';
+  if(f === 'pieces'){ $('#clList').innerHTML = renderPieces(); return; }
+
+  const used = usageCounts(), stray = strayComposers();
   let list = q ? searchComposers(q) : composerEntries;
   // your composers, plus everyone whose complete works can be browsed
   if(f === 'library') list = list.filter(e => used.has(e.name) || WORKS[e.name]);
   if(f === 'added') list = list.filter(e => e.custom);
   const added = composerEntries.filter(e => e.custom).length;
-  $('#clCount').textContent = `${composerEntries.length} composers` +
-    (added ? ` · ${added} added by you` : '') + ' · all recognised in filenames';
+  $('#clCount').textContent = f === 'library' ? 'Your composers, and those whose complete works you can browse'
+    : `${composerEntries.length} composers` + (added ? ` · ${added} added by you` : '') + ' · all recognised in filenames';
 
   let h = '';
   const strays = [...stray.keys()].filter(n => !q || searchLike(n, q));
@@ -4612,11 +4834,14 @@ function renderComposerList(){
       `<button class="prow" data-stray="${esc(n)}"><span class="tx"><span class="nm">${esc(n)}</span><span class="sub">${stray.get(n) === 1 ? '1 piece' : stray.get(n) + ' pieces'} · tap to add or replace</span></span><span class="badge warn">Not listed</span></button>`).join('');
   }
   const row = e => composerRow(e, used, `data-open="${esc(e.name)}"`, false, true);
+  // a search in the menu also finds pieces, so you never have to switch filters to look one up
+  const pieceHits = q ? visibleDocs().slice(0, 30) : [];
   if(q){
-    h += list.length ? list.map(row).join('')
+    h += list.length ? (pieceHits.length ? '<h4>Composers</h4>' : '') + list.map(row).join('')
       : `<div class="pnote">No composer matches “${esc(q)}”.</div><button class="prow act" data-new="${esc(q)}"><span class="tx"><span class="nm">Add “${esc(q)}” as a new composer</span></span></button>`;
+    if(pieceHits.length) h += '<h4>Pieces</h4>' + pieceHits.map(pieceRow).join('');
   }else if(!list.length){
-    h += `<div class="pnote">${f === 'added' ? 'You haven’t added any composers yet. Use Add to put someone on the list.' : 'Nothing here yet.'}</div>`;
+    h += `<div class="pnote">${f === 'added' ? 'You haven’t added any composers yet. Use the add-composer button beside the search to put someone on the list.' : 'Nothing here yet.'}</div>`;
   }else{
     // grouped by period; your own without a period at the end
     for(const era of [...ERAS, '']){
@@ -4630,9 +4855,24 @@ function searchLike(name, q){ return normText(name).includes(normText(q)); }
 $('#clQ').addEventListener('input', renderComposerList);
 $('#clChips').addEventListener('click', e => {
   const c = e.target.closest('.chip'); if(!c) return;
-  CL.filter = c.dataset.f; renderComposerList(); $('#clList').scrollTop = 0;
+  CL.filter = c.dataset.f;
+  try{ localStorage.setItem('stand.menu', CL.filter); }catch(err){}
+  renderComposerList(); $('#clList').scrollTop = 0;
 });
+$('#pcSort').addEventListener('click', e => {
+  const b = e.target.closest('button[data-s]'); if(!b || b.dataset.s === CL.sort) return;
+  CL.sort = b.dataset.s;
+  try{ localStorage.setItem('stand.pieceSort', CL.sort); }catch(err){}
+  renderComposerList(); $('#clList').scrollTop = 0;
+});
+window.addEventListener('resize', () => placeSortKnobIn('#pcSort'));
 $('#clList').addEventListener('click', e => {
+  const det = e.target.closest('[data-details]');
+  if(det){ $('#clQ').blur(); return openDetails(det.dataset.details); }
+  const wd = e.target.closest('[data-wd]');
+  if(wd){ $('#clQ').blur(); return openWorkDetail(wd.dataset.wd, wd.dataset.wk); }
+  const doc = e.target.closest('[data-doc]');
+  if(doc){ $('#clQ').blur(); return openDoc(doc.dataset.doc); }
   const wl = e.target.closest('[data-works]');
   if(wl){ $('#clQ').blur(); return openWorks(wl.dataset.works); }
   const b = e.target.closest('button'); if(!b) return;
@@ -4641,9 +4881,11 @@ $('#clList').addEventListener('click', e => {
   else if(b.dataset.new != null) openComposerEditor(null, { name: b.dataset.new });
   else if(b.dataset.stray != null) openComposerEditor(null, { name: b.dataset.stray, renameFrom: b.dataset.stray });
 });
-$('#clAdd').addEventListener('click', () => openComposerEditor(null, { name: $('#clQ').value.trim() }));
-$('#clDone').addEventListener('click', closeComposerList);
-$('#composersBtn').addEventListener('click', () => openComposerList(false));
+$('#clList').addEventListener('keydown', e => {
+  if(e.key !== 'Enter' || !e.target.matches('.prow.piece')) return;
+  openDoc(e.target.dataset.doc);
+});
+$('#clAdd').addEventListener('click', () => openComposerEditor(null, { name: CL.filter === 'pieces' ? '' : $('#clQ').value.trim() }));
 
 /* ---------- add / edit ---------- */
 const CE = { entry:null, opts:{}, arm:false, armTimer:null };
@@ -4726,7 +4968,6 @@ async function renameInLibrary(from, to){
   return n;
 }
 function afterComposerChange(){
-  if($('#mComposers').classList.contains('on')) renderComposerList();
   if($('#mComposer').classList.contains('on')) renderPicker();
   if(editingId) setComposerField($('#dComposer').dataset.value || '');
   renderAll();
@@ -4781,10 +5022,9 @@ $('#ceDelete').addEventListener('click', async () => {
 $('#ceShow').addEventListener('click', () => {
   const name = CE.entry && CE.entry.name; if(!name) return;
   closeComposerEditor();
-  $('#mComposers').classList.remove('on');
   hideModals();
-  S.query = name; $('#q').value = name;
-  renderGrid();
+  CL.filter = 'pieces'; $('#clQ').value = name;
+  renderComposerList(); $('#clList').scrollTop = 0;
 });
 
 
@@ -4927,8 +5167,8 @@ function renderWorks(){
     if(WK.filter === 'practiced' && !prog.p) continue;
     if(WK.filter === 'learned' && !prog.l) continue;
     if(WK.filter === 'unpracticed' && (!have || prog.p)) continue;
-    const shown = nicknameFirst(title);
-    const note = (WORK_NOTES[WK.name] || {})[key] || '';
+    const shown = workShown(WK.name, key);
+    const note = workNote(WK.name, key);
     if(q && !normWork(shown + ' ' + key + ' ' + note).includes(q)) continue;
     const g = heading(key, title);
     if(!groups.has(g)) groups.set(g, []);
@@ -4983,7 +5223,6 @@ function openPieceFromWorks(id){
   $('#mMove').classList.remove('on');
   $('#mWork').classList.remove('on');
   $('#mWorks').classList.remove('on');
-  $('#mComposers').classList.remove('on');
   closeComposerEditor();
   hideModals();
   openDoc(id);
@@ -5040,9 +5279,10 @@ function thermometer(lv, lo, est){
       <div class="th-ticks">${'<i></i>'.repeat(9)}</div>
     </div></div>`;
 }
-function difficultyBlock(composer, key, part){
+function difficultyBlock(composer, key, part, rate){
   const d = difficultyOf(composer, key);
-  if(!d) return '';
+  rate = rate || '';
+  if(!d) return rate ? `<div class="diff solo">${rate}</div>` : '';
   const src = '<div class="src">Henle difficulty level (G. Henle Verlag), graded 1–9 by the work needed to prepare a piece for performance.</div>';
   const scale = '<div class="th-scale"><span>Easy</span><span>Medium</span><span>Difficult</span></div>';
   const ab = x => x ? `<span class="ab">ABRSM ${esc(x)}</span>` : '';
@@ -5066,7 +5306,7 @@ function difficultyBlock(composer, key, part){
     return h + '</div>';
   }
   let cap = d.lo && d.lo < d.h ? `<b>Levels ${d.lo}–${d.h}</b> across the pieces` : `<b>Henle ${d.h}</b> of 9 · ${HENLE_WORD(d.h)}`;
-  let h = `<div class="diff">${thermometer(d.h, d.lo)}${scale}<div class="th-cap"><span>${cap}</span>${ab(d.abrsm)}</div>`;
+  let h = `<div class="diff">${thermometer(d.h, d.lo)}${scale}<div class="th-cap"><span>${cap}</span>${ab(d.abrsm)}</div>${rate}`;
   if(d.est){
     h += `<div class="th-cap sub"><span>Movements (estimated): ${d.est.map((e, i) => `${ROMAN_NUM[i]} ≈${e}`).join(' · ')}</span></div>`;
   }
@@ -5075,16 +5315,17 @@ function difficultyBlock(composer, key, part){
 /* The movement card's difficulty: the same thermometers, smaller, each with a
    single caption line, pinned below the description so the whole rating is
    always in view without scrolling. */
-function difficultyMini(composer, key, part){
+function difficultyMini(composer, key, part, rate){
   const d = difficultyOf(composer, key);
-  if(!d) return '';
+  rate = rate || '';
+  if(!d) return rate ? `<div class="diff mini solo">${rate}</div>` : '';
   const ab = x => x ? `<span class="ab">ABRSM ${esc(x)}</span>` : '';
   if(d.parts){
     const lv = d.parts[part];
     return `<div class="diff mini">
       <div class="th-cap"><span><b>Henle ${lv}</b> of 9 · ${HENLE_WORD(lv)} · this piece</span>${ab(d.partAbrsm && d.partAbrsm[part])}</div>
       ${thermometer(lv)}
-      <div class="th-cap sub"><span>Whole set: levels ${d.lo}–${d.h}</span></div></div>`;
+      <div class="th-cap sub"><span>Whole set: levels ${d.lo}–${d.h}</span></div>${rate}</div>`;
   }
   let h = `<div class="diff mini">
     <div class="th-cap"><span>Whole work · <b>Henle ${d.h}</b> · ${HENLE_WORD(d.h)}</span>${ab(d.abrsm)}</div>
@@ -5094,7 +5335,146 @@ function difficultyMini(composer, key, part){
     h += `<div class="th-cap"><span>This movement · <b>≈ ${e}</b> · estimate</span></div>
       ${thermometer(e, null, true)}`;
   }
-  return h + '</div>';
+  return h + rate + '</div>';
+}
+
+/* ---------- your own rating ----------
+   Designed like Henle's thermometer, set by tapping or dragging along it, and
+   saved the moment it changes. Work ratings are shared by every score of that
+   work; movements have their own; an uncatalogued piece keeps its own. */
+const rateWord = v => v ? `${v} of 9 · ${HENLE_WORD(v)}` : 'Tap or drag along the bar to rate';
+function rateThermo(v){
+  v = v || 0;
+  return `<div class="thermo go${v ? '' : ' unset'}" style="--c:${levelColor(v || 5)};--w:${(v / 9 * 100).toFixed(1)}%">
+    <div class="th-bulb">${v || '–'}</div>
+    <div class="th-tube"><div class="th-fill"><div class="th-grad" style="width:calc(900% / ${Math.max(v, 1)})"></div></div>
+      <div class="th-ticks">${'<i></i>'.repeat(9)}</div></div></div>`;
+}
+function rateBlock(id, label, mini){
+  const v = S.rate[id] || 0;
+  const clear = `<button type="button" class="rclear"${v ? '' : ' style="visibility:hidden"'}>Clear</button>`;
+  if(mini) return `<div class="rate" data-rate="${esc(id)}">
+    <div class="th-cap"><span>${esc(label)} · <b class="rv">${rateWord(v)}</b></span>${clear}</div>${rateThermo(v)}</div>`;
+  return `<div class="rate" data-rate="${esc(id)}"><div class="th-label mine">${esc(label)}</div>${rateThermo(v)}
+    <div class="th-cap"><span class="rv">${rateWord(v)}</span>${clear}</div></div>`;
+}
+function setRate(id, v){
+  if(v) S.rate[id] = v; else delete S.rate[id];
+  DB.set(K.ratings, S.rate).catch(err => toast('Could not save your rating. ' + err.message));
+  $$('.rate').forEach(el => {
+    if(el.dataset.rate !== id) return;
+    const t = el.querySelector('.thermo');
+    t.classList.toggle('unset', !v);
+    t.style.setProperty('--c', levelColor(v || 5));
+    t.style.setProperty('--w', (v / 9 * 100).toFixed(1) + '%');
+    t.querySelector('.th-bulb').textContent = v || '–';
+    t.querySelector('.th-grad').style.width = `calc(900% / ${Math.max(v, 1)})`;
+    el.querySelectorAll('.rv').forEach(x => x.textContent = rateWord(v));
+    el.querySelector('.rclear').style.visibility = v ? '' : 'hidden';
+  });
+}
+// capture phase, so a drag along the bar never also swipes the movement pager
+document.addEventListener('pointerdown', e => {
+  const th = e.target.closest('.rate .thermo'); if(!th) return;
+  if(e.pointerType === 'mouse' && e.button !== 0) return;
+  e.preventDefault(); e.stopPropagation();
+  const el = th.closest('.rate'), id = el.dataset.rate, tube = th.querySelector('.th-tube');
+  const at = x => { const r = tube.getBoundingClientRect(); return Math.max(1, Math.min(9, Math.ceil((x - r.left) / r.width * 9) || 1)); };
+  let v = at(e.clientX);
+  el.classList.add('live');
+  setRate(id, v);
+  const move = ev => { const n = at(ev.clientX); if(n !== v){ v = n; setRate(id, v); } };
+  const up = () => {
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', up);
+    window.removeEventListener('pointercancel', up);
+    el.classList.remove('live');
+    renderComposerList();
+  };
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
+}, true);
+document.addEventListener('click', e => {
+  const b = e.target.closest('.rate .rclear'); if(!b) return;
+  e.stopPropagation();
+  setRate(b.closest('.rate').dataset.rate, 0);
+  renderComposerList();
+}, true);
+
+/* ---------- your edits to work and movement pages ----------
+   The catalogue text is kept as shipped; what you change is stored beside it,
+   field by field, and laid over it wherever the work is shown. */
+const WD_FIELDS = [['c','Composed'],['pl','Written in'],['per','Period'],['prem','First heard'],
+                   ['pub','Published'],['ded','Dedicated to'],['sc','Scoring'],['dur','Typical length']];
+const wkId = (c, k) => c + '|' + k;
+function workBase(composer, key){
+  const d = (WORK_DETAILS[composer] || {})[key] || {};
+  const w = workEntry(composer, key);
+  const t = titleParts(w ? w[1] : '');
+  const o = { plain:t.plain, nick:t.nick, tonality:t.tonality, note:(WORK_NOTES[composer] || {})[key] || '',
+              about:d.about || '', ctx:d.ctx || '', facts:(d.facts || []).slice(), parts:(d.parts || []).map(x => x.slice()) };
+  for(const [f] of WD_FIELDS) o[f] = d[f] && d[f] !== 'None' ? d[f] : '';
+  return o;
+}
+function workInfo(composer, key){
+  const o = workBase(composer, key), e = S.wedit[wkId(composer, key)];
+  if(!e) return o;
+  for(const f in e){
+    if(f !== 'parts'){ o[f] = e[f]; continue; }
+    for(const i in e.parts){
+      const pe = e.parts[i], q = o.parts[i]; if(!q) continue;
+      if(pe.n != null) q[0] = pe.n;
+      if(pe.t != null) q[1] = pe.t;
+      if(pe.d != null) q[2] = pe.d;
+    }
+  }
+  return o;
+}
+function workShown(composer, key){
+  const w = workEntry(composer, key); if(!w) return '';
+  const e = S.wedit[wkId(composer, key)];
+  if(!e || (e.plain == null && e.nick == null)) return nicknameFirst(w[1]);
+  const i = workInfo(composer, key);
+  return i.nick ? `${i.nick} — ${i.plain}` : i.plain;
+}
+function workNote(composer, key){
+  const e = S.wedit[wkId(composer, key)];
+  return e && e.note != null ? e.note : (WORK_NOTES[composer] || {})[key] || '';
+}
+async function saveEdits(root, composer, key){
+  const base = workBase(composer, key), id = wkId(composer, key);
+  const cur = JSON.parse(JSON.stringify(S.wedit[id] || {}));
+  const val = el => (el.innerText || '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  const PART = { pn:[0,'n'], pt:[1,'t'], pd:[2,'d'] };
+  root.querySelectorAll('[data-edit]').forEach(el => {
+    const f = el.dataset.edit, v = val(el);
+    if(f === 'fact') return;
+    if(PART[f]){
+      const i = +el.dataset.i, [idx, k] = PART[f];
+      cur.parts = cur.parts || {};
+      const pe = cur.parts[i] = cur.parts[i] || {};
+      if(v === ((base.parts[i] || [])[idx] || '')) delete pe[k]; else pe[k] = v;
+      if(!Object.keys(pe).length) delete cur.parts[i];
+      return;
+    }
+    if(v === (base[f] || '')) delete cur[f]; else cur[f] = v;
+  });
+  const facts = root.querySelectorAll('[data-edit="fact"]');
+  if(facts.length){
+    const arr = [...facts].map(val).filter(Boolean);
+    if(JSON.stringify(arr) === JSON.stringify(base.facts)) delete cur.facts; else cur.facts = arr;
+  }
+  if(cur.parts && !Object.keys(cur.parts).length) delete cur.parts;
+  if(Object.keys(cur).length) S.wedit[id] = cur; else delete S.wedit[id];
+  try{ await DB.set(K.workEdits, S.wedit); toast('Changes saved'); }
+  catch(err){ toast('Could not save your changes. ' + err.message, 4000); }
+}
+const PENCIL_SVG = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
+function setEditBtn(btn, on){
+  btn.classList.toggle('on', on);
+  btn.innerHTML = on ? 'Done' : PENCIL_SVG;
+  btn.setAttribute('aria-label', on ? 'Finish editing' : 'Edit this page');
 }
 // fill thermometers once they're on screen, so the rise is seen
 function animateThermos(root){
@@ -5143,48 +5523,98 @@ function workEntry(composer, key){
   return (WORKS[composer] || []).find(w => w[0] === key);
 }
 
-function openWorkDetail(composer, key){
+function openWorkDetail(composer, key, keepScroll){
   const d = (WORK_DETAILS[composer] || {})[key];
   const w = workEntry(composer, key);
   if(!d || !w) return;
+  if(WD.editing && (WD.composer !== composer || WD.key !== key)){ WD.editing = false; }
   WD.composer = composer; WD.key = key;
-  const t = titleParts(w[1]);
+  const ed = !!WD.editing;
+  const I = workInfo(composer, key);
   const docs = ownedWorks(composer).get(key) || [];
-  const note = (WORK_NOTES[composer] || {})[key] || '';
-  const fact = (label, val) => val && val !== 'None' ? `<div><dt>${label}</dt><dd>${esc(val)}</dd></div>` : '';
+  // a text that can be edited: plain when reading, an editable box when editing
+  const T = (tag, field, val, cls, ph, attrs) => ed
+    ? `<${tag}${cls ? ` class="${cls}"` : ''} data-edit="${field}"${attrs || ''} contenteditable="plaintext-only" data-ph="${esc(ph)}">${esc(val)}</${tag}>`
+    : `<${tag}${cls ? ` class="${cls}"` : ''}>${esc(val)}</${tag}>`;
+  const fact = (f, label) => ed
+    ? `<div><dt>${label}</dt>${T('dd', f, I[f], '', 'Not known')}</div>`
+    : I[f] ? `<div><dt>${label}</dt><dd>${esc(I[f])}</dd></div>` : '';
+  const hasFacts = WD_FIELDS.some(([f]) => I[f]);
   let h = `<div class="eyebrow">${esc(composer)}</div>
-    <h2>${esc(t.plain)}</h2>
-    ${t.nick ? `<div class="nick">“${esc(t.nick)}”</div>` : ''}
-    ${note ? `<div class="lead">${esc(note)}</div>` : ''}
-    <div class="wchips"><span>${esc(catalogueLabel(key))}</span>${t.tonality ? `<span>${esc(t.tonality)}</span>` : ''}<span>${esc(d.per)}</span></div>
-    ${difficultyOf(composer, key) ? `<h5>Difficulty</h5>${difficultyBlock(composer, key)}` : ''}
-    <dl class="facts">
-      ${fact('Composed', d.c)}${fact('Written in', d.pl)}${fact('Period', d.per)}
-      ${fact('First heard', d.prem)}${fact('Published', d.pub)}${fact('Dedicated to', d.ded)}
-      ${fact('Scoring', d.sc)}${fact('Typical length', d.dur)}
-    </dl>
+    ${ed ? '<div class="editnote">Tap any outlined text to change it. Henle levels can’t be edited. Tap Done to save.</div>' : ''}
+    ${T('h2', 'plain', I.plain, '', 'Title')}
+    ${ed ? T('div', 'nick', I.nick, 'nick', 'Nickname') : I.nick ? `<div class="nick">“${esc(I.nick)}”</div>` : ''}
+    ${ed ? T('div', 'note', I.note, 'lead', 'Short description') : I.note ? `<div class="lead">${esc(I.note)}</div>` : ''}
+    <div class="wchips"><span>${esc(catalogueLabel(key))}</span>${I.tonality ? `<span>${esc(I.tonality)}</span>` : ''}${I.per ? `<span>${esc(I.per)}</span>` : ''}</div>
+    <h5>Difficulty</h5>${difficultyBlock(composer, key, null, rateBlock(`w|${composer}|${key}`, 'Your rating'))}
+    ${ed || hasFacts ? `<dl class="facts">${WD_FIELDS.map(([f, l]) => fact(f, l)).join('')}</dl>` : ''}
     <h5>In your library</h5>
     <div class="have">${docs.length
       ? [...docs].sort((a, b) => a.title.localeCompare(b.title, undefined, {numeric:true}))
           .map(x => `<button data-doc="${esc(x.id)}">Open score · ${esc(x.title)}${progressTag(x.practiced, x.learned)}</button>`).join('')
       : `<button class="addscore" data-addscore="1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add a score for this work</button>`}</div>
-    <h5>About the work</h5><p>${esc(d.about)}</p>
-    <h5>Historical context</h5><p>${esc(d.ctx)}</p>
-    ${d.facts && d.facts.length ? `<h5>Did you know?</h5><ul class="dyk">${d.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}`;
-  if(d.parts && d.parts.length){
-    h += `<h5>${esc(partsLabel(key, d.parts))} · ${d.parts.length}</h5>` + d.parts.map((p, i) =>
-      `<button class="mrow" data-part="${i}"><span class="num">${partNumber(key, i, d.parts)}</span>
+    ${ed || I.about ? `<h5>About the work</h5>${T('p', 'about', I.about, '', 'About the work')}` : ''}
+    ${ed || I.ctx ? `<h5>Historical context</h5>${T('p', 'ctx', I.ctx, '', 'Historical context')}` : ''}`;
+  if(ed){
+    h += `<h5>Did you know?</h5><ul class="dyk">${I.facts.map(f => T('li', 'fact', f, '', 'Leave empty to remove')).join('')}</ul>
+      <button class="addfact" data-addfact="1">Add a fact</button>`;
+  }else if(I.facts.length){
+    h += `<h5>Did you know?</h5><ul class="dyk">${I.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`;
+  }
+  if(I.parts.length){
+    h += `<h5>${esc(partsLabel(key, I.parts))} · ${I.parts.length}</h5>` + I.parts.map((p, i) => ed
+      ? `<div class="mrow"><span class="num">${partNumber(key, i, I.parts)}</span>
+          <span class="tx">${T('span', 'pn', p[0], 'nm', 'Name', ` data-i="${i}"`)}${T('span', 'pt', p[1], 'sub', 'Key or tempo', ` data-i="${i}"`)}</span></div>`
+      : `<button class="mrow" data-part="${i}"><span class="num">${partNumber(key, i, I.parts)}</span>
         <span class="tx"><span class="nm">${esc(p[0])}</span><span class="sub">${esc(p[1])}</span></span>
         ${(m => progressTag(m.p, m.l))(mvProgress(composer, key, i))}${partLevelPill(composer, key, i)}<span class="chev">›</span></button>`).join('');
   }
+  if(ed && S.wedit[wkId(composer, key)]) h += `<button class="restore" data-restore="1">Restore the original text</button>`;
+  const top = $('#wdBody').scrollTop;
+  setEditBtn($('#wdEdit'), ed);
   $('#wdTop').textContent = catalogueLabel(key);
   $('#wdBody').innerHTML = h;
-  $('#wdBody').scrollTop = 0;
+  $('#wdBody').scrollTop = keepScroll ? top : 0;
   $('#mWork').classList.add('on');
   animateThermos($('#wdBody'));
 }
-$('#wdBody').addEventListener('click', e => {
+async function finishWorkEdit(){
+  if(!WD.editing) return;
+  await saveEdits($('#wdBody'), WD.composer, WD.key);
+  WD.editing = false;
+  MV.built = null;
+}
+function refreshAfterEdit(){
+  if($('#mWorks').classList.contains('on')) renderWorks();
+  renderComposerList();
+}
+$('#wdEdit').addEventListener('click', async () => {
+  if(!WD.composer) return;
+  if(!WD.editing){ WD.editing = true; openWorkDetail(WD.composer, WD.key, true); return; }
+  await finishWorkEdit();
+  openWorkDetail(WD.composer, WD.key, true);
+  refreshAfterEdit();
+});
+$('#wdBody').addEventListener('click', async e => {
   if(e.target.closest('[data-addscore]')) return $('#workPicker').click();
+  if(e.target.closest('[data-addfact]')){
+    const ul = $('#wdBody .dyk');
+    const li = document.createElement('li');
+    li.dataset.edit = 'fact'; li.dataset.ph = 'A new fact';
+    li.setAttribute('contenteditable', 'plaintext-only');
+    ul.appendChild(li); li.focus();
+    return;
+  }
+  if(e.target.closest('[data-restore]')){
+    delete S.wedit[wkId(WD.composer, WD.key)];
+    try{ await DB.set(K.workEdits, S.wedit); }catch(err){}
+    WD.editing = false; MV.built = null;
+    openWorkDetail(WD.composer, WD.key, true);
+    refreshAfterEdit();
+    toast('Original text restored');
+    return;
+  }
+  if(WD.editing) return;
   const doc = e.target.closest('[data-doc]');
   if(doc) return openPieceFromWorks(doc.dataset.doc);
   const part = e.target.closest('[data-part]');
@@ -5221,7 +5651,8 @@ $('#workPicker').addEventListener('change', async e => {
   }
   if($('#mWorks').classList.contains('on')) renderWorks();
 });
-$('#wdBack').addEventListener('click', () => {
+$('#wdBack').addEventListener('click', async () => {
+  if(WD.editing){ await finishWorkEdit(); setEditBtn($('#wdEdit'), false); refreshAfterEdit(); }
   $('#mWork').classList.remove('on');
   if($('#mWorks').classList.contains('on')) renderWorks();
 });
@@ -5234,9 +5665,8 @@ $('#wdBack').addEventListener('click', () => {
 const MV = { built:null, count:0, index:0, rows:[] };
 
 function buildMovements(){
-  const d = WORK_DETAILS[WD.composer][WD.key];
-  const parts = d.parts || [];
-  const w = workEntry(WD.composer, WD.key);
+  const I = workInfo(WD.composer, WD.key);
+  const parts = I.parts;
   const label = partsLabel(WD.key, parts);
   const dd0 = difficultyOf(WD.composer, WD.key) || {};
   const hasPartLevels = !!(dd0.parts || dd0.est);
@@ -5244,16 +5674,16 @@ function buildMovements(){
   MV.unit = label === 'Movements' ? 'Movement' : label === 'Songs' ? 'Song'
           : label === 'Bagatelles' || label === 'Pieces' ? 'Piece' : 'Part';
   $('#mvBody').innerHTML = `
-    <div class="eyebrow">${esc(nicknameFirst(w[1]))}</div>
-    <div class="mv-viewport${difficultyOf(WD.composer, WD.key) ? ' hasdiff' : ''}" id="mvViewport"><div class="mv-track" id="mvTrack">
+    <div class="eyebrow">${esc(workShown(WD.composer, WD.key))}</div>
+    <div class="mv-viewport hasdiff" id="mvViewport"><div class="mv-track" id="mvTrack">
       ${parts.map((p, j) => `<section class="mv-card" data-i="${j}">
         <div class="mv-scroll">
           <div class="mv-num">${partNumber(WD.key, j, parts)}</div>
-          <h2>${esc(p[0])}</h2>
-          <div class="wchips"><span>${esc(p[1])}</span><span>${esc(catalogueLabel(WD.key))}</span></div>
-          <p>${esc(p[2])}</p>
+          <h2 data-edit="pn" data-i="${j}" data-ph="Name">${esc(p[0])}</h2>
+          <div class="wchips"><span data-edit="pt" data-i="${j}" data-ph="Key or tempo">${esc(p[1])}</span><span>${esc(catalogueLabel(WD.key))}</span></div>
+          <p data-edit="pd" data-i="${j}" data-ph="Description">${esc(p[2])}</p>
         </div>
-        ${difficultyOf(WD.composer, WD.key) ? difficultyMini(WD.composer, WD.key, j) : ''}
+        ${difficultyMini(WD.composer, WD.key, j, rateBlock(`m|${WD.composer}|${WD.key}|${j}`, 'Your rating', true))}
       </section>`).join('')}
     </div></div>
     <div class="mvdots" id="mvDots">${parts.map((_, j) => `<button data-go="${j}" aria-label="${MV.unit} ${j + 1}"></button>`).join('')}</div>
@@ -5276,6 +5706,7 @@ function buildMovements(){
   $('#mvPracticed').addEventListener('click', toggle('p'));
   $('#mvLearned').addEventListener('click', toggle('l'));
   MV.rows = [...$('#mvList').querySelectorAll('.mrow')];
+  MV.editing = false; setEditBtn($('#mvEdit'), false);
   MV.built = WD.composer + '|' + WD.key;
   bindPagerDrag();
 }
@@ -5337,6 +5768,7 @@ function showMovement(i, animate){
 function openMovement(i){
   const d = WORK_DETAILS[WD.composer][WD.key];
   if(!d.parts || !d.parts.length) return;
+  if(WD.editing) return;
   const fresh = MV.built !== WD.composer + '|' + WD.key;
   if(fresh) buildMovements();
   const wasOpen = $('#mMove').classList.contains('on');
@@ -5350,6 +5782,7 @@ function bindPagerDrag(){
   let sx = 0, sy = 0, st = 0, dx = 0, id = null, mode = null, lastX = 0, lastT = 0, vx = 0;
   vp.addEventListener('pointerdown', e => {
     if(e.pointerType === 'mouse' && e.button !== 0) return;
+    if(MV.editing) return;          // editing: a touch is for placing the caret
     id = e.pointerId; sx = lastX = e.clientX; sy = e.clientY; st = lastT = performance.now();
     dx = 0; vx = 0; mode = null;
   });
@@ -5397,9 +5830,34 @@ function bindPagerDrag(){
   vp.addEventListener('click', e => { if(Math.abs(dx) > 8){ e.stopPropagation(); e.preventDefault(); } }, true);
 }
 
-$('#mvPrev').addEventListener('click', () => showMovement(MV.index - 1, true));
-$('#mvNext').addEventListener('click', () => showMovement(MV.index + 1, true));
-$('#mvBack').addEventListener('click', () => {
+$('#mvPrev').addEventListener('click', () => { if(document.activeElement) document.activeElement.blur(); showMovement(MV.index - 1, true); });
+$('#mvNext').addEventListener('click', () => { if(document.activeElement) document.activeElement.blur(); showMovement(MV.index + 1, true); });
+function setMvEditing(on){
+  MV.editing = on;
+  setEditBtn($('#mvEdit'), on);
+  $$('#mvBody [data-edit]').forEach(el => {
+    if(on) el.setAttribute('contenteditable', 'plaintext-only'); else el.removeAttribute('contenteditable');
+  });
+  $('#mvBody').classList.toggle('editing', on);
+}
+async function finishMvEdit(){
+  if(!MV.editing) return;
+  await saveEdits($('#mvBody'), WD.composer, WD.key);
+  setMvEditing(false);
+  MV.built = null;
+  buildMovements();
+  showMovement(MV.index, false);
+  refreshAfterEdit();
+}
+$('#mvEdit').addEventListener('click', () => {
+  if(MV.editing) return finishMvEdit();
+  setMvEditing(true);
+  const h = $$('#mvTrack .mv-card')[MV.index];
+  const t = h && h.querySelector('h2');
+  if(t) t.focus();
+});
+$('#mvBack').addEventListener('click', async () => {
+  if(MV.editing) await finishMvEdit();
   $('#mMove').classList.remove('on');
   // movement progress may have changed what the work page and list show
   if($('#mWork').classList.contains('on')){
@@ -5449,7 +5907,6 @@ $('#sDelete').addEventListener('click', async () => {
   hideModals(); await saveIndexNow(); await renderAll();
 });
 
-$('#q').addEventListener('input', e => { S.query = e.target.value; renderGrid(); });
 
 /* =======================================================================
    Viewer
@@ -5483,7 +5940,7 @@ const V = {
   id:null, doc:null, pdf:null, page:1,
   zoom:1, fit:0, renderW:0, renderH:0,
   markup:false, erasing:false,
-  tool:'pen', note:'quarter', stem:1, savedColor:null,
+  tool:'pen', note:'quarter', stem:1, tilt:-20, flip:false, text:'', tsize:14, savedColor:null,
   hue:352, sat:67, tone:45, size:2.5,
   presets:null, selectedPreset:1,
   ink:{}, undo:[], dirty:false, saving:false,
@@ -5655,7 +6112,10 @@ const SIZE_MIN = 1, SIZE_MAX = 14, SIZE_STEP = 0.1;   // 130 steps over 270deg
 const HL_ALPHA = 0.32;   // highlighter translucency; passes layer and deepen
 const HL_MULT  = 3.2;    // highlighter lays down a broad marker nib
 const NOTE_MULT = 5;     // stamped note height relative to the size knob
-const STEM_MIN = 0.3, STEM_MAX = 1.8, STEM_STEP = 0.02;
+const STEM_MIN = 0.3, STEM_MAX = 3.2, STEM_STEP = 0.02;
+const TILT_MIN = -60, TILT_MAX = 60, TILT_STEP = 0.5;   // notehead angle, degrees; engraved heads sit at about -20
+const TSIZE_MIN = 6, TSIZE_MAX = 60, TSIZE_STEP = 0.2;  // text height on the page at fit, in screen px
+const TEXT_FONT = '-apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif';
 
 /* Musical note stamps, drawn as vector paths rather than glyph characters so
    they render identically everywhere and stay crisp at any zoom. cx,cy is the
@@ -5672,21 +6132,33 @@ const NOTE_KINDS = [
 ];
 const NOTE_BY_KIND = Object.fromEntries(NOTE_KINDS.map(n=>[n.k,n]));
 
-function drawNoteGlyph(ctx, kind, cx, cy, h, color, stemMul){
+function drawNoteGlyph(ctx, kind, cx, cy, h, color, stemMul, tiltDeg, flip){
   const n = NOTE_BY_KIND[kind] || NOTE_BY_KIND.quarter;
   const sm = stemMul == null ? 1 : stemMul;
   const rx = h*0.175, ry = h*0.125;          // notehead radii
   const lw = Math.max(1, h*0.05);
+  const th = tiltDeg == null ? -0.35 : tiltDeg * Math.PI / 180;
+  // where the tilted head is widest, which is where the stem joins it
+  const xExt = Math.sqrt(rx*rx*Math.cos(th)**2 + ry*ry*Math.sin(th)**2);
+  const yAt = (rx*rx - ry*ry) * Math.sin(th) * Math.cos(th) / xExt;
   ctx.save();
   ctx.strokeStyle = color; ctx.fillStyle = color;
   ctx.lineCap='round'; ctx.lineJoin='round';
 
   // stem first, so the head sits over its joint
   if(n.stem){
-    const sx = cx + rx*0.92, top = cy - h*0.66*sm;
-    const stemLen = h*0.66*sm;
+    ctx.save();
+    // A down-stem note is the up-stem one mirrored top to bottom, with the stem
+    // moved to the head's left edge: that keeps the flags on the right, curling
+    // back up toward the head, the way they are engraved.
+    let sx = cx + xExt*0.94;
+    if(flip){
+      sx = cx - xExt*0.94;
+      ctx.translate(0, cy); ctx.scale(1, -1); ctx.translate(0, -cy);
+    }
+    const stemLen = h*0.66*sm, top = cy - stemLen;
     ctx.lineWidth = lw;
-    ctx.beginPath(); ctx.moveTo(sx, cy - ry*0.35); ctx.lineTo(sx, top); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(sx, cy + (flip ? -yAt : yAt)); ctx.lineTo(sx, top); ctx.stroke();
     // A proper engraved flag tapers to a point at BOTH ends — thin at the stem,
     // widest around a third of the way down, thin again at the tip — which is
     // what actually reads as an elegant flourish instead of a solid wedge. The
@@ -5694,7 +6166,7 @@ function drawNoteGlyph(ctx, kind, cx, cy, h, color, stemMul){
     // blade rather than filling in as a blob. Reach and spacing are fractions
     // of the stem's own length, verified to clear the notehead at every stem
     // setting from 0.3x to 1.8x, for one flag or two.
-    const fw = stemLen;
+    const fw = Math.min(stemLen, h*0.66*1.8);   // very long stems keep a sensible flag
     const spacing = n.flags>1 ? 0.40 : 0, reach = n.flags>1 ? 0.54 : 0.64;
     for(let i=0;i<n.flags;i++){
       const fy = top + i*fw*spacing;
@@ -5708,11 +6180,12 @@ function drawNoteGlyph(ctx, kind, cx, cy, h, color, stemMul){
       ctx.closePath();
       ctx.fill();
     }
+    ctx.restore();
   }
 
   // notehead, tilted the way engraved notation sits
   ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, -0.35, 0, Math.PI*2);
+  ctx.ellipse(cx, cy, rx, ry, th, 0, Math.PI*2);
   if(n.open){ ctx.lineWidth = lw*1.05; ctx.stroke(); }
   else ctx.fill();
 
@@ -5782,8 +6255,8 @@ function makeKnob(elSel, trackSel, armSel, {min, max, step, get, set}){
     const a = (-135 + i * 270 / (KNOB_LEDS - 1)) * Math.PI / 180;
     const d = document.createElement('i');
     d.className = 'knobLed';
-    d.style.left = (50 + 40 * Math.sin(a)).toFixed(3) + '%';
-    d.style.top  = (50 - 40 * Math.cos(a)).toFixed(3) + '%';
+    d.style.left = (50 + 44 * Math.sin(a)).toFixed(3) + '%';
+    d.style.top  = (50 - 44 * Math.cos(a)).toFixed(3) + '%';
     track.appendChild(d);
     leds.push({ el:d, t: i / (KNOB_LEDS - 1), bg:'', sh:'' });
   }
@@ -5823,6 +6296,8 @@ function makeKnob(elSel, trackSel, armSel, {min, max, step, get, set}){
      gradually, so the reading moves as smoothly as the knob does. */
   return function update(colorAt){
     const t = (get() - min) / (max - min);
+    const bipolar = colorAt === 'center';
+    if(bipolar) colorAt = null;
     arm.style.transform = `rotate(${-135 + t*270}deg)`;
     for(const L of leds){
       if(colorAt){
@@ -5830,7 +6305,11 @@ function makeKnob(elSel, trackSel, armSel, {min, max, step, get, set}){
         const hsl = `${h.toFixed(1)} ${s2.toFixed(1)}% ${l.toFixed(1)}%`;
         paint(L, `hsl(${hsl})`, `0 0 3px 0.5px hsl(${hsl} / .42)`);
       } else {
-        const b = Math.max(0, Math.min(1, (t - L.t) * (KNOB_LEDS - 1) + 1));
+        // a centred dial (tilt) lights outward from the middle lamp
+        const b = bipolar
+          ? (Math.abs(L.t - 0.5) < 1e-6 ? 1 : Math.max(0, Math.min(1,
+              (L.t > 0.5 ? (t - L.t) : (L.t - t)) * (KNOB_LEDS - 1) + 1)) * ((L.t - 0.5) * (t - 0.5) > 0 ? 1 : 0))
+          : Math.max(0, Math.min(1, (t - L.t) * (KNOB_LEDS - 1) + 1));
         const c = LED_OFF.map(v => Math.round(v + (255 - v) * b)).join(',');
         paint(L, `rgb(${c})`, b > 0.02 ? `0 0 3px 0.5px rgba(255,255,255,${(0.4 * b).toFixed(2)})` : 'none');
       }
@@ -5842,6 +6321,8 @@ const updateSat   = makeKnob('#knobSat',   '#knobSatTrack',   '#knobSatArm',   {
 const updateLight = makeKnob('#knobLight', '#knobLightTrack', '#knobLightArm', {min:0,        max:100,      step:0.1,     get:()=>V.tone, set:v=>{V.tone=v;}});
 const updateSize  = makeKnob('#knobSize',  '#knobSizeTrack',  '#knobSizeArm',  {min:SIZE_MIN, max:SIZE_MAX, step:SIZE_STEP, get:()=>V.size, set:v=>{V.size=v;}});
 const updateStem  = makeKnob('#knobStem',  '#knobStemTrack',  '#knobStemArm',  {min:STEM_MIN, max:STEM_MAX, step:STEM_STEP, get:()=>V.stem, set:v=>{V.stem=v;}});
+const updateTilt  = makeKnob('#knobTilt',  '#knobTiltTrack',  '#knobTiltArm',  {min:TILT_MIN, max:TILT_MAX, step:TILT_STEP, get:()=>V.tilt, set:v=>{V.tilt=v;}});
+const updateTSize = makeKnob('#knobText',  '#knobTextTrack',  '#knobTextArm',  {min:TSIZE_MIN, max:TSIZE_MAX, step:TSIZE_STEP, get:()=>V.tsize, set:v=>{V.tsize=v;}});
 
 // Hue lamps are the fixed, fully saturated spectrum. Saturation and lightness
 // lamps preview the colour each position would give with the other two as they
@@ -5855,7 +6336,9 @@ function syncInkPanel(){
   const dot = $('#colorDot');
   if(dot){ dot.style.background = c; dot.style.borderColor = 'rgba(255,255,255,.55)'; }
 
-  updateHue(hueLamp); updateSat(satLamp); updateLight(lightLamp); updateSize(null); updateStem(null);
+  updateHue(hueLamp); updateSat(satLamp); updateLight(lightLamp); updateSize(null); updateStem(null); updateTilt('center'); updateTSize(null);
+  $('#flipSw').setAttribute('aria-checked', String(!!V.flip));
+  syncTextSel();
 
   drawPreview(c);
   $$('#noteSel button').forEach(b => b.classList.toggle('on', b.dataset.k === V.note));
@@ -5876,6 +6359,10 @@ function refreshPreviewSize(){
 const PREVIEW_MIN_H = 52, PREVIEW_MAX_H = 168, NOTE_BOX_W = 100, NOTE_BOX_MAX_H = 340;
 
 function previewDims(){
+  if(V.tool === 'text'){
+    const th = V.tsize*V.zoom;
+    return { w: paletteInnerW || 320, h: Math.max(PREVIEW_MIN_H, Math.min(PREVIEW_MAX_H, th*1.3 + 22)) };
+  }
   if(V.tool === 'note'){
     const gh = V.size*NOTE_MULT*V.zoom;
     const needed = gh*(0.66*V.stem + 0.3) + 34;   // head plus whatever stem reaches up
@@ -5910,8 +6397,20 @@ function drawPreview(c){
     let gh = V.size*NOTE_MULT*V.zoom*d;
     const reach = gh*(0.66*V.stem + 0.3) + 18*d;
     if(reach > cv.height) gh *= cv.height/reach;
-    const up = gh*(0.66*V.stem + 0.13), down = gh*0.15;
-    drawNoteGlyph(ctx, V.note, cv.width/2, (cv.height + up - down)/2, gh, c, V.stem);
+    let up = gh*(0.66*V.stem + 0.13), down = gh*0.15;
+    if(V.flip){ const t = up; up = down; down = t; }
+    drawNoteGlyph(ctx, V.note, cv.width/2, (cv.height + up - down)/2, gh, c, V.stem, V.tilt, V.flip);
+    return;
+  }
+  if(V.tool === 'text'){
+    const txt = V.text || 'Text';
+    let th = V.tsize*V.zoom*d;
+    const fit = Math.min(1, (cv.height - 10*d) / (th*1.2), (cv.width - 20*d) / (textRatio(txt, /^[0-5]$/.test(txt)) * th));
+    th *= fit;
+    ctx.save();
+    if(!V.text) ctx.globalAlpha = 0.35;
+    drawTextMark(ctx, { x:txt, f:/^[0-5]$/.test(txt) ? 1 : 0, c }, cv.width/2, cv.height/2, th);
+    ctx.restore();
     return;
   }
   const hl = V.tool === 'highlight';
@@ -5951,9 +6450,88 @@ $('#toolSeg').addEventListener('click', e => {
   V.erasing = false; $('#tErase').classList.remove('on');
   $$('#toolSeg button').forEach(x => x.classList.toggle('on', x.dataset.tool === V.tool));
   $('#palette').classList.toggle('noteMode', V.tool === 'note');
+  $('#palette').classList.toggle('textMode', V.tool === 'text');
   refreshPreviewSize();
   syncInkPanel();
 });
+
+/* ---------- note direction ---------- */
+$('#flipSw').addEventListener('click', () => { V.flip = !V.flip; syncInkPanel(); });
+
+/* ---------- text tool ----------
+   Type in the box, then drag the handle beside it onto the page — or pick one
+   of the fingering numbers. Whatever is picked also lands where you tap. */
+function syncTextSel(){
+  const typed = $('#textIn') && $('#textIn').value;
+  $$('#textSel .tchip').forEach(c => {
+    const t = c.dataset.typed ? typed : c.dataset.text;
+    c.classList.toggle('on', !!V.text && t === V.text && (!!c.dataset.typed === (V.textFrom === 'typed')));
+  });
+}
+$('#textIn').addEventListener('input', e => {
+  V.text = e.target.value; V.textFrom = 'typed';
+  syncInkPanel();
+});
+$('#textIn').addEventListener('keydown', e => { if(e.key === 'Enter') e.target.blur(); });
+let textDrag = null;
+$('#textSel').addEventListener('pointerdown', e => {
+  const chip = e.target.closest('.tchip'); if(!chip) return;
+  if(e.pointerType === 'mouse' && e.button !== 0) return;
+  e.preventDefault();
+  $('#textIn').blur();
+  const text = chip.dataset.typed ? $('#textIn').value : chip.dataset.text;
+  if(!text){ toast('Type your text first'); $('#textIn').focus(); return; }
+  V.text = text; V.textFrom = chip.dataset.typed ? 'typed' : 'finger';
+  V.erasing = false; $('#tErase').classList.remove('on');
+  syncInkPanel();
+  textDrag = { id:e.pointerId, x0:e.clientX, y0:e.clientY, on:false, text };
+});
+function textGhostAt(x, y){
+  const g = $('#textGhost');
+  const h = V.tsize * V.zoom;
+  // held above the finger so you can see where it will land
+  g.style.left = x + 'px';
+  g.style.top = (y - h/2 - 34) + 'px';
+}
+window.addEventListener('pointermove', e => {
+  if(!textDrag || e.pointerId !== textDrag.id) return;
+  if(!textDrag.on){
+    if(Math.hypot(e.clientX - textDrag.x0, e.clientY - textDrag.y0) < 6) return;
+    textDrag.on = true;
+    const g = $('#textGhost');
+    const f = /^[0-5]$/.test(textDrag.text);
+    g.textContent = textDrag.text;
+    g.style.fontSize = (V.tsize * V.zoom) + 'px';
+    g.style.fontStyle = f ? 'italic' : 'normal';
+    g.style.color = colorNow();
+    g.style.display = 'block';
+    $('#palette').classList.add('dragging');
+  }
+  e.preventDefault();
+  textGhostAt(e.clientX, e.clientY);
+}, {passive:false});
+function endTextDrag(e, cancel){
+  if(!textDrag || e.pointerId !== textDrag.id) return;
+  const d = textDrag; textDrag = null;
+  $('#textGhost').style.display = 'none';
+  $('#palette').classList.remove('dragging');
+  if(!d.on || cancel || !V.pdf || !V.markup) return;
+  const h = V.tsize * V.zoom;
+  const x = e.clientX, y = e.clientY - h/2 - 34;
+  syncStageOrigin();
+  const bar = $('#bar').getBoundingClientRect();
+  const r = $('#stage').getBoundingClientRect();
+  if(x < r.left || x > r.right || y < r.top || y > r.bottom || (y > bar.top && !$('#bar').classList.contains('hidden'))) return;
+  const pt = normPt(x, y);
+  if(pt[0] < -0.05 || pt[0] > 1.05 || pt[1] < -0.05 || pt[1] > 1.05){ toast('Drop text onto the page'); return; }
+  if(inkShifted && !viewAnim) redrawInk();
+  const s = makeTextMark(pt, d.text);
+  delete s.stamp;
+  addMark(s);
+  markDirty();
+}
+window.addEventListener('pointerup', e => endTextDrag(e, false));
+window.addEventListener('pointercancel', e => endTextDrag(e, true));
 
 /* ---------- note stamp picker ---------- */
 (function buildNoteSel(){
@@ -6849,8 +7427,17 @@ function bboxOf(s){
     // a stamp's glyph reaches up from its anchor point; pad generously since the
     // exact page aspect isn't known here and culling only needs a safe bound
     const p = s.p[0];
-    // headroom above covers the longest stem the knob allows
-    return (s.b = [p[0]-s.w*0.7, p[1]-s.w*2.2, p[0]+s.w*0.9, p[1]+s.w*0.8]);
+    // headroom covers the longest stem the knob allows, above or (flipped) below
+    const reach = s.w*(0.66*(s.sl || 1) + 0.35), low = s.w*0.8;
+    return (s.b = s.fl ? [p[0]-s.w*0.9, p[1]-low, p[0]+s.w*1.2, p[1]+Math.max(low, reach)]
+                       : [p[0]-s.w*0.7, p[1]-Math.max(low, reach), p[0]+s.w*0.9, p[1]+low]);
+  }
+  if(s.t === 'x'){
+    const p = s.p[0];
+    const asp = V.renderW && V.renderH ? V.renderW / V.renderH : 1;
+    const lines = String(s.x).split('\n').length;
+    const hw = (s.m || 0.6*String(s.x).length) * s.w / 2 + 0.004, hh = s.w * asp * (0.6 + 0.58*(lines - 1)) + 0.004;
+    return (s.b = [p[0]-hw, p[1]-hh, p[0]+hw, p[1]+hh]);
   }
   let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;   // marks can land outside the page
   for(const p of s.p){
@@ -6866,6 +7453,10 @@ function drawStroke(ctx, s, W, H){
   const pts = s.p; if(!pts.length) return;
   if(s.t === 'n'){
     drawNoteGlyphAlpha(ctx, s, pts[0][0]*W, pts[0][1]*H, s.w*W);
+    return;
+  }
+  if(s.t === 'x'){
+    drawTextMark(ctx, s, pts[0][0]*W, pts[0][1]*H, s.w*W);
     return;
   }
   ctx.save();
@@ -6892,8 +7483,27 @@ function drawStroke(ctx, s, W, H){
 function drawNoteGlyphAlpha(ctx, s, cx, cy, h){
   ctx.save();
   if(s.a != null) ctx.globalAlpha = s.a;
-  drawNoteGlyph(ctx, s.k, cx, cy, h, s.c, s.sl);
+  drawNoteGlyph(ctx, s.k, cx, cy, h, s.c, s.sl, s.tl, s.fl);
   ctx.restore();
+}
+
+/* Text boxes: centred on their anchor, h is the text height in device px. */
+function drawTextMark(ctx, s, cx, cy, h){
+  ctx.save();
+  if(s.a != null) ctx.globalAlpha = s.a;
+  ctx.fillStyle = s.c;
+  ctx.font = `${s.f ? 'italic ' : ''}600 ${Math.max(1, h).toFixed(2)}px ${TEXT_FONT}`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const lines = String(s.x).split('\n');
+  lines.forEach((ln, i) => ctx.fillText(ln, cx, cy + (i - (lines.length - 1) / 2) * h * 1.15));
+  ctx.restore();
+}
+let measureCtx = null;
+function textRatio(text, finger){
+  // width of the text for a 100px font, as a fraction of its height
+  if(!measureCtx) measureCtx = document.createElement('canvas').getContext('2d');
+  measureCtx.font = `${finger ? 'italic ' : ''}600 100px ${TEXT_FONT}`;
+  return Math.max(...String(text).split('\n').map(l => measureCtx.measureText(l).width)) / 100;
 }
 
 /* Screen-space renderer: page coords -> current pan/zoom -> device px. */
@@ -6902,6 +7512,10 @@ function paintStroke(ctx, s, ox, oy, S){
   if(!pts.length) return;
   if(s.t === 'n'){
     drawNoteGlyphAlpha(ctx, s, (pts[0][0]*W+ox)*S, (pts[0][1]*H+oy)*S, s.w*W*S);
+    return;
+  }
+  if(s.t === 'x'){
+    drawTextMark(ctx, s, (pts[0][0]*W+ox)*S, (pts[0][1]*H+oy)*S, s.w*W*S);
     return;
   }
   ctx.save();
@@ -7380,11 +7994,20 @@ function beginStroke(e){
   if(V.tool === 'note'){
     // stamps land on release, so a pinch that starts in markup mode can be
     // abandoned without leaving a stray note behind
-    stroke = { note:true, id:uid(), t:'n', k:V.note, c:colorNow(), sl:V.stem,
+    stroke = { note:true, id:uid(), t:'n', k:V.note, c:colorNow(), sl:V.stem, tl:V.tilt, fl:V.flip ? 1 : 0,
                w:V.size*NOTE_MULT*V.zoom/V.renderW, p:[pt] };
     clearLive();
     drawNoteGlyphAlpha(lctx, stroke, (pt[0]*V.renderW+panX)*inkDpr, (pt[1]*V.renderH+panY)*inkDpr,
                        stroke.w*V.renderW*inkDpr);
+    return;
+  }
+
+  if(V.tool === 'text'){
+    // the chosen text follows the finger and lands where it is released
+    if(!V.text){ stroke = null; toast('Type some text or pick a fingering number first'); return; }
+    stroke = makeTextMark(pt);
+    clearLive();
+    drawTextMark(lctx, stroke, (pt[0]*V.renderW+panX)*inkDpr, (pt[1]*V.renderH+panY)*inkDpr, stroke.w*V.renderW*inkDpr);
     return;
   }
 
@@ -7411,6 +8034,13 @@ function extendStroke(e){
     stroke.p[0] = pt;
     clearLive();
     drawNoteGlyphAlpha(lctx, stroke, (pt[0]*W+panX)*S, (pt[1]*H+panY)*S, stroke.w*W*S);
+    return;
+  }
+  if(stroke.stamp){
+    const pt = normPt(e.clientX, e.clientY);
+    stroke.p[0] = pt;
+    clearLive();
+    drawTextMark(lctx, stroke, (pt[0]*W+panX)*S, (pt[1]*H+panY)*S, stroke.w*W*S);
     return;
   }
 
@@ -7466,14 +8096,22 @@ function endStroke(){
   clearLive();
   if(!s.erase && s.p.length){
     if(s.note && movedFar){ markDirty(); return; }   // dragged, not tapped: no stamp
-    delete s.note;
-    s.b = null; bboxOf(s);
-    strokesHere().push(s);
-    V.undo.push({type:'add', page:V.page, id:s.id});
-    if(V.undo.length > 60) V.undo.shift();
-    paintStroke(ictx, s, inkAtX, inkAtY, inkDpr);   // additive: no full repaint
+    delete s.note; delete s.stamp;
+    addMark(s);
   }
   markDirty();
+}
+function addMark(s){
+  s.b = null; bboxOf(s);
+  strokesHere().push(s);
+  V.undo.push({type:'add', page:V.page, id:s.id});
+  if(V.undo.length > 60) V.undo.shift();
+  paintStroke(ictx, s, inkAtX, inkAtY, inkDpr);   // additive: no full repaint
+}
+function makeTextMark(pt, text){
+  const x = text != null ? text : V.text;
+  const f = /^[0-5]$/.test(x) ? 1 : 0;      // fingering digits are set in italic
+  return { stamp:true, id:uid(), t:'x', x, f, c:colorNow(), w:V.tsize*V.zoom/V.renderW, m:textRatio(x, f), p:[pt] };
 }
 function abortStroke(){
   if(!stroke) return;
@@ -7488,7 +8126,7 @@ function eraseAt(pt){
     const s = list[i];
     const b = bboxOf(s);
     if(pt[0]<b[0]-tol||pt[0]>b[2]+tol||pt[1]<b[1]-tol||pt[1]>b[3]+tol) continue;
-    const near = s.p.some((p,j) => {
+    const near = s.t === 'x' || s.p.some((p,j) => {
       if(Math.hypot(p[0]-pt[0], p[1]-pt[1]) < tol + s.w/2) return true;
       if(j === 0) return false;
       return distToSeg(pt, s.p[j-1], p) < tol + s.w/2;
