@@ -95,6 +95,8 @@ html{touch-action:manipulation}
 .chip.drop{border-color:var(--pencil-hi);background:var(--slate-3);box-shadow:0 0 0 2px rgba(110,147,201,.35)}
 .chip .n{font-size:12px;color:inherit;opacity:.62}
 .chip.add{color:var(--text-faint);border-style:dashed}
+.libprog{padding:8px 20px 0}
+.libprog .chip{height:30px;padding:0 12px;font-size:13px;border-radius:15px}
 
 /* ---------- grid ---------- */
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 20px calc(var(--safe-b) + 40px)}
@@ -192,6 +194,38 @@ html{touch-action:manipulation}
 #mDetails .field textarea{min-height:64px}
 #mDetails .btn{height:44px;font-size:14px}
 #mDetails .btnrow{margin-top:14px}
+
+/* progress toggles and the file facts */
+.progress{display:flex;gap:8px;margin:2px 0 12px}
+.ptog{flex:1;display:flex;align-items:center;gap:9px;height:42px;padding:0 12px;border-radius:10px;
+  background:var(--slate);border:1px solid var(--line);color:var(--text-dim);font-size:14px;text-align:left}
+.ptog .box{flex:none;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--text-faint);display:grid;place-items:center;
+  transition:background .15s,border-color .15s}
+.ptog .box svg{opacity:0;transition:opacity .15s}
+.ptog[aria-checked="true"]{color:var(--text);border-color:rgba(110,147,201,.55);background:rgba(74,111,165,.14)}
+.ptog[aria-checked="true"] .box{background:var(--pencil);border-color:var(--pencil)}
+.ptog[aria-checked="true"] .box svg{opacity:1}
+.ptog.learned[aria-checked="true"] .box{background:#3E8E5E;border-color:#3E8E5E}
+.ptog.learned[aria-checked="true"]{border-color:rgba(84,168,118,.55);background:rgba(62,142,94,.14)}
+.ptog:disabled{opacity:.45}
+.fileinfo{margin:0 0 12px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.fileinfo div{display:flex;gap:10px;padding:7px 11px;font-size:13px;line-height:1.35}
+.fileinfo div + div{border-top:1px solid var(--line)}
+.fileinfo dt{flex:none;width:86px;color:var(--text-faint)}
+.fileinfo dd{margin:0;color:var(--text);min-width:0;overflow-wrap:anywhere}
+.fileinfo .pending dd{color:var(--text-faint)}
+.fi-label{font-size:11.5px;color:var(--text-dim);margin:0 0 4px}
+/* progress on tiles and rows */
+.tag{display:inline-block;font-size:10.5px;font-weight:600;line-height:16px;padding:0 6px;border-radius:8px;vertical-align:1px;
+  color:#A9C2E6;background:rgba(74,111,165,.22)}
+.tag.l{color:#8FD3A9;background:rgba(62,142,94,.24)}
+.tile .p .tag{margin-left:6px}
+.mrow .tag{flex:none}
+.mvprog{flex:none;display:flex;gap:8px;margin:10px 12px 0}
+.mvprog .ptog{height:38px;font-size:13.5px;background:var(--slate-2)}
+.wd .have .addscore{display:flex;align-items:center;gap:10px;background:none;border:1px dashed rgba(110,147,201,.55);color:var(--pencil-hi);font-weight:500}
+.wd .have .addscore svg{flex:none}
+.wd .have button .tag{margin-left:6px}
 
 /* a field you choose into rather than type into */
 .pickfield{width:100%;display:flex;align-items:center;gap:6px;text-align:left;min-height:40px;
@@ -300,6 +334,19 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .mv-card{flex:0 0 100%;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 16px;
   opacity:.35;transform:scale(.94);transition:opacity .46s ease,transform .46s cubic-bezier(.22,.8,.24,1)}
 .mv-card.on{opacity:1;transform:none}
+/* the description scrolls on its own; the difficulty below it never does */
+.mv-card{display:flex;flex-direction:column;overflow:hidden}
+.mv-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.mv-viewport.hasdiff{height:clamp(280px,44vh,420px)}
+.mv-card .diff.mini{flex:none;margin:10px 0 0;padding:8px 10px 8px}
+.diff.mini .th-cap{margin:0 2px 4px;font-size:12px;align-items:center}
+.diff.mini .th-cap .ab{font-size:10.5px;padding:1px 7px}
+.diff.mini .th-cap + .thermo + .th-cap{margin-top:8px}
+.diff.mini .th-cap.sub{margin:4px 2px 0}
+.diff.mini .thermo{margin:0}
+.diff.mini .th-bulb{width:26px;height:26px;font-size:12px;box-shadow:0 0 0 2px var(--slate-3),0 0 10px -2px var(--c)}
+.diff.mini .thermo.est .th-bulb{font-size:10.5px;box-shadow:0 0 0 2px var(--c) inset,0 0 0 2px var(--slate-3)}
+.diff.mini .th-tube{height:10px}
 .mv-card .mv-num{font-family:var(--serif);font-size:34px;line-height:1;color:var(--pencil-hi);margin:0 0 4px}
 .mv-card h2{font-family:var(--serif);font-weight:600;font-size:20px;line-height:1.22;margin:0 0 8px;color:var(--text)}
 .mv-card .wchips{margin:0 0 10px}
@@ -495,8 +542,8 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 
 /* four identical amp-style dials — hue, saturation, lightness, size — each
    with hard stops at MIN/MAX and a dead zone across the bottom so sliding
-   through it holds the value instead of snapping to the far end. The filled
-   arc is always the live pen color, so all four read as one family. */
+   through it holds the value instead of snapping to the far end. A ring of
+   small lamps round each one shows the colour spectrum or the level. */
 /* Pen and highlighter show all four dials in a single row, so the whole colour
    control sits in one glance instead of a block. They shrink to fit four across. */
 .knobGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 8px;justify-items:center;margin-bottom:2px}
@@ -504,7 +551,12 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .knobName{font-size:9px;letter-spacing:.04em;color:var(--text-faint);font-weight:600;text-transform:uppercase}
 
 .knob{position:relative;width:76px;height:76px;border-radius:50%;flex:none;touch-action:none}
-.knobTrack{position:absolute;inset:0;border-radius:50%}
+.knobTrack{position:absolute;inset:0;border-radius:50%;pointer-events:none}
+/* indicator lamps: a ring of small lights round the lower three quarters,
+   the way an amp shows its dial — each sized as a share of the knob so the
+   larger note-mode knobs keep the same proportions */
+.knobLed{position:absolute;width:5.4%;height:5.4%;border-radius:50%;transform:translate(-50%,-50%);
+  background:#3A3F48;will-change:background-color}
 .knobFace{
   position:absolute;inset:21%;border-radius:50%;
   background:linear-gradient(180deg,#2C333D,#1A1F27);
@@ -578,6 +630,12 @@ svg{display:block}
   </div>
 
   <div class="sets" id="sets"></div>
+  <div class="pchips libprog" id="progChips">
+    <button class="chip on" data-p="all">Any progress</button>
+    <button class="chip" data-p="none">Not practiced</button>
+    <button class="chip" data-p="practiced">Practiced</button>
+    <button class="chip" data-p="learned">Learned</button>
+  </div>
 
   <div class="scroll" id="libScroll">
     <div class="grid" id="grid"></div>
@@ -707,6 +765,13 @@ svg{display:block}
   </div>
   <div class="field"><label for="dSet">Set</label><select id="dSet"></select></div>
   <div class="field"><label for="dNotes">Notes</label><textarea id="dNotes" placeholder="Cuts, repeats, who you played it with."></textarea></div>
+  <div class="fi-label">Progress</div>
+  <div class="progress">
+    <button type="button" class="ptog" id="dPracticed" role="checkbox" aria-checked="false"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Practiced</button>
+    <button type="button" class="ptog learned" id="dLearned" role="checkbox" aria-checked="false"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Learned</button>
+  </div>
+  <div class="fi-label">File</div>
+  <dl class="fileinfo" id="dFile"></dl>
   <div class="btnrow" style="margin-bottom:10px">
     <button class="btn" id="dExport">Export a marked copy</button>
   </div>
@@ -780,6 +845,9 @@ svg{display:block}
   <div class="pchips" id="wkChips">
     <button class="chip on" data-f="all">Complete works</button>
     <button class="chip" data-f="mine">Only mine</button>
+    <button class="chip" data-f="unpracticed">Not practiced</button>
+    <button class="chip" data-f="practiced">Practiced</button>
+    <button class="chip" data-f="learned">Learned</button>
   </div>
   <div class="pcount" id="wkCount"></div>
   <div class="plist" id="wkList"></div>
@@ -843,6 +911,7 @@ svg{display:block}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><div><div class="spin"></div><p id="busyText">Working</p></div></div>
 <input type="file" id="picker" accept="application/pdf,.pdf" multiple style="position:fixed;left:-9999px">
+<input type="file" id="workPicker" accept="application/pdf,.pdf" style="position:fixed;left:-9999px">
 
 <script>
 /* =======================================================================
@@ -943,7 +1012,8 @@ const K = {
   ink:id=>'ink:'+id,
   presets:'settings:presets',
   rasters:'cache:rasters',     // bookkeeping for saved page images (see Raster)
-  composers:'settings:composers'   // composers you've added yourself
+  composers:'settings:composers',  // composers you've added yourself
+  progress:'library:progress'      // practiced / learned for individual movements
 };
 
 async function estimateUsage(){
@@ -957,7 +1027,7 @@ async function estimateUsage(){
 }
 
 /* ---------- app state ---------- */
-const S = { docs:[], sets:[], set:null, query:'', ready:false };
+const S = { docs:[], sets:[], set:null, query:'', ready:false, prog:'all', mv:{} };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
 /* ---------- small helpers ---------- */
@@ -975,6 +1045,7 @@ const esc = s => (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','
 async function loadLibrary(){
   const idx = await DB.get(K.index);
   if(idx){ S.docs = idx.docs || []; S.sets = idx.sets || []; }
+  try{ S.mv = (await DB.get(K.progress)) || {}; }catch(e){ S.mv = {}; }
   await loadComposers();
   if(nicknameMigrate()) await saveIndexNow();
   S.ready = true;
@@ -991,6 +1062,9 @@ function visibleDocs(){
   const q = S.query.trim().toLowerCase();
   return S.docs.filter(d => {
     if(S.set !== null && d.set !== S.set) return false;
+    if(S.prog === 'none' && d.practiced) return false;
+    if(S.prog === 'practiced' && !d.practiced) return false;
+    if(S.prog === 'learned' && !d.learned) return false;
     if(!q) return true;
     return [d.title,d.composer,d.keyInfo,d.notes].some(f => (f||'').toLowerCase().includes(q));
   });
@@ -1016,7 +1090,14 @@ function canvasBlob(c, type, q){
   return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('could not encode image')), type, q));
 }
 
-async function renderAll(){ renderSets(); await renderGrid(); renderCount(); }
+async function renderAll(){ renderSets(); renderProgChips(); await renderGrid(); renderCount(); }
+function renderProgChips(){
+  $$('#progChips .chip').forEach(c => c.classList.toggle('on', c.dataset.p === S.prog));
+}
+$('#progChips').addEventListener('click', e => {
+  const c = e.target.closest('.chip'); if(!c) return;
+  S.prog = c.dataset.p; renderAll(); $('#libScroll').scrollTop = 0;
+});
 
 function renderCount(){
   const n = S.docs.length;
@@ -1049,7 +1130,9 @@ async function renderGrid(){
   grid.innerHTML = '';
   $('#empty').style.display = (S.docs.length === 0) ? 'block' : 'none';
   if(S.docs.length && docs.length === 0){
-    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><h2>No match</h2><p>Nothing here fits that search.</p></div>`;
+    grid.innerHTML = S.prog !== 'all' && !S.query.trim()
+      ? `<div class="empty" style="grid-column:1/-1"><h2>No pieces here</h2><p>${S.prog === 'none' ? 'Every piece here has been practiced.' : `Nothing is marked ${S.prog} yet. Mark progress in a piece’s details.`}</p></div>`
+      : `<div class="empty" style="grid-column:1/-1"><h2>No match</h2><p>Nothing here fits that search.</p></div>`;
     return;
   }
   for(const d of docs){
@@ -1065,7 +1148,7 @@ async function renderGrid(){
       <div class="meta">
         <div class="t">${esc(d.title || 'Untitled')}</div>
         <div class="c">${esc(d.composer || '')}</div>
-        <div class="p">${d.pages ? d.pages + (d.pages===1?' page':' pages') : ''}</div>
+        <div class="p">${d.pages ? d.pages + (d.pages===1?' page':' pages') : ''}${progressTag(d.practiced, d.learned)}</div>
       </div>`;
     grid.appendChild(el);
     thumbFor(d.id).then(src => {
@@ -4109,6 +4192,7 @@ async function importFile(file){
   S.docs.unshift(doc);
   await saveIndexNow();
   if(!doc.sessionOnly) Prep.add(id);
+  return doc;
 }
 
 /* =======================================================================
@@ -4139,7 +4223,113 @@ function openDetails(id){
   $('#dSet').innerHTML = `<option value="">All pieces, no set</option>` +
     S.sets.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
   $('#dSet').value = d.set || '';
+  setProgressToggles($('#dPracticed'), $('#dLearned'), !!d.practiced, !!d.learned);
+  renderFileInfo(d);
   showModal($('#mDetails'));
+  $('#mDetails').scrollTop = 0;
+}
+
+/* Practiced and learned: learned always implies practiced, so ticking Learned
+   ticks Practiced too, and unticking Practiced clears Learned. */
+function setProgressToggles(pb, lb, p, l){
+  if(l) p = true;
+  pb.setAttribute('aria-checked', String(p));
+  lb.setAttribute('aria-checked', String(l));
+}
+function progressToggleClick(pb, lb, which){
+  let p = pb.getAttribute('aria-checked') === 'true';
+  let l = lb.getAttribute('aria-checked') === 'true';
+  if(which === 'p'){ p = !p; if(!p) l = false; }
+  else { l = !l; if(l) p = true; }
+  setProgressToggles(pb, lb, p, l);
+  return { p, l };
+}
+$('#dPracticed').addEventListener('click', () => progressToggleClick($('#dPracticed'), $('#dLearned'), 'p'));
+$('#dLearned').addEventListener('click', () => progressToggleClick($('#dPracticed'), $('#dLearned'), 'l'));
+const progressTag = (p, l) => l ? '<span class="tag l">Learned</span>' : p ? '<span class="tag">Practiced</span>' : '';
+
+/* ---------- file facts ----------
+   Size, pages and when it was added are known at once. What the PDF says about
+   itself — page size, version, producer, its own title and author — needs the
+   file parsed, so it fills in a moment later and is kept on the piece so the
+   next look is instant. */
+function fmtBytes(n){
+  if(!n && n !== 0) return '—';
+  if(n < 1024) return n + ' B';
+  if(n < 1024*1024) return (n/1024).toFixed(n < 10240 ? 1 : 0) + ' KB';
+  return (n/1024/1024).toFixed(n < 10*1024*1024 ? 2 : 1) + ' MB';
+}
+function fmtDate(v){
+  const d = v instanceof Date ? v : new Date(v);
+  if(isNaN(d)) return '';
+  return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+}
+function pdfDate(raw){
+  // D:YYYYMMDDHHmmSS…
+  const m = /^(?:D:)?(\d{4})(\d{2})?(\d{2})?/.exec(raw || '');
+  if(!m) return '';
+  return fmtDate(new Date(+m[1], (+m[2] || 1) - 1, +m[3] || 1));
+}
+function paperName(wPt, hPt){
+  const w = Math.min(wPt, hPt), h = Math.max(wPt, hPt);
+  const near = (a, b) => Math.abs(a - b) < 6;
+  const named = [['A4',595,842],['Letter',612,792],['Legal',612,1008],['A3',842,1191],['B4',709,1001],['9 × 12 in',648,864],['Tabloid',792,1224],['A5',420,595]]
+    .find(([, a, b]) => near(w, a) && near(h, b));
+  const mm = `${Math.round(wPt/72*25.4)} × ${Math.round(hPt/72*25.4)} mm`;
+  return (named ? named[0] + ', ' : '') + mm + (wPt > hPt ? ', landscape' : '');
+}
+let fileInfoToken = 0;
+async function renderFileInfo(d){
+  const token = ++fileInfoToken;
+  const row = (k, v, cls) => v ? `<div${cls ? ` class="${cls}"` : ''}><dt>${k}</dt><dd>${esc(v)}</dd></div>` : '';
+  const draw = (bytes) => {
+    const i = d.pdfInfo;
+    let h = row('File size', fmtBytes(bytes)) +
+      row('Pages', d.pages ? String(d.pages) : '') +
+      row('Added', d.added ? fmtDate(d.added) : '') +
+      row('Markings', d.marked ? 'Yes' : 'None');
+    if(i){
+      h += row('Page size', i.paper) + row('PDF title', i.title) + row('PDF author', i.author) +
+        row('Created', i.created) + row('Made with', i.producer) + row('PDF version', i.version) +
+        row('Link', d.workKey ? 'Linked to ' + catalogueLabel(d.workKey) : '');
+    } else {
+      h += row('Details', 'Reading the file…', 'pending');
+    }
+    $('#dFile').innerHTML = h;
+  };
+  let bytes = d.bytes;
+  draw(bytes);
+  try{
+    const file = await DB.get(K.pdf(d.id));
+    if(token !== fileInfoToken) return;
+    if(file && file.size != null && bytes !== file.size){
+      bytes = d.bytes = file.size; saveIndexSoon(); draw(bytes);
+    }
+    if(d.pdfInfo || !file) { if(!file && !d.pdfInfo){ d.pdfInfo = {}; draw(bytes); } return; }
+    const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+    const info = {};
+    try{
+      const pg = await pdf.getPage(1);
+      const vp = pg.getViewport({ scale:1 });
+      info.paper = paperName(vp.width, vp.height);
+    }catch(e){}
+    try{
+      const md = await pdf.getMetadata();
+      const f = (md && md.info) || {};
+      if(usableText(f.Title)) info.title = f.Title.trim();
+      if(usableText(f.Author)) info.author = f.Author.trim();
+      info.created = pdfDate(f.CreationDate);
+      const prod = [f.Creator, f.Producer].filter(usableText).map(x => x.trim());
+      info.producer = [...new Set(prod)].join(' · ');
+      if(f.PDFFormatVersion) info.version = String(f.PDFFormatVersion);
+    }catch(e){}
+    try{ await pdf.destroy(); }catch(e){}
+    d.pdfInfo = info;
+    saveIndexSoon();
+    if(token === fileInfoToken) draw(bytes);
+  }catch(err){
+    if(token === fileInfoToken){ d.pdfInfo = d.pdfInfo || {}; draw(bytes); }
+  }
 }
 $('#dExport').addEventListener('click', () => {
   const id = editingId;
@@ -4149,7 +4339,11 @@ $('#dExport').addEventListener('click', () => {
 $('#dSave').addEventListener('click', async () => {
   const d = S.docs.find(x => x.id === editingId); if(!d) return hideModals();
   d.title = $('#dTitle').value.trim() || 'Untitled';
-  d.composer = $('#dComposer').dataset.value || '';
+  const newComposer = $('#dComposer').dataset.value || '';
+  if(newComposer !== d.composer) delete d.workKey;   // a link only holds for the composer it was made under
+  d.composer = newComposer;
+  d.practiced = $('#dPracticed').getAttribute('aria-checked') === 'true';
+  d.learned = $('#dLearned').getAttribute('aria-checked') === 'true' && d.practiced;
   d.keyInfo = $('#dKey').value.trim();
   d.notes = $('#dNotes').value.trim();
   d.set = $('#dSet').value || null;
@@ -4601,6 +4795,7 @@ $('#ceShow').addEventListener('click', () => {
    nickname in its title — so a piece you've renamed still counts as long as
    the title still says which work it is. */
 function workKeyOf(d){
+  if(d.workKey && d.composer && (WORKS[d.composer] || []).some(w => w[0] === d.workKey)) return d.workKey;
   if(!d.composer || !WORK_INDEX[d.composer]) return null;
   const r = findWork(d.composer, d.title);
   return r && r.tier <= 2 ? r.key : null;
@@ -4642,6 +4837,25 @@ function workGroups(works){
   const count = new Map();
   for(const [k, t] of works){ const g = raw(k, t); count.set(g, (count.get(g) || 0) + 1); }
   return (k, t) => { const g = raw(k, t); return count.get(g) >= 3 ? g : 'Other works'; };
+}
+/* Progress on a work: from its scores, and from its movements, which are
+   marked on the movement page. Learned means a score is learned or every
+   movement is; practiced means anything of it has been practiced. */
+const mvKey = (composer, key, i) => composer + '|' + key + '|' + i;
+function mvProgress(composer, key, i){ const v = S.mv[mvKey(composer, key, i)]; return { p: !!v, l: v === 'l' }; }
+async function setMvProgress(composer, key, i, p, l){
+  const k = mvKey(composer, key, i);
+  if(l) S.mv[k] = 'l'; else if(p) S.mv[k] = 'p'; else delete S.mv[k];
+  try{ await DB.set(K.progress, S.mv); }catch(e){ toast('Could not save progress. ' + e.message); }
+}
+function workProgress(composer, key, docs){
+  docs = docs || ownedWorks(composer).get(key) || [];
+  const parts = ((WORK_DETAILS[composer] || {})[key] || {}).parts || [];
+  const mv = parts.map((_, i) => mvProgress(composer, key, i));
+  const l = docs.some(d => d.learned) || (mv.length > 0 && mv.every(m => m.l));
+  const p = l || docs.some(d => d.practiced) || mv.some(m => m.p);
+  const done = mv.filter(m => m.l).length, tried = mv.filter(m => m.p).length;
+  return { p, l, parts: mv.length, done, tried };
 }
 const WK = { name:null, filter:'all', open:new Set(), sort:(() => { try{ return localStorage.getItem('stand.worksSort') || 'type'; }catch(e){ return 'type'; } })() };
 const PERIOD_ORDER = ['Bonn years', 'Early (first Vienna years)', 'Middle (‘heroic’ period)', 'Late'];
@@ -4709,12 +4923,16 @@ function renderWorks(){
   for(const { w: [key, title] } of ordered){
     const have = owned.get(key);
     if(WK.filter === 'mine' && !have) continue;
+    const prog = workProgress(WK.name, key, have || []);
+    if(WK.filter === 'practiced' && !prog.p) continue;
+    if(WK.filter === 'learned' && !prog.l) continue;
+    if(WK.filter === 'unpracticed' && (!have || prog.p)) continue;
     const shown = nicknameFirst(title);
     const note = (WORK_NOTES[WK.name] || {})[key] || '';
     if(q && !normWork(shown + ' ' + key + ' ' + note).includes(q)) continue;
     const g = heading(key, title);
     if(!groups.has(g)) groups.set(g, []);
-    groups.get(g).push({ key, shown, have, note, when: (sortMode === 'date' || sortMode === 'period') && details[key] ? details[key].c : '' });
+    groups.get(g).push({ key, shown, have, note, prog, when: (sortMode === 'date' || sortMode === 'period') && details[key] ? details[key].c : '' });
   }
   // period headings carry their span of years
   if(sortMode === 'period'){
@@ -4734,9 +4952,11 @@ function renderWorks(){
       const more = (details[w.key] ? `<span class="chev">›</span>` : '') +
         (dl ? `<span class="lvl" style="--c:${levelColor(dl.h)}" title="Henle level">${dl.lo && dl.lo < dl.h ? dl.lo + '–' : ''}${dl.h}</span>` : '');
       const noteText = (w.when ? w.when + ' · ' : '') + (w.note || '');
+      const pr = w.prog;
+      const progLine = pr.p ? `<span class="sub">${progressTag(pr.p, pr.l)}${pr.parts && !pr.l && pr.tried ? ` <span style="color:var(--text-faint)">${pr.done ? pr.done + ' of ' + pr.parts + ' learned' : pr.tried + ' of ' + pr.parts + ' practiced'}</span>` : ''}</span>` : '';
       if(!w.have){
         const inner = `${more}<span class="nm">${esc(w.shown)}</span>` +
-                      (noteText ? `<span class="ds">${esc(noteText)}</span>` : '');
+                      (noteText ? `<span class="ds">${esc(noteText)}</span>` : '') + progLine;
         h += details[w.key]
           ? `<button class="wrow missing" data-detail="${esc(w.key)}">${inner}</button>`
           : `<div class="wrow missing">${inner}</div>`;
@@ -4745,12 +4965,18 @@ function renderWorks(){
       const many = w.have.length > 1;
       h += `<button class="wrow owned" data-work="${esc(w.key)}"${details[w.key] ? ` data-detail="${esc(w.key)}"` : ''}>${more}<span class="nm">${esc(w.shown)}</span>` +
            (noteText ? `<span class="ds">${esc(noteText)}</span>` : '') +
-           `<span class="sub">${many ? `${w.have.length} scores · tap to choose` : 'In your library'}</span></button>`;
+           `<span class="sub">${many ? `${w.have.length} scores · tap to choose` : 'In your library'}${pr.p ? ' ' + progressTag(pr.p, pr.l) : ''}</span></button>`;
       if(many && WK.open.has(w.key))
-        h += '<div class="wdocs">' + [...w.have].sort((x, y) => x.title.localeCompare(y.title, undefined, {numeric:true})).map(d => `<button data-doc="${esc(d.id)}">${esc(d.title)}</button>`).join('') + '</div>';
+        h += '<div class="wdocs">' + [...w.have].sort((x, y) => x.title.localeCompare(y.title, undefined, {numeric:true})).map(d => `<button data-doc="${esc(d.id)}">${esc(d.title)} ${progressTag(d.practiced, d.learned)}</button>`).join('') + '</div>';
     }
   }
-  if(!h) h = `<div class="pnote">${WK.filter === 'mine' ? 'None of your pieces are matched to this catalogue yet. A piece is matched when its title includes the catalogue number or nickname.' : 'No works match.'}</div>`;
+  const emptyMsg = {
+    mine: 'None of your pieces are matched to this catalogue yet. A piece is matched when its title includes the catalogue number or nickname.',
+    practiced: 'Nothing here is marked practiced yet. Mark a piece in its details, or a movement on its page.',
+    learned: 'Nothing here is marked learned yet. Mark a piece in its details, or a movement on its page.',
+    unpracticed: 'Every work you have a score for has been practiced.'
+  };
+  if(!h) h = `<div class="pnote">${q ? 'No works match.' : emptyMsg[WK.filter] || 'No works match.'}</div>`;
   $('#wkList').innerHTML = h;
 }
 function openPieceFromWorks(id){
@@ -4846,6 +5072,30 @@ function difficultyBlock(composer, key, part){
   }
   return h + src + '</div>';
 }
+/* The movement card's difficulty: the same thermometers, smaller, each with a
+   single caption line, pinned below the description so the whole rating is
+   always in view without scrolling. */
+function difficultyMini(composer, key, part){
+  const d = difficultyOf(composer, key);
+  if(!d) return '';
+  const ab = x => x ? `<span class="ab">ABRSM ${esc(x)}</span>` : '';
+  if(d.parts){
+    const lv = d.parts[part];
+    return `<div class="diff mini">
+      <div class="th-cap"><span><b>Henle ${lv}</b> of 9 · ${HENLE_WORD(lv)} · this piece</span>${ab(d.partAbrsm && d.partAbrsm[part])}</div>
+      ${thermometer(lv)}
+      <div class="th-cap sub"><span>Whole set: levels ${d.lo}–${d.h}</span></div></div>`;
+  }
+  let h = `<div class="diff mini">
+    <div class="th-cap"><span>Whole work · <b>Henle ${d.h}</b> · ${HENLE_WORD(d.h)}</span>${ab(d.abrsm)}</div>
+    ${thermometer(d.h)}`;
+  if(d.est && d.est[part] != null){
+    const e = d.est[part];
+    h += `<div class="th-cap"><span>This movement · <b>≈ ${e}</b> · estimate</span></div>
+      ${thermometer(e, null, true)}`;
+  }
+  return h + '</div>';
+}
 // fill thermometers once they're on screen, so the rise is seen
 function animateThermos(root){
   requestAnimationFrame(() => requestAnimationFrame(() =>
@@ -4916,8 +5166,8 @@ function openWorkDetail(composer, key){
     <h5>In your library</h5>
     <div class="have">${docs.length
       ? [...docs].sort((a, b) => a.title.localeCompare(b.title, undefined, {numeric:true}))
-          .map(x => `<button data-doc="${esc(x.id)}">Open score · ${esc(x.title)}</button>`).join('')
-      : '<span class="none">No score for this work yet.</span>'}</div>
+          .map(x => `<button data-doc="${esc(x.id)}">Open score · ${esc(x.title)}${progressTag(x.practiced, x.learned)}</button>`).join('')
+      : `<button class="addscore" data-addscore="1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add a score for this work</button>`}</div>
     <h5>About the work</h5><p>${esc(d.about)}</p>
     <h5>Historical context</h5><p>${esc(d.ctx)}</p>
     ${d.facts && d.facts.length ? `<h5>Did you know?</h5><ul class="dyk">${d.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}`;
@@ -4925,7 +5175,7 @@ function openWorkDetail(composer, key){
     h += `<h5>${esc(partsLabel(key, d.parts))} · ${d.parts.length}</h5>` + d.parts.map((p, i) =>
       `<button class="mrow" data-part="${i}"><span class="num">${partNumber(key, i, d.parts)}</span>
         <span class="tx"><span class="nm">${esc(p[0])}</span><span class="sub">${esc(p[1])}</span></span>
-        ${partLevelPill(composer, key, i)}<span class="chev">›</span></button>`).join('');
+        ${(m => progressTag(m.p, m.l))(mvProgress(composer, key, i))}${partLevelPill(composer, key, i)}<span class="chev">›</span></button>`).join('');
   }
   $('#wdTop').textContent = catalogueLabel(key);
   $('#wdBody').innerHTML = h;
@@ -4934,10 +5184,42 @@ function openWorkDetail(composer, key){
   animateThermos($('#wdBody'));
 }
 $('#wdBody').addEventListener('click', e => {
+  if(e.target.closest('[data-addscore]')) return $('#workPicker').click();
   const doc = e.target.closest('[data-doc]');
   if(doc) return openPieceFromWorks(doc.dataset.doc);
   const part = e.target.closest('[data-part]');
   if(part) openMovement(+part.dataset.part);
+});
+/* A score added from a work's page is linked to that work outright, whatever
+   the file is called, and filed under the work's composer and title unless
+   its own name already identifies the same work. */
+$('#workPicker').addEventListener('change', async e => {
+  const file = (e.target.files || [])[0];
+  e.target.value = '';
+  if(!file || !WD.composer) return;
+  const composer = WD.composer, key = WD.key;
+  busy(true, 'Adding ' + file.name);
+  await yieldToPaint();
+  try{
+    const doc = await importFile(file);
+    const own = doc.composer === composer && workKeyOf(doc) === key;
+    doc.composer = composer;
+    doc.workKey = key;
+    if(!own){ const w = workEntry(composer, key); if(w) doc.title = nicknameFirst(w[1]); }
+    await saveIndexNow();
+    toast('Score added and linked');
+  }catch(err){
+    console.error(err);
+    toast('Could not read ' + file.name + ': ' + (err && err.message ? err.message : 'unknown error'), 5000);
+  }
+  busy(false);
+  await renderAll();
+  if($('#mWork').classList.contains('on')){
+    const top = $('#wdBody').scrollTop;
+    openWorkDetail(composer, key);
+    $('#wdBody').scrollTop = top;
+  }
+  if($('#mWorks').classList.contains('on')) renderWorks();
 });
 $('#wdBack').addEventListener('click', () => {
   $('#mWork').classList.remove('on');
@@ -4963,27 +5245,49 @@ function buildMovements(){
           : label === 'Bagatelles' || label === 'Pieces' ? 'Piece' : 'Part';
   $('#mvBody').innerHTML = `
     <div class="eyebrow">${esc(nicknameFirst(w[1]))}</div>
-    <div class="mv-viewport" id="mvViewport"><div class="mv-track" id="mvTrack">
+    <div class="mv-viewport${difficultyOf(WD.composer, WD.key) ? ' hasdiff' : ''}" id="mvViewport"><div class="mv-track" id="mvTrack">
       ${parts.map((p, j) => `<section class="mv-card" data-i="${j}">
-        <div class="mv-num">${partNumber(WD.key, j, parts)}</div>
-        <h2>${esc(p[0])}</h2>
-        <div class="wchips"><span>${esc(p[1])}</span><span>${esc(catalogueLabel(WD.key))}</span></div>
-        <p>${esc(p[2])}</p>
-        ${difficultyOf(WD.composer, WD.key) ? difficultyBlock(WD.composer, WD.key, j) : ''}
+        <div class="mv-scroll">
+          <div class="mv-num">${partNumber(WD.key, j, parts)}</div>
+          <h2>${esc(p[0])}</h2>
+          <div class="wchips"><span>${esc(p[1])}</span><span>${esc(catalogueLabel(WD.key))}</span></div>
+          <p>${esc(p[2])}</p>
+        </div>
+        ${difficultyOf(WD.composer, WD.key) ? difficultyMini(WD.composer, WD.key, j) : ''}
       </section>`).join('')}
     </div></div>
     <div class="mvdots" id="mvDots">${parts.map((_, j) => `<button data-go="${j}" aria-label="${MV.unit} ${j + 1}"></button>`).join('')}</div>
+    <div class="mvprog">
+      <button type="button" class="ptog" id="mvPracticed" role="checkbox" aria-checked="false"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Practiced</button>
+      <button type="button" class="ptog learned" id="mvLearned" role="checkbox" aria-checked="false"><span class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Learned</button>
+    </div>
     <h5>All ${esc(label.toLowerCase())}</h5>
     <div class="mv-list" id="mvList"><div class="mv-hl" id="mvHl"></div>
       ${parts.map((q, j) => `<button class="mrow" data-go="${j}"><span class="num">${partNumber(WD.key, j, parts)}</span>
         <span class="tx"><span class="nm">${esc(q[0])}</span><span class="sub">${esc(q[1])}</span></span>
-        ${hasPartLevels ? partLevelPill(WD.composer, WD.key, j) : ''}</button>`).join('')}
+        <span class="mvtag"></span>${hasPartLevels ? partLevelPill(WD.composer, WD.key, j) : ''}</button>`).join('')}
     </div>`;
+  const toggle = which => async ev => {
+    ev.stopPropagation();
+    const r = progressToggleClick($('#mvPracticed'), $('#mvLearned'), which);
+    await setMvProgress(WD.composer, WD.key, MV.index, r.p, r.l);
+    paintMvProgress();
+  };
+  $('#mvPracticed').addEventListener('click', toggle('p'));
+  $('#mvLearned').addEventListener('click', toggle('l'));
   MV.rows = [...$('#mvList').querySelectorAll('.mrow')];
   MV.built = WD.composer + '|' + WD.key;
   bindPagerDrag();
 }
 
+function paintMvProgress(){
+  MV.rows.forEach((r, j) => {
+    const m = mvProgress(WD.composer, WD.key, j);
+    r.querySelector('.mvtag').innerHTML = progressTag(m.p, m.l);
+  });
+  const m = mvProgress(WD.composer, WD.key, MV.index);
+  setProgressToggles($('#mvPracticed'), $('#mvLearned'), m.p, m.l);
+}
 function highlightAt(pos, dragging){
   // pos may be fractional mid-drag: blend between two rows
   const hl = $('#mvHl'); if(!hl || !MV.rows.length) return;
@@ -5008,7 +5312,7 @@ function showMovement(i, animate){
   track.querySelectorAll('.mv-card').forEach((c, j) => {
     const on = j === MV.index;
     c.classList.toggle('on', on);
-    if(on){ c.scrollTop = 0; animateThermos(c); }
+    if(on){ const sc = c.querySelector('.mv-scroll'); if(sc) sc.scrollTop = 0; animateThermos(c); }
   });
   $$('#mvDots button').forEach((b, j) => b.classList.toggle('on', j === MV.index));
   MV.rows.forEach((r, j) => r.classList.toggle('cur', j === MV.index));
@@ -5024,6 +5328,7 @@ function showMovement(i, animate){
     else if(bottom > list.scrollTop + list.clientHeight)
       list.scrollTo({top: bottom - list.clientHeight, behavior: animate ? 'smooth' : 'auto'});
   }
+  paintMvProgress();
   $('#mvTop').textContent = `${MV.unit} ${MV.index + 1} of ${MV.count}`;
   $('#mvPrev').disabled = MV.index === 0;
   $('#mvNext').disabled = MV.index === MV.count - 1;
@@ -5094,7 +5399,16 @@ function bindPagerDrag(){
 
 $('#mvPrev').addEventListener('click', () => showMovement(MV.index - 1, true));
 $('#mvNext').addEventListener('click', () => showMovement(MV.index + 1, true));
-$('#mvBack').addEventListener('click', () => $('#mMove').classList.remove('on'));
+$('#mvBack').addEventListener('click', () => {
+  $('#mMove').classList.remove('on');
+  // movement progress may have changed what the work page and list show
+  if($('#mWork').classList.contains('on')){
+    const top = $('#wdBody').scrollTop;
+    openWorkDetail(WD.composer, WD.key);
+    $('#wdBody').scrollTop = top;
+  }
+  if($('#mWorks').classList.contains('on')) renderWorks();
+});
 $('#mvBody').addEventListener('click', e => {
   const g = e.target.closest('[data-go]');
   if(g) showMovement(+g.dataset.go, true);
@@ -5454,11 +5768,29 @@ $('#presetSave').addEventListener('click', async () => {
    lightness and pen size. Each turns through 270deg between hard MIN/MAX
    stops with a dead zone across the bottom, same as a real knob — sliding a
    finger through that dead zone holds the current value instead of jumping
-   to the far end. The filled arc always shows the live pen color, so all
-   four read as one consistent family of controls. ---------- */
+   to the far end. The lamps round each dial are discrete, but the value
+   under them is not. ---------- */
+const KNOB_LEDS = 25;          // lamps across the 270deg sweep
+const LED_OFF = [58,63,72];    // unlit lamp: dark grey
 function makeKnob(elSel, trackSel, armSel, {min, max, step, get, set}){
   const el = $(elSel), arm = $(armSel), track = $(trackSel);
   let center = null, lastT = null;
+  // The lamps sit on a circle at 40% of the knob's width, from -135deg to +135deg.
+  track.style.background = 'none';
+  const leds = [];
+  for(let i = 0; i < KNOB_LEDS; i++){
+    const a = (-135 + i * 270 / (KNOB_LEDS - 1)) * Math.PI / 180;
+    const d = document.createElement('i');
+    d.className = 'knobLed';
+    d.style.left = (50 + 40 * Math.sin(a)).toFixed(3) + '%';
+    d.style.top  = (50 - 40 * Math.cos(a)).toFixed(3) + '%';
+    track.appendChild(d);
+    leds.push({ el:d, t: i / (KNOB_LEDS - 1), bg:'', sh:'' });
+  }
+  const paint = (L, bg, sh) => {
+    if(L.bg !== bg){ L.el.style.backgroundColor = bg; L.bg = bg; }
+    if(L.sh !== sh){ L.el.style.boxShadow = sh; L.sh = sh; }
+  };
   function valueFromPoint(x, y){
     let deg = Math.atan2(x - center.cx, -(y - center.cy)) * 180/Math.PI;
     if(deg > 135) deg = 135;
@@ -5485,11 +5817,24 @@ function makeKnob(elSel, trackSel, armSel, {min, max, step, get, set}){
   });
   el.addEventListener('pointerup', () => { center = null; lastT = null; });
   el.addEventListener('pointercancel', () => { center = null; lastT = null; });
-  return function update(color){
+  /* colorAt(t) gives each lamp its own colour: what the pen would be with the
+     knob at that lamp. Without it the lamps are a level meter — white up to
+     the knob, dark grey after — and the lamp at the boundary brightens
+     gradually, so the reading moves as smoothly as the knob does. */
+  return function update(colorAt){
     const t = (get() - min) / (max - min);
     arm.style.transform = `rotate(${-135 + t*270}deg)`;
-    track.style.background =
-      `conic-gradient(from 225deg, ${color} 0 ${(t*75).toFixed(2)}%, rgba(255,255,255,.13) ${(t*75).toFixed(2)}% 75%, rgba(0,0,0,0) 75%)`;
+    for(const L of leds){
+      if(colorAt){
+        const [h, s2, l] = colorAt(L.t);
+        const hsl = `${h.toFixed(1)} ${s2.toFixed(1)}% ${l.toFixed(1)}%`;
+        paint(L, `hsl(${hsl})`, `0 0 3px 0.5px hsl(${hsl} / .42)`);
+      } else {
+        const b = Math.max(0, Math.min(1, (t - L.t) * (KNOB_LEDS - 1) + 1));
+        const c = LED_OFF.map(v => Math.round(v + (255 - v) * b)).join(',');
+        paint(L, `rgb(${c})`, b > 0.02 ? `0 0 3px 0.5px rgba(255,255,255,${(0.4 * b).toFixed(2)})` : 'none');
+      }
+    }
   };
 }
 const updateHue   = makeKnob('#knobHue',   '#knobHueTrack',   '#knobHueArm',   {min:0,        max:360,      step:0.5,     get:()=>V.hue,  set:v=>{V.hue=v;}});
@@ -5498,17 +5843,19 @@ const updateLight = makeKnob('#knobLight', '#knobLightTrack', '#knobLightArm', {
 const updateSize  = makeKnob('#knobSize',  '#knobSizeTrack',  '#knobSizeArm',  {min:SIZE_MIN, max:SIZE_MAX, step:SIZE_STEP, get:()=>V.size, set:v=>{V.size=v;}});
 const updateStem  = makeKnob('#knobStem',  '#knobStemTrack',  '#knobStemArm',  {min:STEM_MIN, max:STEM_MAX, step:STEM_STEP, get:()=>V.stem, set:v=>{V.stem=v;}});
 
-// Knob arcs are a fixed accent, independent of the pen colour — including in
-// note mode, where the pen colour is black and would otherwise be invisible
-// against the dark knob face.
-const KNOB_ACCENT = 'rgb(111,195,96)';
+// Hue lamps are the fixed, fully saturated spectrum. Saturation and lightness
+// lamps preview the colour each position would give with the other two as they
+// are now. Size and stem lamps are a white level meter.
+const hueLamp   = t => [t*360, 100, 50];
+const satLamp   = t => [V.hue, t*100, V.tone];
+const lightLamp = t => [V.hue, V.sat, t*100];
 
 function syncInkPanel(){
   const c = colorNow();
   const dot = $('#colorDot');
   if(dot){ dot.style.background = c; dot.style.borderColor = 'rgba(255,255,255,.55)'; }
 
-  updateHue(KNOB_ACCENT); updateSat(KNOB_ACCENT); updateLight(KNOB_ACCENT); updateSize(KNOB_ACCENT); updateStem(KNOB_ACCENT);
+  updateHue(hueLamp); updateSat(satLamp); updateLight(lightLamp); updateSize(null); updateStem(null);
 
   drawPreview(c);
   $$('#noteSel button').forEach(b => b.classList.toggle('on', b.dataset.k === V.note));
