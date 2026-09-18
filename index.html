@@ -146,8 +146,8 @@ html,body{background:var(--slate)}
 .prow .side{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 .prow .side .row{display:flex;gap:6px;align-items:center}
 .prow .side .lvl{float:none;margin:0}
-.dbtn{flex:none;width:38px;height:34px;border-radius:10px;display:grid;place-items:center;
-  background:var(--slate-3);border:1px solid var(--line);color:var(--text-dim);font-weight:700;letter-spacing:.08em}
+.dbtn{flex:none;height:34px;padding:0 12px;border-radius:10px;display:grid;place-items:center;
+  background:var(--slate-3);border:1px solid var(--line);color:var(--text-dim);font-weight:700;font-size:11.5px;letter-spacing:.06em}
 .dbtn:active{background:var(--line)}
 .wlink{flex:none;font-size:12px;padding:5px 10px;border-radius:9px;color:var(--pencil-hi);border:1px solid rgba(74,111,165,.45);background:none}
 /* page editing */
@@ -248,6 +248,11 @@ html,body{background:var(--slate)}
 .grab{width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 14px;touch-action:none;cursor:grab;position:relative}
 .grab::before{content:'';position:absolute;left:50%;top:50%;width:64px;height:32px;transform:translate(-50%,-50%)}
 .sheetmodal h3{font-family:var(--serif);font-weight:600;font-size:19px;margin:0 0 14px}
+.mdhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 14px}
+.mdhead h3{margin:0}
+.mdclose{flex:none;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;
+  background:var(--slate-3);border:1px solid var(--line);color:var(--text-dim)}
+.mdclose:active{transform:scale(.92)}
 .field{margin-bottom:13px}
 .field label{display:block;font-size:12.5px;color:var(--text-faint);margin-bottom:5px}
 .field input,.field textarea,.field select{
@@ -274,6 +279,8 @@ html,body{background:var(--slate)}
 #mDetails .field textarea{min-height:64px}
 #mDetails .btn{height:44px;font-size:14px}
 #mDetails .btnrow{margin-top:14px}
+#mDetails .btnrow .btn.danger{flex:1;width:auto}
+#mDetails h3{margin:0}
 
 /* progress toggles and the file facts */
 .progress{display:flex;gap:8px;margin:2px 0 12px}
@@ -299,6 +306,7 @@ html,body{background:var(--slate)}
 .tag{display:inline-block;font-size:10.5px;font-weight:600;line-height:16px;padding:0 6px;border-radius:8px;vertical-align:1px;
   color:#A9C2E6;background:rgba(74,111,165,.22)}
 .tag.l{color:#8FD3A9;background:rgba(62,142,94,.24)}
+.pinbadge{flex:none;color:var(--pencil-hi);margin-right:4px;vertical-align:-2px}
 .tile .p .tag{margin-left:6px}
 .mrow .tag{flex:none}
 .mvprog{flex:none;display:flex;gap:8px;margin:10px 12px 0}
@@ -947,8 +955,12 @@ svg{display:block}
 <div class="backdrop" id="backdrop"></div>
 
 <div class="sheetmodal" id="mDetails">
-  <div class="grab"></div>
-  <h3>Piece details</h3>
+  <div class="mdhead">
+    <h3>Piece details</h3>
+    <button type="button" class="mdclose" id="dClose" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
   <div class="field"><label for="dTitle">Title</label><input id="dTitle" type="text"></div>
   <div class="row2">
     <div class="field"><label for="dComposer">Composer</label>
@@ -968,11 +980,8 @@ svg{display:block}
     <button class="btn" id="dExport">Export a marked copy</button>
   </div>
   <div class="btnrow">
-    <button class="btn danger" id="dDelete" aria-label="Remove piece">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6.5 7l.8 12.1A1.5 1.5 0 008.8 20.5h6.4a1.5 1.5 0 001.5-1.4L17.5 7"/></svg>
-    </button>
-    <button class="btn" id="dCancel">Cancel</button>
-    <button class="btn go" id="dSave">Save details</button>
+    <button class="btn danger" id="dDelete">Delete</button>
+    <button class="btn go" id="dPin">Pin</button>
   </div>
 </div>
 
@@ -1005,22 +1014,32 @@ svg{display:block}
       <input id="wkQ" type="search" placeholder="Search titles, numbers or descriptions" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
   </div>
-  <div class="seg-label" id="wkSortLabel">Sort by</div>
-  <div class="sortseg" id="wkSort">
-    <span class="sortknob"></span>
-    <button data-s="type" class="on">Type</button>
-    <button data-s="date">Written</button>
-    <button data-s="period">Period</button>
-    <button data-s="opus">Opus</button>
+  <div class="fbar">
+    <button class="ftoggle" id="wkToggle" aria-expanded="false" aria-controls="wkPanel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span id="wkSummary">Filter and sort</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <span class="pcount" id="wkCount"></span>
   </div>
-  <div class="pchips" id="wkChips">
-    <button class="chip on" data-f="all">Complete works</button>
-    <button class="chip" data-f="mine">Only mine</button>
-    <button class="chip" data-f="unpracticed">Not practiced</button>
-    <button class="chip" data-f="practiced">Practiced</button>
-    <button class="chip" data-f="learned">Learned</button>
-  </div>
-  <div class="pcount" id="wkCount"></div>
+  <div class="fpanel" id="wkPanel"><div class="fin">
+    <div class="fgroup" id="wkSortGroup">
+      <div class="flabel" id="wkSortLabel">Sort by</div>
+      <div class="sortseg" id="wkSort">
+        <span class="sortknob"></span>
+        <button data-s="type" class="on">Type</button>
+        <button data-s="date">Written</button>
+        <button data-s="period">Period</button>
+        <button data-s="opus">Opus</button>
+      </div>
+    </div>
+    <div class="fgroup">
+      <div class="flabel">Show</div>
+      <div class="fchips" id="wkChips">
+        <button class="on" data-f="all">Complete works</button>
+        <button data-f="mine">Only mine</button>
+        <button data-f="unpracticed">Not practiced</button>
+        <button data-f="practiced">Practiced</button>
+        <button data-f="learned">Learned</button>
+      </div>
+    </div>
+  </div></div>
   <div class="plist" id="wkList"></div>
 </div>
 
@@ -4418,7 +4437,14 @@ async function importFile(file){
    ======================================================================= */
 let editingId = null;
 function showModal(el){ $('#backdrop').classList.add('on'); el.classList.add('on'); }
+/* Closing the details sheet (X, backdrop tap, swipe, Export…) always commits
+   whatever is in the fields first, since there's no separate Save step any more. */
 function hideModals(){
+  const wasEditing = editingId;
+  if(wasEditing){
+    if(S.docs.some(x => x.id === wasEditing)) commitDetails();
+    saveIndexNow();
+  }
   $('#backdrop').classList.remove('on'); $('#backdrop2').classList.remove('on');
   $$('.sheetmodal').forEach(m=>m.classList.remove('on'));
   $('#mComposer').classList.remove('on');
@@ -4426,9 +4452,10 @@ function hideModals(){
   $('#mWork').classList.remove('on');
   $('#mMove').classList.remove('on');
   editingId=null;
+  if(wasEditing) renderAll();
 }
 $('#backdrop').addEventListener('click', hideModals);
-$('#dCancel').addEventListener('click', hideModals);
+$('#dClose').addEventListener('click', hideModals);
 
 /* Sheet modals close by grabbing the handle at the top and swiping down.
    Only the grab bar starts the gesture, so it never steals scrolling or
@@ -4467,6 +4494,7 @@ $$('.sheetmodal').forEach(initSheetDrag);
 function openDetails(id){
   const d = S.docs.find(x => x.id === id); if(!d) return;
   editingId = id;
+  armDoc = null; clearTimeout(armTimer);
   $('#dTitle').value = d.title || '';
   setComposerField(d.composer || '');
   $('#dKey').value = d.keyInfo || '';
@@ -4474,6 +4502,7 @@ function openDetails(id){
   setProgressToggles($('#dPracticed'), $('#dLearned'), !!d.practiced, !!d.learned);
   renderFileInfo(d);
   $('#dRate').innerHTML = rateBlock(docRateId(d), workKeyOf(d) != null ? 'Your difficulty rating · same as on the work’s page' : 'Your difficulty rating');
+  $('#dPin').textContent = d.pinned ? 'Unpin' : 'Pin';
   showModal($('#mDetails'));
   $('#mDetails').scrollTop = 0;
 }
@@ -4493,8 +4522,8 @@ function progressToggleClick(pb, lb, which){
   setProgressToggles(pb, lb, p, l);
   return { p, l };
 }
-$('#dPracticed').addEventListener('click', () => progressToggleClick($('#dPracticed'), $('#dLearned'), 'p'));
-$('#dLearned').addEventListener('click', () => progressToggleClick($('#dPracticed'), $('#dLearned'), 'l'));
+$('#dPracticed').addEventListener('click', () => { progressToggleClick($('#dPracticed'), $('#dLearned'), 'p'); commitDetails(); });
+$('#dLearned').addEventListener('click', () => { progressToggleClick($('#dPracticed'), $('#dLearned'), 'l'); commitDetails(); });
 const progressTag = (p, l) => l ? '<span class="tag l">Learned</span>' : p ? '<span class="tag">Practiced</span>' : '';
 
 /* ---------- file facts ----------
@@ -4585,8 +4614,10 @@ $('#dExport').addEventListener('click', () => {
   hideModals();
   exportDoc(id);
 });
-$('#dSave').addEventListener('click', async () => {
-  const d = S.docs.find(x => x.id === editingId); if(!d) return hideModals();
+/* Autosave: every field writes straight to the doc (debounced to storage) the
+   moment it changes, so there's nothing left to "save" when the sheet closes. */
+function commitDetails(){
+  const d = S.docs.find(x => x.id === editingId); if(!d) return;
   d.title = $('#dTitle').value.trim() || 'Untitled';
   const newComposer = $('#dComposer').dataset.value || '';
   if(newComposer !== d.composer) delete d.workKey;   // a link only holds for the composer it was made under
@@ -4595,8 +4626,20 @@ $('#dSave').addEventListener('click', async () => {
   d.learned = $('#dLearned').getAttribute('aria-checked') === 'true' && d.practiced;
   d.keyInfo = $('#dKey').value.trim();
   d.notes = $('#dNotes').value.trim();
-  hideModals(); await saveIndexNow(); await renderAll(); toast('Details saved');
+  saveIndexSoon();
+}
+$('#dTitle').addEventListener('input', commitDetails);
+$('#dKey').addEventListener('input', commitDetails);
+$('#dNotes').addEventListener('input', commitDetails);
+/* Save details -> Pin: bumps the piece to the top of Pieces, but only while
+   the list is unfiltered (Recently added · Any · Any) — see renderPieces(). */
+$('#dPin').addEventListener('click', () => {
+  const d = S.docs.find(x => x.id === editingId); if(!d) return hideModals();
+  const pinned = d.pinned = !d.pinned;
+  hideModals();
+  toast(pinned ? 'Pinned to the top' : 'Unpinned');
 });
+/* Cancel -> Delete: same tap-twice-to-confirm safety the old trash icon had. */
 let armDoc = null, armTimer;
 $('#dDelete').addEventListener('click', async () => {
   const d = S.docs.find(x => x.id === editingId); if(!d) return;
@@ -4607,11 +4650,13 @@ $('#dDelete').addEventListener('click', async () => {
     return;
   }
   armDoc = null; clearTimeout(armTimer);
+  const title = d.title;
   await DB.del(K.pdf(d.id)); await DB.del(K.thumb(d.id)); await DB.del(K.ink(d.id));
   S.docs = S.docs.filter(x => x.id !== d.id);   // first, so a save in flight can't re-add its pages
   await Raster.forget(d.id);
   dropThumb(d.id);
-  hideModals(); await saveIndexNow(); await renderAll(); toast('Removed');
+  hideModals();
+  toast(`Removed “${title}”`);
 });
 
 /* =======================================================================
@@ -4754,7 +4799,7 @@ function setComposerField(v){
   el.classList.toggle('stray', !!v && !findComposer(v));
 }
 $('#dComposer').addEventListener('click', () => {
-  openComposerPicker($('#dComposer').dataset.value || '', name => setComposerField(name));
+  openComposerPicker($('#dComposer').dataset.value || '', name => { setComposerField(name); commitDetails(); });
 });
 
 /* ---------- picker ---------- */
@@ -4860,10 +4905,11 @@ function pieceRow(d){
   const pl = pieceLevel(d);
   const lvl = pl ? `<span class="lvl${pl.mine || pl.ap ? ' est' : ''}" style="--c:${levelColor(pl.lv)}" title="${pl.mine ? 'Your rating' : pl.ap ? 'Piano part, estimated on Henle’s scale' : 'Henle level'}">${pl.ap && !pl.mine ? '≈' : ''}${pl.lv}</span>` : '';
   const hasPage = k != null && (WORK_DETAILS[d.composer] || {})[k];
+  const pin = d.pinned ? `<svg class="pinbadge" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-label="Pinned"><path d="M12 2a1 1 0 011 1v6.4l3.45 1.72A2 2 0 0118 13v1a1 1 0 01-1 1h-4v5.5a1 1 0 01-2 0V15H7a1 1 0 01-1-1v-1a2 2 0 011.55-1.88L11 9.4V3a1 1 0 011-1z"/></svg>` : '';
   return `<div class="prow piece" role="button" tabindex="0" data-doc="${esc(d.id)}">
-    <span class="tx"><span class="nm">${esc(name)}</span><span class="sub">${esc(bits.join(' · '))}</span>${desc ? `<span class="ds">${esc(desc)}</span>` : ''}</span>
+    <span class="tx"><span class="nm">${pin}${esc(name)}</span><span class="sub">${esc(bits.join(' · '))}</span>${desc ? `<span class="ds">${esc(desc)}</span>` : ''}</span>
     <span class="side"><span class="row">${progressTag(d.practiced, d.learned)}${lvl}
-      <button class="dbtn" data-details="${esc(d.id)}" aria-label="Piece details for ${esc(name)}">···</button></span>
+      <button class="dbtn" data-details="${esc(d.id)}" aria-label="Piece details for ${esc(name)}">PDF</button></span>
       ${hasPage ? `<button class="wlink sm" data-wd="${esc(d.composer)}" data-wk="${esc(k)}">About ›</button>` : ''}</span>
   </div>`;
 }
@@ -4899,6 +4945,17 @@ function renderPieces(){
     for(const d of list){ const v = lv(d); const g = v === 99 ? 'Not rated' : `Level ${v} · ${HENLE_WORD(v)}`; if(!m.has(g)) m.set(g, []); m.get(g).push(d); }
     groups = [...m];
   }else{
+    // Pinned pieces only jump the queue on the plain, unfiltered "Recently
+    // added" view — the same state the Filter and sort panel shows as
+    // Recently added · Any · Any. Any other sort or filter, and pins are
+    // just a badge; the list stays in that sort's own order.
+    if(S.prog === 'all' && S.src === 'all'){
+      const pinned = list.filter(d => d.pinned);
+      if(pinned.length){
+        const rest = list.filter(d => !d.pinned);
+        list.length = 0; list.push(...pinned, ...rest);
+      }
+    }
     groups = [['', list]];
   }
   return groups.map(([g, ds]) => (g ? `<h4>${esc(g)} · ${ds.length}</h4>` : '') + ds.map(pieceRow).join('')).join('');
@@ -5266,15 +5323,19 @@ function openWorks(name){
   WK.name = name; WK.filter = 'all'; WK.open = new Set();
   $('#wkHead').textContent = name;
   $('#wkQ').value = '';
+  $('#wkPanel').classList.remove('open');
+  $('#wkToggle').setAttribute('aria-expanded', 'false');
   renderWorks();
   $('#wkList').scrollTop = 0;
   $('#mWorks').classList.add('on');
 }
+const WK_SORT_NAMES = { type:'Type', date:'Written', period:'Period', opus:'Opus' };
+const WK_FILTER_NAMES = { mine:'Only mine', unpracticed:'Not practiced', practiced:'Practiced', learned:'Learned' };
 function renderWorks(){
   const works = WORKS[WK.name] || [];
   const owned = ownedWorks(WK.name);
   const q = normWork($('#wkQ').value || '');
-  $$('#wkChips .chip').forEach(c => c.classList.toggle('on', c.dataset.f === WK.filter));
+  $$('#wkChips button').forEach(c => c.classList.toggle('on', c.dataset.f === WK.filter));
   const hasDetails = !!WORK_DETAILS[WK.name];
   $('#wkCount').textContent = `You have ${owned.size} of ${works.length} works` +
     (hasDetails ? ' · tap any work for details' : owned.size ? ' · tap one to open it' : '');
@@ -5282,9 +5343,14 @@ function renderWorks(){
   const details = WORK_DETAILS[WK.name] || {};
   const canSort = !!WORK_DETAILS[WK.name];
   const sortMode = canSort ? WK.sort : 'type';
-  $('#wkSort').style.display = $('#wkSortLabel').style.display = canSort ? '' : 'none';
+  $('#wkSortGroup').style.display = canSort ? '' : 'none';
   $$('#wkSort button').forEach(b => b.classList.toggle('on', b.dataset.s === sortMode));
   if(canSort) requestAnimationFrame(placeSortKnob);
+  const summaryParts = [];
+  if(canSort) summaryParts.push(WK_SORT_NAMES[sortMode]);
+  if(WK.filter !== 'all') summaryParts.push(WK_FILTER_NAMES[WK.filter]);
+  $('#wkSummary').textContent = summaryParts.length ? summaryParts.join(' · ') : 'Filter and sort';
+  $('#wkToggle').classList.toggle('active', WK.filter !== 'all');
   const groups = new Map();
   let ordered = works.map((w, i) => ({ w, i }));
   if(sortMode !== 'type'){
@@ -5383,7 +5449,7 @@ $('#wkList').addEventListener('click', e => {
   renderWorks();
 });
 $('#wkChips').addEventListener('click', e => {
-  const c = e.target.closest('.chip'); if(!c) return;
+  const c = e.target.closest('button[data-f]'); if(!c) return;
   WK.filter = c.dataset.f; renderWorks(); $('#wkList').scrollTop = 0;
 });
 $('#wkQ').addEventListener('input', renderWorks);
@@ -5393,6 +5459,10 @@ $('#wkSort').addEventListener('click', e => {
   try{ localStorage.setItem('stand.worksSort', WK.sort); }catch(err){}
   renderWorks();
   $('#wkList').scrollTop = 0;
+});
+$('#wkToggle').addEventListener('click', () => {
+  const open = $('#wkPanel').classList.toggle('open');
+  $('#wkToggle').setAttribute('aria-expanded', String(open));
 });
 $('#wkBack').addEventListener('click', () => { $('#wkQ').blur(); $('#mWorks').classList.remove('on'); });
 $('#ceWorks').addEventListener('click', () => {
@@ -6693,17 +6763,28 @@ document.addEventListener('pointercancel', () => { outsideTouch = null; });
 // iOS's own pinch-to-zoom arrives as gesture events; the app does its own zoom.
 for(const t of ['gesturestart', 'gesturechange', 'gestureend'])
   document.addEventListener(t, e => e.preventDefault(), {passive:false});
-// If the page gets zoomed anyway, snap it back and re-read positions.
+// If the page gets zoomed anyway — pinch, or iOS's own post-rotation zoom
+// bug — snap it back and re-read positions. Toggling the viewport meta is
+// the standard nudge, but a single toggle right after a rotation sometimes
+// doesn't take, so this retries a couple of times until the scale is back.
+const viewportMetaEl = document.querySelector('meta[name=viewport]');
+const viewportContentBase = viewportMetaEl ? viewportMetaEl.getAttribute('content') : '';
+let zoomResetTries = 0;
+function resetPageZoom(){
+  if(!viewportMetaEl || zoomResetTries > 2) { zoomResetTries = 0; return; }
+  zoomResetTries++;
+  viewportMetaEl.setAttribute('content', viewportContentBase.replace('initial-scale=1', 'initial-scale=1.0001'));
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    viewportMetaEl.setAttribute('content', viewportContentBase);
+    setTimeout(() => {
+      if(window.visualViewport && visualViewport.scale > 1.01) resetPageZoom();
+      else zoomResetTries = 0;
+    }, 120);
+  }));
+}
 if(window.visualViewport){
   visualViewport.addEventListener('resize', () => {
-    if(visualViewport.scale > 1.01){
-      const m = document.querySelector('meta[name=viewport]');
-      if(m){
-        const c = m.content;
-        m.content = c.replace('initial-scale=1', 'initial-scale=1.0001');
-        setTimeout(() => { m.content = c; }, 60);
-      }
-    }
+    if(visualViewport.scale > 1.01) resetPageZoom();
     if(V.pdf) syncStageOrigin();
   });
 }
@@ -8397,7 +8478,10 @@ window.addEventListener('resize', () => {
   if(!$('#viewer').classList.contains('open')) return;
   clearTimeout(rt); rt = setTimeout(() => { abortPrefetch(); measure(); renderPage(); }, 180);
 });
-window.addEventListener('orientationchange', () => setTimeout(() => { abortPrefetch(); measure(); renderPage(); }, 320));
+window.addEventListener('orientationchange', () => setTimeout(() => {
+  if(window.visualViewport && visualViewport.scale > 1.01) resetPageZoom();
+  abortPrefetch(); measure(); renderPage();
+}, 320));
 document.addEventListener('gesturestart', e => e.preventDefault());
 window.addEventListener('beforeunload', () => { if(V.dirty) saveInk(); });
 document.addEventListener('visibilitychange', () => { if(document.hidden && V.dirty) saveInk(); });

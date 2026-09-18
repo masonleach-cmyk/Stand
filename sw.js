@@ -1,6 +1,6 @@
 // Stand — offline cache.
 // Bump CACHE when you change any file, or browsers will keep serving the old one.
-const CACHE = 'stand-v50';
+const CACHE = 'stand-v51';
 
 const SHELL = [
   './',
