@@ -409,6 +409,71 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .mrow .chev{color:var(--text-faint)}
 .mrow.cur{background:rgba(74,111,165,.16)}
 .mrow.cur .num{background:var(--pencil);border-color:var(--pencil);color:#fff}
+
+/* ---- practice time ---- */
+#vPractice{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.82);
+  font-variant-numeric:tabular-nums;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 5px rgba(0,0,0,.5)}
+#vPractice .dot{width:7px;height:7px;border-radius:50%;background:var(--pencil-hi);flex:none;
+  animation:vpPulse 2.2s ease-in-out infinite}
+#vPractice.paused .dot{background:rgba(255,255,255,.4);animation:none}
+@keyframes vpPulse{0%,100%{opacity:1}50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){#vPractice .dot{animation:none}}
+
+.wd .practice{margin:0 8px 16px;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.wd .practice .prow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.wd .practice .prow + .prow{margin-top:6px}
+.wd .practice .pk{font-size:13px;color:var(--text-faint)}
+.wd .practice .pv{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums}
+.wd .practice .pactions{display:flex;gap:8px;margin-top:12px}
+.wd .practice .pactions button{flex:1;height:38px;border-radius:9px;background:rgba(74,111,165,.16);
+  border:1px solid rgba(74,111,165,.4);color:var(--text);font-size:13.5px}
+.wd .practice .pactions button:active{background:var(--slate-3)}
+
+.dpractice{margin-top:2px}
+.dpractice .prow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:7px 0}
+.dpractice .prow + .prow{border-top:1px solid var(--line)}
+.dpractice .pk{font-size:13px;color:var(--text-faint)}
+.dpractice .pv{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums}
+.dpractice .pempty{font-size:13px;color:var(--text-faint);padding:4px 0}
+
+/* ---- practice dashboard panel ---- */
+#mPractice{z-index:44}
+.pdash{padding:6px 20px 40px}
+.pd-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 4px}
+.pd-stat{background:var(--slate-2);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px}
+.pd-stat .v{font-family:var(--serif);font-size:21px;font-weight:600;display:block;color:var(--text)}
+.pd-stat .l{font-size:11.5px;color:var(--text-faint)}
+.pd-stat.streak .v{color:var(--pencil-hi)}
+.pd-h5{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-faint);margin:22px 2px 8px}
+.pd-heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px;overflow-x:auto;padding-bottom:6px}
+.pd-heat i{width:11px;height:11px;border-radius:3px;background:var(--slate-3);flex:none;display:block}
+.pd-heat i[data-lvl="1"]{background:rgba(110,147,201,.28)}
+.pd-heat i[data-lvl="2"]{background:rgba(110,147,201,.5)}
+.pd-heat i[data-lvl="3"]{background:rgba(110,147,201,.75)}
+.pd-heat i[data-lvl="4"]{background:var(--pencil-hi)}
+.pd-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.pd-row:last-child{border-bottom:none}
+.pd-row button.pd-open{text-align:left;flex:1;min-width:0}
+.pd-row .nm{font-size:14px;color:var(--text);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pd-row .sub{font-size:12px;color:var(--text-faint);margin-top:1px}
+.pd-row .stale{color:var(--pencil-hi)}
+.pd-bar{display:flex;align-items:center;gap:10px;padding:6px 0}
+.pd-bar .l{font-size:13px;width:36%;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.pd-bar .track{flex:1;height:6px;border-radius:3px;background:var(--slate-3);overflow:hidden}
+.pd-bar .fill{height:100%;background:var(--pencil-hi);border-radius:3px}
+.pd-bar .v{font-size:12px;color:var(--text-faint);width:3.6em;text-align:right;flex:none}
+.pd-empty{font-size:13.5px;color:var(--text-faint);padding:20px 4px;text-align:center;border:1px dashed var(--line);border-radius:12px;margin-top:8px}
+.pd-logbtn{width:100%;height:44px;border-radius:11px;background:var(--pencil);color:#fff;font-size:14.5px;font-weight:600;margin-top:6px}
+
+/* ---- log practice time (manual entry) ---- */
+#mLogTime .field select{width:100%;background:var(--slate-2);border:1px solid var(--line);border-radius:9px;
+  padding:10px 11px;color:var(--text);font-size:15px}
+.ltdur{display:flex;gap:8px}
+.ltdur .field{flex:1;margin-bottom:0}
+.ltfocus{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.ltfocus button{border:1px solid var(--line);background:none;color:var(--text-dim);border-radius:16px;
+  padding:7px 13px;font-size:13px}
+.ltfocus button[aria-pressed="true"]{background:rgba(74,111,165,.22);border-color:var(--pencil-hi);color:var(--text)}
 /* ---- movement pager: a fixed stage that slides, a list that stays put ---- */
 #mvBody.mvwrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:0}
 .mvwrap .eyebrow{flex:none;margin:6px 18px 8px}
@@ -754,6 +819,9 @@ svg{display:block}
     <button class="iconbtn" id="clAdd" aria-label="Add a composer">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9AA3B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M3.5 19.5c.6-3.3 2.8-5.2 5.5-5.2s4.9 1.9 5.5 5.2"/><path d="M18 8v6M15 11h6"/></svg>
     </button>
+    <button class="iconbtn" id="clPractice" aria-label="Practice">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9AA3B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+    </button>
     <button class="iconbtn primary" id="addBtn" aria-label="Add sheet music">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     </button>
@@ -925,6 +993,8 @@ svg{display:block}
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
 
+    <span id="vPractice" style="display:none"><i class="dot"></i><span id="vPracticeTime">0m</span></span>
+
     <button id="mPrev" aria-label="Previous page" style="display:none">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
@@ -972,6 +1042,11 @@ svg{display:block}
   <div class="field">
     <button type="button" class="pickfield" id="dWork"><span class="v"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
     <button type="button" class="linkbtn" id="dUnlink" style="display:none;padding:6px 2px 0">Unlink from this work</button>
+  </div>
+  <div class="fi-label">Practice</div>
+  <div class="dpractice" id="dPractice"></div>
+  <div class="btnrow" style="margin:10px 0 4px">
+    <button class="btn" id="dLogTime">Log time</button>
   </div>
   <div class="fi-label">File</div>
   <dl class="fileinfo" id="dFile"></dl>
@@ -1079,6 +1154,15 @@ svg{display:block}
   </div>
 </div>
 
+<div class="panel" id="mPractice" aria-label="Practice">
+  <div class="panel-head">
+    <button class="linkbtn" id="pdBack">Back</button>
+    <h3>Practice</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="plist pdash" id="pdBody"></div>
+</div>
+
 <div class="backdrop top" id="backdrop2"></div>
 <div class="sheetmodal compact top" id="mComposerEdit">
   <div class="grab"></div>
@@ -1096,6 +1180,33 @@ svg{display:block}
     <button class="btn" id="ceShow">Show pieces</button>
     <button class="btn" id="ceCancel">Cancel</button>
     <button class="btn go" id="ceSave">Save</button>
+  </div>
+</div>
+
+<div class="sheetmodal compact top" id="mLogTime">
+  <div class="grab"></div>
+  <h3>Log practice time</h3>
+  <div class="field"><label for="ltPiece">Piece</label><select id="ltPiece"></select></div>
+  <div class="field" id="ltPartField" style="display:none"><label for="ltPart">Movement</label><select id="ltPart"></select></div>
+  <div class="field"><label for="ltDate">Date</label><input id="ltDate" type="date"></div>
+  <div class="field"><label>Duration</label>
+    <div class="ltdur">
+      <div class="field"><input id="ltHours" type="number" min="0" inputmode="numeric" placeholder="0"><div class="hint">Hours</div></div>
+      <div class="field"><input id="ltMins" type="number" min="0" max="59" inputmode="numeric" placeholder="30"><div class="hint">Minutes</div></div>
+    </div>
+  </div>
+  <div class="field"><label>Focus (optional)</label>
+    <div class="ltfocus" id="ltFocus">
+      <button type="button" data-f="reading" aria-pressed="false">Reading</button>
+      <button type="button" data-f="technique" aria-pressed="false">Technique</button>
+      <button type="button" data-f="memorizing" aria-pressed="false">Memorizing</button>
+      <button type="button" data-f="run-through" aria-pressed="false">Run-through</button>
+    </div>
+  </div>
+  <div class="field"><label for="ltNote">Note (optional)</label><textarea id="ltNote" placeholder="What you worked on, tempo, etc."></textarea></div>
+  <div class="btnrow">
+    <button class="btn" id="ltCancel">Cancel</button>
+    <button class="btn go" id="ltSave">Save</button>
   </div>
 </div>
 
@@ -1207,7 +1318,9 @@ const K = {
   composers:'settings:composers',  // composers you've added yourself
   progress:'library:progress',     // practiced / learned for individual movements
   ratings:'library:ratings',       // your own difficulty ratings
-  workEdits:'library:workEdits'    // your changes to the text of work and movement pages
+  workEdits:'library:workEdits',   // your changes to the text of work and movement pages
+  practice:'library:practice',     // logged practice sessions, auto-tracked and manually entered
+  practiceLive:'library:practiceLive'  // heartbeat for a session that's still running, for crash recovery
 };
 
 async function estimateUsage(){
@@ -1221,7 +1334,7 @@ async function estimateUsage(){
 }
 
 /* ---------- app state ---------- */
-const S = { docs:[], sets:[], set:null, query:'', ready:false, prog:'all', src:'all', mv:{}, rate:{}, wedit:{} };
+const S = { docs:[], sets:[], set:null, query:'', ready:false, prog:'all', src:'all', mv:{}, rate:{}, wedit:{}, practice:{sessions:[]} };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
 /* ---------- small helpers ---------- */
@@ -1242,6 +1355,7 @@ async function loadLibrary(){
   try{ S.mv = (await DB.get(K.progress)) || {}; }catch(e){ S.mv = {}; }
   try{ S.rate = (await DB.get(K.ratings)) || {}; }catch(e){ S.rate = {}; }
   try{ S.wedit = (await DB.get(K.workEdits)) || {}; }catch(e){ S.wedit = {}; }
+  try{ S.practice = (await DB.get(K.practice)) || { sessions:[] }; }catch(e){ S.practice = { sessions:[] }; }
   await loadComposers();
   if(nicknameMigrate()) await saveIndexNow();
   S.ready = true;
@@ -4112,6 +4226,7 @@ function hideModals(){
   $('#mWorks').classList.remove('on');
   $('#mWork').classList.remove('on');
   $('#mMove').classList.remove('on');
+  $('#mPractice').classList.remove('on');
   editingId=null;
   if(wasEditing) renderAll();
 }
@@ -4126,7 +4241,7 @@ $('#dClose').addEventListener('click', hideModals);
 function initSheetDrag(sheet){
   const grab = sheet.querySelector('.grab');
   if(!grab) return;
-  const closeThis = () => (sheet.id === 'mComposerEdit' ? closeComposerEditor() : hideModals());
+  const closeThis = () => (sheet.id === 'mComposerEdit' ? closeComposerEditor() : sheet.id === 'mLogTime' ? closeLogTime() : hideModals());
   let dragging = false, startY = 0, dy = 0, startedAt = 0, pid = null;
   grab.addEventListener('pointerdown', e => {
     dragging = true; startY = e.clientY; dy = 0; startedAt = Date.now(); pid = e.pointerId;
@@ -4162,6 +4277,7 @@ function openDetails(id){
   $('#dNotes').value = d.notes || '';
   renderFileInfo(d);
   setWorkField();
+  renderDetailsPractice(d);
   $('#dPin').textContent = d.pinned ? 'Unpin' : 'Pin';
   showModal($('#mDetails'));
   $('#mDetails').scrollTop = 0;
@@ -4324,6 +4440,7 @@ $('#dWork').addEventListener('click', () => {
     d.title = workShown(d.composer, key);
     $('#dTitle').value = d.title;
     setWorkField();
+    renderDetailsPractice(d);
     commitDetails();
   });
 });
@@ -4331,6 +4448,7 @@ $('#dUnlink').addEventListener('click', () => {
   const d = S.docs.find(x => x.id === editingId); if(!d) return;
   delete d.workKey;
   setWorkField();
+  renderDetailsPractice(d);
   commitDetails();
 });
 const WP = { name:null, onPick:null, value:'' };
@@ -4604,6 +4722,362 @@ if(CL.filter !== 'pieces') CL.filter = CL.cfilter;
 function openComposerList(){ hideModals(); renderComposerList(); }
 function closeComposerList(){}
 const docRateId = d => { const k = workKeyOf(d); return k != null ? `w|${d.composer}|${k}` : `d|${d.id}`; };
+
+/* =======================================================================
+   Practice time
+
+   A pieceId reuses docRateId's own convention, so a session logged from
+   the viewer and one logged by hand land on the same total whether or not
+   they're against the same file: `w|<composer>|<key>` for anything linked
+   to a catalogued work (every score you have for that work shares one
+   total), `d|<doc id>` otherwise. Sessions live in one array under
+   K.practice, the same shape as S.mv/S.rate/S.wedit.
+   ======================================================================= */
+const PT_DAY_MS = 86400000;
+const ptDayStart = t => { const d = new Date(t); d.setHours(0,0,0,0); return +d; };
+
+function fmtPracticeMs(ms){
+  if(ms < 60000) return Math.round(ms/1000) + 's';
+  const totalMin = Math.round(ms/60000);
+  const h = Math.floor(totalMin/60), m = totalMin%60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+function practiceWorkKeyOf(pieceId){
+  const m = /^w\|([^|]+)\|(.+)$/.exec(pieceId);
+  return m ? { composer:m[1], key:m[2] } : null;
+}
+function practiceTitle(pieceId){
+  const wk = practiceWorkKeyOf(pieceId);
+  if(wk) return workShown(wk.composer, wk.key) || `${wk.composer}, ${catalogueLabel(wk.key)}`;
+  const d = S.docs.find(x => x.id === pieceId.replace(/^d\|/, ''));
+  return d ? d.title : 'Untitled piece';
+}
+function practiceComposer(pieceId){
+  const wk = practiceWorkKeyOf(pieceId);
+  if(wk) return wk.composer;
+  const d = S.docs.find(x => x.id === pieceId.replace(/^d\|/, ''));
+  return d ? d.composer : '';
+}
+// Every piece you could log time against: one row per catalogued work you
+// own a score for (however many scans/editions you have of it), one row
+// per uncatalogued doc.
+function practicePieces(){
+  const seen = new Map();
+  for(const d of S.docs){
+    const id = docRateId(d);
+    if(seen.has(id)) continue;
+    const k = workKeyOf(d);
+    seen.set(id, { pieceId:id, title: k != null ? workShown(d.composer, k) : d.title, composer: d.composer || '' });
+  }
+  return [...seen.values()].sort((a, b) => a.title.localeCompare(b.title, undefined, {numeric:true}));
+}
+
+function practiceSessions(pieceId){ return S.practice.sessions.filter(s => s.pieceId === pieceId); }
+function practiceMsFor(pieceId){ return practiceSessions(pieceId).reduce((sum, s) => sum + (s.ms || 0), 0); }
+function practiceSessionCount(pieceId){ return practiceSessions(pieceId).length; }
+function practiceLastAt(pieceId){
+  const ss = practiceSessions(pieceId);
+  return ss.length ? Math.max(...ss.map(s => s.endedAt || s.startedAt)) : null;
+}
+// Practice time vs. the work's own performance length (its `dur` field,
+// e.g. "c. 5 min") — a quick, slightly wry sense of how much longer it
+// took to learn than it takes to play.
+function practiceEffortRatio(pieceId, durLabel){
+  const m = /(\d+(?:\.\d+)?)\s*min/.exec(durLabel || ''); if(!m) return null;
+  const performMin = parseFloat(m[1]); if(!performMin) return null;
+  return (practiceMsFor(pieceId) / 60000) / performMin;
+}
+
+async function addPracticeSession(session){
+  session.id = uid();
+  S.practice.sessions.push(session);
+  try{ await DB.set(K.practice, S.practice); }
+  catch(e){ toast('Could not save practice time. ' + e.message); }
+  return session;
+}
+
+function practiceDailyTotals(){
+  const map = new Map();
+  for(const s of S.practice.sessions){
+    const day = ptDayStart(s.startedAt);
+    map.set(day, (map.get(day) || 0) + (s.ms || 0));
+  }
+  return map;
+}
+function practiceTotalToday(){
+  const from = ptDayStart(Date.now());
+  return S.practice.sessions.reduce((sum, s) => sum + (s.startedAt >= from ? (s.ms || 0) : 0), 0);
+}
+function practiceTotalWeek(){
+  const from = ptDayStart(Date.now()) - 6*PT_DAY_MS;
+  return S.practice.sessions.reduce((sum, s) => sum + (s.startedAt >= from ? (s.ms || 0) : 0), 0);
+}
+// A day counts toward the streak once it clears a minute; today is
+// allowed to still be empty, so opening the app first thing doesn't
+// already read as a broken streak.
+function practiceStreak(){
+  const byDay = practiceDailyTotals();
+  let streak = 0, cursor = ptDayStart(Date.now());
+  if((byDay.get(cursor) || 0) < 60000) cursor -= PT_DAY_MS;
+  while((byDay.get(cursor) || 0) >= 60000){ streak++; cursor -= PT_DAY_MS; }
+  return streak;
+}
+function practiceHeatmap(days){
+  const byDay = practiceDailyTotals();
+  const today = ptDayStart(Date.now());
+  const out = [];
+  for(let i = days - 1; i >= 0; i--){ const day = today - i*PT_DAY_MS; out.push({ date:day, ms: byDay.get(day) || 0 }); }
+  const max = Math.max(1, ...out.map(v => v.ms));
+  return out.map(v => ({ ...v, level: v.ms === 0 ? 0 : Math.min(4, 1 + Math.floor(v.ms/max*3)) }));
+}
+// Every piece marked learned — a work-level score/movement marking, same
+// as everywhere else in the app — ordered by how long it's been since it
+// was last opened for practice. The point is upkeep, not new learning.
+function practiceLearnedPieces(){
+  const out = [], seenWorks = new Set();
+  for(const d of S.docs){
+    const k = workKeyOf(d);
+    if(k != null){
+      const wid = d.composer + '|' + k;
+      if(seenWorks.has(wid)) continue;
+      seenWorks.add(wid);
+      const prog = workProgress(d.composer, k, ownedWorks(d.composer).get(k) || []);
+      if(prog.l) out.push({ pieceId:`w|${d.composer}|${k}`, title: workShown(d.composer, k), composer:d.composer });
+    }else if(d.learned){
+      out.push({ pieceId: docRateId(d), title:d.title, composer:d.composer });
+    }
+  }
+  return out;
+}
+function practiceColdRepertoire(limit){
+  return practiceLearnedPieces().map(p => {
+    const last = practiceLastAt(p.pieceId);
+    return { ...p, lastAt:last, days: last ? Math.floor((Date.now()-last)/PT_DAY_MS) : Infinity };
+  }).sort((a, b) => b.days - a.days).slice(0, limit || 8);
+}
+function practiceByComposer(){
+  const map = new Map();
+  for(const s of S.practice.sessions){
+    const c = practiceComposer(s.pieceId) || 'Unknown';
+    map.set(c, (map.get(c) || 0) + (s.ms || 0));
+  }
+  return [...map.entries()].map(([key, ms]) => ({ key, ms })).sort((a, b) => b.ms - a.ms);
+}
+
+/* ---------- the live timer ----------
+   Tied to the score reader, not to app-open time. Only FOREGROUND time
+   counts — accumulated from Date.now() deltas around visibilitychange,
+   never a running setInterval count, since iOS suspends timers the moment
+   the app backgrounds or the phone locks and a naive interval drifts.
+   A 15s heartbeat is written to K.practiceLive so a session survives a
+   crash or a swipe-kill; ptRecover() reconciles it at next launch. A
+   session under 90s is treated as provisional and never saved — long
+   enough to rule out "opened it by mistake". */
+const PT = { pieceId:null, partIndex:null, startedAt:0, ms:0, resumeAt:null, hbTimer:null };
+const PT_PROVISIONAL_MS = 90000, PT_HEARTBEAT_MS = 15000;
+
+function ptLiveMs(){ return PT.pieceId ? PT.ms + (PT.resumeAt != null ? Date.now()-PT.resumeAt : 0) : 0; }
+function ptPauseClock(){
+  if(!PT.pieceId || PT.resumeAt == null) return;
+  PT.ms += Date.now() - PT.resumeAt;
+  PT.resumeAt = null;
+}
+function ptResumeClock(){ if(PT.pieceId) PT.resumeAt = Date.now(); }
+
+function ptStart(doc){
+  const pieceId = docRateId(doc);
+  if(PT.pieceId === pieceId) return;
+  if(PT.pieceId) ptStop();   // switching scores without going through the back button
+  PT.pieceId = pieceId; PT.partIndex = null;
+  PT.startedAt = Date.now(); PT.ms = 0; PT.resumeAt = Date.now();
+  ptWriteHeartbeat();
+  PT.hbTimer = setInterval(ptWriteHeartbeat, PT_HEARTBEAT_MS);
+  ptShowBar(); ptStartTicking();
+}
+async function ptStop(){
+  if(!PT.pieceId) return;
+  ptPauseClock();
+  clearInterval(PT.hbTimer); PT.hbTimer = null;
+  ptStopTicking(); ptHideBar();
+  const { pieceId, partIndex, startedAt, ms } = PT;
+  PT.pieceId = null;
+  try{ await DB.del(K.practiceLive); }catch(e){}
+  if(ms < PT_PROVISIONAL_MS) return;
+  await addPracticeSession({ pieceId, partIndex, startedAt, endedAt:Date.now(), ms, source:'auto' });
+  practiceRefreshOpenViews();
+}
+async function ptWriteHeartbeat(){
+  if(!PT.pieceId) return;
+  const ms = ptLiveMs();
+  ptUpdateBar(ms);
+  try{ await DB.set(K.practiceLive, { pieceId:PT.pieceId, partIndex:PT.partIndex, startedAt:PT.startedAt, ms, heartbeatAt:Date.now() }); }
+  catch(e){}
+}
+// Run once at boot, before any doc is opened: silently folds in whatever
+// a previous session's heartbeat had accumulated, if it cleared the
+// provisional threshold.
+async function ptRecover(){
+  let stale;
+  try{ stale = await DB.get(K.practiceLive); }catch(e){ stale = null; }
+  if(!stale) return;
+  try{ await DB.del(K.practiceLive); }catch(e){}
+  if(stale.ms >= PT_PROVISIONAL_MS){
+    await addPracticeSession({ pieceId:stale.pieceId, partIndex:stale.partIndex, startedAt:stale.startedAt, endedAt:stale.heartbeatAt, ms:stale.ms, source:'recovered' });
+    toast(`Recovered ${fmtPracticeMs(stale.ms)} of practice on ${practiceTitle(stale.pieceId)}`, 4000);
+  }
+}
+document.addEventListener('visibilitychange', () => {
+  if(!PT.pieceId) return;
+  if(document.hidden){ ptPauseClock(); ptWriteHeartbeat(); }
+  else ptResumeClock();
+});
+window.addEventListener('beforeunload', () => { if(PT.pieceId){ ptPauseClock(); ptWriteHeartbeat(); } });
+
+function ptShowBar(){ const el = $('#vPractice'); el.style.display = 'flex'; }
+function ptHideBar(){ $('#vPractice').style.display = 'none'; }
+function ptUpdateBar(ms){
+  const el = $('#vPractice'); if(!el || el.style.display === 'none') return;
+  $('#vPracticeTime').textContent = fmtPracticeMs(ms != null ? ms : ptLiveMs());
+}
+let ptTickTimer = null;
+function ptStartTicking(){ clearInterval(ptTickTimer); ptTickTimer = setInterval(() => { if(PT.pieceId) ptUpdateBar(); }, 1000); }
+function ptStopTicking(){ clearInterval(ptTickTimer); ptTickTimer = null; }
+
+/* ---------- dashboard, piece details, and work-page rendering ---------- */
+function practiceRefreshOpenViews(){
+  if($('#mPractice').classList.contains('on')) renderPracticeDashboard();
+  if($('#mWork').classList.contains('on') && WD.composer) openWorkDetail(WD.composer, WD.key, true);
+  if($('#mDetails').classList.contains('on') && editingId){
+    const d = S.docs.find(x => x.id === editingId);
+    if(d) renderDetailsPractice(d);
+  }
+}
+
+function openPracticeDashboard(){ renderPracticeDashboard(); $('#mPractice').classList.add('on'); }
+function renderPracticeDashboard(){
+  const today = practiceTotalToday(), week = practiceTotalWeek(), streak = practiceStreak();
+  const cold = practiceColdRepertoire(8);
+  const byComposer = practiceByComposer().slice(0, 8);
+  const maxComposerMs = byComposer.length ? byComposer[0].ms : 0;
+
+  let h = `<div class="pd-stats">
+      <div class="pd-stat"><span class="v">${fmtPracticeMs(today)}</span><span class="l">Today</span></div>
+      <div class="pd-stat"><span class="v">${fmtPracticeMs(week)}</span><span class="l">This week</span></div>
+      <div class="pd-stat streak"><span class="v">${streak}d</span><span class="l">Streak</span></div>
+    </div>
+    <button type="button" class="pd-logbtn" id="pdLogTime">Log time</button>`;
+
+  if(S.practice.sessions.length){
+    const heat = practiceHeatmap(126);
+    h += `<div class="pd-h5">Last 18 weeks</div><div class="pd-heat">${heat.map(d =>
+      `<i data-lvl="${d.level}" title="${esc(new Date(d.date).toDateString())}: ${fmtPracticeMs(d.ms)}"></i>`).join('')}</div>`;
+  }
+
+  h += `<div class="pd-h5">Needs a revisit</div>`;
+  h += cold.length
+    ? cold.map(p => `<div class="pd-row"><button type="button" class="pd-open" data-open="${esc(p.pieceId)}"><span class="nm">${esc(p.title)}</span><span class="sub">${esc(p.composer)}</span></button><span class="sub${p.days > 30 ? ' stale' : ''}">${p.days === Infinity ? 'never logged' : p.days + 'd ago'}</span></div>`).join('')
+    : `<div class="pd-empty">Nothing marked learned yet — mark a piece Learned in its details, or a movement on its page.</div>`;
+
+  if(byComposer.length){
+    h += `<div class="pd-h5">By composer</div>` + byComposer.map(row =>
+      `<div class="pd-bar"><span class="l">${esc(row.key)}</span><div class="track"><div class="fill" style="width:${Math.max(4, row.ms/maxComposerMs*100)}%"></div></div><span class="v">${fmtPracticeMs(row.ms)}</span></div>`).join('');
+  }
+
+  if(!S.practice.sessions.length) h += `<div class="pd-empty">No practice logged yet — open a piece to start tracking, or log time by hand.</div>`;
+  $('#pdBody').innerHTML = h;
+}
+$('#clPractice').addEventListener('click', openPracticeDashboard);
+$('#pdBack').addEventListener('click', () => $('#mPractice').classList.remove('on'));
+$('#pdBody').addEventListener('click', e => {
+  if(e.target.closest('#pdLogTime')) return openLogTime();
+  const open = e.target.closest('[data-open]');
+  if(open) openFromPieceId(open.dataset.open);
+});
+function openFromPieceId(pieceId){
+  const wk = practiceWorkKeyOf(pieceId);
+  $('#mPractice').classList.remove('on');
+  if(wk) openWorkDetail(wk.composer, wk.key);
+  else openDetails(pieceId.replace(/^d\|/, ''));
+}
+
+function renderDetailsPractice(d){
+  const pieceId = docRateId(d), ms = practiceMsFor(pieceId);
+  if(!ms){ $('#dPractice').innerHTML = `<div class="pempty">No practice time logged yet.</div>`; return; }
+  const last = practiceLastAt(pieceId), n = practiceSessionCount(pieceId);
+  $('#dPractice').innerHTML = `
+    <div class="prow"><span class="pk">Total practice</span><span class="pv">${fmtPracticeMs(ms)}</span></div>
+    <div class="prow"><span class="pk">Sessions</span><span class="pv">${n}</span></div>
+    ${last ? `<div class="prow"><span class="pk">Last practiced</span><span class="pv">${fmtDate(last)}</span></div>` : ''}`;
+}
+$('#dLogTime').addEventListener('click', () => {
+  const d = S.docs.find(x => x.id === editingId); if(!d) return;
+  openLogTime(docRateId(d));
+});
+
+// Rendered into openWorkDetail()'s own template string — see there.
+function practiceWorkBlock(composer, key){
+  const pieceId = `w|${composer}|${key}`, ms = practiceMsFor(pieceId);
+  const last = practiceLastAt(pieceId), n = practiceSessionCount(pieceId);
+  const ratio = practiceEffortRatio(pieceId, workInfo(composer, key).dur);
+  return `<h5>Practice</h5><div class="practice">
+    <div class="prow"><span class="pk">Total practice</span><span class="pv">${ms ? fmtPracticeMs(ms) : '—'}</span></div>
+    ${n ? `<div class="prow"><span class="pk">Sessions</span><span class="pv">${n}</span></div>` : ''}
+    ${last ? `<div class="prow"><span class="pk">Last practiced</span><span class="pv">${fmtDate(last)}</span></div>` : ''}
+    ${ratio ? `<div class="prow"><span class="pk">Effort ratio</span><span class="pv">${ratio.toFixed(0)}× its length</span></div>` : ''}
+    <div class="pactions"><button type="button" data-logpractice="1">Log time</button></div>
+  </div>`;
+}
+
+/* ---------- log time by hand ---------- */
+function openLogTime(presetPieceId){
+  const pieces = practicePieces();
+  const sel = $('#ltPiece');
+  sel.innerHTML = pieces.map(p => `<option value="${esc(p.pieceId)}">${esc(p.title)}</option>`).join('');
+  sel.value = (presetPieceId && pieces.some(p => p.pieceId === presetPieceId)) ? presetPieceId : ((pieces[0] || {}).pieceId || '');
+  refreshLtParts();
+  $('#ltDate').value = new Date().toISOString().slice(0, 10);
+  $('#ltHours').value = ''; $('#ltMins').value = ''; $('#ltNote').value = '';
+  $$('#ltFocus button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  $('#backdrop2').classList.add('on');
+  $('#mLogTime').classList.add('on');
+}
+function closeLogTime(){ $('#mLogTime').classList.remove('on'); $('#backdrop2').classList.remove('on'); }
+function refreshLtParts(){
+  const wk = practiceWorkKeyOf($('#ltPiece').value);
+  const details = wk && WORK_DETAILS[wk.composer] && WORK_DETAILS[wk.composer][wk.key];
+  const parts = details && details.parts;
+  const field = $('#ltPartField'), sel = $('#ltPart');
+  if(parts && parts.length){
+    field.style.display = '';
+    sel.innerHTML = `<option value="">Whole piece</option>` + parts.map((p, i) => `<option value="${i}">${esc(p[0])}</option>`).join('');
+  }else{ field.style.display = 'none'; sel.innerHTML = ''; }
+}
+$('#ltPiece').addEventListener('change', refreshLtParts);
+$$('#ltFocus button').forEach(b => b.addEventListener('click', () => {
+  const now = b.getAttribute('aria-pressed') !== 'true';
+  $$('#ltFocus button').forEach(x => x.setAttribute('aria-pressed', 'false'));
+  b.setAttribute('aria-pressed', String(now));
+}));
+$('#ltCancel').addEventListener('click', closeLogTime);
+$('#ltSave').addEventListener('click', async () => {
+  const pieceId = $('#ltPiece').value; if(!pieceId) return;
+  const ms = (Number($('#ltHours').value || 0)*60 + Number($('#ltMins').value || 0)) * 60000;
+  if(ms <= 0){ $('#ltHours').focus(); return; }
+  const partVal = $('#ltPart').value;
+  const focusBtn = $('#ltFocus button[aria-pressed="true"]');
+  const startedAt = new Date($('#ltDate').value + 'T12:00:00').getTime();
+  await addPracticeSession({
+    pieceId, partIndex: partVal === '' ? undefined : Number(partVal),
+    startedAt, endedAt: startedAt + ms, ms, source:'manual',
+    focus: focusBtn ? focusBtn.dataset.f : undefined,
+    note: $('#ltNote').value.trim() || undefined
+  });
+  closeLogTime();
+  toast('Practice time logged');
+  practiceRefreshOpenViews();
+});
+
 function pieceLevel(d){
   const mine = S.rate[docRateId(d)];
   if(mine) return { lv: mine, mine: true };
@@ -4888,7 +5362,7 @@ $('#ceName').addEventListener('input', () => {
 });
 $('#ceKeys').addEventListener('input', () => { $('#ceKeys').dataset.touched = '1'; });
 $('#ceCancel').addEventListener('click', closeComposerEditor);
-$('#backdrop2').addEventListener('click', closeComposerEditor);
+$('#backdrop2').addEventListener('click', () => ($('#mLogTime').classList.contains('on') ? closeLogTime() : closeComposerEditor()));
 
 async function renameInLibrary(from, to){
   let n = 0;
@@ -5518,6 +5992,7 @@ async function openWorkDetail(composer, key, keepScroll){
     ${ed ? T('div', 'note', I.note, 'lead', 'Short description') : I.note ? `<div class="lead">${esc(I.note)}</div>` : ''}
     <div class="wchips"><span>${esc(catalogueLabel(key))}</span>${I.tonality ? `<span>${esc(I.tonality)}</span>` : ''}${I.per ? `<span>${esc(I.per)}</span>` : ''}</div>
     <h5>Difficulty</h5>${difficultyBlock(composer, key, null, rateBlock(`w|${composer}|${key}`, 'Your rating'))}
+    ${!ed ? practiceWorkBlock(composer, key) : ''}
     ${ed || hasFacts ? `<dl class="facts">${WD_FIELDS.map(([f, l]) => fact(f, l)).join('')}</dl>` : ''}
     <h5>In your library</h5>
     <div class="have">${docs.length
@@ -5568,6 +6043,7 @@ $('#wdEdit').addEventListener('click', async () => {
 });
 $('#wdBody').addEventListener('click', async e => {
   if(e.target.closest('[data-addscore]')) return $('#workPicker').click();
+  if(e.target.closest('[data-logpractice]')) return openLogTime(`w|${WD.composer}|${WD.key}`);
   if(e.target.closest('[data-addfact]')){
     const ul = $('#wdBody .dyk');
     const li = document.createElement('li');
@@ -6590,6 +7066,7 @@ async function openDoc(id){
     measure();
     setTimeout(measure, 320);   // again once the slide-in transition has settled
     await renderPage();
+    ptStart(doc);   // the score is actually on screen now — start the practice clock
   }catch(err){
     console.error(err); toast('Could not open that file: ' + (err && err.message ? err.message : 'unknown error'), 5000);
   }
@@ -6599,6 +7076,7 @@ async function openDoc(id){
 $('#vBack').addEventListener('click', async () => {
   if(!$('#viewer').classList.contains('open')) return;
   resetGestures();
+  ptStop();   // freezes the clock immediately; the save itself finishes in the background
   /* Save first, but never wait on it for long. iOS storage occasionally stalls
      (typically after the app has been in the background), and waiting on it
      indefinitely is what made the back button do nothing. The save carries on
@@ -6619,6 +7097,7 @@ $('#vBack').addEventListener('click', async () => {
 function closeDocument(){
   resetGestures();
   releaseWakeLock();
+  ptStop();   // no-op if #vBack already stopped it; a safety net for any other path that closes the viewer
   if(V.pdf && V.id && stageW){
     const sk = stageKey();
     for(let n = 1; n <= V.pdf.numPages; n++) if(!Raster.has(n, sk)){ Prep.add(V.id); break; }
@@ -8293,6 +8772,7 @@ async function boot(){
     await setupPdfEngine();
     syncInkPanel();
     await loadLibrary();
+    await ptRecover();
   }catch(err){
     console.error(err);
     showStartupError('Something unexpected happened while starting up: ' + err.message);
