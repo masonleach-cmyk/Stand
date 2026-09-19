@@ -3738,7 +3738,7 @@ const DIFFICULTY = {
 
 /* The full "about"/"context"/"movements" prose for every catalogued work is
    the bulk of this app's data — moving it out of the page it into
-   data/work-details/<composer-slug>.json (one file per composer, fetched the
+   <composer-slug>.json, alongside index.html (one file per composer, fetched the
    first time you open that composer's Works or a piece's About page) keeps the
    page itself light. WORK_DETAILS starts empty and fills in per composer as
    you browse; the service worker still caches every composer's file at
@@ -3756,7 +3756,7 @@ const WD_LOADING = {};
 function ensureWorkDetails(composer){
   if(WORK_DETAILS[composer]) return Promise.resolve(WORK_DETAILS[composer]);
   if(!WD_LOADING[composer]){
-    WD_LOADING[composer] = fetch(`data/work-details/${composerSlug(composer)}.json`)
+    WD_LOADING[composer] = fetch(`${composerSlug(composer)}.json`)
       .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(d => { WORK_DETAILS[composer] = d; return d; })
       .catch(err => {
