@@ -1,6 +1,15 @@
 // Stand — offline cache.
 // Bump CACHE when you change any file, or browsers will keep serving the old one.
-const CACHE = 'stand-v55';
+const CACHE = 'stand-v56';
+
+// The composer prose that used to live inline in index.html now ships as its
+// own file per composer, fetched lazily. Listed here too so the very first
+// install still leaves the whole app usable offline, same as before.
+const WORK_DETAILS_FILES = [
+  'ludwig-van-beethoven', 'frederic-chopin', 'claude-debussy',
+  'wolfgang-amadeus-mozart', 'sergei-rachmaninoff', 'alexander-scriabin',
+  'franz-schubert', 'robert-schumann', 'franz-liszt'
+].map(slug => `./data/work-details/${slug}.json`);
 
 const SHELL = [
   './',
@@ -11,7 +20,8 @@ const SHELL = [
   './apple-touch-icon.png',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js',
+  ...WORK_DETAILS_FILES
 ];
 
 self.addEventListener('install', e => {
