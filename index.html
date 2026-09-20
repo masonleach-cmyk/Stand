@@ -411,14 +411,6 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .mrow.cur .num{background:var(--pencil);border-color:var(--pencil);color:#fff}
 
 /* ---- practice time ---- */
-#vPractice{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.82);
-  font-variant-numeric:tabular-nums;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 5px rgba(0,0,0,.5)}
-#vPractice .dot{width:7px;height:7px;border-radius:50%;background:var(--pencil-hi);flex:none;
-  animation:vpPulse 2.2s ease-in-out infinite}
-#vPractice.paused .dot{background:rgba(255,255,255,.4);animation:none}
-@keyframes vpPulse{0%,100%{opacity:1}50%{opacity:.3}}
-@media (prefers-reduced-motion:reduce){#vPractice .dot{animation:none}}
-
 .wd .practice{margin:0 8px 16px;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .wd .practice .prow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .wd .practice .prow + .prow{margin-top:6px}
@@ -436,34 +428,146 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .dpractice .pv{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums}
 .dpractice .pempty{font-size:13px;color:var(--text-faint);padding:4px 0}
 
-/* ---- practice dashboard panel ---- */
+/* ---- practice panel ---- */
 #mPractice{z-index:44}
-.pdash{padding:6px 20px 40px}
-.pd-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 4px}
-.pd-stat{background:var(--slate-2);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px}
-.pd-stat .v{font-family:var(--serif);font-size:21px;font-weight:600;display:block;color:var(--text)}
-.pd-stat .l{font-size:11.5px;color:var(--text-faint)}
-.pd-stat.streak .v{color:var(--pencil-hi)}
-.pd-h5{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-faint);margin:22px 2px 8px}
-.pd-heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px;overflow-x:auto;padding-bottom:6px}
-.pd-heat i{width:11px;height:11px;border-radius:3px;background:var(--slate-3);flex:none;display:block}
-.pd-heat i[data-lvl="1"]{background:rgba(110,147,201,.28)}
-.pd-heat i[data-lvl="2"]{background:rgba(110,147,201,.5)}
-.pd-heat i[data-lvl="3"]{background:rgba(110,147,201,.75)}
-.pd-heat i[data-lvl="4"]{background:var(--pencil-hi)}
-.pd-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
-.pd-row:last-child{border-bottom:none}
-.pd-row button.pd-open{text-align:left;flex:1;min-width:0}
-.pd-row .nm{font-size:14px;color:var(--text);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pd-row .sub{font-size:12px;color:var(--text-faint);margin-top:1px}
-.pd-row .stale{color:var(--pencil-hi)}
-.pd-bar{display:flex;align-items:center;gap:10px;padding:6px 0}
-.pd-bar .l{font-size:13px;width:36%;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
-.pd-bar .track{flex:1;height:6px;border-radius:3px;background:var(--slate-3);overflow:hidden}
-.pd-bar .fill{height:100%;background:var(--pencil-hi);border-radius:3px}
-.pd-bar .v{font-size:12px;color:var(--text-faint);width:3.6em;text-align:right;flex:none}
-.pd-empty{font-size:13.5px;color:var(--text-faint);padding:20px 4px;text-align:center;border:1px dashed var(--line);border-radius:12px;margin-top:8px}
-.pd-logbtn{width:100%;height:44px;border-radius:11px;background:var(--pencil);color:#fff;font-size:14.5px;font-weight:600;margin-top:6px}
+#mPractice.over{z-index:46}
+.pd-seg{position:relative;display:flex;padding:3px;border-radius:10px;background:var(--slate-3);border:1px solid var(--line);flex:none}
+.pd-seg button{flex:1;position:relative;z-index:1;height:30px;font-size:13px;color:var(--text-dim);transition:color .25s;white-space:nowrap}
+.pd-seg button.on{color:var(--text)}
+.pd-seg .pdk{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/var(--n,2));border-radius:8px;background:var(--slate);
+  box-shadow:0 1px 3px rgba(0,0,0,.35);transform:translateX(calc(var(--i,0)*100%));transition:transform .38s cubic-bezier(.22,.8,.24,1)}
+.pd-seg.sm{width:184px}
+.pd-seg.sm button{height:26px;font-size:12.5px}
+.pd-tabs{margin:2px 16px 6px}
+.pdash{padding:8px 20px calc(var(--safe-b) + 40px)}
+.pdash h4{text-transform:none;letter-spacing:0}
+.pd-range{margin:4px 0 20px}
+
+.pd-hero .big{font-family:var(--serif);font-size:48px;font-weight:600;line-height:1.05;letter-spacing:-.01em;font-variant-numeric:lining-nums tabular-nums}
+.pd-hero .cap{font-size:14px;color:var(--text);margin-top:8px}
+.pd-hero .dl{font-size:13px;color:var(--text-dim);margin-top:2px;min-height:19px}
+.pd-hero .dl b{font-weight:600;color:var(--text)}
+
+.pd-chart{position:relative;height:132px;margin:26px 2px 0}
+.pd-chart .st{position:absolute;left:0;right:0;height:1px;background:var(--line);opacity:.75}
+.pd-chart .st:nth-child(even){opacity:.4}
+.pd-bars{position:absolute;inset:0;display:grid;grid-template-columns:repeat(var(--n),1fr);gap:var(--gap,4px)}
+.pd-bars button{position:relative;display:flex;align-items:flex-end;justify-content:center;padding:0;min-width:0}
+.pd-bars span{display:block;width:100%;max-width:26px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,var(--pencil-hi),var(--pencil));transition:opacity .2s,filter .2s}
+.pd-bars.has button:not(.sel) span{opacity:.35}
+.pd-bars button.sel span{filter:brightness(1.18)}
+.pd-bars .rest span{height:5px!important;width:5px;border-radius:50%;background:var(--text-faint);margin-bottom:-2.5px}
+.pd-avg{position:absolute;left:0;right:0;border-top:1px dashed #C9A45C;pointer-events:none;opacity:.85}
+.pd-ymax{position:absolute;left:0;right:0;top:-18px;display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-faint);font-variant-numeric:tabular-nums}
+.pd-ymax .av{display:flex;align-items:center;gap:6px;color:#C9A45C}
+.pd-ymax .av i{display:block;width:14px;border-top:1px dashed #C9A45C}
+.pd-x{position:relative;height:18px;margin:9px 2px 0;font-size:11px;color:var(--text-faint)}
+.pd-x span{position:absolute;top:0;white-space:nowrap}
+.pd-x .now{color:var(--text)}
+
+.pd-metrics{display:grid;grid-template-columns:1fr 1fr;margin:24px 0 0;border-top:1px solid var(--line)}
+.pd-metrics>div{padding:12px 0 11px;border-bottom:1px solid var(--line);min-width:0}
+.pd-metrics>div:nth-child(odd){padding-right:14px}
+.pd-metrics>div:nth-child(even){padding-left:16px;border-left:1px solid var(--line)}
+.pd-metrics .v{display:block;font-family:var(--serif);font-size:21px;font-weight:600;line-height:1.2;font-variant-numeric:lining-nums tabular-nums}
+.pd-metrics .l{display:block;font-size:12.5px;color:var(--text-faint);margin-top:2px}
+
+.pd-sec{margin-top:32px}
+.pd-sec:empty{display:none}
+.pd-t{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;min-height:26px}
+.pdash .pd-t h4{margin:0;font-family:var(--serif);font-weight:600;font-size:18px;color:var(--text)}
+.pd-t>span{font-size:12.5px;color:var(--text-faint)}
+.pd-hint{font-size:13px;line-height:1.5;color:var(--text-faint);margin:0}
+
+.pd-heat{display:grid;grid-template-columns:14px 1fr;column-gap:7px}
+.pd-mo{grid-column:2;display:grid;grid-template-columns:repeat(18,1fr);gap:3px;height:15px;font-size:10.5px;color:var(--text-faint)}
+.pd-mo span{grid-row:1;white-space:nowrap}
+.pd-dw{display:grid;grid-template-rows:repeat(7,1fr);gap:3px;font-size:10px;color:var(--text-faint);align-items:center}
+.pd-cells{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,auto);grid-template-columns:repeat(18,1fr);gap:3px}
+.pd-cells button{aspect-ratio:1;border-radius:3.5px;background:var(--slate-3);padding:0;min-width:0}
+.pd-cells button[data-lvl="1"]{background:rgba(110,147,201,.3)}
+.pd-cells button[data-lvl="2"]{background:rgba(110,147,201,.52)}
+.pd-cells button[data-lvl="3"]{background:rgba(110,147,201,.76)}
+.pd-cells button[data-lvl="4"]{background:var(--pencil-hi)}
+.pd-cells button.fut{visibility:hidden;pointer-events:none}
+.pd-cells button.sel{box-shadow:0 0 0 1.5px var(--text)}
+.pd-heatcap{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:11px;font-size:12.5px;color:var(--text-dim);min-height:18px}
+.pd-legend{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text-faint);flex:none}
+.pd-legend i{display:block;width:10px;height:10px;border-radius:3px;background:var(--slate-3)}
+.pd-legend i[data-lvl="1"]{background:rgba(110,147,201,.3)}
+.pd-legend i[data-lvl="2"]{background:rgba(110,147,201,.52)}
+.pd-legend i[data-lvl="3"]{background:rgba(110,147,201,.76)}
+.pd-legend i[data-lvl="4"]{background:var(--pencil-hi)}
+
+.pd-rank{display:block;width:100%;text-align:left;padding:11px 0}
+.pd-rank .top{display:flex;align-items:center;gap:12px}
+.pd-rank+.pd-rank{border-top:1px solid var(--line)}
+button.pd-rank:active{opacity:.7}
+.pd-rank .tx{flex:1;min-width:0}
+.pd-rank .nm{display:block;font-size:14.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pd-rank .sub{display:block;font-size:12px;color:var(--text-faint);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pd-rank .v{flex:none;font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums}
+.pd-rank .v.stale{color:#C9A45C}
+.pd-trk{display:block;height:3px;border-radius:2px;background:var(--slate-3);margin-top:9px;overflow:hidden}
+.pd-trk i{display:block;height:100%;border-radius:2px;background:var(--pencil-hi)}
+
+.pd-split{display:flex;gap:3px;height:10px;border-radius:5px;overflow:hidden}
+.pd-split i{display:block;height:100%;background:var(--c)}
+.pd-lgs{margin-top:10px}
+.pd-lg{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13.5px}
+.pd-lg .d{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
+.pd-lg .n{flex:1}
+.pd-lg .v{color:var(--text-dim);font-size:13px;font-variant-numeric:tabular-nums}
+
+.pd-hours{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;height:64px;align-items:end}
+.pd-hours i{display:block;background:var(--slate-3);border-radius:2px 2px 1px 1px;min-height:2px}
+.pd-hours i.pk{background:var(--pencil-hi)}
+.pd-hx{position:relative;height:16px;margin-top:7px;font-size:11px;color:var(--text-faint)}
+.pd-hx span{position:absolute;top:0;white-space:nowrap}
+.pd-cap2{font-size:13px;color:var(--text-dim);margin-top:8px;line-height:1.45}
+
+.pd-empty{font-size:14px;line-height:1.5;color:var(--text-dim);padding:26px 20px;text-align:center;border:1px dashed var(--line);border-radius:14px;margin-top:8px}
+.pd-empty button{margin-top:14px;height:42px;padding:0 20px;border-radius:11px;background:var(--pencil);color:#fff;font-size:14.5px;font-weight:600}
+
+/* sessions tab */
+.pd-filters{display:none;flex:none}
+.pd-filters.on{display:block}
+.pd-filters .searchrow{padding:4px 16px 8px}
+#pdSearch::-webkit-search-cancel-button{-webkit-appearance:none}
+.pd-chips{display:flex;gap:8px;padding:0 16px 6px;overflow-x:auto;scrollbar-width:none}
+.pd-chips::-webkit-scrollbar{display:none}
+.pd-chips .chip{height:32px;font-size:13px;padding:0 13px}
+.pd-logsum{font-size:12.5px;color:var(--text-faint);margin:2px 2px 0}
+.pd-dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:22px 2px 4px;font-family:var(--serif);font-size:16px;font-weight:600}
+.pd-dayhead span:last-child{font-family:var(--sans);font-size:12.5px;font-weight:400;color:var(--text-faint);font-variant-numeric:tabular-nums}
+.pd-ses{border-top:1px solid var(--line)}
+.pd-ses .hd{display:grid;grid-template-columns:56px minmax(0,1fr) auto;column-gap:10px;align-items:start;width:100%;text-align:left;padding:12px 2px}
+.pd-ses .hd:active{opacity:.7}
+.pd-ses .tm{font-size:12px;color:var(--text-faint);padding-top:2px;font-variant-numeric:tabular-nums;line-height:1.4}
+.pd-ses .nm{display:block;font-size:14.5px;color:var(--text);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pd-ses .sub{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-faint);margin-top:2px;min-width:0}
+.pd-ses .sub .ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pd-ses .ft{display:inline-flex;align-items:center;gap:5px;flex:none}
+.pd-ses .ft i{width:7px;height:7px;border-radius:50%;background:var(--c);display:block}
+.pd-ses .du{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums;padding-top:1px}
+.pd-ses .body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .26s cubic-bezier(.32,.72,0,1)}
+.pd-ses.open .body{grid-template-rows:1fr}
+.pd-ses .body>div{overflow:hidden;min-height:0}
+.pd-ses .in{padding:0 2px 14px 68px}
+.pd-ses dl{margin:0}
+.pd-ses dl div{display:flex;gap:10px;padding:3px 0;font-size:13px}
+.pd-ses dt{flex:none;width:72px;color:var(--text-faint)}
+.pd-ses dd{margin:0;color:var(--text);min-width:0}
+.pd-ses .note{margin:8px 0 0;padding:9px 11px;border-radius:9px;background:var(--slate-2);border:1px solid var(--line);font-size:13.5px;line-height:1.5;white-space:pre-wrap;color:var(--text)}
+.pd-acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.pd-acts button{height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--line);background:var(--slate-2);font-size:13px;color:var(--text)}
+.pd-acts .danger{color:#D9776F;margin-left:auto}
+.pd-acts .danger.arm{background:var(--red);border-color:var(--red);color:#fff}
+.pd-more{display:block;width:100%;height:42px;margin-top:14px;border-radius:11px;border:1px solid var(--line);background:var(--slate-2);color:var(--text-dim);font-size:14px}
+@media (prefers-reduced-motion:reduce){.pd-ses .body,.pd-seg .pdk{transition:none}}
+.dpractice .plink .pv::after,.wd .practice .plink .pv::after{content:' \203A';color:var(--text-faint)}
+.dpractice .plink .pv,.wd .practice .plink .pv{color:var(--pencil-hi)}
+.dpractice .plink,.wd .practice .plink{width:100%;text-align:left;min-height:0}
 
 /* ---- log practice time (manual entry) ---- */
 #mLogTime .field select{width:100%;background:var(--slate-2);border:1px solid var(--line);border-radius:9px;
@@ -993,8 +1097,6 @@ svg{display:block}
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
 
-    <span id="vPractice" style="display:none"><i class="dot"></i><span id="vPracticeTime">0m</span></span>
-
     <button id="mPrev" aria-label="Previous page" style="display:none">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
@@ -1158,7 +1260,18 @@ svg{display:block}
   <div class="panel-head">
     <button class="linkbtn" id="pdBack">Back</button>
     <h3>Practice</h3>
-    <span class="linkbtn" aria-hidden="true"></span>
+    <button class="linkbtn" id="pdLog">Log time</button>
+  </div>
+  <div class="pd-seg pd-tabs" id="pdTabs" style="--n:2;--i:0"><span class="pdk"></span>
+    <button type="button" data-tab="overview" class="on">Overview</button>
+    <button type="button" data-tab="log">Sessions</button>
+  </div>
+  <div class="pd-filters" id="pdFilters">
+    <div class="searchrow"><div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7688" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input id="pdSearch" type="search" placeholder="Search pieces, composers, notes" autocomplete="off" enterkeyhint="search">
+    </div></div>
+    <div class="pd-chips" id="pdChips"></div>
   </div>
   <div class="plist pdash" id="pdBody"></div>
 </div>
@@ -1185,7 +1298,7 @@ svg{display:block}
 
 <div class="sheetmodal compact top" id="mLogTime">
   <div class="grab"></div>
-  <h3>Log practice time</h3>
+  <h3 id="ltHead">Log practice time</h3>
   <div class="field"><label for="ltPiece">Piece</label><select id="ltPiece"></select></div>
   <div class="field" id="ltPartField" style="display:none"><label for="ltPart">Movement</label><select id="ltPart"></select></div>
   <div class="field"><label for="ltDate">Date</label><input id="ltDate" type="date"></div>
@@ -4823,14 +4936,6 @@ function practiceStreak(){
   while((byDay.get(cursor) || 0) >= 60000){ streak++; cursor -= PT_DAY_MS; }
   return streak;
 }
-function practiceHeatmap(days){
-  const byDay = practiceDailyTotals();
-  const today = ptDayStart(Date.now());
-  const out = [];
-  for(let i = days - 1; i >= 0; i--){ const day = today - i*PT_DAY_MS; out.push({ date:day, ms: byDay.get(day) || 0 }); }
-  const max = Math.max(1, ...out.map(v => v.ms));
-  return out.map(v => ({ ...v, level: v.ms === 0 ? 0 : Math.min(4, 1 + Math.floor(v.ms/max*3)) }));
-}
 // Every piece marked learned — a work-level score/movement marking, same
 // as everywhere else in the app — ordered by how long it's been since it
 // was last opened for practice. The point is upkeep, not new learning.
@@ -4893,24 +4998,22 @@ function ptStart(doc){
   PT.startedAt = Date.now(); PT.ms = 0; PT.resumeAt = Date.now();
   ptWriteHeartbeat();
   PT.hbTimer = setInterval(ptWriteHeartbeat, PT_HEARTBEAT_MS);
-  ptShowBar(); ptStartTicking();
 }
 async function ptStop(){
   if(!PT.pieceId) return;
   ptPauseClock();
   clearInterval(PT.hbTimer); PT.hbTimer = null;
-  ptStopTicking(); ptHideBar();
   const { pieceId, partIndex, startedAt, ms } = PT;
   PT.pieceId = null;
   try{ await DB.del(K.practiceLive); }catch(e){}
   if(ms < PT_PROVISIONAL_MS) return;
   await addPracticeSession({ pieceId, partIndex, startedAt, endedAt:Date.now(), ms, source:'auto' });
+  toast(`Logged ${fmtPracticeMs(ms)} on ${practiceTitle(pieceId)}`);
   practiceRefreshOpenViews();
 }
 async function ptWriteHeartbeat(){
   if(!PT.pieceId) return;
   const ms = ptLiveMs();
-  ptUpdateBar(ms);
   try{ await DB.set(K.practiceLive, { pieceId:PT.pieceId, partIndex:PT.partIndex, startedAt:PT.startedAt, ms, heartbeatAt:Date.now() }); }
   catch(e){}
 }
@@ -4934,17 +5037,294 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('beforeunload', () => { if(PT.pieceId){ ptPauseClock(); ptWriteHeartbeat(); } });
 
-function ptShowBar(){ const el = $('#vPractice'); el.style.display = 'flex'; }
-function ptHideBar(){ $('#vPractice').style.display = 'none'; }
-function ptUpdateBar(ms){
-  const el = $('#vPractice'); if(!el || el.style.display === 'none') return;
-  $('#vPracticeTime').textContent = fmtPracticeMs(ms != null ? ms : ptLiveMs());
+/* ---------- practice panel: overview and session log ---------- */
+const ptAddDays = (t, n) => { const d = new Date(t); d.setDate(d.getDate() + n); return +d; };
+const ptInputDate = t => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+const pdDur = ms => ms <= 0 ? '0m' : fmtPracticeMs(ms);
+const fmtClock = t => new Date(t).toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+const fmtDayLong = t => new Date(t).toLocaleDateString(undefined, { weekday:'short', day:'numeric', month:'short' });
+const fmtDayShort = t => new Date(t).toLocaleDateString(undefined, { day:'numeric', month:'short' });
+function pdDayLabel(day){
+  const today = ptDayStart(Date.now());
+  if(day === today) return 'Today';
+  if(day === ptAddDays(today, -1)) return 'Yesterday';
+  const sameYear = new Date(day).getFullYear() === new Date().getFullYear();
+  return new Date(day).toLocaleDateString(undefined, { weekday:'long', day:'numeric', month:'long', year: sameYear ? undefined : 'numeric' });
 }
-let ptTickTimer = null;
-function ptStartTicking(){ clearInterval(ptTickTimer); ptTickTimer = setInterval(() => { if(PT.pieceId) ptUpdateBar(); }, 1000); }
-function ptStopTicking(){ clearInterval(ptTickTimer); ptTickTimer = null; }
+function practicePartName(s){
+  if(s.partIndex == null) return '';
+  const wk = practiceWorkKeyOf(s.pieceId);
+  const d = wk && WORK_DETAILS[wk.composer] && WORK_DETAILS[wk.composer][wk.key];
+  return d && d.parts && d.parts[s.partIndex] ? d.parts[s.partIndex][0] : '';
+}
+const PD_FOCUS = {
+  reading:{ n:'Reading', c:'#6E93C9' }, technique:{ n:'Technique', c:'#7FB59F' },
+  memorizing:{ n:'Memorizing', c:'#C9A45C' }, 'run-through':{ n:'Run-through', c:'#B489AE' }
+};
+const PD_UNTAGGED = '#4A5364';
+const PD_RANGES = {
+  week:    { days:7,  size:1, label:'Last 7 days',   prev:'the 7 days before' },
+  month:   { days:30, size:1, label:'Last 30 days',  prev:'the 30 days before' },
+  quarter: { days:84, size:7, label:'Last 12 weeks', prev:'the 12 weeks before' }
+};
+const PD = { tab:'overview', range:'week', sel:null, ptab:'pieces', piece:null, q:'', src:'all', open:null, limit:60, arm:null, armT:null, D:null };
 
-/* ---------- dashboard, piece details, and work-page rendering ---------- */
+function practiceLongestStreak(){
+  const days = [...practiceDailyTotals()].filter(([, ms]) => ms >= 60000).map(([d]) => d).sort((a, b) => a - b);
+  let best = 0, run = 0, prev = null;
+  for(const d of days){ run = (prev != null && Math.round((d - prev) / PT_DAY_MS) === 1) ? run + 1 : 1; best = Math.max(best, run); prev = d; }
+  return best;
+}
+function practiceRangeData(key){
+  const R = PD_RANGES[key], today = ptDayStart(Date.now());
+  const from = ptAddDays(today, -(R.days - 1)), to = ptAddDays(today, 1), prevFrom = ptAddDays(from, -R.days);
+  const n = R.days / R.size;
+  const buckets = Array.from({ length:n }, (_, i) => ({ start:ptAddDays(from, i * R.size), ms:0, count:0 }));
+  const sessions = [], dayMs = new Map(); let prev = 0;
+  for(const s of S.practice.sessions){
+    const t = s.startedAt, ms = s.ms || 0;
+    if(t >= from && t < to){
+      sessions.push(s);
+      const dk = ptDayStart(t);
+      const idx = Math.min(n - 1, Math.floor(Math.round((dk - from) / PT_DAY_MS) / R.size));
+      buckets[idx].ms += ms; buckets[idx].count++;
+      dayMs.set(dk, (dayMs.get(dk) || 0) + ms);
+    }else if(t >= prevFrom && t < from) prev += ms;
+  }
+  const total = buckets.reduce((a, b) => a + b.ms, 0);
+  let best = null; for(const [date, ms] of dayMs) if(!best || ms > best.ms) best = { date, ms };
+  return { R, key, buckets, sessions, total, prev, best, active:dayMs.size, count:sessions.length,
+    avgSession: sessions.length ? total / sessions.length : 0,
+    longest: sessions.reduce((m, s) => Math.max(m, s.ms || 0), 0), dailyAvg: total / R.days };
+}
+
+function pdHeroText(){
+  const D = PD.D, i = PD.sel;
+  if(i == null){
+    let delta = '';
+    if(D.prev > 0){
+      const p = Math.round((D.total - D.prev) / D.prev * 100);
+      delta = p === 0 ? `Level with ${D.R.prev}` : `<b>${Math.abs(p)}% ${p > 0 ? 'more' : 'less'}</b> than ${D.R.prev}`;
+    }else if(D.total > 0) delta = `Nothing logged in ${D.R.prev}`;
+    return { big:pdDur(D.total), cap:D.R.label, delta };
+  }
+  const b = D.buckets[i];
+  const cap = D.R.size === 1 ? fmtDayLong(b.start) : `Week of ${fmtDayShort(b.start)}`;
+  return { big: b.ms ? pdDur(b.ms) : 'Rest', cap, delta: b.count ? `${b.count} session${b.count > 1 ? 's' : ''}` : 'Nothing logged' };
+}
+function pdPaintHero(){
+  const t = pdHeroText();
+  $('#pdBig').textContent = t.big; $('#pdCap').textContent = t.cap; $('#pdDelta').innerHTML = t.delta;
+}
+function pdRangeHtml(){
+  const D = PD.D, R = D.R, n = D.buckets.length, today = ptDayStart(Date.now());
+  const max = Math.max(1, ...D.buckets.map(b => b.ms));
+  const t = pdHeroText();
+  let lines = ''; for(let i = 0; i < 5; i++) lines += `<i class="st" style="bottom:calc(${i * 25}% - .5px)"></i>`;
+  const bars = D.buckets.map((b, i) => {
+    const h = b.ms ? Math.max(5, b.ms / max * 100) : 0;
+    const lab = R.size === 1 ? fmtDayLong(b.start) : 'Week of ' + fmtDayShort(b.start);
+    return `<button type="button" data-bar="${i}" class="${b.ms ? '' : 'rest'}${PD.sel === i ? ' sel' : ''}" aria-label="${esc(lab)}: ${pdDur(b.ms)}"><span style="height:${h}%"></span></button>`;
+  }).join('');
+  const avg = D.total / n, avgPct = avg / max * 100;
+  const showAvg = D.total > 0 && avgPct > 4 && avgPct < 96;
+  const avgLine = showAvg ? `<div class="pd-avg" style="bottom:${avgPct}%"></div>` : '';
+  const legend = D.total > 0 ? `<div class="pd-ymax"><span>${pdDur(max)}</span>${showAvg ? `<span class="av"><i></i>avg ${pdDur(avg)}${R.size === 7 ? ' a week' : ''}</span>` : ''}</div>` : '';
+  let xs = '';
+  D.buckets.forEach((b, i) => {
+    const show = R.days === 7 ? true : R.days === 30 ? (n - 1 - i) % 7 === 0 : (n - 1 - i) % 3 === 0;
+    if(!show) return;
+    const pos = (i + .5) / n * 100;
+    const txt = R.days === 7 ? new Date(b.start).toLocaleDateString(undefined, { weekday:'narrow' }) : fmtDayShort(b.start);
+    const now = R.size === 1 && b.start === today;
+    xs += `<span class="${now ? 'now' : ''}" style="left:${pos}%;transform:translateX(-${pos}%)">${esc(txt)}</span>`;
+  });
+  const cells = [
+    [pdDur(D.dailyAvg), 'Daily average'],
+    [`${D.active} of ${R.days}`, 'Days practiced'],
+    [String(D.count), D.count === 1 ? 'Session' : 'Sessions'],
+    [D.count ? pdDur(D.avgSession) : '—', 'Average session'],
+    [D.count ? pdDur(D.longest) : '—', 'Longest session'],
+    [D.best ? pdDur(D.best.ms) : '—', D.best ? 'Best day, ' + fmtDayShort(D.best.date) : 'Best day']
+  ];
+  return `<div class="pd-hero"><div class="big" id="pdBig">${t.big}</div><div class="cap" id="pdCap">${esc(t.cap)}</div><div class="dl" id="pdDelta">${t.delta}</div></div>
+    <div class="pd-chart">${legend}${lines}${avgLine}
+      <div class="pd-bars${PD.sel != null ? ' has' : ''}" style="--n:${n};--gap:${n > 20 ? 2 : 5}px">${bars}</div></div>
+    <div class="pd-x">${xs}</div>
+    <div class="pd-metrics">${cells.map(c => `<div><span class="v">${esc(c[0])}</span><span class="l">${esc(c[1])}</span></div>`).join('')}</div>`;
+}
+function pdRankHtml(){
+  const D = PD.D, map = new Map(), pieces = PD.ptab === 'pieces';
+  for(const s of D.sessions){
+    const k = pieces ? s.pieceId : (practiceComposer(s.pieceId) || 'Unknown');
+    map.set(k, (map.get(k) || 0) + (s.ms || 0));
+  }
+  const rows = [...map].map(([k, ms]) => ({ k, ms })).sort((a, b) => b.ms - a.ms).slice(0, 6);
+  if(!rows.length) return `<p class="pd-hint">Nothing logged in this period.</p>`;
+  return rows.map(r => {
+    const inner = `<span class="top"><span class="tx"><span class="nm">${esc(pieces ? practiceTitle(r.k) : r.k)}</span>${pieces ? `<span class="sub">${esc(practiceComposer(r.k))}</span>` : ''}</span><span class="v">${pdDur(r.ms)}</span></span><span class="pd-trk"><i style="width:${Math.max(4, r.ms / rows[0].ms * 100)}%"></i></span>`;
+    return pieces ? `<button type="button" class="pd-rank" data-open="${esc(r.k)}">${inner}</button>` : `<div class="pd-rank">${inner}</div>`;
+  }).join('');
+}
+function pdFocusHtml(){
+  const D = PD.D; if(!D.count) return '';
+  const by = new Map(); let tagged = 0;
+  for(const s of D.sessions){ const k = PD_FOCUS[s.focus] ? s.focus : ''; if(k) tagged++; by.set(k, (by.get(k) || 0) + (s.ms || 0)); }
+  const head = `<div class="pd-t"><h4>How you practiced</h4></div>`;
+  if(!tagged) return head + `<p class="pd-hint">Give a session a focus from the Sessions tab and the split shows up here.</p>`;
+  const rows = [...by].map(([k, ms]) => ({ ms, n:k ? PD_FOCUS[k].n : 'No focus set', c:k ? PD_FOCUS[k].c : PD_UNTAGGED })).sort((a, b) => b.ms - a.ms);
+  const tot = D.total || 1;
+  return head + `<div class="pd-split">${rows.map(r => `<i style="flex:${r.ms};--c:${r.c}"></i>`).join('')}</div>
+    <div class="pd-lgs">${rows.map(r => `<div class="pd-lg" style="--c:${r.c}"><i class="d"></i><span class="n">${esc(r.n)}</span><span class="v">${pdDur(r.ms)}, ${Math.round(r.ms / tot * 100)}%</span></div>`).join('')}</div>`;
+}
+function pdHoursHtml(){
+  const hrs = new Array(24).fill(0); let n = 0;
+  for(const s of S.practice.sessions){ if(s.source === 'manual') continue; hrs[new Date(s.startedAt).getHours()] += s.ms || 0; n++; }
+  if(n < 3) return '';
+  const max = Math.max(1, ...hrs), parts = { morning:0, afternoon:0, evening:0, night:0 };
+  hrs.forEach((v, h) => { parts[h >= 5 && h < 12 ? 'morning' : h >= 12 && h < 17 ? 'afternoon' : h >= 17 && h < 22 ? 'evening' : 'night'] += v; });
+  const sum = hrs.reduce((a, b) => a + b, 0) || 1;
+  const [top, topMs] = Object.entries(parts).sort((a, b) => b[1] - a[1])[0];
+  const where = top === 'night' ? 'late at night' : 'in the ' + top;
+  const labs = [[0, '12a'], [6, '6a'], [12, '12p'], [18, '6p']].map(([h, t]) => { const p = (h + .5) / 24 * 100; return `<span style="left:${p}%;transform:translateX(-${p}%)">${t}</span>`; }).join('');
+  return `<div class="pd-t"><h4>When you practice</h4><span>Timed sessions</span></div>
+    <div class="pd-hours">${hrs.map(v => `<i class="${v === max ? 'pk' : ''}" style="height:${v / max * 100}%"></i>`).join('')}</div>
+    <div class="pd-hx">${labs}</div>
+    <div class="pd-cap2">${Math.round(topMs / sum * 100)}% of your timed practice happens ${where}.</div>`;
+}
+function pdHeatHtml(){
+  const byDay = practiceDailyTotals(), today = ptDayStart(Date.now()), weeks = 18;
+  const dow = (new Date(today).getDay() + 6) % 7;          // Monday first
+  const start = ptAddDays(today, -(dow + (weeks - 1) * 7));
+  const cells = [];
+  for(let w = 0; w < weeks; w++) for(let r = 0; r < 7; r++){ const day = ptAddDays(start, w * 7 + r); cells.push({ day, ms: day > today ? null : (byDay.get(day) || 0) }); }
+  const max = Math.max(1, ...cells.map(c => c.ms || 0));
+  const lvl = ms => !ms ? 0 : ms / max >= .75 ? 4 : ms / max >= .5 ? 3 : ms / max >= .25 ? 2 : 1;
+  let mo = '';
+  for(let w = 0; w < weeks; w++){
+    const d = new Date(ptAddDays(start, w * 7)), m = d.getMonth();
+    const prevM = w ? new Date(ptAddDays(start, (w - 1) * 7)).getMonth() : -1;
+    const nextM = new Date(ptAddDays(start, (w + 1) * 7)).getMonth();
+    if(m !== prevM && !(w === 0 && nextM !== m)) mo += `<span style="grid-column:${w + 1}">${d.toLocaleDateString(undefined, { month:'short' })}</span>`;
+  }
+  return `<div class="pd-heat"><div class="pd-mo">${mo}</div>
+    <div class="pd-dw"><span>M</span><span></span><span>W</span><span></span><span>F</span><span></span><span></span></div>
+    <div class="pd-cells" id="pdCells">${cells.map(c => c.ms == null ? `<button class="fut" tabindex="-1" aria-hidden="true"></button>`
+      : `<button type="button" data-heat="${c.day}" data-lvl="${lvl(c.ms)}" aria-label="${esc(fmtDayLong(c.day))}: ${c.ms ? pdDur(c.ms) : 'no practice'}"></button>`).join('')}</div></div>
+    <div class="pd-heatcap"><span id="pdHeatCap">Tap a day to see its total</span>
+      <span class="pd-legend">Less <i></i><i data-lvl="1"></i><i data-lvl="2"></i><i data-lvl="3"></i><i data-lvl="4"></i> More</span></div>`;
+}
+function pdSetSeg(seg, attr, value){
+  const btns = [...seg.querySelectorAll('button')];
+  btns.forEach(b => b.classList.toggle('on', b.dataset[attr] === value));
+  seg.style.setProperty('--i', Math.max(0, btns.findIndex(b => b.dataset[attr] === value)));
+}
+function pdRefreshRange(){
+  PD.D = practiceRangeData(PD.range);
+  $('#pdRange').innerHTML = pdRangeHtml();
+  $('#pdRank').innerHTML = pdRankHtml();
+  $('#pdFocus').innerHTML = pdFocusHtml();
+}
+function renderOverview(){
+  const has = S.practice.sessions.length > 0;
+  let h = '';
+  if(has){
+    const st = practiceStreak(), best = practiceLongestStreak();
+    const streakTxt = st ? `${st}-day streak, best ${best}` : (best ? `Best streak ${best} day${best > 1 ? 's' : ''}` : '');
+    h += `<div class="pd-seg pd-range" id="pdRangeSeg" style="--n:3;--i:0"><span class="pdk"></span>
+        <button type="button" data-range="week">Week</button><button type="button" data-range="month">Month</button><button type="button" data-range="quarter">3 months</button></div>
+      <div id="pdRange"></div>
+      <div class="pd-sec"><div class="pd-t"><h4>Consistency</h4><span>${streakTxt}</span></div>${pdHeatHtml()}</div>
+      <div class="pd-sec"><div class="pd-t"><h4>Most practiced</h4>
+        <div class="pd-seg sm" id="pdRankSeg" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-ptab="pieces">Pieces</button><button type="button" data-ptab="composers">Composers</button></div></div>
+        <div id="pdRank"></div></div>
+      <div class="pd-sec" id="pdFocus"></div>
+      <div class="pd-sec">${pdHoursHtml()}</div>`;
+  }else{
+    h += `<div class="pd-empty">Nothing logged yet. Stand times a piece while its score is open, or you can add time yourself.<br><button type="button" id="pdEmptyLog">Log time</button></div>`;
+  }
+  const cold = practiceColdRepertoire(8);
+  h += `<div class="pd-sec"><div class="pd-t"><h4>Needs a revisit</h4></div>` + (cold.length
+    ? cold.map(p => `<button type="button" class="pd-rank" data-open="${esc(p.pieceId)}"><span class="top"><span class="tx"><span class="nm">${esc(p.title)}</span><span class="sub">${esc(p.composer)}</span></span><span class="v${p.days > 30 ? ' stale' : ''}">${p.days === Infinity ? 'Never logged' : p.days === 0 ? 'Today' : p.days + 'd ago'}</span></span></button>`).join('')
+    : `<p class="pd-hint">Pieces you mark Learned appear here once they have gone a while without practice.</p>`) + `</div>`;
+  $('#pdBody').innerHTML = h;
+  if(has){
+    pdSetSeg($('#pdRangeSeg'), 'range', PD.range);
+    pdSetSeg($('#pdRankSeg'), 'ptab', PD.ptab);
+    pdRefreshRange();
+  }
+}
+
+/* ---- sessions tab ---- */
+function practiceLogSessions(){
+  const q = PD.q.trim().toLowerCase();
+  return S.practice.sessions.slice().sort((a, b) => b.startedAt - a.startedAt).filter(s => {
+    if(PD.piece && s.pieceId !== PD.piece) return false;
+    if(PD.src === 'timed' && s.source === 'manual') return false;
+    if(PD.src === 'manual' && s.source !== 'manual') return false;
+    if(q){
+      const hay = [practiceTitle(s.pieceId), practiceComposer(s.pieceId), practicePartName(s), s.note || '', (PD_FOCUS[s.focus] || {}).n || ''].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+function pdSessionHtml(s){
+  const timed = s.source !== 'manual', open = PD.open === s.id;
+  const title = practiceTitle(s.pieceId), comp = practiceComposer(s.pieceId), part = practicePartName(s), f = PD_FOCUS[s.focus];
+  const src = s.source === 'manual' ? 'Logged by hand' : s.source === 'recovered' ? 'Timed, recovered after an interruption' : 'Timed in the reader';
+  const rows = [];
+  if(timed) rows.push(['Time', `${fmtClock(s.startedAt)} to ${fmtClock(s.endedAt || (s.startedAt + (s.ms || 0)))}`]);
+  if(part) rows.push(['Movement', part]);
+  if(f) rows.push(['Focus', f.n]);
+  rows.push(['Source', src]);
+  const sub = [comp, part].filter(Boolean).join(', ');
+  return `<div class="pd-ses${open ? ' open' : ''}" data-id="${esc(s.id)}">
+    <button type="button" class="hd" data-toggle="1" aria-expanded="${open}">
+      <span class="tm">${timed ? fmtClock(s.startedAt) : 'By hand'}</span>
+      <span class="mid"><span class="nm">${esc(title)}</span>${sub || f ? `<span class="sub"><span class="ell">${esc(sub)}</span>${f ? `<span class="ft" style="--c:${f.c}"><i></i>${f.n}</span>` : ''}</span>` : ''}</span>
+      <span class="du">${pdDur(s.ms || 0)}</span></button>
+    <div class="body"><div><div class="in">
+      <dl>${rows.map(r => `<div><dt>${r[0]}</dt><dd>${esc(r[1])}</dd></div>`).join('')}</dl>
+      ${s.note ? `<div class="note">${esc(s.note)}</div>` : ''}
+      <div class="pd-acts"><button type="button" data-edit="${esc(s.id)}">Edit</button><button type="button" data-open="${esc(s.pieceId)}">Open piece</button><button type="button" class="danger" data-del="${esc(s.id)}">Delete</button></div>
+    </div></div></div></div>`;
+}
+function renderPracticeLog(){
+  const list = practiceLogSessions(), all = S.practice.sessions.length;
+  const chip = (attr, val, txt, on) => `<button type="button" class="chip${on ? ' on' : ''}" data-${attr}="${val}">${txt}</button>`;
+  $('#pdChips').innerHTML = (PD.piece ? `<button type="button" class="chip on" data-clearpiece="1">${esc(practiceTitle(PD.piece))}
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>` : '')
+    + chip('src', 'all', 'All', PD.src === 'all') + chip('src', 'timed', 'Timed', PD.src === 'timed') + chip('src', 'manual', 'By hand', PD.src === 'manual');
+  let h = '';
+  if(!all){
+    h = `<div class="pd-empty">No sessions yet. They appear here as you practice, or when you log time yourself.<br><button type="button" id="pdEmptyLog">Log time</button></div>`;
+  }else if(!list.length){
+    h = `<div class="pd-empty">No sessions match.<br><button type="button" id="pdClear">Clear filters</button></div>`;
+  }else{
+    const totals = new Map();
+    for(const s of list){ const d = ptDayStart(s.startedAt); totals.set(d, (totals.get(d) || 0) + (s.ms || 0)); }
+    const sum = list.reduce((a, s) => a + (s.ms || 0), 0);
+    h += `<div class="pd-logsum">${list.length} session${list.length > 1 ? 's' : ''}, ${pdDur(sum)} in total</div>`;
+    let cur = null;
+    for(const s of list.slice(0, PD.limit)){
+      const d = ptDayStart(s.startedAt);
+      if(d !== cur){ cur = d; h += `<div class="pd-dayhead"><span>${esc(pdDayLabel(d))}</span><span>${pdDur(totals.get(d))}</span></div>`; }
+      h += pdSessionHtml(s);
+    }
+    if(list.length > PD.limit) h += `<button type="button" class="pd-more" id="pdMore">Show ${Math.min(60, list.length - PD.limit)} more</button>`;
+  }
+  $('#pdBody').innerHTML = h;
+}
+
+function syncPdTabs(){
+  pdSetSeg($('#pdTabs'), 'tab', PD.tab);
+  $('#pdFilters').classList.toggle('on', PD.tab === 'log');
+}
+function renderPracticeDashboard(){
+  syncPdTabs();
+  if(PD.tab === 'log') renderPracticeLog(); else renderOverview();
+}
 function practiceRefreshOpenViews(){
   if($('#mPractice').classList.contains('on')) renderPracticeDashboard();
   if($('#mWork').classList.contains('on') && WD.composer) openWorkDetail(WD.composer, WD.key, true);
@@ -4953,46 +5333,74 @@ function practiceRefreshOpenViews(){
     if(d) renderDetailsPractice(d);
   }
 }
-
-function openPracticeDashboard(){ renderPracticeDashboard(); $('#mPractice').classList.add('on'); }
-function renderPracticeDashboard(){
-  const today = practiceTotalToday(), week = practiceTotalWeek(), streak = practiceStreak();
-  const cold = practiceColdRepertoire(8);
-  const byComposer = practiceByComposer().slice(0, 8);
-  const maxComposerMs = byComposer.length ? byComposer[0].ms : 0;
-
-  let h = `<div class="pd-stats">
-      <div class="pd-stat"><span class="v">${fmtPracticeMs(today)}</span><span class="l">Today</span></div>
-      <div class="pd-stat"><span class="v">${fmtPracticeMs(week)}</span><span class="l">This week</span></div>
-      <div class="pd-stat streak"><span class="v">${streak}d</span><span class="l">Streak</span></div>
-    </div>
-    <button type="button" class="pd-logbtn" id="pdLogTime">Log time</button>`;
-
-  if(S.practice.sessions.length){
-    const heat = practiceHeatmap(126);
-    h += `<div class="pd-h5">Last 18 weeks</div><div class="pd-heat">${heat.map(d =>
-      `<i data-lvl="${d.level}" title="${esc(new Date(d.date).toDateString())}: ${fmtPracticeMs(d.ms)}"></i>`).join('')}</div>`;
-  }
-
-  h += `<div class="pd-h5">Needs a revisit</div>`;
-  h += cold.length
-    ? cold.map(p => `<div class="pd-row"><button type="button" class="pd-open" data-open="${esc(p.pieceId)}"><span class="nm">${esc(p.title)}</span><span class="sub">${esc(p.composer)}</span></button><span class="sub${p.days > 30 ? ' stale' : ''}">${p.days === Infinity ? 'never logged' : p.days + 'd ago'}</span></div>`).join('')
-    : `<div class="pd-empty">Nothing marked learned yet — mark a piece Learned in its details, or a movement on its page.</div>`;
-
-  if(byComposer.length){
-    h += `<div class="pd-h5">By composer</div>` + byComposer.map(row =>
-      `<div class="pd-bar"><span class="l">${esc(row.key)}</span><div class="track"><div class="fill" style="width:${Math.max(4, row.ms/maxComposerMs*100)}%"></div></div><span class="v">${fmtPracticeMs(row.ms)}</span></div>`).join('');
-  }
-
-  if(!S.practice.sessions.length) h += `<div class="pd-empty">No practice logged yet — open a piece to start tracking, or log time by hand.</div>`;
-  $('#pdBody').innerHTML = h;
+function openPracticeDashboard(opts){
+  opts = opts || {};
+  PD.tab = opts.tab || 'overview'; PD.piece = opts.piece || null;
+  PD.q = ''; PD.src = 'all'; PD.open = null; PD.limit = 60; PD.sel = null;
+  $('#pdSearch').value = '';
+  $('#mPractice').classList.toggle('over', !!opts.over);
+  renderPracticeDashboard();
+  $('#pdBody').scrollTop = 0;
+  $('#mPractice').classList.add('on');
 }
-$('#clPractice').addEventListener('click', openPracticeDashboard);
+$('#clPractice').addEventListener('click', () => openPracticeDashboard());
 $('#pdBack').addEventListener('click', () => $('#mPractice').classList.remove('on'));
-$('#pdBody').addEventListener('click', e => {
-  if(e.target.closest('#pdLogTime')) return openLogTime();
-  const open = e.target.closest('[data-open]');
-  if(open) openFromPieceId(open.dataset.open);
+$('#pdLog').addEventListener('click', () => openLogTime(PD.piece || undefined));
+$('#pdTabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if(!b || b.dataset.tab === PD.tab) return;
+  PD.tab = b.dataset.tab; PD.open = null;
+  renderPracticeDashboard(); $('#pdBody').scrollTop = 0;
+});
+$('#pdSearch').addEventListener('input', e => { PD.q = e.target.value; PD.limit = 60; renderPracticeLog(); });
+$('#pdChips').addEventListener('click', e => {
+  const s = e.target.closest('[data-src]'), c = e.target.closest('[data-clearpiece]');
+  if(s) PD.src = s.dataset.src; else if(c) PD.piece = null; else return;
+  PD.limit = 60; renderPracticeLog();
+});
+$('#pdBody').addEventListener('click', async e => {
+  const t = e.target; let b;
+  if(t.closest('#pdEmptyLog')) return openLogTime(PD.piece || undefined);
+  if(t.closest('#pdClear')){ PD.q = ''; PD.src = 'all'; PD.piece = null; $('#pdSearch').value = ''; return renderPracticeLog(); }
+  if(t.closest('#pdMore')){ PD.limit += 60; return renderPracticeLog(); }
+  if((b = t.closest('[data-range]'))){
+    PD.range = b.dataset.range; PD.sel = null; pdSetSeg($('#pdRangeSeg'), 'range', PD.range); return pdRefreshRange();
+  }
+  if((b = t.closest('[data-ptab]'))){
+    PD.ptab = b.dataset.ptab; pdSetSeg($('#pdRankSeg'), 'ptab', PD.ptab); $('#pdRank').innerHTML = pdRankHtml(); return;
+  }
+  if((b = t.closest('[data-bar]'))){
+    const i = Number(b.dataset.bar); PD.sel = PD.sel === i ? null : i;
+    $$('#pdRange .pd-bars button').forEach((x, j) => x.classList.toggle('sel', j === PD.sel));
+    $('#pdRange .pd-bars').classList.toggle('has', PD.sel != null);
+    return pdPaintHero();
+  }
+  if((b = t.closest('[data-heat]'))){
+    $$('#pdCells .sel').forEach(x => x.classList.remove('sel')); b.classList.add('sel');
+    const day = Number(b.dataset.heat), ms = practiceDailyTotals().get(day) || 0;
+    $('#pdHeatCap').textContent = `${fmtDayLong(day)}: ${ms ? pdDur(ms) : 'no practice'}`;
+    return;
+  }
+  if((b = t.closest('[data-toggle]'))){
+    const row = b.closest('.pd-ses'), was = row.classList.contains('open');
+    $$('.pd-ses.open').forEach(r => { r.classList.remove('open'); r.querySelector('.hd').setAttribute('aria-expanded', 'false'); });
+    PD.open = null; PD.arm = null;
+    $$('.pd-acts .danger').forEach(x => { x.classList.remove('arm'); x.textContent = 'Delete'; });
+    if(!was){ row.classList.add('open'); b.setAttribute('aria-expanded', 'true'); PD.open = row.dataset.id; }
+    return;
+  }
+  if((b = t.closest('[data-edit]'))) return openLogTime(null, b.dataset.edit);
+  if((b = t.closest('[data-del]'))){
+    const id = b.dataset.del;
+    if(PD.arm !== id){
+      PD.arm = id; b.classList.add('arm'); b.textContent = 'Tap again to delete';
+      clearTimeout(PD.armT); PD.armT = setTimeout(() => { PD.arm = null; b.classList.remove('arm'); b.textContent = 'Delete'; }, 4000);
+      return;
+    }
+    clearTimeout(PD.armT); PD.arm = null; PD.open = null;
+    await deletePracticeSession(id);
+    toast('Session deleted'); practiceRefreshOpenViews(); return;
+  }
+  if((b = t.closest('[data-open]'))) openFromPieceId(b.dataset.open);
 });
 function openFromPieceId(pieceId){
   const wk = practiceWorkKeyOf(pieceId);
@@ -5000,6 +5408,18 @@ function openFromPieceId(pieceId){
   if(wk) openWorkDetail(wk.composer, wk.key);
   else openDetails(pieceId.replace(/^d\|/, ''));
 }
+async function savePractice(){
+  try{ await DB.set(K.practice, S.practice); }
+  catch(e){ toast('Could not save practice time. ' + e.message); }
+}
+async function deletePracticeSession(id){
+  S.practice.sessions = S.practice.sessions.filter(s => s.id !== id);
+  await savePractice();
+}
+$('#dPractice').addEventListener('click', e => {
+  const b = e.target.closest('[data-sessions]');
+  if(b) openPracticeDashboard({ tab:'log', piece:b.dataset.sessions, over:true });
+});
 
 function renderDetailsPractice(d){
   const pieceId = docRateId(d), ms = practiceMsFor(pieceId);
@@ -5007,7 +5427,7 @@ function renderDetailsPractice(d){
   const last = practiceLastAt(pieceId), n = practiceSessionCount(pieceId);
   $('#dPractice').innerHTML = `
     <div class="prow"><span class="pk">Total practice</span><span class="pv">${fmtPracticeMs(ms)}</span></div>
-    <div class="prow"><span class="pk">Sessions</span><span class="pv">${n}</span></div>
+    <button type="button" class="prow plink" data-sessions="${esc(pieceId)}"><span class="pk">Sessions</span><span class="pv">${n}</span></button>
     ${last ? `<div class="prow"><span class="pk">Last practiced</span><span class="pv">${fmtDate(last)}</span></div>` : ''}`;
 }
 $('#dLogTime').addEventListener('click', () => {
@@ -5022,23 +5442,37 @@ function practiceWorkBlock(composer, key){
   const ratio = practiceEffortRatio(pieceId, workInfo(composer, key).dur);
   return `<h5>Practice</h5><div class="practice">
     <div class="prow"><span class="pk">Total practice</span><span class="pv">${ms ? fmtPracticeMs(ms) : '—'}</span></div>
-    ${n ? `<div class="prow"><span class="pk">Sessions</span><span class="pv">${n}</span></div>` : ''}
+    ${n ? `<button type="button" class="prow plink" data-sessions="${esc(pieceId)}"><span class="pk">Sessions</span><span class="pv">${n}</span></button>` : ''}
     ${last ? `<div class="prow"><span class="pk">Last practiced</span><span class="pv">${fmtDate(last)}</span></div>` : ''}
     ${ratio ? `<div class="prow"><span class="pk">Effort ratio</span><span class="pv">${ratio.toFixed(0)}× its length</span></div>` : ''}
     <div class="pactions"><button type="button" data-logpractice="1">Log time</button></div>
   </div>`;
 }
 
-/* ---------- log time by hand ---------- */
-function openLogTime(presetPieceId){
-  const pieces = practicePieces();
+/* ---------- log time by hand, and edit a logged session ---------- */
+let LT = { edit:null, origMin:0 };
+function openLogTime(presetPieceId, editId){
+  const s = editId ? S.practice.sessions.find(x => x.id === editId) : null;
+  LT = { edit: s ? s.id : null, origMin: 0 };
+  const pieces = practicePieces().slice();
+  if(s && !pieces.some(p => p.pieceId === s.pieceId)) pieces.push({ pieceId:s.pieceId, title:practiceTitle(s.pieceId), composer:'' });
+  const want = s ? s.pieceId : presetPieceId;
   const sel = $('#ltPiece');
   sel.innerHTML = pieces.map(p => `<option value="${esc(p.pieceId)}">${esc(p.title)}</option>`).join('');
-  sel.value = (presetPieceId && pieces.some(p => p.pieceId === presetPieceId)) ? presetPieceId : ((pieces[0] || {}).pieceId || '');
+  sel.value = (want && pieces.some(p => p.pieceId === want)) ? want : ((pieces[0] || {}).pieceId || '');
   refreshLtParts();
-  $('#ltDate').value = new Date().toISOString().slice(0, 10);
-  $('#ltHours').value = ''; $('#ltMins').value = ''; $('#ltNote').value = '';
-  $$('#ltFocus button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  $$('#ltFocus button').forEach(b => b.setAttribute('aria-pressed', String(!!s && b.dataset.f === s.focus)));
+  if(s){
+    if(s.partIndex != null) $('#ltPart').value = String(s.partIndex);
+    const min = Math.round((s.ms || 0) / 60000); LT.origMin = min;
+    $('#ltDate').value = ptInputDate(s.startedAt);
+    $('#ltHours').value = Math.floor(min / 60) || ''; $('#ltMins').value = String(min % 60);
+    $('#ltNote').value = s.note || '';
+  }else{
+    $('#ltDate').value = ptInputDate(Date.now());
+    $('#ltHours').value = ''; $('#ltMins').value = ''; $('#ltNote').value = '';
+  }
+  $('#ltHead').textContent = s ? 'Edit session' : 'Log practice time';
   $('#backdrop2').classList.add('on');
   $('#mLogTime').classList.add('on');
 }
@@ -5062,19 +5496,28 @@ $$('#ltFocus button').forEach(b => b.addEventListener('click', () => {
 $('#ltCancel').addEventListener('click', closeLogTime);
 $('#ltSave').addEventListener('click', async () => {
   const pieceId = $('#ltPiece').value; if(!pieceId) return;
-  const ms = (Number($('#ltHours').value || 0)*60 + Number($('#ltMins').value || 0)) * 60000;
-  if(ms <= 0){ $('#ltHours').focus(); return; }
+  const min = Number($('#ltHours').value || 0) * 60 + Number($('#ltMins').value || 0);
+  if(min <= 0){ $('#ltHours').focus(); return; }
+  const dateVal = $('#ltDate').value; if(!dateVal){ $('#ltDate').focus(); return; }
   const partVal = $('#ltPart').value;
   const focusBtn = $('#ltFocus button[aria-pressed="true"]');
-  const startedAt = new Date($('#ltDate').value + 'T12:00:00').getTime();
-  await addPracticeSession({
-    pieceId, partIndex: partVal === '' ? undefined : Number(partVal),
-    startedAt, endedAt: startedAt + ms, ms, source:'manual',
-    focus: focusBtn ? focusBtn.dataset.f : undefined,
-    note: $('#ltNote').value.trim() || undefined
-  });
+  const focus = focusBtn ? focusBtn.dataset.f : undefined, note = $('#ltNote').value.trim() || undefined;
+  const partIndex = partVal === '' ? undefined : Number(partVal);
+  const s = LT.edit ? S.practice.sessions.find(x => x.id === LT.edit) : null;
+  if(s){
+    // keep the time of day a timed session started at; only the date moves
+    const old = new Date(s.startedAt), day = new Date(dateVal + 'T00:00:00');
+    if(s.source === 'manual') day.setHours(12, 0, 0, 0); else day.setHours(old.getHours(), old.getMinutes(), old.getSeconds(), 0);
+    const ms = min === LT.origMin ? (s.ms || 0) : min * 60000;
+    Object.assign(s, { pieceId, partIndex, startedAt:+day, ms, endedAt:+day + ms, focus, note });
+    await savePractice();
+    toast('Session updated');
+  }else{
+    const startedAt = new Date(dateVal + 'T12:00:00').getTime(), ms = min * 60000;
+    await addPracticeSession({ pieceId, partIndex, startedAt, endedAt:startedAt + ms, ms, source:'manual', focus, note });
+    toast('Practice time logged');
+  }
   closeLogTime();
-  toast('Practice time logged');
   practiceRefreshOpenViews();
 });
 
@@ -6044,6 +6487,7 @@ $('#wdEdit').addEventListener('click', async () => {
 $('#wdBody').addEventListener('click', async e => {
   if(e.target.closest('[data-addscore]')) return $('#workPicker').click();
   if(e.target.closest('[data-logpractice]')) return openLogTime(`w|${WD.composer}|${WD.key}`);
+  { const sb = e.target.closest('[data-sessions]'); if(sb) return openPracticeDashboard({ tab:'log', piece:sb.dataset.sessions, over:true }); }
   if(e.target.closest('[data-addfact]')){
     const ul = $('#wdBody .dyk');
     const li = document.createElement('li');
