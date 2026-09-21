@@ -160,11 +160,11 @@ html,body{background:var(--slate)}
 .secrow .secauto{flex:none;font-size:10.5px;color:var(--text-faint);border:1px solid var(--line);border-radius:8px;padding:1px 6px;margin-right:2px}
 .secrow.editing{gap:8px}
 .secEditInput{flex:1;min-width:0;background:var(--slate-2);border:1px solid var(--pencil);border-radius:8px;padding:7px 9px;font-size:14.5px;color:var(--text)}
+.secEditPage{flex:none;width:72px;background:var(--slate-2);border:1px solid var(--pencil);border-radius:8px;padding:7px 6px;font-size:13.5px;color:var(--text)}
 .secbtn{flex:none;width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--text-faint);background:none;border:none}
 .secbtn:active{background:var(--slate-3);color:var(--text)}
 .secbtn.go{color:var(--pencil-hi)}
 .secbtn.danger{color:var(--red)}
-#secAddHint{padding:2px 2px 4px}
 /* page editing */
 .panel-head .editbtn{display:flex;justify-content:flex-end;align-items:center}
 .editbtn.on{color:#fff;font-weight:600}
@@ -1348,13 +1348,16 @@ svg{display:block}
   <h3 id="secHead">Sections</h3>
   <div class="seclist" id="secList"></div>
   <div class="field" id="secAddField">
-    <label for="secName">Mark page <span id="secPageNo"></span> as</label>
+    <label for="secName">Name</label>
     <input id="secName" type="text" placeholder="e.g. II. Adagio cantabile" autocomplete="off" autocorrect="off" maxlength="60">
   </div>
-  <div class="hint" id="secAddHint" style="display:none">Open the score to mark a new page here.</div>
+  <div class="field">
+    <label for="secPage">Page</label>
+    <select id="secPage"></select>
+  </div>
   <div class="btnrow">
     <button class="btn" id="secCancel">Close</button>
-    <button class="btn go" id="secAdd">Mark page</button>
+    <button class="btn go" id="secAdd">Add section</button>
   </div>
 </div>
 
@@ -5604,7 +5607,7 @@ function pieceRow(d){
   return `<div class="prow piece" role="button" tabindex="0" data-doc="${esc(d.id)}">
     <span class="tx"><span class="nm">${pin}${esc(name)}</span><span class="sub">${esc(bits.join(' · '))}</span>${desc ? `<span class="ds">${esc(desc)}</span>` : ''}</span>
     <span class="side"><span class="row">${progressTag(d.practiced, d.learned)}${lvl}
-      <button class="dbtn" data-details="${esc(d.id)}" aria-label="Piece details for ${esc(name)}">PDF</button></span>
+      <button class="dbtn" data-details="${esc(d.id)}" aria-label="Piece details for ${esc(name)}">…</button></span>
       <span class="row" style="gap:6px">
         ${(d.sections && d.sections.length) ? `<button class="wlink sm" data-sec="${esc(d.id)}">Sections ›</button>` : ''}
         ${hasPage ? `<button class="wlink sm" data-wd="${esc(d.composer)}" data-wk="${esc(k)}">About ›</button>` : ''}
@@ -7547,9 +7550,10 @@ function addSection(d, page, name){
   saveIndexSoon();
   return id;
 }
-function renameSection(d, id, name){
+function updateSection(d, id, patch){
   const s = docSections(d).find(x => x.id === id); if(!s) return;
-  s.name = name;
+  if(patch.name != null) s.name = patch.name;
+  if(patch.page != null && !Number.isNaN(patch.page)) s.page = patch.page;
   saveIndexSoon();
 }
 function deleteSection(d, id){
@@ -7588,6 +7592,13 @@ function dedupeSectionsByPage(list){
   }
   return out;
 }
+// <select> renders as the OS's own spinning wheel picker on iOS, which is
+// what we want for a plain "pick a page" control — no custom widget needed.
+function pageOptionsHtml(total, selected){
+  let html = '';
+  for(let n = 1; n <= total; n++) html += `<option value="${n}"${n === selected ? ' selected' : ''}>Page ${n}</option>`;
+  return html;
+}
 
 const SEC = { docId:null, editing:null };
 function openSections(id){
@@ -7605,12 +7616,14 @@ function closeSections(){
 function renderSections(){
   const d = S.docs.find(x => x.id === SEC.docId); if(!d) return;
   const list = sortedSections(d);
-  const isOpen = V.doc && V.id === SEC.docId;
-  const curPage = isOpen ? V.page : (d.page || 1);
+  const live = V.pdf && V.id === SEC.docId;
+  const total = Math.max(1, live ? V.pdf.numPages : (d.pages || 1));
+  const curPage = live ? V.page : (d.page || 1);
   $('#secHead').textContent = d.title || 'Sections';
   $('#secList').innerHTML = list.length ? list.map(s => SEC.editing === s.id ? `
     <div class="secrow editing" data-id="${esc(s.id)}">
       <input class="secEditInput" id="secEditInput" value="${esc(s.name)}" maxlength="60" autocomplete="off" autocorrect="off">
+      <select class="secEditPage" id="secEditPage">${pageOptionsHtml(total, s.page)}</select>
       <button type="button" class="secbtn go" data-save="${esc(s.id)}" aria-label="Save name">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
       </button>
@@ -7625,17 +7638,16 @@ function renderSections(){
       <button type="button" class="secbtn" data-edit="${esc(s.id)}" aria-label="Rename section">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>
       </button>
-    </div>`).join('') : `<div class="hint" style="padding:4px 2px 14px">No named sections yet — jump to a passage, then mark it below.</div>`;
-  $('#secPageNo').textContent = curPage;
+    </div>`).join('') : `<div class="hint" style="padding:4px 2px 14px">No named sections yet — name one and pick its page below.</div>`;
   $('#secName').value = '';
-  $('#secAddField').style.display = isOpen ? '' : 'none';
-  $('#secAddHint').style.display = isOpen ? 'none' : '';
+  $('#secPage').innerHTML = pageOptionsHtml(total, curPage);
 }
 function commitSectionEdit(id){
   const d = S.docs.find(x => x.id === SEC.docId); if(!d) return;
-  const inp = $('#secEditInput');
+  const inp = $('#secEditInput'), pageSel = $('#secEditPage');
   const name = (inp ? inp.value : '').trim();
-  if(name) renameSection(d, id, name);
+  const page = pageSel ? Number(pageSel.value) : null;
+  if(name) updateSection(d, id, { name, page });
   SEC.editing = null;
   renderSections();
 }
@@ -7667,7 +7679,7 @@ $('#secAdd').addEventListener('click', () => {
   const d = S.docs.find(x => x.id === SEC.docId); if(!d) return;
   const name = $('#secName').value.trim();
   if(!name){ $('#secName').focus(); return; }
-  const page = (V.doc && V.id === SEC.docId) ? V.page : (d.page || 1);
+  const page = Number($('#secPage').value) || 1;
   addSection(d, page, name);
   renderSections();
 });
@@ -7676,7 +7688,8 @@ $('#backdrop3').addEventListener('click', closeSections);
 $('#pLabel').addEventListener('click', () => { if(V.doc) openSections(V.id); });
 function jumpToSection(docId, page){
   closeSections();
-  if(V.doc && V.id === docId){ goPage(page); showBar(true); }
+  hideModals();   // e.g. the piece-details sheet, which would otherwise sit on top of the viewer
+  if(V.pdf && V.id === docId){ goPage(page); showBar(true); }
   else openDoc(docId, { page });
 }
 
