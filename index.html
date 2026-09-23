@@ -245,6 +245,15 @@ html{touch-action:manipulation}
 .empty h2{font-family:var(--serif);font-weight:500;font-size:20px;color:var(--text-dim);margin:0 0 6px}
 .empty p{margin:0;font-size:14px}
 .empty button{margin-top:18px;height:44px;padding:0 20px;border-radius:11px;background:var(--pencil);color:#fff}
+.empty button.alt{display:block;margin:10px auto 0;background:none;border:1px solid var(--line);color:var(--pencil-hi)}
+/* backup / restore */
+.libfoot{display:flex;justify-content:center;align-items:center;gap:6px;padding:30px 0 6px;font-size:13.5px;color:var(--text-faint)}
+.libfoot button{color:var(--pencil-hi);padding:8px 6px}
+.bkready{position:fixed;inset:0;z-index:60;background:rgba(8,10,14,.6);display:none;place-items:center;padding:20px}
+.bkready.on{display:grid}
+.bkcard{width:100%;max-width:360px;background:var(--slate-2);border:1px solid var(--line);border-radius:16px;padding:18px}
+.bkcard h3{margin:0 0 6px;font-family:var(--serif);font-weight:600;font-size:19px;color:var(--text)}
+.bkcard p{margin:0;font-size:14px;line-height:1.45;color:var(--text-dim)}
 
 /* ---------- sheet modal ---------- */
 .backdrop{position:fixed;inset:0;background:rgba(8,10,14,.6);z-index:30;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -1068,6 +1077,7 @@ svg{display:block}
     <h2>Nothing on the stand yet</h2>
     <p>Add a PDF and it will appear under All pieces and its composer.</p>
     <button id="emptyAdd">Add sheet music</button>
+    <button id="emptyRestore" class="alt">Restore a backup</button>
   </div>
 </div>
 
@@ -1433,6 +1443,11 @@ svg{display:block}
 </div>
 
 <div class="toast" id="toast"></div>
+<input type="file" id="bkFile" style="position:fixed;left:-9999px">
+<div class="bkready" id="bkReady" role="dialog" aria-label="Backup ready"><div class="bkcard">
+  <h3>Backup ready</h3><p id="bkInfo"></p>
+  <div class="btnrow"><button class="btn" id="bkCancel">Cancel</button><button class="btn go" id="bkSave">Save backup</button></div>
+</div></div>
 <div class="busy" id="busy"><div><div class="spin"></div><p id="busyText">Working</p></div></div>
 <input type="file" id="picker" accept="application/pdf,.pdf" multiple style="position:fixed;left:-9999px">
 <div class="textGhost" id="textGhost"></div>
@@ -5750,7 +5765,7 @@ function renderComposerList(){
   const f = CL.filter;
   syncMenuControls();
   $('#empty').style.display = !S.docs.length && f === 'pieces' ? 'block' : 'none';
-  if(f === 'pieces'){ $('#clList').innerHTML = renderPieces(); return; }
+  if(f === 'pieces'){ $('#clList').innerHTML = renderPieces() + (S.docs.length ? BK_FOOT : ''); return; }
 
   const used = usageCounts(), stray = strayComposers();
   let list = q ? searchComposers(q) : composerEntries;
@@ -10005,6 +10020,228 @@ async function exportDoc(id){
     if(err && err.name !== 'AbortError') toast('Could not build the copy: ' + err.message, 4000);
   }
 }
+
+/* =======================================================================
+   Full backup and restore
+
+   One plain .zip holding everything Stand keeps: every score, its markings,
+   the library index, practice time, progress, ratings, your edits to work
+   pages, your composers, and the small settings in localStorage.
+     stand-backup.json   manifest, plus every value that isn't a file
+     scores/<title>.pdf  the PDFs, named so the zip is readable in Files
+     files/<n>           any other stored file (thumbnails)
+   Entries are stored, not deflated: PDFs barely compress, and it keeps both
+   the writer and the reader small enough to live here with no library. The
+   page-image cache and the live-session heartbeat are left out; the cache
+   rebuilds itself.
+   ======================================================================= */
+const BK_SKIP = k => k.startsWith('raster:') || k.startsWith('cache:') || k === K.practiceLive;
+const BK_FOOT = `<div class="libfoot"><button type="button" data-bk="save">Back up library</button><span aria-hidden="true">·</span><button type="button" data-bk="load">Restore</button></div>`;
+
+const CRC_T = (() => {
+  const t = new Uint32Array(256);
+  for(let n = 0; n < 256; n++){ let c = n; for(let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
+  return t;
+})();
+function crc32(u8){
+  let c = 0xFFFFFFFF;
+  for(let i = 0; i < u8.length; i++) c = CRC_T[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+// entries: [{name, blob}] -> Blob of a stored (uncompressed) zip. The original
+// blobs go into the result as-is, so only one file is in memory at a time
+// (to compute its checksum), not the whole library.
+async function buildZip(entries){
+  const enc = new TextEncoder(), parts = [], central = [];
+  const now = new Date();
+  const dtime = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+  const ddate = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+  let off = 0;
+  for(const e of entries){
+    const name = enc.encode(e.name);
+    const crc = crc32(new Uint8Array(await e.blob.arrayBuffer()));
+    const size = e.blob.size;
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true);
+    h.setUint16(10, dtime, true); h.setUint16(12, ddate, true);
+    h.setUint32(14, crc, true); h.setUint32(18, size, true); h.setUint32(22, size, true);
+    h.setUint16(26, name.length, true);
+    parts.push(h.buffer, name, e.blob);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true);
+    c.setUint16(12, dtime, true); c.setUint16(14, ddate, true);
+    c.setUint32(16, crc, true); c.setUint32(20, size, true); c.setUint32(24, size, true);
+    c.setUint16(28, name.length, true); c.setUint32(42, off, true);
+    central.push(c.buffer, name);
+    off += 30 + name.length + size;
+    if(off > 0xFFFFFFFF) throw new Error('library is over 4 GB, too big for one backup');
+  }
+  const cdSize = central.reduce((n, p) => n + p.byteLength, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true);
+  end.setUint16(8, entries.length, true); end.setUint16(10, entries.length, true);
+  end.setUint32(12, cdSize, true); end.setUint32(16, off, true);
+  return new Blob([...parts, ...central, end.buffer], {type:'application/zip'});
+}
+
+// Reads the zips buildZip writes. Returns entry names and a blob(name) that
+// slices the entry straight out of the picked file, without loading the rest.
+async function readZip(file){
+  const tailLen = Math.min(file.size, 22 + 65535);
+  if(tailLen < 22) throw new Error('not a zip');
+  const tail = new DataView(await file.slice(file.size - tailLen).arrayBuffer());
+  let p = -1;
+  for(let i = tailLen - 22; i >= 0; i--) if(tail.getUint32(i, true) === 0x06054b50){ p = i; break; }
+  if(p < 0) throw new Error('not a zip');
+  const count = tail.getUint16(p + 10, true), cdSize = tail.getUint32(p + 12, true), cdOff = tail.getUint32(p + 16, true);
+  const cdBuf = await file.slice(cdOff, cdOff + cdSize).arrayBuffer(), cd = new DataView(cdBuf);
+  const dec = new TextDecoder(), map = new Map();
+  let q = 0;
+  for(let n = 0; n < count; n++){
+    if(cd.getUint32(q, true) !== 0x02014b50) throw new Error('damaged zip');
+    const nl = cd.getUint16(q + 28, true), xl = cd.getUint16(q + 30, true), cl = cd.getUint16(q + 32, true);
+    map.set(dec.decode(new Uint8Array(cdBuf, q + 46, nl)),
+            { method:cd.getUint16(q + 10, true), size:cd.getUint32(q + 20, true), lo:cd.getUint32(q + 42, true) });
+    q += 46 + nl + xl + cl;
+  }
+  return {
+    names:[...map.keys()],
+    async blob(name){
+      const e = map.get(name); if(!e) return null;
+      if(e.method !== 0) throw new Error('this zip was re-compressed. Pick the original backup file');
+      const lh = new DataView(await file.slice(e.lo, e.lo + 30).arrayBuffer());
+      const start = e.lo + 30 + lh.getUint16(26, true) + lh.getUint16(28, true);
+      return file.slice(start, start + e.size);
+    }
+  };
+}
+
+let bkPending = null;   // {file} waiting for the Save tap
+
+async function backupLibrary(){
+  busy(true, 'Preparing backup');
+  try{
+    const keys = (await DB.keys('')).filter(k => !BK_SKIP(k));
+    const titles = new Map(S.docs.map(d => [d.id, d.title]));
+    const entries = [], items = [], used = new Set();
+    let skipped = 0;
+    for(const k of keys){
+      const v = await DB.get(k);
+      if(v == null) continue;
+      if(v instanceof Blob){
+        let path;
+        if(k.startsWith('pdf:')){
+          const base = (titles.get(k.slice(4)) || 'score').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'score';
+          path = `scores/${base}.pdf`;
+          for(let i = 2; used.has(path); i++) path = `scores/${base} (${i}).pdf`;
+        }else path = `files/${entries.length}`;
+        used.add(path);
+        entries.push({ name:path, blob:v });
+        items.push({ key:k, blob:path, type:v.type || '', fname:v.name || '' });
+      }else{
+        try{
+          JSON.stringify(v, (kk, vv) => { if(vv instanceof Blob || vv instanceof ArrayBuffer || ArrayBuffer.isView(vv)) throw 0; return vv; });
+          items.push({ key:k, value:v });
+        }catch(e){ skipped++; }
+      }
+    }
+    if(!items.length){ busy(false); toast('Nothing to back up yet'); return; }
+    const ls = {};
+    try{ for(let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if(k && k.startsWith('stand.')) ls[k] = localStorage.getItem(k); } }catch(e){}
+    const manifest = { kind:'stand-archive', v:1, createdAt:Date.now(), pieces:S.docs.length,
+                       sessions:(S.practice.sessions || []).length, localStorage:ls, items };
+    entries.unshift({ name:'stand-backup.json', blob:new Blob([JSON.stringify(manifest)], {type:'application/json'}) });
+    const zip = await buildZip(entries);
+    const name = `Stand backup ${new Date().toISOString().slice(0, 10)}.zip`;
+    bkPending = { file:new File([zip], name, {type:'application/zip'}) };
+    busy(false);
+    const np = manifest.pieces, ns = manifest.sessions;
+    $('#bkInfo').textContent = `${np} piece${np === 1 ? '' : 's'} with markings, ${ns} practice session${ns === 1 ? '' : 's'}, and your settings (${fmtBytes(zip.size)}). Save it somewhere outside Stand, such as Files or iCloud Drive.`
+      + (skipped ? ` ${skipped} item${skipped === 1 ? '' : 's'} could not be included.` : '');
+    $('#bkReady').classList.add('on');
+  }catch(err){
+    busy(false); console.error(err);
+    toast('Could not make the backup: ' + err.message, 4000);
+  }
+}
+// Share needs a fresh tap: the time spent building the zip uses up the
+// original one, so saving is a second button rather than automatic.
+async function saveBackup(){
+  if(!bkPending) return;
+  const file = bkPending.file;
+  try{
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:file.name});
+    }else{
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a'); a.href = url; a.download = file.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+    closeBackupCard();
+  }catch(err){
+    if(err && err.name === 'AbortError') return;       // share sheet dismissed; keep the card up
+    toast('Could not save the backup: ' + err.message, 4000);
+  }
+}
+function closeBackupCard(){ bkPending = null; $('#bkReady').classList.remove('on'); }
+
+function pickRestore(){ const f = $('#bkFile'); f.value = ''; f.click(); }
+async function restoreLibrary(file){
+  let zip, man;
+  try{
+    zip = await readZip(file);
+    const mb = await zip.blob('stand-backup.json');
+    if(!mb) throw new Error('no manifest');
+    man = JSON.parse(await mb.text());
+    if(!man || man.kind !== 'stand-archive' || !Array.isArray(man.items)) throw new Error('not a Stand backup');
+  }catch(err){
+    toast(/re-compressed/.test(err.message) ? 'Could not read it: ' + err.message : 'That file is not a Stand backup', 4000);
+    return;
+  }
+  const when = new Date(man.createdAt).toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
+  const cur = S.docs.length, np = man.pieces || 0;
+  const what = `the backup from ${when} (${np} piece${np === 1 ? '' : 's'})`;
+  if(!confirm(cur ? `Replace your current library (${cur} piece${cur === 1 ? '' : 's'}) with ${what}? Anything not in the backup will be removed.` : `Restore ${what}?`)) return;
+
+  busy(true, 'Restoring');
+  try{
+    // Write everything first; only once every write has landed is anything
+    // not in the backup removed. A failure part way leaves your current data.
+    const keep = new Set();
+    let i = 0;
+    for(const it of man.items){
+      if(!it || typeof it.key !== 'string' || BK_SKIP(it.key)) continue;
+      $('#busyText').textContent = `Restoring ${++i} of ${man.items.length}`;
+      let v;
+      if(it.blob){
+        const b = await zip.blob(it.blob); if(!b) continue;
+        v = it.fname ? new File([b], it.fname, {type:it.type || ''}) : new Blob([b], {type:it.type || ''});
+      }else v = it.value;
+      await DB.set(it.key, v);
+      keep.add(it.key);
+    }
+    for(const k of await DB.keys('')) if(!keep.has(k) && !BK_SKIP(k)) await DB.del(k);
+    await DB.delPrefix('raster:');                       // page images of the old library
+    await DB.del(K.rasters);
+    try{ for(const [k, v] of Object.entries(man.localStorage || {})) if(k.startsWith('stand.')) localStorage.setItem(k, v); }catch(e){}
+    $('#busyText').textContent = 'Restored. Reloading';
+    setTimeout(() => location.reload(), 400);
+  }catch(err){
+    busy(false); console.error(err);
+    toast('Restore stopped: ' + err.message + '. Nothing was removed.', 6000);
+  }
+}
+
+$('#clList').addEventListener('click', e => {
+  const b = e.target.closest('[data-bk]'); if(!b) return;
+  if(b.dataset.bk === 'save') backupLibrary(); else pickRestore();
+});
+$('#emptyRestore').addEventListener('click', pickRestore);
+$('#bkFile').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if(f) restoreLibrary(f); });
+$('#bkSave').addEventListener('click', saveBackup);
+$('#bkCancel').addEventListener('click', closeBackupCard);
 
 /* ---------- misc ---------- */
 let rt;
