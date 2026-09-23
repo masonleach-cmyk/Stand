@@ -2270,8 +2270,8 @@ function matchComposer(text){
    a composer, and either a catalogue number, a nickname, or a genre and a
    number — so the title can be looked up rather than cleaned up.
 
-   Six composers are catalogued: Beethoven, Chopin, Debussy, Mozart,
-   Rachmaninoff and Scriabin. The machinery is composer-agnostic, so adding
+   Composers are catalogued one list each (Beethoven, Chopin, Debussy, Mozart,
+   Rachmaninoff, Scriabin, Schubert, Schumann, Liszt and Bach). The machinery is composer-agnostic, so adding
    another is adding another list. A piece is only renamed when it is positively
    identified — anything unrecognised, and every composer not on the list, keeps
    the title it was imported with. That is the safe failure: a messy title you
@@ -3223,6 +3223,192 @@ const WORKS = {
     ["S108","A Faust Symphony, S. 108","faust symphony|faust symphonie"],
     ["S109","A Dante Symphony, S. 109","dante symphony"],
   ],
+  "Johann Sebastian Bach": [
+    ["BWV140", "Wachet auf, ruft uns die Stimme, BWV 140 (Sleepers, Wake)", "wachet auf|sleepers wake"],
+    ["BWV147", "Herz und Mund und Tat und Leben, BWV 147 (Jesu, Joy of Man’s Desiring)", "jesu joy of man s desiring|jesu joy|jesus bleibet meine freude|herz und mund"],
+    ["BWV208", "Was mir behagt, ist nur die muntre Jagd, BWV 208 (Hunting Cantata)", "sheep may safely graze|schafe konnen sicher weiden|hunting cantata"],
+    ["BWV232", "Mass in B minor, BWV 232", "mass in b minor|b minor mass|h moll messe"],
+    ["BWV243", "Magnificat in D major, BWV 243", "magnificat"],
+    ["BWV244", "St Matthew Passion, BWV 244", "st matthew passion|matthaus passion|matthauspassion"],
+    ["BWV245", "St John Passion, BWV 245", "st john passion|johannes passion|johannespassion"],
+    ["BWV248", "Christmas Oratorio, BWV 248", "christmas oratorio|weihnachtsoratorium"],
+    ["BWV565", "Toccata and Fugue in D minor, BWV 565", "toccata and fugue in d minor|toccata and fugue d minor|toccata und fuge"],
+    ["BWV582", "Passacaglia and Fugue in C minor, BWV 582", "passacaglia|passacaglia and fugue"],
+    ["BWV772", "Invention No. 1 in C major, BWV 772", "two part invention 1|2 part invention 1|inventio 1|invention 1"],
+    ["BWV773", "Invention No. 2 in C minor, BWV 773", "two part invention 2|2 part invention 2|inventio 2|invention 2"],
+    ["BWV774", "Invention No. 3 in D major, BWV 774", "two part invention 3|2 part invention 3|inventio 3|invention 3"],
+    ["BWV775", "Invention No. 4 in D minor, BWV 775", "two part invention 4|2 part invention 4|inventio 4|invention 4"],
+    ["BWV776", "Invention No. 5 in E-flat major, BWV 776", "two part invention 5|2 part invention 5|inventio 5|invention 5"],
+    ["BWV777", "Invention No. 6 in E major, BWV 777", "two part invention 6|2 part invention 6|inventio 6|invention 6"],
+    ["BWV778", "Invention No. 7 in E minor, BWV 778", "two part invention 7|2 part invention 7|inventio 7|invention 7"],
+    ["BWV779", "Invention No. 8 in F major, BWV 779", "two part invention 8|2 part invention 8|inventio 8|invention 8"],
+    ["BWV780", "Invention No. 9 in F minor, BWV 780", "two part invention 9|2 part invention 9|inventio 9|invention 9"],
+    ["BWV781", "Invention No. 10 in G major, BWV 781", "two part invention 10|2 part invention 10|inventio 10|invention 10"],
+    ["BWV782", "Invention No. 11 in G minor, BWV 782", "two part invention 11|2 part invention 11|inventio 11|invention 11"],
+    ["BWV783", "Invention No. 12 in A major, BWV 783", "two part invention 12|2 part invention 12|inventio 12|invention 12"],
+    ["BWV784", "Invention No. 13 in A minor, BWV 784", "two part invention 13|2 part invention 13|inventio 13|invention 13"],
+    ["BWV785", "Invention No. 14 in B-flat major, BWV 785", "two part invention 14|2 part invention 14|inventio 14|invention 14"],
+    ["BWV786", "Invention No. 15 in B minor, BWV 786", "two part invention 15|2 part invention 15|inventio 15|invention 15"],
+    ["BWV787", "Sinfonia No. 1 in C major, BWV 787", "three part invention 1|3 part invention 1|sinfonia 1"],
+    ["BWV788", "Sinfonia No. 2 in C minor, BWV 788", "three part invention 2|3 part invention 2|sinfonia 2"],
+    ["BWV789", "Sinfonia No. 3 in D major, BWV 789", "three part invention 3|3 part invention 3|sinfonia 3"],
+    ["BWV790", "Sinfonia No. 4 in D minor, BWV 790", "three part invention 4|3 part invention 4|sinfonia 4"],
+    ["BWV791", "Sinfonia No. 5 in E-flat major, BWV 791", "three part invention 5|3 part invention 5|sinfonia 5"],
+    ["BWV792", "Sinfonia No. 6 in E major, BWV 792", "three part invention 6|3 part invention 6|sinfonia 6"],
+    ["BWV793", "Sinfonia No. 7 in E minor, BWV 793", "three part invention 7|3 part invention 7|sinfonia 7"],
+    ["BWV794", "Sinfonia No. 8 in F major, BWV 794", "three part invention 8|3 part invention 8|sinfonia 8"],
+    ["BWV795", "Sinfonia No. 9 in F minor, BWV 795", "three part invention 9|3 part invention 9|sinfonia 9"],
+    ["BWV796", "Sinfonia No. 10 in G major, BWV 796", "three part invention 10|3 part invention 10|sinfonia 10"],
+    ["BWV797", "Sinfonia No. 11 in G minor, BWV 797", "three part invention 11|3 part invention 11|sinfonia 11"],
+    ["BWV798", "Sinfonia No. 12 in A major, BWV 798", "three part invention 12|3 part invention 12|sinfonia 12"],
+    ["BWV799", "Sinfonia No. 13 in A minor, BWV 799", "three part invention 13|3 part invention 13|sinfonia 13"],
+    ["BWV800", "Sinfonia No. 14 in B-flat major, BWV 800", "three part invention 14|3 part invention 14|sinfonia 14"],
+    ["BWV801", "Sinfonia No. 15 in B minor, BWV 801", "three part invention 15|3 part invention 15|sinfonia 15"],
+    ["BWV802", "Duet No. 1 in E minor, BWV 802", "duetto 1|duet 1"],
+    ["BWV803", "Duet No. 2 in F major, BWV 803", "duetto 2|duet 2"],
+    ["BWV804", "Duet No. 3 in G major, BWV 804", "duetto 3|duet 3"],
+    ["BWV805", "Duet No. 4 in A minor, BWV 805", "duetto 4|duet 4"],
+    ["BWV806", "English Suite No. 1 in A major, BWV 806", "english suite 1|englische suite 1"],
+    ["BWV807", "English Suite No. 2 in A minor, BWV 807", "english suite 2|englische suite 2"],
+    ["BWV808", "English Suite No. 3 in G minor, BWV 808", "english suite 3|englische suite 3"],
+    ["BWV809", "English Suite No. 4 in F major, BWV 809", "english suite 4|englische suite 4"],
+    ["BWV810", "English Suite No. 5 in E minor, BWV 810", "english suite 5|englische suite 5"],
+    ["BWV811", "English Suite No. 6 in D minor, BWV 811", "english suite 6|englische suite 6"],
+    ["BWV812", "French Suite No. 1 in D minor, BWV 812", "french suite 1|franzosische suite 1"],
+    ["BWV813", "French Suite No. 2 in C minor, BWV 813", "french suite 2|franzosische suite 2"],
+    ["BWV814", "French Suite No. 3 in B minor, BWV 814", "french suite 3|franzosische suite 3"],
+    ["BWV815", "French Suite No. 4 in E-flat major, BWV 815", "french suite 4|franzosische suite 4"],
+    ["BWV816", "French Suite No. 5 in G major, BWV 816", "french suite 5|franzosische suite 5"],
+    ["BWV817", "French Suite No. 6 in E major, BWV 817", "french suite 6|franzosische suite 6"],
+    ["BWV825", "Partita No. 1 in B-flat major, BWV 825", "keyboard partita 1|clavier ubung 1"],
+    ["BWV826", "Partita No. 2 in C minor, BWV 826", "keyboard partita 2|clavier ubung 2"],
+    ["BWV827", "Partita No. 3 in A minor, BWV 827", "keyboard partita 3|clavier ubung 3"],
+    ["BWV828", "Partita No. 4 in D major, BWV 828", "keyboard partita 4|clavier ubung 4"],
+    ["BWV829", "Partita No. 5 in G major, BWV 829", "keyboard partita 5|clavier ubung 5"],
+    ["BWV830", "Partita No. 6 in E minor, BWV 830", "keyboard partita 6|clavier ubung 6"],
+    ["BWV831", "French Overture in B minor, BWV 831", "french overture|overture in the french style|franzosische ouverture"],
+    ["BWV846", "Prelude and Fugue in C major, BWV 846 (The Well-Tempered Clavier, Book I No. 1)", "wtc i 1|wtc 1 1|wtc book 1 1|wtk i 1|well tempered clavier i 1|well tempered clavier book 1 1"],
+    ["BWV847", "Prelude and Fugue in C minor, BWV 847 (The Well-Tempered Clavier, Book I No. 2)", "wtc i 2|wtc 1 2|wtc book 1 2|wtk i 2|well tempered clavier i 2|well tempered clavier book 1 2"],
+    ["BWV848", "Prelude and Fugue in C-sharp major, BWV 848 (The Well-Tempered Clavier, Book I No. 3)", "wtc i 3|wtc 1 3|wtc book 1 3|wtk i 3|well tempered clavier i 3|well tempered clavier book 1 3"],
+    ["BWV849", "Prelude and Fugue in C-sharp minor, BWV 849 (The Well-Tempered Clavier, Book I No. 4)", "wtc i 4|wtc 1 4|wtc book 1 4|wtk i 4|well tempered clavier i 4|well tempered clavier book 1 4"],
+    ["BWV850", "Prelude and Fugue in D major, BWV 850 (The Well-Tempered Clavier, Book I No. 5)", "wtc i 5|wtc 1 5|wtc book 1 5|wtk i 5|well tempered clavier i 5|well tempered clavier book 1 5"],
+    ["BWV851", "Prelude and Fugue in D minor, BWV 851 (The Well-Tempered Clavier, Book I No. 6)", "wtc i 6|wtc 1 6|wtc book 1 6|wtk i 6|well tempered clavier i 6|well tempered clavier book 1 6"],
+    ["BWV852", "Prelude and Fugue in E-flat major, BWV 852 (The Well-Tempered Clavier, Book I No. 7)", "wtc i 7|wtc 1 7|wtc book 1 7|wtk i 7|well tempered clavier i 7|well tempered clavier book 1 7"],
+    ["BWV853", "Prelude in E-flat minor and Fugue in D-sharp minor, BWV 853 (The Well-Tempered Clavier, Book I No. 8)", "wtc i 8|wtc 1 8|wtc book 1 8|wtk i 8|well tempered clavier i 8|well tempered clavier book 1 8"],
+    ["BWV854", "Prelude and Fugue in E major, BWV 854 (The Well-Tempered Clavier, Book I No. 9)", "wtc i 9|wtc 1 9|wtc book 1 9|wtk i 9|well tempered clavier i 9|well tempered clavier book 1 9"],
+    ["BWV855", "Prelude and Fugue in E minor, BWV 855 (The Well-Tempered Clavier, Book I No. 10)", "wtc i 10|wtc 1 10|wtc book 1 10|wtk i 10|well tempered clavier i 10|well tempered clavier book 1 10"],
+    ["BWV856", "Prelude and Fugue in F major, BWV 856 (The Well-Tempered Clavier, Book I No. 11)", "wtc i 11|wtc 1 11|wtc book 1 11|wtk i 11|well tempered clavier i 11|well tempered clavier book 1 11"],
+    ["BWV857", "Prelude and Fugue in F minor, BWV 857 (The Well-Tempered Clavier, Book I No. 12)", "wtc i 12|wtc 1 12|wtc book 1 12|wtk i 12|well tempered clavier i 12|well tempered clavier book 1 12"],
+    ["BWV858", "Prelude and Fugue in F-sharp major, BWV 858 (The Well-Tempered Clavier, Book I No. 13)", "wtc i 13|wtc 1 13|wtc book 1 13|wtk i 13|well tempered clavier i 13|well tempered clavier book 1 13"],
+    ["BWV859", "Prelude and Fugue in F-sharp minor, BWV 859 (The Well-Tempered Clavier, Book I No. 14)", "wtc i 14|wtc 1 14|wtc book 1 14|wtk i 14|well tempered clavier i 14|well tempered clavier book 1 14"],
+    ["BWV860", "Prelude and Fugue in G major, BWV 860 (The Well-Tempered Clavier, Book I No. 15)", "wtc i 15|wtc 1 15|wtc book 1 15|wtk i 15|well tempered clavier i 15|well tempered clavier book 1 15"],
+    ["BWV861", "Prelude and Fugue in G minor, BWV 861 (The Well-Tempered Clavier, Book I No. 16)", "wtc i 16|wtc 1 16|wtc book 1 16|wtk i 16|well tempered clavier i 16|well tempered clavier book 1 16"],
+    ["BWV862", "Prelude and Fugue in A-flat major, BWV 862 (The Well-Tempered Clavier, Book I No. 17)", "wtc i 17|wtc 1 17|wtc book 1 17|wtk i 17|well tempered clavier i 17|well tempered clavier book 1 17"],
+    ["BWV863", "Prelude and Fugue in G-sharp minor, BWV 863 (The Well-Tempered Clavier, Book I No. 18)", "wtc i 18|wtc 1 18|wtc book 1 18|wtk i 18|well tempered clavier i 18|well tempered clavier book 1 18"],
+    ["BWV864", "Prelude and Fugue in A major, BWV 864 (The Well-Tempered Clavier, Book I No. 19)", "wtc i 19|wtc 1 19|wtc book 1 19|wtk i 19|well tempered clavier i 19|well tempered clavier book 1 19"],
+    ["BWV865", "Prelude and Fugue in A minor, BWV 865 (The Well-Tempered Clavier, Book I No. 20)", "wtc i 20|wtc 1 20|wtc book 1 20|wtk i 20|well tempered clavier i 20|well tempered clavier book 1 20"],
+    ["BWV866", "Prelude and Fugue in B-flat major, BWV 866 (The Well-Tempered Clavier, Book I No. 21)", "wtc i 21|wtc 1 21|wtc book 1 21|wtk i 21|well tempered clavier i 21|well tempered clavier book 1 21"],
+    ["BWV867", "Prelude and Fugue in B-flat minor, BWV 867 (The Well-Tempered Clavier, Book I No. 22)", "wtc i 22|wtc 1 22|wtc book 1 22|wtk i 22|well tempered clavier i 22|well tempered clavier book 1 22"],
+    ["BWV868", "Prelude and Fugue in B major, BWV 868 (The Well-Tempered Clavier, Book I No. 23)", "wtc i 23|wtc 1 23|wtc book 1 23|wtk i 23|well tempered clavier i 23|well tempered clavier book 1 23"],
+    ["BWV869", "Prelude and Fugue in B minor, BWV 869 (The Well-Tempered Clavier, Book I No. 24)", "wtc i 24|wtc 1 24|wtc book 1 24|wtk i 24|well tempered clavier i 24|well tempered clavier book 1 24"],
+    ["BWV870", "Prelude and Fugue in C major, BWV 870 (The Well-Tempered Clavier, Book II No. 1)", "wtc ii 1|wtc 2 1|wtc book 2 1|wtk ii 1|well tempered clavier ii 1|well tempered clavier book 2 1"],
+    ["BWV871", "Prelude and Fugue in C minor, BWV 871 (The Well-Tempered Clavier, Book II No. 2)", "wtc ii 2|wtc 2 2|wtc book 2 2|wtk ii 2|well tempered clavier ii 2|well tempered clavier book 2 2"],
+    ["BWV872", "Prelude and Fugue in C-sharp major, BWV 872 (The Well-Tempered Clavier, Book II No. 3)", "wtc ii 3|wtc 2 3|wtc book 2 3|wtk ii 3|well tempered clavier ii 3|well tempered clavier book 2 3"],
+    ["BWV873", "Prelude and Fugue in C-sharp minor, BWV 873 (The Well-Tempered Clavier, Book II No. 4)", "wtc ii 4|wtc 2 4|wtc book 2 4|wtk ii 4|well tempered clavier ii 4|well tempered clavier book 2 4"],
+    ["BWV874", "Prelude and Fugue in D major, BWV 874 (The Well-Tempered Clavier, Book II No. 5)", "wtc ii 5|wtc 2 5|wtc book 2 5|wtk ii 5|well tempered clavier ii 5|well tempered clavier book 2 5"],
+    ["BWV875", "Prelude and Fugue in D minor, BWV 875 (The Well-Tempered Clavier, Book II No. 6)", "wtc ii 6|wtc 2 6|wtc book 2 6|wtk ii 6|well tempered clavier ii 6|well tempered clavier book 2 6"],
+    ["BWV876", "Prelude and Fugue in E-flat major, BWV 876 (The Well-Tempered Clavier, Book II No. 7)", "wtc ii 7|wtc 2 7|wtc book 2 7|wtk ii 7|well tempered clavier ii 7|well tempered clavier book 2 7"],
+    ["BWV877", "Prelude and Fugue in D-sharp minor, BWV 877 (The Well-Tempered Clavier, Book II No. 8)", "wtc ii 8|wtc 2 8|wtc book 2 8|wtk ii 8|well tempered clavier ii 8|well tempered clavier book 2 8"],
+    ["BWV878", "Prelude and Fugue in E major, BWV 878 (The Well-Tempered Clavier, Book II No. 9)", "wtc ii 9|wtc 2 9|wtc book 2 9|wtk ii 9|well tempered clavier ii 9|well tempered clavier book 2 9"],
+    ["BWV879", "Prelude and Fugue in E minor, BWV 879 (The Well-Tempered Clavier, Book II No. 10)", "wtc ii 10|wtc 2 10|wtc book 2 10|wtk ii 10|well tempered clavier ii 10|well tempered clavier book 2 10"],
+    ["BWV880", "Prelude and Fugue in F major, BWV 880 (The Well-Tempered Clavier, Book II No. 11)", "wtc ii 11|wtc 2 11|wtc book 2 11|wtk ii 11|well tempered clavier ii 11|well tempered clavier book 2 11"],
+    ["BWV881", "Prelude and Fugue in F minor, BWV 881 (The Well-Tempered Clavier, Book II No. 12)", "wtc ii 12|wtc 2 12|wtc book 2 12|wtk ii 12|well tempered clavier ii 12|well tempered clavier book 2 12"],
+    ["BWV882", "Prelude and Fugue in F-sharp major, BWV 882 (The Well-Tempered Clavier, Book II No. 13)", "wtc ii 13|wtc 2 13|wtc book 2 13|wtk ii 13|well tempered clavier ii 13|well tempered clavier book 2 13"],
+    ["BWV883", "Prelude and Fugue in F-sharp minor, BWV 883 (The Well-Tempered Clavier, Book II No. 14)", "wtc ii 14|wtc 2 14|wtc book 2 14|wtk ii 14|well tempered clavier ii 14|well tempered clavier book 2 14"],
+    ["BWV884", "Prelude and Fugue in G major, BWV 884 (The Well-Tempered Clavier, Book II No. 15)", "wtc ii 15|wtc 2 15|wtc book 2 15|wtk ii 15|well tempered clavier ii 15|well tempered clavier book 2 15"],
+    ["BWV885", "Prelude and Fugue in G minor, BWV 885 (The Well-Tempered Clavier, Book II No. 16)", "wtc ii 16|wtc 2 16|wtc book 2 16|wtk ii 16|well tempered clavier ii 16|well tempered clavier book 2 16"],
+    ["BWV886", "Prelude and Fugue in A-flat major, BWV 886 (The Well-Tempered Clavier, Book II No. 17)", "wtc ii 17|wtc 2 17|wtc book 2 17|wtk ii 17|well tempered clavier ii 17|well tempered clavier book 2 17"],
+    ["BWV887", "Prelude and Fugue in G-sharp minor, BWV 887 (The Well-Tempered Clavier, Book II No. 18)", "wtc ii 18|wtc 2 18|wtc book 2 18|wtk ii 18|well tempered clavier ii 18|well tempered clavier book 2 18"],
+    ["BWV888", "Prelude and Fugue in A major, BWV 888 (The Well-Tempered Clavier, Book II No. 19)", "wtc ii 19|wtc 2 19|wtc book 2 19|wtk ii 19|well tempered clavier ii 19|well tempered clavier book 2 19"],
+    ["BWV889", "Prelude and Fugue in A minor, BWV 889 (The Well-Tempered Clavier, Book II No. 20)", "wtc ii 20|wtc 2 20|wtc book 2 20|wtk ii 20|well tempered clavier ii 20|well tempered clavier book 2 20"],
+    ["BWV890", "Prelude and Fugue in B-flat major, BWV 890 (The Well-Tempered Clavier, Book II No. 21)", "wtc ii 21|wtc 2 21|wtc book 2 21|wtk ii 21|well tempered clavier ii 21|well tempered clavier book 2 21"],
+    ["BWV891", "Prelude and Fugue in B-flat minor, BWV 891 (The Well-Tempered Clavier, Book II No. 22)", "wtc ii 22|wtc 2 22|wtc book 2 22|wtk ii 22|well tempered clavier ii 22|well tempered clavier book 2 22"],
+    ["BWV892", "Prelude and Fugue in B major, BWV 892 (The Well-Tempered Clavier, Book II No. 23)", "wtc ii 23|wtc 2 23|wtc book 2 23|wtk ii 23|well tempered clavier ii 23|well tempered clavier book 2 23"],
+    ["BWV893", "Prelude and Fugue in B minor, BWV 893 (The Well-Tempered Clavier, Book II No. 24)", "wtc ii 24|wtc 2 24|wtc book 2 24|wtk ii 24|well tempered clavier ii 24|well tempered clavier book 2 24"],
+    ["BWV903", "Chromatic Fantasia and Fugue in D minor, BWV 903", "chromatic fantasia|chromatic fantasy|chromatische fantasie"],
+    ["BWV906", "Fantasia and Fugue in C minor, BWV 906", "fantasia in c minor"],
+    ["BWV910", "Toccata in F-sharp minor, BWV 910"],
+    ["BWV911", "Toccata in C minor, BWV 911"],
+    ["BWV912", "Toccata in D major, BWV 912"],
+    ["BWV913", "Toccata in D minor, BWV 913"],
+    ["BWV914", "Toccata in E minor, BWV 914"],
+    ["BWV915", "Toccata in G minor, BWV 915"],
+    ["BWV916", "Toccata in G major, BWV 916"],
+    ["BWV924", "Little Prelude in C major, BWV 924"],
+    ["BWV925", "Little Prelude in D major, BWV 925"],
+    ["BWV926", "Little Prelude in D minor, BWV 926"],
+    ["BWV927", "Little Prelude in F major, BWV 927"],
+    ["BWV928", "Little Prelude in F major, BWV 928"],
+    ["BWV930", "Little Prelude in G minor, BWV 930"],
+    ["BWV931", "Little Prelude in A minor, BWV 931"],
+    ["BWV933", "Little Prelude in C major, BWV 933"],
+    ["BWV934", "Little Prelude in C minor, BWV 934"],
+    ["BWV935", "Little Prelude in D minor, BWV 935"],
+    ["BWV936", "Little Prelude in D major, BWV 936"],
+    ["BWV937", "Little Prelude in E major, BWV 937"],
+    ["BWV938", "Little Prelude in E minor, BWV 938"],
+    ["BWV939", "Little Prelude in C major, BWV 939"],
+    ["BWV940", "Little Prelude in D minor, BWV 940"],
+    ["BWV941", "Little Prelude in E minor, BWV 941"],
+    ["BWV942", "Little Prelude in A minor, BWV 942"],
+    ["BWV943", "Little Prelude in C major, BWV 943"],
+    ["BWV971", "Italian Concerto in F major, BWV 971", "italian concerto|italienisches konzert|concerto nach italienischem gusto"],
+    ["BWV988", "Goldberg Variations, BWV 988", "goldberg|goldberg variations|goldberg variationen|aria mit verschiedenen veranderungen|aria with diverse variations"],
+    ["BWV989", "Aria variata alla maniera italiana in A minor, BWV 989", "aria variata"],
+    ["BWV992", "Capriccio on the Departure of a Beloved Brother, BWV 992", "capriccio sopra la lontananza|departure of a beloved brother|lontananza del fratello"],
+    ["BWV999", "Little Prelude in C minor, BWV 999"],
+    ["BWV1001", "Violin Sonata No. 1 in G minor, BWV 1001"],
+    ["BWV1002", "Violin Partita No. 1 in B minor, BWV 1002"],
+    ["BWV1003", "Violin Sonata No. 2 in A minor, BWV 1003"],
+    ["BWV1004", "Violin Partita No. 2 in D minor, BWV 1004", "chaconne|ciaccona|partita 2 violin"],
+    ["BWV1005", "Violin Sonata No. 3 in C major, BWV 1005"],
+    ["BWV1006", "Violin Partita No. 3 in E major, BWV 1006"],
+    ["BWV1007", "Cello Suite No. 1 in G major, BWV 1007", "cello suite 1|cellosuite 1"],
+    ["BWV1008", "Cello Suite No. 2 in D minor, BWV 1008", "cello suite 2|cellosuite 2"],
+    ["BWV1009", "Cello Suite No. 3 in C major, BWV 1009", "cello suite 3|cellosuite 3"],
+    ["BWV1010", "Cello Suite No. 4 in E-flat major, BWV 1010", "cello suite 4|cellosuite 4"],
+    ["BWV1011", "Cello Suite No. 5 in C minor, BWV 1011", "cello suite 5|cellosuite 5"],
+    ["BWV1012", "Cello Suite No. 6 in D major, BWV 1012", "cello suite 6|cellosuite 6"],
+    ["BWV1041", "Violin Concerto in A minor, BWV 1041", "violin concerto in a minor"],
+    ["BWV1042", "Violin Concerto in E major, BWV 1042", "violin concerto in e major"],
+    ["BWV1043", "Concerto for Two Violins in D minor, BWV 1043", "double violin concerto|double concerto|concerto for two violins"],
+    ["BWV1046", "Brandenburg Concerto No. 1 in F major, BWV 1046", "brandenburg 1|brandenburgisches konzert 1"],
+    ["BWV1047", "Brandenburg Concerto No. 2 in F major, BWV 1047", "brandenburg 2|brandenburgisches konzert 2"],
+    ["BWV1048", "Brandenburg Concerto No. 3 in G major, BWV 1048", "brandenburg 3|brandenburgisches konzert 3"],
+    ["BWV1049", "Brandenburg Concerto No. 4 in G major, BWV 1049", "brandenburg 4|brandenburgisches konzert 4"],
+    ["BWV1050", "Brandenburg Concerto No. 5 in D major, BWV 1050", "brandenburg 5|brandenburgisches konzert 5"],
+    ["BWV1051", "Brandenburg Concerto No. 6 in B-flat major, BWV 1051", "brandenburg 6|brandenburgisches konzert 6"],
+    ["BWV1052", "Keyboard Concerto No. 1 in D minor, BWV 1052", "keyboard concerto in d minor|harpsichord concerto in d minor|piano concerto in d minor"],
+    ["BWV1056", "Keyboard Concerto No. 5 in F minor, BWV 1056", "keyboard concerto in f minor|harpsichord concerto in f minor|arioso"],
+    ["BWV1066", "Orchestral Suite No. 1 in C major, BWV 1066", "orchestral suite 1|ouverture 1"],
+    ["BWV1067", "Orchestral Suite No. 2 in B minor, BWV 1067", "orchestral suite 2|ouverture 2|badinerie"],
+    ["BWV1068", "Orchestral Suite No. 3 in D major, BWV 1068", "air on the g string|air on g string|air auf der g saite|orchestral suite 3"],
+    ["BWV1069", "Orchestral Suite No. 4 in D major, BWV 1069", "orchestral suite 4|ouverture 4"],
+    ["BWV1079", "A Musical Offering, BWV 1079", "musical offering|musikalisches opfer"],
+    ["BWV1080", "The Art of Fugue, BWV 1080", "art of fugue|art of the fugue|kunst der fuge"],
+    ["BWV Anh 113", "Minuet in F major, BWV Anh. 113"],
+    ["BWV Anh 114", "Minuet in G major, BWV Anh. 114", "minuet in g|petzold"],
+    ["BWV Anh 115", "Minuet in G minor, BWV Anh. 115", "minuet in g minor"],
+    ["BWV Anh 116", "Minuet in G major, BWV Anh. 116"],
+    ["BWV Anh 118", "Minuet in B-flat major, BWV Anh. 118"],
+    ["BWV Anh 119", "Polonaise in G minor, BWV Anh. 119"],
+    ["BWV Anh 120", "Minuet in A minor, BWV Anh. 120"],
+    ["BWV Anh 121", "Minuet in C minor, BWV Anh. 121"],
+    ["BWV Anh 122", "March in D major, BWV Anh. 122", "march in d"],
+    ["BWV Anh 124", "March in G major, BWV Anh. 124", "march in g"],
+    ["BWV Anh 126", "Musette in D major, BWV Anh. 126", "musette in d|musette"],
+    ["BWV Anh 132", "Minuet in D minor, BWV Anh. 132"],
+  ],
 };
 
 /* One or two lines on each catalogued work: its character, style and what
@@ -4168,6 +4354,192 @@ const WORK_NOTES = {
     "S108":"Symphony of character portraits: Faust, Gretchen and Mephistopheles.",
     "S109":"Symphony after Dante’s Inferno and Purgatorio.",
   },
+  "Johann Sebastian Bach": {
+    "BWV140":"A chorale cantata on the parable of the wise and foolish virgins, with a famous central chorale melody.",
+    "BWV147":"A cantata whose chorale setting, known in English as ‘Jesu, Joy of Man’s Desiring’, is one of Bach’s most famous melodies.",
+    "BWV208":"A secular birthday cantata including the aria ‘Sheep May Safely Graze’.",
+    "BWV232":"Bach’s complete setting of the Latin Mass, assembled at the end of his life from new and earlier music.",
+    "BWV243":"A brilliant setting of the Latin Magnificat in twelve short, vivid movements.",
+    "BWV244":"The Passion story from Matthew’s Gospel for double choir and double orchestra, with arias, chorales and the narrating Evangelist.",
+    "BWV245":"The Passion story from John’s Gospel, more dramatic and concentrated than the St Matthew.",
+    "BWV248":"Six cantatas for the feast days from Christmas to Epiphany, telling the Nativity story.",
+    "BWV565":"The most famous organ work ever written, with its dramatic opening flourish.",
+    "BWV582":"Twenty variations on an eight-bar ostinato bass, followed by a double fugue on the same theme.",
+    "BWV772":"The most famous of the Inventions: a four-note rising figure and its inversion pass between the hands in a clear, bright dialogue that teaches imitation at its simplest.",
+    "BWV773":"A strict two-part canon at the octave: the left hand follows the right exactly for long stretches, and then the roles are reversed.",
+    "BWV774":"A lively, dance-like invention in 3/8 with a leaping subject and sparkling passagework.",
+    "BWV775":"A driving invention in 3/8 on a rising scale that turns back chromatically, full of energy and forward motion.",
+    "BWV776":"A broad, ornate invention in which a decorated melody is set against a steady countersubject.",
+    "BWV777":"A syncopated invention in binary form, with the hands answering in offset rhythm.",
+    "BWV778":"A serious, flowing invention with a winding, expressive subject.",
+    "BWV779":"A bright, leaping invention in which the left hand follows the right in canon at the distance of a beat.",
+    "BWV780":"A grave, chromatic invention with a slow descending bass and a sighing upper line.",
+    "BWV781":"A cheerful gigue-like invention in 9/8 built on broken chords.",
+    "BWV782":"A thoughtful invention with a chromatic countersubject that accompanies every entry.",
+    "BWV783":"A lively invention in 12/8 with a subject decorated by turns.",
+    "BWV784":"A restless invention of broken-chord figures in both hands, dark and propulsive.",
+    "BWV785":"A graceful invention with elegant dotted and demisemiquaver figures.",
+    "BWV786":"A concise invention whose subject, answered by the left hand, closes the set with vigour.",
+    "BWV787":"A bright three-voice sinfonia on a rising scale figure, the natural next step from the first Invention.",
+    "BWV788":"A flowing sinfonia in 12/8 over a walking bass, serene and contrapuntally clear.",
+    "BWV789":"A lively sinfonia with chromatic inner voices.",
+    "BWV790":"A grave, slow sinfonia over a steady bass.",
+    "BWV791":"A tender duet for two upper voices over a walking bass, like an aria with continuo.",
+    "BWV792":"A graceful sinfonia in 9/8 with smooth, flowing lines.",
+    "BWV793":"A solemn, lamenting sinfonia with suspensions.",
+    "BWV794":"A bright, playful sinfonia with a subject of repeated notes.",
+    "BWV795":"The most chromatic of the Sinfonias: a grave, three-voice lament on a descending chromatic bass, with a sighing subject.",
+    "BWV796":"A cheerful sinfonia with a leaping, broken-chord subject.",
+    "BWV797":"A gentle sinfonia in 9/8 with a flowing, song-like subject.",
+    "BWV798":"A bright, three-voice sinfonia with running figuration.",
+    "BWV799":"A graceful sinfonia in 3/8 with a dance-like subject.",
+    "BWV800":"A calm, lyrical sinfonia with an ornamented subject.",
+    "BWV801":"A lively sinfonia in 9/16 that closes the collection brilliantly.",
+    "BWV802":"A chromatic, angular duet with a subject that is inverted in the second half.",
+    "BWV803":"A long, da capo duet whose central section is a strict canon.",
+    "BWV804":"A gentle, pastoral duet in 12/8, the most lyrical of the set.",
+    "BWV805":"A severe, fugal duet in old style.",
+    "BWV806":"The first English Suite opens with a gentle, flowing prelude and contains two courantes, the second with two ornamented doubles.",
+    "BWV807":"One of the most popular English Suites, opening with a large concerto-like prelude and including a sarabande with Bach’s own ornamented version.",
+    "BWV808":"The most frequently played English Suite: a powerful concerto-like prelude, a richly ornamented sarabande and a gavotte whose second half imitates a musette over a drone.",
+    "BWV809":"A bright, concerto-like suite with a sparkling prelude and a pair of minuets.",
+    "BWV810":"A dark, intense suite whose prelude is a long fugal movement and whose gigue is full of chromatic drama.",
+    "BWV811":"The largest and most virtuosic English Suite, with a grand prelude, a sarabande with a double, and a gigue of relentless intensity.",
+    "BWV812":"The gravest of the French Suites, with a serious, contrapuntal allemande and a gigue that is really a small fugue in dotted rhythms.",
+    "BWV813":"A suite of intimate melancholy, with a singing sarabande and a quick, lively air.",
+    "BWV814":"A suite of subdued, reflective character, with an Anglaise and a Menuet with Trio among its dances.",
+    "BWV815":"A warm, gracious suite in E-flat major with a charming gavotte and air.",
+    "BWV816":"The most popular of the French Suites: a radiant allemande, a tender sarabande and a string of lively dances — gavotte, bourrée and loure — before a brilliant fugal gigue.",
+    "BWV817":"A bright, extended suite in E major with a polonaise and a minuet among its many dances.",
+    "BWV825":"The most intimate Partita: a gentle praeludium, singing dances and a famous gigue in which the hands cross constantly.",
+    "BWV826":"A dramatic Partita that opens with a Sinfonia in three parts — a French-overture Grave, an aria-like Andante and a fugue — and closes with a biting Capriccio instead of a gigue.",
+    "BWV827":"A Partita of unusual character, opening with a two-part Fantasia and including a Burlesca and a Scherzo.",
+    "BWV828":"The grandest of the Partitas, opening with a full French Ouverture and containing one of Bach’s most expansive allemandes.",
+    "BWV829":"A bright, witty Partita with a sparkling Praeambulum and a lively Passepied.",
+    "BWV830":"The most profound of the Partitas: a monumental Toccata with a central fugue, intensely expressive dances and a gigue of rhythmic severity.",
+    "BWV831":"A large orchestral-style suite for keyboard in the French manner, ending with an Echo.",
+    "BWV846":"Broken chords unfold one harmony per bar in an unbroken, luminous stream; a dense four-voice fugue whose short subject enters in close stretto almost from the start.",
+    "BWV847":"A driving moto perpetuo of semiquavers that breaks into a Presto, an Adagio and a closing Allegro; a compact, dance-like three-voice fugue with a crisp, syncopated subject and two regular countersubjects.",
+    "BWV848":"A sparkling, hand-crossing prelude in 3/8, bright as a music box; a cheerful, lightly scored three-voice fugue with a skipping subject.",
+    "BWV849":"A grave, singing arioso in 6/4, like a slow instrumental aria; a monumental five-voice fugue built on a four-note cross-shaped subject, with two later subjects combined in a triple fugue.",
+    "BWV850":"A brilliant perpetual-motion prelude for the right hand over a detached bass; a majestic French-overture fugue with a flourish of demisemiquavers and dotted rhythms.",
+    "BWV851":"A restless triplet prelude that circles around a repeated-note pedal; a compact three-voice fugue whose subject is also combined with its own inversion.",
+    "BWV852":"An unusually long prelude that is itself a toccata and double fugue; a light, witty three-voice fugue that almost seems an afterthought.",
+    "BWV853":"A slow, sarabande-like prelude of great tenderness over sustained chords; a profound three-voice fugue using augmentation, inversion and stretto.",
+    "BWV854":"A pastoral prelude in 12/8, calm and song-like; a quick, compact three-voice fugue with a running subject.",
+    "BWV855":"An aria over a running bass that bursts into a Presto; the only two-voice fugue in the collection, rushing and chromatic.",
+    "BWV856":"A two-part prelude of trills and flowing semiquavers, like an invention; a dancing three-voice fugue in 3/8, in the style of a passepied.",
+    "BWV857":"A dignified, slow-moving prelude of intertwining lines; a severe four-voice fugue on a chromatic subject that uses all twelve notes.",
+    "BWV858":"A graceful prelude in 12/16 with a lilting, gigue-like flow; a serene, elegant three-voice fugue.",
+    "BWV859":"A two-voice prelude of flowing semiquavers; a slow, expressive four-voice fugue on a sighing subject.",
+    "BWV860":"A brilliant, fanfare-like toccata over broken chords; a long, energetic three-voice fugue with the subject also inverted.",
+    "BWV861":"A prelude of long trills over a steady quaver pulse; a four-voice fugue with a compact, questioning subject and close strettos.",
+    "BWV862":"A warm, concerto-like prelude with ritornello themes; a dignified four-voice fugue on a short, gracious subject.",
+    "BWV863":"A gentle, three-part prelude like a sinfonia; a plaintive four-voice fugue in a remote key.",
+    "BWV864":"A three-part prelude of interweaving lines, like a trio; a playful three-voice fugue with a halting, rest-filled subject.",
+    "BWV865":"A vigorous two-part prelude of running semiquavers; a vast four-voice fugue that ends over a long pedal, perhaps conceived for pedal harpsichord.",
+    "BWV866":"A toccata-like prelude of flying arpeggios and chords; a cheerful three-voice fugue in 3/4, almost in sonata-like proportions.",
+    "BWV867":"A solemn, chorale-like prelude over sustained chords; a monumental five-voice fugue of great gravity with dense strettos.",
+    "BWV868":"A gentle, flowing prelude of broken chords; a calm four-voice fugue on a smooth, stepwise subject.",
+    "BWV869":"A slow, trio-like prelude over a walking bass, marked Andante; a vast four-voice fugue on a subject that uses all twelve notes, marked Largo.",
+    "BWV870":"A rich, organ-like prelude of flowing counterpoint over pedal points; a lively three-voice fugue with a quick, repeated-note subject.",
+    "BWV871":"A two-part prelude in binary form, like a keyboard dance; a concise four-voice fugue using augmentation and inversion.",
+    "BWV872":"A gentle arpeggiated prelude that turns into a brief fughetta; a compact fugue using its short subject in inversion, augmentation and stretto.",
+    "BWV873":"A richly ornamented, expressive prelude in 9/8; a brilliant three-voice fugue in 12/16 with a second subject in running notes.",
+    "BWV874":"A festive, trumpet-like prelude in sonata-like binary form; a serene, stile-antico four-voice fugue on a six-note subject.",
+    "BWV875":"A rushing toccata of triplets for both hands; a chromatic three-voice fugue with a descending chromatic countersubject.",
+    "BWV876":"A pastoral prelude in 9/8 over sustained harmonies; a four-voice fugue in stile antico, like a vocal motet.",
+    "BWV877":"A two-part binary prelude of flowing lines; a deeply serious four-voice fugue with a winding, expressive subject.",
+    "BWV878":"A gentle, two-part binary prelude; a serene stile-antico fugue in four voices, a textbook of stretto.",
+    "BWV879":"A long two-part binary prelude, energetic and angular; a long, intense three-voice fugue with a very long subject.",
+    "BWV880":"A broad, sustained prelude in five parts, with a warm organ-like sound; a dancing three-voice fugue in 6/16, full of wit.",
+    "BWV881":"A tender, sighing binary prelude in the galant style; a lively three-voice fugue with a skipping subject.",
+    "BWV882":"A dotted, French-overture-like prelude; a graceful three-voice fugue with a gavotte-like subject beginning on a trill.",
+    "BWV883":"An expressive, ornamented prelude like an instrumental aria; a triple fugue whose three subjects combine at the end.",
+    "BWV884":"A quick, two-part prelude of broken chords; a light, dancing three-voice fugue.",
+    "BWV885":"A majestic prelude in dotted French-overture rhythm, marked Largo; a powerful four-voice fugue with repeated-note subject and chromatic countersubject.",
+    "BWV886":"A spacious, concerto-like prelude; a warm four-voice fugue with a chromatic countersubject.",
+    "BWV887":"An expressive binary prelude with piano and forte markings; a double fugue whose two subjects are finally combined.",
+    "BWV888":"A gentle pastoral prelude in 12/8; a short, playful three-voice fugue.",
+    "BWV889":"A chromatic two-part prelude of strange, twisting lines; a forceful fugue with a jagged subject and trills.",
+    "BWV890":"A long, galant binary prelude in 12/16, graceful and expansive; a flowing three-voice fugue in 3/4.",
+    "BWV891":"A three-part prelude of sustained, expressive counterpoint; a long, learned four-voice fugue in which the subject is inverted and combined in stretto.",
+    "BWV892":"A brilliant, toccata-like prelude; a broad four-voice fugue in stile antico with a second subject.",
+    "BWV893":"A two-part prelude, energetic and sharply profiled; a quick, dancing three-voice fugue in 3/8 that ends the collection with a flourish.",
+    "BWV903":"A wild, improvisatory fantasia with recitatives, followed by a chromatic three-voice fugue.",
+    "BWV906":"A brilliant, sonata-like fantasia with hand-crossings, followed by an unfinished fugue.",
+    "BWV910":"A dark toccata with an expressive Adagio, a chromatic fugue and a final gigue-like fugue.",
+    "BWV911":"A toccata with a long, powerful double fugue at its heart.",
+    "BWV912":"A bright, brilliant toccata with a festive opening, a lyrical Adagio and a fugue in gigue rhythm.",
+    "BWV913":"One of the earliest, with two fugues separated by an expressive Adagio.",
+    "BWV914":"A compact toccata ending in a long, energetic three-voice fugue.",
+    "BWV915":"A dramatic toccata with a lively fugue in 6/8 at its close.",
+    "BWV916":"Written like an Italian concerto in three movements: Allegro, Adagio and a quick fugue.",
+    "BWV924":"A flowing prelude of broken chords over a sustained bass, like a small toccata.",
+    "BWV925":"A bright, arpeggiated prelude; it may be by Wilhelm Friedemann himself, written under his father’s eye.",
+    "BWV926":"A prelude of rolling triplet-like broken chords in 3/4, with a short free cadenza before the end.",
+    "BWV927":"A short, bright prelude of running semiquavers over a firm bass.",
+    "BWV928":"A lively two-part prelude of flowing counterpoint, the longest of the Friedemann preludes.",
+    "BWV930":"A gentle prelude in 3/4 with a lilting, dance-like character.",
+    "BWV931":"A short, ornate prelude in the French style, rich with ornaments.",
+    "BWV933":"The first of the Six Little Preludes: a graceful binary piece in 3/4.",
+    "BWV934":"A flowing prelude of broken chords in both hands, one of the most loved of the set.",
+    "BWV935":"A lively, three-voice-textured binary prelude in 3/8.",
+    "BWV936":"A cheerful binary prelude with lively running figures.",
+    "BWV937":"A bright prelude in 3/8 with a dance-like swing.",
+    "BWV938":"A vigorous binary prelude of running triplets that closes the Six Little Preludes.",
+    "BWV939":"A tiny prelude of broken chords, one of the easiest pieces Bach wrote.",
+    "BWV940":"A short, flowing prelude over a moving bass.",
+    "BWV941":"A brief prelude of running notes over a steady bass.",
+    "BWV942":"A quick, two-part prelude of steady semiquavers.",
+    "BWV943":"A flowing two-part prelude, calm and well balanced.",
+    "BWV971":"A solo keyboard imitation of an Italian orchestral concerto, with forte and piano contrasts.",
+    "BWV988":"An aria and thirty variations — every third one a canon — framed by the aria’s return.",
+    "BWV989":"An early set of ten variations on a simple aria in the Italian manner.",
+    "BWV992":"An early programme piece describing a brother’s farewell, ending with a posthorn fugue.",
+    "BWV999":"A flowing prelude of broken chords, originally written for the lute; now a favourite of pianists and guitarists alike.",
+    "BWV1001":"The first sonata, whose fugue Bach also arranged for organ and lute.",
+    "BWV1002":"A partita in which each dance is followed by a variation (‘double’).",
+    "BWV1003":"A sonata with one of the longest of the solo violin fugues.",
+    "BWV1004":"The partita that ends with the famous Chaconne, arranged for piano by Busoni and for the left hand by Brahms.",
+    "BWV1005":"A sonata whose vast fugue is based on a chorale melody.",
+    "BWV1006":"The brightest of the six works, whose Preludio Bach reused in cantatas.",
+    "BWV1007":"The most famous cello suite, whose flowing Prelude of broken chords is one of the best-known pieces of Baroque music.",
+    "BWV1008":"A dark, introspective suite with a searching Prelude and grave Sarabande.",
+    "BWV1009":"A bright, sonorous suite that exploits the cello’s open C string, with famous Bourrées.",
+    "BWV1010":"A broad, challenging suite in an awkward key for the cello.",
+    "BWV1011":"A profound suite with the A string tuned down to G (scordatura) and a stark, chordless Sarabande.",
+    "BWV1012":"The most virtuosic suite, written for an instrument with five strings.",
+    "BWV1041":"A taut, concentrated concerto whose Andante unfolds over an insistent repeated bass.",
+    "BWV1042":"A radiant concerto whose first movement opens with three bold rising chords, and whose Adagio is one of Bach’s most eloquent slow movements.",
+    "BWV1043":"The ‘Double’ concerto, in which two solo violins intertwine; its Largo is among the most beloved slow movements in the repertoire.",
+    "BWV1046":"The largest Brandenburg, scored for two horns, three oboes, bassoon, violino piccolo and strings; its hunting horns give it an outdoor brilliance.",
+    "BWV1047":"A brilliant concerto for a high trumpet, recorder, oboe and violin as soloists, with a famously difficult trumpet part.",
+    "BWV1048":"A concerto for three violins, three violas and three cellos with continuo, full of dense, energetic string writing.",
+    "BWV1049":"A graceful concerto for violin and two recorders (‘fiauti d’echo’) with a virtuoso violin part.",
+    "BWV1050":"A concerto for flute, violin and harpsichord, whose first movement ends with a long harpsichord solo — the first great keyboard cadenza in a concerto.",
+    "BWV1051":"A dark-hued concerto without violins, for two violas, two violas da gamba, cello and continuo.",
+    "BWV1052":"The most dramatic of Bach’s keyboard concertos, with a brilliant, violinistic solo part.",
+    "BWV1056":"A compact concerto whose famous Largo is known on its own as the ‘Arioso’.",
+    "BWV1066":"A suite for oboes, bassoon and strings, with a long run of elegant French dances.",
+    "BWV1067":"A suite for flute and strings, famous for its sparkling closing Badinerie.",
+    "BWV1068":"A festive suite with trumpets and drums whose slow Air became world-famous as the ‘Air on the G String’.",
+    "BWV1069":"A splendid suite with trumpets and drums ending with a jubilant Réjouissance.",
+    "BWV1079":"Canons, fugues and a trio sonata on a theme given to Bach by Frederick the Great.",
+    "BWV1080":"Bach’s unfinished summa of counterpoint: fugues and canons all on one subject.",
+    "BWV Anh 113":"A short, courtly minuet, the first of the dance pieces in the 1725 notebook.",
+    "BWV Anh 114":"The famous Minuet in G — one of the best-known pieces of all classical music, a graceful dance with a rising, singing melody over a simple bass. (by Petzold)",
+    "BWV Anh 115":"The minor-key companion to the famous Minuet in G, with a gently melancholy tune. (by Petzold)",
+    "BWV Anh 116":"A lively minuet with a flowing melody over a walking bass.",
+    "BWV Anh 118":"A graceful minuet with a singing melody.",
+    "BWV Anh 119":"A stately Polish dance with the characteristic rhythm of the polonaise.",
+    "BWV Anh 120":"A short, gently melancholy minuet.",
+    "BWV Anh 121":"A serious, expressive minuet in C minor.",
+    "BWV Anh 122":"A bright little march with dotted rhythms and fanfare-like figures. (by C. P. E. Bach)",
+    "BWV Anh 124":"A cheerful march in G major, a favourite beginner’s piece. (by C. P. E. Bach)",
+    "BWV Anh 126":"A playful musette over a drone bass, imitating a bagpipe, with leaping octaves.",
+    "BWV Anh 132":"A short minuet in D minor, simple and expressive.",
+  },
 };
 
 /* The long view of a work: when and where it was written, for whom, what it
@@ -4207,6 +4579,7 @@ const DIFFICULTY = {
   "Franz Schubert": {"D960": {"h": 8, "est": [8, 7, 6, 7]}, "D958": {"h": 8, "est": [8, 6, 6, 8]}, "D894": {"h": 7, "est": [7, 6, 6, 7]}, "D760": {"h": 9, "est": [8, 8, 8, 9]}, "D899/3": {"h": 6, "abrsm": "ARSM"}, "D935/2": {"h": 5, "abrsm": "Grade 8 recommended"}, "D780/3": {"h": 5, "abrsm": "Grade 6"}, "D667": {"np": 1, "pt": "Piano quintet"}, "D810": {"np": 1, "pt": "String quartet"}, "D703": {"np": 1, "pt": "String quartet movement"}, "D759": {"np": 1, "pt": "Symphony"}, "D944": {"np": 1, "pt": "Symphony"}, "D328": {"np": 1, "pt": "Song for voice and piano"}, "D839": {"np": 1, "pt": "Song for voice and piano"}, "D537": {"h": 7, "abrsm": "ARSM"}, "D568": {"h": 7}, "D575": {"h": 7}, "D664": {"h": 6, "abrsm": "ARSM"}, "D784": {"h": 7, "abrsm": "LRSM"}, "D840": {"h": 7, "ap": 1}, "D845": {"h": 7}, "D850": {"h": 8}, "D959": {"h": 8, "abrsm": "LRSM"}, "D899": {"h": 6, "lo": 6, "parts": [6, 6, 6, 6]}, "D899/1": {"h": 6}, "D899/2": {"h": 6}, "D899/4": {"h": 6}, "D935": {"h": 8, "lo": 5, "parts": [7, 5, 6, 8]}, "D935/1": {"h": 7}, "D935/3": {"h": 6}, "D935/4": {"h": 8}, "D780": {"h": 6, "lo": 5, "parts": [6, 5, 5, 5, 6, 5]}, "D780/1": {"h": 6}, "D780/2": {"h": 5}, "D780/4": {"h": 5}, "D780/5": {"h": 6}, "D780/6": {"h": 5}, "D946": {"h": 7, "lo": 6, "parts": [7, 6, 7], "ap": 1}, "D946/1": {"h": 7, "ap": 1}, "D946/2": {"h": 6, "ap": 1}, "D946/3": {"h": 7, "ap": 1}, "D915": {"h": 4, "ap": 1}, "D593": {"h": 5, "ap": 1}, "D817": {"h": 5, "ap": 1}, "D365": {"h": 4, "ap": 1}, "D779": {"h": 4, "ap": 1}, "D969": {"h": 5, "ap": 1}, "D940": {"h": 8, "ap": 1}, "D812": {"h": 7, "ap": 1}, "D947": {"h": 7, "ap": 1}, "D951": {"h": 6, "ap": 1}, "D818": {"h": 6, "ap": 1}, "D733": {"h": 5, "ap": 1}, "D898": {"h": 7, "pt": "Piano part", "ap": 1}, "D929": {"h": 7, "pt": "Piano part", "ap": 1}, "D897": {"h": 6, "pt": "Piano part", "ap": 1}, "D821": {"h": 6, "pt": "Piano part", "ap": 1}, "D574": {"h": 6, "pt": "Piano part", "ap": 1}, "D384": {"h": 4, "pt": "Piano part", "ap": 1}, "D385": {"h": 4, "pt": "Piano part", "ap": 1}, "D408": {"h": 4, "pt": "Piano part", "ap": 1}, "D934": {"h": 8, "pt": "Piano part", "ap": 1}, "D802": {"h": 7, "pt": "Piano part", "ap": 1}, "D956": {"np": 1, "pt": "String quintet"}, "D804": {"np": 1, "pt": "String quartet"}, "D887": {"np": 1, "pt": "String quartet"}, "D803": {"np": 1, "pt": "Octet for winds and strings"}, "D82": {"np": 1, "pt": "Symphony"}, "D125": {"np": 1, "pt": "Symphony"}, "D200": {"np": 1, "pt": "Symphony"}, "D417": {"np": 1, "pt": "Symphony"}, "D485": {"np": 1, "pt": "Symphony"}, "D589": {"np": 1, "pt": "Symphony"}, "D797": {"np": 1, "pt": "Incidental music"}, "D795": {"np": 1, "pt": "Song cycle for voice and piano"}, "D911": {"np": 1, "pt": "Song cycle for voice and piano"}, "D911/5": {"np": 1, "pt": "Song for voice and piano"}, "D957": {"np": 1, "pt": "Song collection for voice and piano"}, "D957/4": {"np": 1, "pt": "Song for voice and piano"}, "D118": {"np": 1, "pt": "Song for voice and piano"}, "D257": {"np": 1, "pt": "Song for voice and piano"}, "D531": {"np": 1, "pt": "Song for voice and piano"}, "D550": {"np": 1, "pt": "Song for voice and piano"}, "D547": {"np": 1, "pt": "Song for voice and piano"}, "D686": {"np": 1, "pt": "Song for voice and piano"}, "D774": {"np": 1, "pt": "Song for voice and piano"}, "D827": {"np": 1, "pt": "Song for voice and piano"}, "D965": {"np": 1, "pt": "Song for voice, clarinet and piano"}, "D167": {"np": 1, "pt": "Mass for soloists, choir and orchestra"}, "D950": {"np": 1, "pt": "Mass for soloists, choir and orchestra"}, "D872": {"np": 1, "pt": "Mass for choir and orchestra"}},
   "Robert Schumann": {"15/7": {"h": 4, "ap": 1}, "9": {"h": 8, "ap": 1}, "16": {"h": 8, "ap": 1}, "13": {"h": 8, "ap": 1}, "6": {"h": 7, "ap": 1}, "54": {"h": 8, "est": [8, 6, 7]}, "38": {"np": 1, "pt": "Symphony"}, "97": {"np": 1, "pt": "Symphony"}, "44": {"np": 1, "pt": "Piano quintet"}, "48": {"np": 1, "pt": "Song cycle for voice and piano"}, "68/10": {"h": 2, "ap": 1}, "82/7": {"h": 5, "ap": 1}},
   "Franz Liszt": {"S141/3": {"h": 9, "ap": 1}, "S144/3": {"h": 8, "ap": 1}, "S139/4": {"h": 9, "ap": 1}, "S541/3": {"h": 6, "ap": 1}, "S244/2": {"h": 8, "ap": 1}, "S178": {"h": 9, "ap": 1}, "S514": {"h": 9, "ap": 1}, "S173/7": {"h": 8, "ap": 1}, "S161/7": {"h": 9, "ap": 1}, "S160/6": {"h": 8, "ap": 1}, "S124": {"h": 8, "ap": 1}, "S126": {"h": 8, "ap": 1}, "S97": {"np": 1, "pt": "Symphonic poem"}, "S145/2": {"h": 8, "ap": 1}},
+  "Johann Sebastian Bach": {"BWV140": {"np": 1, "pt": "Cantata"}, "BWV147": {"np": 1, "pt": "Cantata"}, "BWV208": {"np": 1, "pt": "Cantata"}, "BWV232": {"np": 1, "pt": "Mass for voices and orchestra"}, "BWV243": {"np": 1, "pt": "Choral work with orchestra"}, "BWV244": {"np": 1, "pt": "Passion for voices and orchestra"}, "BWV245": {"np": 1, "pt": "Passion for voices and orchestra"}, "BWV248": {"np": 1, "pt": "Oratorio for voices and orchestra"}, "BWV565": {"np": 1, "pt": "Organ work"}, "BWV582": {"np": 1, "pt": "Organ work"}, "BWV772": {"h": 3}, "BWV773": {"h": 4}, "BWV774": {"h": 4}, "BWV775": {"h": 3}, "BWV776": {"h": 4}, "BWV777": {"h": 3, "abrsm": "Grade 6 recommended"}, "BWV778": {"h": 4}, "BWV779": {"h": 4, "abrsm": "Grade 5"}, "BWV780": {"h": 4}, "BWV781": {"h": 4}, "BWV782": {"h": 4}, "BWV783": {"h": 4}, "BWV784": {"h": 4}, "BWV785": {"h": 4, "abrsm": "Grade 6"}, "BWV786": {"h": 4}, "BWV787": {"h": 4}, "BWV788": {"h": 5}, "BWV789": {"h": 5}, "BWV790": {"h": 5}, "BWV791": {"h": 5}, "BWV792": {"h": 5}, "BWV793": {"h": 5}, "BWV794": {"h": 5}, "BWV795": {"h": 5}, "BWV796": {"h": 5}, "BWV797": {"h": 4}, "BWV798": {"h": 5}, "BWV799": {"h": 5}, "BWV800": {"h": 5}, "BWV801": {"h": 5}, "BWV802": {"h": 5}, "BWV803": {"h": 5}, "BWV804": {"h": 5}, "BWV805": {"h": 5}, "BWV806": {"h": 7}, "BWV807": {"h": 7}, "BWV808": {"h": 7}, "BWV809": {"h": 6}, "BWV810": {"h": 7}, "BWV811": {"h": 7}, "BWV812": {"h": 5}, "BWV813": {"h": 5}, "BWV814": {"h": 5, "abrsm": "Grade 7"}, "BWV815": {"h": 5}, "BWV816": {"h": 6}, "BWV817": {"h": 5}, "BWV825": {"h": 6}, "BWV826": {"h": 7, "abrsm": "LRSM / Grade 8"}, "BWV827": {"h": 6}, "BWV828": {"h": 7}, "BWV829": {"h": 6, "abrsm": "LRSM"}, "BWV830": {"h": 7, "abrsm": "FRSM"}, "BWV831": {"h": 7}, "BWV846": {"h": 6, "lo": 1, "parts": [1, 6]}, "BWV847": {"h": 6, "lo": 5, "parts": [6, 5]}, "BWV848": {"h": 6, "lo": 6, "parts": [6, 6], "abrsm": "LRSM"}, "BWV849": {"h": 6, "lo": 5, "parts": [5, 6], "abrsm": "LRSM"}, "BWV850": {"h": 6, "lo": 5, "parts": [6, 5]}, "BWV851": {"h": 5, "lo": 4, "parts": [4, 5]}, "BWV852": {"h": 6, "lo": 6, "parts": [6, 6], "abrsm": "LRSM"}, "BWV853": {"h": 6, "lo": 4, "parts": [4, 6], "abrsm": "LRSM"}, "BWV854": {"h": 6, "lo": 4, "parts": [4, 6]}, "BWV855": {"h": 5, "lo": 4, "parts": [5, 4]}, "BWV856": {"h": 5, "lo": 5, "parts": [5, 5]}, "BWV857": {"h": 6, "lo": 4, "parts": [4, 6], "abrsm": "ARSM"}, "BWV858": {"h": 5, "lo": 4, "parts": [4, 5]}, "BWV859": {"h": 5, "lo": 4, "parts": [4, 5], "abrsm": "ARSM"}, "BWV860": {"h": 6, "lo": 4, "parts": [4, 6]}, "BWV861": {"h": 6, "lo": 5, "parts": [5, 6], "abrsm": "ARSM"}, "BWV862": {"h": 5, "lo": 4, "parts": [4, 5]}, "BWV863": {"h": 5, "lo": 5, "parts": [5, 5]}, "BWV864": {"h": 6, "lo": 6, "parts": [6, 6]}, "BWV865": {"h": 7, "lo": 6, "parts": [6, 7], "abrsm": "LRSM"}, "BWV866": {"h": 5, "lo": 5, "parts": [5, 5]}, "BWV867": {"h": 5, "lo": 4, "parts": [4, 5]}, "BWV868": {"h": 5, "lo": 4, "parts": [4, 5]}, "BWV869": {"h": 7, "lo": 5, "parts": [5, 7], "abrsm": "LRSM"}, "BWV870": {"h": 5, "lo": 5, "parts": [5, 5]}, "BWV871": {"h": 6, "lo": 5, "parts": [5, 6], "abrsm": "Grade 8"}, "BWV872": {"h": 6, "lo": 5, "parts": [5, 6], "abrsm": "LRSM"}, "BWV873": {"h": 7, "lo": 6, "parts": [6, 7], "abrsm": "LRSM"}, "BWV874": {"h": 7, "lo": 6, "parts": [7, 6], "abrsm": "ARSM"}, "BWV875": {"h": 5, "lo": 5, "parts": [5, 5]}, "BWV876": {"h": 5, "lo": 5, "parts": [5, 5]}, "BWV877": {"h": 7, "lo": 6, "parts": [6, 7]}, "BWV878": {"h": 5, "lo": 5, "parts": [5, 5], "abrsm": "ARSM"}, "BWV879": {"h": 7, "lo": 6, "parts": [6, 7], "abrsm": "LRSM"}, "BWV880": {"h": 6, "lo": 6, "parts": [6, 6], "abrsm": "ARSM"}, "BWV881": {"h": 5, "lo": 4, "parts": [4, 5]}, "BWV882": {"h": 7, "lo": 6, "parts": [6, 7]}, "BWV883": {"h": 7, "lo": 5, "parts": [5, 7], "abrsm": "LRSM"}, "BWV884": {"h": 5, "lo": 5, "parts": [5, 5], "abrsm": "Grade 8"}, "BWV885": {"h": 7, "lo": 5, "parts": [5, 7], "abrsm": "ARSM"}, "BWV886": {"h": 7, "lo": 5, "parts": [5, 7], "abrsm": "ARSM"}, "BWV887": {"h": 6, "lo": 6, "parts": [6, 6], "abrsm": "LRSM"}, "BWV888": {"h": 7, "lo": 6, "parts": [6, 7]}, "BWV889": {"h": 6, "lo": 5, "parts": [5, 6]}, "BWV890": {"h": 6, "lo": 5, "parts": [6, 5], "abrsm": "LRSM"}, "BWV891": {"h": 7, "lo": 5, "parts": [5, 7], "abrsm": "LRSM"}, "BWV892": {"h": 7, "lo": 6, "parts": [6, 7], "abrsm": "LRSM"}, "BWV893": {"h": 6, "lo": 5, "parts": [5, 6], "abrsm": "LRSM"}, "BWV903": {"h": 8, "abrsm": "LRSM recommended"}, "BWV906": {"h": 6}, "BWV910": {"h": 7}, "BWV911": {"h": 7}, "BWV912": {"h": 7, "abrsm": "ARSM recommended"}, "BWV913": {"h": 6}, "BWV914": {"h": 6, "abrsm": "ARSM recommended"}, "BWV915": {"h": 7}, "BWV916": {"h": 6}, "BWV924": {"h": 2}, "BWV925": {"h": 3}, "BWV926": {"h": 3}, "BWV927": {"h": 3}, "BWV928": {"h": 4}, "BWV930": {"h": 3}, "BWV931": {"h": 3}, "BWV933": {"h": 3}, "BWV934": {"h": 2}, "BWV935": {"h": 3}, "BWV936": {"h": 3}, "BWV937": {"h": 3}, "BWV938": {"h": 3}, "BWV939": {"h": 2}, "BWV940": {"h": 3}, "BWV941": {"h": 3}, "BWV942": {"h": 4}, "BWV943": {"h": 4}, "BWV971": {"h": 7}, "BWV988": {"h": 9}, "BWV989": {"h": 5}, "BWV992": {"h": 4}, "BWV999": {"h": 3}, "BWV1001": {"np": 1, "pt": "Violin solo"}, "BWV1002": {"np": 1, "pt": "Violin solo"}, "BWV1003": {"np": 1, "pt": "Violin solo"}, "BWV1004": {"np": 1, "pt": "Violin solo"}, "BWV1005": {"np": 1, "pt": "Violin solo"}, "BWV1006": {"np": 1, "pt": "Violin solo"}, "BWV1007": {"np": 1, "pt": "Cello solo"}, "BWV1008": {"np": 1, "pt": "Cello solo"}, "BWV1009": {"np": 1, "pt": "Cello solo"}, "BWV1010": {"np": 1, "pt": "Cello solo"}, "BWV1011": {"np": 1, "pt": "Cello solo"}, "BWV1012": {"np": 1, "pt": "Cello solo"}, "BWV1041": {"np": 1, "pt": "Violin concerto"}, "BWV1042": {"np": 1, "pt": "Violin concerto"}, "BWV1043": {"np": 1, "pt": "Concerto for two violins"}, "BWV1046": {"np": 1, "pt": "Orchestral concerto"}, "BWV1047": {"np": 1, "pt": "Orchestral concerto"}, "BWV1048": {"np": 1, "pt": "Orchestral concerto"}, "BWV1049": {"np": 1, "pt": "Orchestral concerto"}, "BWV1050": {"h": 8, "pt": "Harpsichord part", "ap": 1}, "BWV1051": {"np": 1, "pt": "Orchestral concerto"}, "BWV1052": {"h": 8, "pt": "Keyboard part", "ap": 1}, "BWV1056": {"h": 6, "pt": "Keyboard part", "ap": 1}, "BWV1066": {"np": 1, "pt": "Orchestral suite"}, "BWV1067": {"np": 1, "pt": "Orchestral suite"}, "BWV1068": {"np": 1, "pt": "Orchestral suite"}, "BWV1069": {"np": 1, "pt": "Orchestral suite"}, "BWV1079": {"np": 1, "pt": "Chamber collection (its two ricercars are keyboard pieces)"}, "BWV1080": {"h": 9}, "BWV Anh 113": {"h": 2}, "BWV Anh 114": {"h": 1}, "BWV Anh 115": {"h": 1}, "BWV Anh 116": {"h": 2}, "BWV Anh 118": {"h": 2}, "BWV Anh 119": {"h": 2}, "BWV Anh 120": {"h": 2}, "BWV Anh 121": {"h": 2}, "BWV Anh 122": {"h": 2}, "BWV Anh 124": {"h": 2}, "BWV Anh 126": {"h": 1}, "BWV Anh 132": {"h": 2}},
 };
 
 /* The full "about"/"context"/"movements" prose for every catalogued work is
@@ -4221,7 +4594,7 @@ const WORK_DETAILS = {};
 // piece row can decide whether to show "About ›" without downloading the
 // prose just to ask that question.
 const WORK_DETAILS_KEYS = {"Ludwig van Beethoven":{"7":1,"13":1,"15":1,"16":1,"19":1,"20":1,"21":1,"22":1,"23":1,"24":1,"26":1,"28":1,"33":1,"34":1,"35":1,"36":1,"37":1,"40":1,"43":1,"46":1,"47":1,"50":1,"53":1,"54":1,"55":1,"56":1,"57":1,"58":1,"60":1,"61":1,"62":1,"67":1,"68":1,"69":1,"72":1,"73":1,"74":1,"78":1,"79":1,"80":1,"84":1,"90":1,"92":1,"93":1,"95":1,"96":1,"97":1,"98":1,"101":1,"106":1,"109":1,"110":1,"111":1,"119":1,"120":1,"123":1,"125":1,"126":1,"127":1,"129":1,"130":1,"131":1,"132":1,"133":1,"135":1,"2/1":1,"2/2":1,"2/3":1,"10/1":1,"10/2":1,"10/3":1,"14/1":1,"14/2":1,"27/1":1,"27/2":1,"31/1":1,"31/2":1,"31/3":1,"49/1":1,"49/2":1,"81a":1,"12/1":1,"12/2":1,"12/3":1,"30/1":1,"30/2":1,"30/3":1,"5/1":1,"5/2":1,"102/1":1,"102/2":1,"18/1":1,"18/2":1,"18/3":1,"18/4":1,"18/5":1,"18/6":1,"59/1":1,"59/2":1,"59/3":1,"1/1":1,"1/2":1,"1/3":1,"70/1":1,"70/2":1,"WoO59":1,"WoO80":1,"WoO57":1,"WoO39":1,"WoO81":1,"WoO134":1,"WoO60":1},"Alexander Scriabin":{"6":1,"19":1,"20":1,"23":1,"26":1,"28":1,"29":1,"30":1,"34":1,"36":1,"38":1,"43":1,"53":1,"54":1,"60":1,"61":1,"62":1,"64":1,"66":1,"68":1,"69":1,"70":1,"71":1,"72":1,"73":1,"74":1,"2/1":1,"8/12":1,"32/1":1,"11/1":1,"11/2":1,"11/3":1,"11/4":1,"11/5":1,"11/6":1,"11/7":1,"11/8":1,"11/9":1,"11/10":1,"11/11":1,"11/12":1,"11/13":1,"11/14":1,"11/15":1,"11/16":1,"11/17":1,"11/18":1,"11/19":1,"11/20":1,"11/21":1,"11/22":1,"11/23":1,"11/24":1,"8/1":1,"8/2":1,"8/3":1,"8/4":1,"8/5":1,"8/6":1,"8/7":1,"8/8":1,"8/9":1,"8/10":1,"8/11":1,"42/1":1,"42/2":1,"42/3":1,"42/4":1,"42/5":1,"42/6":1,"42/7":1,"42/8":1,"49/1":1,"56/4":1,"65/1":1,"65/2":1,"65/3":1,"32/2":1,"12/1":1,"14/2":1,"51/1":1,"57/1":1,"57/2":1,"59/1":1,"3/1":1,"3/2":1,"3/3":1,"3/4":1,"3/5":1,"3/6":1,"3/7":1,"3/8":1,"3/9":1,"3/10":1,"25/1":1,"25/2":1,"25/3":1,"25/4":1,"25/5":1,"25/6":1,"25/7":1,"25/8":1,"25/9":1,"40/1":1,"40/2":1},"Wolfgang Amadeus Mozart":{"K279":1,"K280":1,"K281":1,"K282":1,"K283":1,"K284":1,"K309":1,"K310":1,"K311":1,"K330":1,"K331":1,"K332":1,"K333":1,"K457":1,"K533":1,"K545":1,"K570":1,"K576":1,"K466":1,"K467":1,"K622":1,"K581":1,"K525":1,"K550":1,"K551":1,"K620":1,"K527":1,"K492":1,"K618":1,"K626":1,"K175":1,"K238":1,"K271":1,"K414":1,"K449":1,"K450":1,"K451":1,"K453":1,"K456":1,"K459":1,"K482":1,"K488":1,"K491":1,"K503":1,"K537":1,"K595":1,"K16":1,"K183":1,"K201":1,"K297":1,"K319":1,"K338":1,"K385":1,"K425":1,"K504":1,"K543":1,"K207":1,"K211":1,"K216":1,"K218":1,"K219":1,"K299":1,"K313":1,"K495":1,"K447":1,"K588":1,"K384":1,"K165":1,"K427":1,"K317":1,"K361":1,"K465":1,"K516":1,"K448":1,"K304":1,"K296":1,"K397":1,"K475":1,"K485":1,"K511":1,"K265":1,"K540":1,"K574":1},"Frédéric Chopin":{"18":1,"23":1,"31":1,"35":1,"52":1,"53":1,"66":1,"9/2":1,"27/2":1,"posth-cs":1,"10/3":1,"10/5":1,"10/12":1,"25/9":1,"25/11":1,"28/15":1,"64/1":1,"34/2":1,"9/1":1,"9/3":1,"15/1":1,"15/2":1,"15/3":1,"27/1":1,"32/1":1,"32/2":1,"37/1":1,"37/2":1,"48/1":1,"48/2":1,"55/1":1,"55/2":1,"62/1":1,"62/2":1,"72/1":1,"posth-c":1,"10/1":1,"10/2":1,"10/4":1,"10/6":1,"10/7":1,"10/8":1,"10/9":1,"10/10":1,"10/11":1,"25/1":1,"25/2":1,"25/3":1,"25/4":1,"25/5":1,"25/6":1,"25/7":1,"25/8":1,"25/10":1,"25/12":1,"nouv/1":1,"nouv/2":1,"nouv/3":1,"28/1":1,"28/2":1,"28/3":1,"28/4":1,"28/5":1,"28/6":1,"28/7":1,"28/8":1,"28/9":1,"28/10":1,"28/11":1,"28/12":1,"28/13":1,"28/14":1,"28/16":1,"28/17":1,"28/18":1,"28/19":1,"28/20":1,"28/21":1,"28/22":1,"28/23":1,"28/24":1,"45":1,"34/1":1,"34/3":1,"42":1,"64/2":1,"64/3":1,"69/1":1,"69/2":1,"70/1":1,"70/2":1,"70/3":1,"38":1,"47":1,"20":1,"39":1,"54":1,"4":1,"58":1,"26/1":1,"26/2":1,"40/1":1,"40/2":1,"44":1,"61":1,"posth-pol":1,"6/1":1,"6/2":1,"6/3":1,"6/4":1,"7/1":1,"7/2":1,"7/3":1,"7/4":1,"7/5":1,"17/1":1,"17/2":1,"17/3":1,"17/4":1,"24/1":1,"24/2":1,"24/3":1,"24/4":1,"30/1":1,"30/2":1,"30/3":1,"30/4":1,"33/1":1,"33/2":1,"33/3":1,"33/4":1,"41/1":1,"41/2":1,"41/3":1,"41/4":1,"50/1":1,"50/2":1,"50/3":1,"56/1":1,"56/2":1,"56/3":1,"59/1":1,"59/2":1,"59/3":1,"63/1":1,"63/2":1,"63/3":1,"67/1":1,"67/2":1,"67/3":1,"67/4":1,"68/1":1,"68/2":1,"68/3":1,"68/4":1,"29":1,"36":1,"51":1,"60":1,"57":1,"49":1,"43":1,"19":1,"22":1,"11":1,"21":1,"65":1,"3":1,"14":1,"13":1,"46":1,"2":1,"1":1,"5":1,"16":1,"12":1,"posth-wish":1},"Claude Debussy":{"L75":1,"L75/1":1,"L75/2":1,"L75/3":1,"L75/4":1,"L113":1,"L113/1":1,"L113/2":1,"L113/3":1,"L113/4":1,"L113/5":1,"L113/6":1,"L100":1,"L100/1":1,"L100/2":1,"L100/3":1,"L66":1,"L66/1":1,"L66/2":1,"L68":1,"L95":1,"L95/1":1,"L95/2":1,"L95/3":1,"L110":1,"L110/1":1,"L110/2":1,"L110/3":1,"L111":1,"L111/1":1,"L111/2":1,"L111/3":1,"L106":1,"L105":1,"L121":1,"L70":1,"L82":1,"L71":1,"L69":1,"L65":1,"L86":1,"L91":1,"L109":1,"L122":1,"L126":1,"L103":1,"L85":1,"L135":1,"L140":1,"L137":1,"L129":1,"L136":1,"L84":1,"L29":1,"L80":1,"L62":1,"L88":1,"L117/1":1,"L117/2":1,"L117/3":1,"L117/4":1,"L117/5":1,"L117/6":1,"L117/7":1,"L117/8":1,"L117/9":1,"L117/10":1,"L117/11":1,"L117/12":1,"L123/1":1,"L123/2":1,"L123/3":1,"L123/4":1,"L123/5":1,"L123/6":1,"L123/7":1,"L123/8":1,"L123/9":1,"L123/10":1,"L123/11":1,"L123/12":1},"Sergei Rachmaninoff":{"3/1":1,"3/2":1,"3/3":1,"3/4":1,"3/5":1,"23/1":1,"23/2":1,"23/3":1,"23/4":1,"23/5":1,"23/6":1,"23/7":1,"23/8":1,"23/9":1,"23/10":1,"32/1":1,"32/2":1,"32/3":1,"32/4":1,"32/5":1,"32/6":1,"32/7":1,"32/8":1,"32/9":1,"32/10":1,"32/11":1,"32/12":1,"32/13":1,"33":1,"33/1":1,"33/2":1,"33/3":1,"33/4":1,"33/5":1,"33/6":1,"33/7":1,"33/8":1,"39":1,"39/1":1,"39/2":1,"39/3":1,"39/4":1,"39/5":1,"39/6":1,"39/7":1,"39/8":1,"39/9":1,"16/1":1,"16/2":1,"16/3":1,"16/4":1,"16/5":1,"16/6":1,"1":1,"18":1,"30":1,"40":1,"43":1,"28":1,"36":1,"13":1,"27":1,"44":1,"45":1,"29":1,"34/14":1,"42":1,"22":1,"19":1,"9":1,"5":1,"17":1,"37":1,"35":1,"21/5":1,"38/3":1,"10/5":1},"Franz Schubert":{"D960":1,"D958":1,"D894":1,"D760":1,"D899/3":1,"D935/2":1,"D780/3":1,"D667":1,"D810":1,"D703":1,"D759":1,"D944":1,"D328":1,"D839":1,"D537":1,"D568":1,"D575":1,"D664":1,"D784":1,"D840":1,"D845":1,"D850":1,"D959":1,"D899":1,"D899/1":1,"D899/2":1,"D899/4":1,"D935":1,"D935/1":1,"D935/3":1,"D935/4":1,"D780":1,"D780/1":1,"D780/2":1,"D780/4":1,"D780/5":1,"D780/6":1,"D946":1,"D946/1":1,"D946/2":1,"D946/3":1,"D915":1,"D593":1,"D817":1,"D365":1,"D779":1,"D969":1,"D940":1,"D812":1,"D947":1,"D951":1,"D818":1,"D733":1,"D898":1,"D929":1,"D897":1,"D821":1,"D574":1,"D384":1,"D385":1,"D408":1,"D934":1,"D802":1,"D956":1,"D804":1,"D887":1,"D803":1,"D82":1,"D125":1,"D200":1,"D417":1,"D485":1,"D589":1,"D797":1,"D795":1,"D911":1,"D911/5":1,"D957":1,"D957/4":1,"D118":1,"D257":1,"D531":1,"D550":1,"D547":1,"D686":1,"D774":1,"D827":1,"D965":1,"D167":1,"D950":1,"D872":1},
-"Robert Schumann":{"6":1,"9":1,"13":1,"16":1,"38":1,"44":1,"48":1,"54":1,"97":1,"15/7":1,"68/10":1,"82/7":1},"Franz Liszt":{"S141/3":1,"S144/3":1,"S139/4":1,"S541/3":1,"S244/2":1,"S178":1,"S514":1,"S173/7":1,"S161/7":1,"S160/6":1,"S124":1,"S126":1,"S97":1,"S145/2":1}};
+"Robert Schumann":{"6":1,"9":1,"13":1,"16":1,"38":1,"44":1,"48":1,"54":1,"97":1,"15/7":1,"68/10":1,"82/7":1},"Franz Liszt":{"S141/3":1,"S144/3":1,"S139/4":1,"S541/3":1,"S244/2":1,"S178":1,"S514":1,"S173/7":1,"S161/7":1,"S160/6":1,"S124":1,"S126":1,"S97":1,"S145/2":1},"Johann Sebastian Bach":{"BWV140":1,"BWV147":1,"BWV208":1,"BWV232":1,"BWV243":1,"BWV244":1,"BWV245":1,"BWV248":1,"BWV565":1,"BWV582":1,"BWV772":1,"BWV773":1,"BWV774":1,"BWV775":1,"BWV776":1,"BWV777":1,"BWV778":1,"BWV779":1,"BWV780":1,"BWV781":1,"BWV782":1,"BWV783":1,"BWV784":1,"BWV785":1,"BWV786":1,"BWV787":1,"BWV788":1,"BWV789":1,"BWV790":1,"BWV791":1,"BWV792":1,"BWV793":1,"BWV794":1,"BWV795":1,"BWV796":1,"BWV797":1,"BWV798":1,"BWV799":1,"BWV800":1,"BWV801":1,"BWV802":1,"BWV803":1,"BWV804":1,"BWV805":1,"BWV806":1,"BWV807":1,"BWV808":1,"BWV809":1,"BWV810":1,"BWV811":1,"BWV812":1,"BWV813":1,"BWV814":1,"BWV815":1,"BWV816":1,"BWV817":1,"BWV825":1,"BWV826":1,"BWV827":1,"BWV828":1,"BWV829":1,"BWV830":1,"BWV831":1,"BWV846":1,"BWV847":1,"BWV848":1,"BWV849":1,"BWV850":1,"BWV851":1,"BWV852":1,"BWV853":1,"BWV854":1,"BWV855":1,"BWV856":1,"BWV857":1,"BWV858":1,"BWV859":1,"BWV860":1,"BWV861":1,"BWV862":1,"BWV863":1,"BWV864":1,"BWV865":1,"BWV866":1,"BWV867":1,"BWV868":1,"BWV869":1,"BWV870":1,"BWV871":1,"BWV872":1,"BWV873":1,"BWV874":1,"BWV875":1,"BWV876":1,"BWV877":1,"BWV878":1,"BWV879":1,"BWV880":1,"BWV881":1,"BWV882":1,"BWV883":1,"BWV884":1,"BWV885":1,"BWV886":1,"BWV887":1,"BWV888":1,"BWV889":1,"BWV890":1,"BWV891":1,"BWV892":1,"BWV893":1,"BWV903":1,"BWV906":1,"BWV910":1,"BWV911":1,"BWV912":1,"BWV913":1,"BWV914":1,"BWV915":1,"BWV916":1,"BWV924":1,"BWV925":1,"BWV926":1,"BWV927":1,"BWV928":1,"BWV930":1,"BWV931":1,"BWV933":1,"BWV934":1,"BWV935":1,"BWV936":1,"BWV937":1,"BWV938":1,"BWV939":1,"BWV940":1,"BWV941":1,"BWV942":1,"BWV943":1,"BWV971":1,"BWV988":1,"BWV989":1,"BWV992":1,"BWV999":1,"BWV1001":1,"BWV1002":1,"BWV1003":1,"BWV1004":1,"BWV1005":1,"BWV1006":1,"BWV1007":1,"BWV1008":1,"BWV1009":1,"BWV1010":1,"BWV1011":1,"BWV1012":1,"BWV1041":1,"BWV1042":1,"BWV1043":1,"BWV1046":1,"BWV1047":1,"BWV1048":1,"BWV1049":1,"BWV1050":1,"BWV1051":1,"BWV1052":1,"BWV1056":1,"BWV1066":1,"BWV1067":1,"BWV1068":1,"BWV1069":1,"BWV1079":1,"BWV1080":1,"BWV Anh 113":1,"BWV Anh 114":1,"BWV Anh 115":1,"BWV Anh 116":1,"BWV Anh 118":1,"BWV Anh 119":1,"BWV Anh 120":1,"BWV Anh 121":1,"BWV Anh 122":1,"BWV Anh 124":1,"BWV Anh 126":1,"BWV Anh 132":1}};
 function composerSlug(name){
   return name.normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
@@ -4326,7 +4699,15 @@ const WORK_INDEX = (() => {
       let pick = hits[0];
       if(hits.length > 1){
         const pianos = hits.filter(h => /^Piano /.test(h.title));
+        // Bach's titles don't say "Piano": his keyboard Partita No. 2 is simply
+        // "Partita No. 2", beside the violin's. The one Henle grades as solo
+        // keyboard music is the piano work.
+        const solo = pianos.length ? [] : hits.filter(h => {
+          const dl = (DIFFICULTY[composer] || {})[h.key];
+          return dl && dl.h && !dl.ap && !dl.np && !dl.pt;
+        });
         if(pianos.length === 1) pick = pianos[0];
+        else if(solo.length === 1) pick = solo[0];
         else continue;                       // genuinely ambiguous: don't guess
       }
       genres.push({ key: k, entry: pick });
@@ -4370,6 +4751,13 @@ function catalogueKeys(hay){
       keys.push(pre + ' ' + m[1]);
     }
   }
+  // Bach's BWV numbers, and the appendix ("BWV Anh. 114"). A second number
+  // straight after the first is a range — "BWV 846-869" is a whole book of the
+  // Well-Tempered Clavier, not its first prelude — so it identifies nothing.
+  const anh = /\bbwv\s+anh(?:ang)?\s+(?:ii\s+)?(\d+)/.exec(hay);
+  if(anh) keys.push('bwv anh ' + anh[1]);
+  const bwv = /\bbwv\s+(\d{1,4})(?:\s+(\d{1,4})\b)?/.exec(hay);
+  if(bwv && !(bwv[2] && +bwv[2] > +bwv[1])) keys.push('bwv ' + bwv[1]);
   return keys;
 }
 
@@ -6212,17 +6600,30 @@ function workProgress(composer, key, docs){
   return { p, l, parts: mv.length, done, tried };
 }
 const WK = { name:null, filter:'all', open:new Set(), sort:(() => { try{ return localStorage.getItem('stand.worksSort') || 'type'; }catch(e){ return 'type'; } })() };
-const PERIOD_ORDER = ['Bonn years', 'Early (first Vienna years)', 'Middle (‘heroic’ period)', 'Late'];
+const PERIOD_ORDER = ['Bonn years', 'Early (first Vienna years)', 'Middle (‘heroic’ period)', 'Late',
+                      'Arnstadt & Mühlhausen', 'Weimar', 'Köthen', 'Leipzig'];   // Bach's posts
 /* Catalogue order: opus numbers first (Op. 81a after Op. 81), then WoO. */
 function opusOrder(key){
   let m;
   if((m = /^WoO\s?(\d+)/.exec(key))) return [1, +m[1], 0];
+  if((m = /^BWV\s?Anh\s?(\d+)/.exec(key))) return [4, +m[1], 0];
+  if((m = /^BWV\s?(\d+)/.exec(key))) return [3, +m[1], 0];
   if((m = /^(\d+)([a-z]?)(?:\/(\d+))?$/.exec(key))) return [0, +m[1] + (m[2] ? 0.5 : 0), +(m[3] || 0)];
   return [2, 0, 0];
 }
+/* The Bach catalogue is ordered by genre, so its ranges make natural headings. */
+const BWV_RANGES = [[1, 224, 'Cantatas'], [225, 249, 'Motets, Masses, Passions & oratorios'],
+  [250, 524, 'Chorales & songs'], [525, 771, 'Organ works'], [772, 994, 'Keyboard works'],
+  [995, 1000, 'Lute works'], [1001, 1040, 'Chamber music'], [1041, 1071, 'Concertos & orchestral suites'],
+  [1072, 1126, 'Canons & late counterpoint']];
 function opusHeading(key){
   const [kind, n] = opusOrder(key);
   if(kind === 1) return 'WoO (works without opus number)';
+  if(kind === 4) return 'BWV Anh. (appendix)';
+  if(kind === 3){
+    const r = BWV_RANGES.find(([lo, hi]) => n >= lo && n <= hi);
+    return r ? `BWV ${r[0]}–${r[1]} · ${r[2]}` : 'BWV';
+  }
   if(kind === 2) return 'Other';
   const lo = Math.floor((Math.floor(n) - 1) / 10) * 10 + 1;
   return `Op. ${lo}–${lo + 9}`;
@@ -6438,7 +6839,7 @@ function difficultyBlock(composer, key, part, rate){
     const lv = d.parts[part];
     return `<div class="diff">${thermometer(lv)}${scale}
       <div class="th-cap"><span><b>Henle ${lv}</b> of 9 · ${HENLE_WORD(lv)} · this piece</span>${ab(d.partAbrsm && d.partAbrsm[part])}</div>
-      <div class="th-cap sub"><span>Whole set: levels ${d.lo}–${d.h}</span></div></div>`;
+      <div class="th-cap sub"><span>Whole set: ${d.lo < d.h ? `levels ${d.lo}–${d.h}` : `level ${d.h}`}</span></div></div>`;
   }
   // a movement: Henle's level for the whole work, then our estimate for this movement
   if(part != null){
@@ -6476,7 +6877,7 @@ function difficultyMini(composer, key, part, rate){
     return `<div class="diff mini">
       <div class="th-cap"><span><b>Henle ${lv}</b> of 9 · ${HENLE_WORD(lv)} · this piece</span>${ab(d.partAbrsm && d.partAbrsm[part])}</div>
       ${thermometer(lv)}
-      <div class="th-cap sub"><span>Whole set: levels ${d.lo}–${d.h}</span></div>${rate}</div>`;
+      <div class="th-cap sub"><span>Whole set: ${d.lo < d.h ? `levels ${d.lo}–${d.h}` : `level ${d.h}`}</span></div>${rate}</div>`;
   }
   let h = `<div class="diff mini">
     <div class="th-cap"><span>Whole work · <b>Henle ${d.h}</b> · ${HENLE_WORD(d.h)}</span>${ab(d.abrsm)}</div>
@@ -6645,6 +7046,8 @@ function catalogueLabel(key){
   let m;
   if((m = /^WoO\s?(\d+)$/.exec(key))) return 'WoO ' + m[1];
   if((m = /^K(\d+)$/.exec(key))) return 'K. ' + m[1];
+  if((m = /^BWV\s?Anh\s?(\d+)$/.exec(key))) return 'BWV Anh. ' + m[1];
+  if((m = /^BWV(\d+)$/.exec(key))) return 'BWV ' + m[1];
   if((m = /^(\d+[a-z]?)\/(\d+)$/.exec(key))) return `Op. ${m[1]} No. ${m[2]}`;
   if((m = /^(\d+[a-z]?)$/.exec(key))) return 'Op. ' + m[1];
   return key;
@@ -6661,7 +7064,8 @@ function partsLabel(key, parts){
   // Rachmaninoff and Debussy reuse some of these catalogue keys for other works, so they
   // get their own labels instead of Beethoven's.
   const own = { 'Sergei Rachmaninoff':{ '33':'Studies', '39':'Studies' },
-                'Claude Debussy':{ 'L136':'Studies', 'L80':'Songs', 'L88':'Acts' } }[WD.composer];
+                'Claude Debussy':{ 'L136':'Studies', 'L80':'Songs', 'L88':'Acts' },
+                'Johann Sebastian Bach':{"BWV846": "Prelude and fugue", "BWV847": "Prelude and fugue", "BWV848": "Prelude and fugue", "BWV849": "Prelude and fugue", "BWV850": "Prelude and fugue", "BWV851": "Prelude and fugue", "BWV852": "Prelude and fugue", "BWV853": "Prelude and fugue", "BWV854": "Prelude and fugue", "BWV855": "Prelude and fugue", "BWV856": "Prelude and fugue", "BWV857": "Prelude and fugue", "BWV858": "Prelude and fugue", "BWV859": "Prelude and fugue", "BWV860": "Prelude and fugue", "BWV861": "Prelude and fugue", "BWV862": "Prelude and fugue", "BWV863": "Prelude and fugue", "BWV864": "Prelude and fugue", "BWV865": "Prelude and fugue", "BWV866": "Prelude and fugue", "BWV867": "Prelude and fugue", "BWV868": "Prelude and fugue", "BWV869": "Prelude and fugue", "BWV870": "Prelude and fugue", "BWV871": "Prelude and fugue", "BWV872": "Prelude and fugue", "BWV873": "Prelude and fugue", "BWV874": "Prelude and fugue", "BWV875": "Prelude and fugue", "BWV876": "Prelude and fugue", "BWV877": "Prelude and fugue", "BWV878": "Prelude and fugue", "BWV879": "Prelude and fugue", "BWV880": "Prelude and fugue", "BWV881": "Prelude and fugue", "BWV882": "Prelude and fugue", "BWV883": "Prelude and fugue", "BWV884": "Prelude and fugue", "BWV885": "Prelude and fugue", "BWV886": "Prelude and fugue", "BWV887": "Prelude and fugue", "BWV888": "Prelude and fugue", "BWV889": "Prelude and fugue", "BWV890": "Prelude and fugue", "BWV891": "Prelude and fugue", "BWV892": "Prelude and fugue", "BWV893": "Prelude and fugue", "BWV988": "Aria and variations", "BWV1080": "Contrapuncti and canons", "BWV992": "Movements"} }[WD.composer];
   const label = own ? own[key] : byKey[key];
   return label || (parts.every(p => /^No\. /.test(p[0])) ? 'Pieces' : 'Movements');
 }
