@@ -6,6 +6,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Stand">
 <meta name="theme-color" content="#1B2029">
+<script>
+/* Apply the saved appearance before the first paint, so light mode never flashes dark. */
+try{ if(localStorage.getItem('stand.theme') === 'light'){
+  document.documentElement.dataset.theme = 'light';
+  document.querySelector('meta[name="theme-color"]').content = '#F3F1EC';
+} }catch(e){}
+</script>
 <title>Stand</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -32,6 +39,34 @@
   --safe-t:env(safe-area-inset-top,0px);
   --safe-b:0px; /* bottom safe area not reserved; was env(safe-area-inset-bottom,0px) */
 }
+/* ---------- light appearance ----------
+   Same variables, lighter values. The score viewer keeps the dark set in
+   both modes: music reads best on its black stage, and its tool palette is
+   built from white-on-dark overlays. */
+:root{color-scheme:dark}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --slate:#F3F1EC;
+  --slate-2:#FFFFFF;
+  --slate-3:#E7E4DC;
+  --line:#D5D0C5;
+  --text:#1B2029;
+  --text-dim:#525B6A;
+  --text-faint:#7D8594;
+  --pencil-hi:#3A5E94;
+}
+:root[data-theme="light"] #viewer{
+  color-scheme:dark;
+  --slate:#1B2029; --slate-2:#232935; --slate-3:#2E3542; --line:#3A4251;
+  --text:#E8EAEE; --text-dim:#9AA3B2; --text-faint:#6C7688; --pencil-hi:#6E93C9;
+  color:var(--text);
+}
+:root[data-theme="light"] body{background:var(--slate)}
+:root[data-theme="light"] .editbtn.on{color:var(--text)}
+:root[data-theme="light"] .mv-viewport{background:var(--slate-2)}
+/* icons drawn with the dark theme's grays follow the theme instead */
+[stroke="#9AA3B2"]{stroke:var(--text-dim)}
+[stroke="#6C7688"]{stroke:var(--text-faint)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%;overflow:hidden}
 body{
@@ -64,6 +99,10 @@ html{touch-action:manipulation}
   margin:0;line-height:1;
 }
 .count{font-size:13px;color:var(--text-faint);white-space:nowrap}
+.wm-right{display:flex;align-items:center;gap:6px}
+.gearbtn{width:34px;height:34px;margin-right:-7px;display:grid;place-items:center;border-radius:10px;color:var(--text-dim)}
+.gearbtn:active{background:var(--slate-3)}
+.pd-hint.set-note{margin-top:10px}
 .staff{margin:14px 0 0;height:9px;flex:none}
 .staff span{display:block;height:1px;background:var(--line);margin-bottom:1px;opacity:.85}
 .staff span:nth-child(odd){opacity:.55}
@@ -247,8 +286,6 @@ html{touch-action:manipulation}
 .empty button{margin-top:18px;height:44px;padding:0 20px;border-radius:11px;background:var(--pencil);color:#fff}
 .empty button.alt{display:block;margin:10px auto 0;background:none;border:1px solid var(--line);color:var(--pencil-hi)}
 /* backup / restore */
-.libfoot{display:flex;justify-content:center;align-items:center;gap:6px;padding:30px 0 6px;font-size:13.5px;color:var(--text-faint)}
-.libfoot button{color:var(--pencil-hi);padding:8px 6px}
 .bkready{position:fixed;inset:0;z-index:60;background:rgba(8,10,14,.6);display:none;place-items:center;padding:20px}
 .bkready.on{display:grid}
 .bkcard{width:100%;max-width:360px;background:var(--slate-2);border:1px solid var(--line);border-radius:16px;padding:18px}
@@ -1004,7 +1041,12 @@ svg{display:block}
   <div class="lib-head">
     <div class="wordmark">
       <h1>Stand</h1>
-      <span class="count" id="count"></span>
+      <span class="wm-right">
+        <span class="count" id="count"></span>
+        <button class="gearbtn" id="setBtn" aria-label="Settings">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </span>
     </div>
     <div class="staff"><span></span><span></span><span></span><span></span><span></span></div>
   </div>
@@ -1370,6 +1412,32 @@ svg{display:block}
     <div class="pd-chips" id="pdChips"></div>
   </div>
   <div class="plist pdash" id="pdBody"></div>
+</div>
+
+<div class="panel" id="mSettings" aria-label="Settings">
+  <div class="panel-head">
+    <button class="linkbtn" id="setBack">Back</button>
+    <h3>Settings</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="plist pdash">
+    <div class="pd-sec" style="margin-top:12px">
+      <div class="pd-t"><h4>Appearance</h4></div>
+      <div class="pd-seg" id="themeSeg" style="--n:2;--i:0"><span class="pdk"></span>
+        <button type="button" data-mode="dark">Dark</button>
+        <button type="button" data-mode="light">Light</button>
+      </div>
+      <p class="pd-hint set-note">The score viewer stays dark in both.</p>
+    </div>
+    <div class="pd-sec">
+      <div class="pd-t"><h4>Backup</h4></div>
+      <p class="pd-hint">One file with every score, your markings, practice time, progress and settings. Save it outside Stand, for example before reinstalling, and restore it here.</p>
+      <div class="btnrow">
+        <button class="btn" id="setRestore">Restore</button>
+        <button class="btn go" id="setBackup">Back up library</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="backdrop top" id="backdrop2"></div>
@@ -5765,7 +5833,7 @@ function renderComposerList(){
   const f = CL.filter;
   syncMenuControls();
   $('#empty').style.display = !S.docs.length && f === 'pieces' ? 'block' : 'none';
-  if(f === 'pieces'){ $('#clList').innerHTML = renderPieces() + (S.docs.length ? BK_FOOT : ''); return; }
+  if(f === 'pieces'){ $('#clList').innerHTML = renderPieces(); return; }
 
   const used = usageCounts(), stray = strayComposers();
   let list = q ? searchComposers(q) : composerEntries;
@@ -10036,7 +10104,6 @@ async function exportDoc(id){
    rebuilds itself.
    ======================================================================= */
 const BK_SKIP = k => k.startsWith('raster:') || k.startsWith('cache:') || k === K.practiceLive;
-const BK_FOOT = `<div class="libfoot"><button type="button" data-bk="save">Back up library</button><span aria-hidden="true">·</span><button type="button" data-bk="load">Restore</button></div>`;
 
 const CRC_T = (() => {
   const t = new Uint32Array(256);
@@ -10234,11 +10301,29 @@ async function restoreLibrary(file){
   }
 }
 
-$('#clList').addEventListener('click', e => {
-  const b = e.target.closest('[data-bk]'); if(!b) return;
-  if(b.dataset.bk === 'save') backupLibrary(); else pickRestore();
-});
 $('#emptyRestore').addEventListener('click', pickRestore);
+
+/* ---------- settings ---------- */
+const THEME_BG = { dark:'#1B2029', light:'#F3F1EC' };   // status bar / theme-color
+function currentTheme(){ return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'; }
+function applyTheme(t){
+  if(t === 'light') document.documentElement.dataset.theme = 'light';
+  else delete document.documentElement.dataset.theme;
+  const m = document.querySelector('meta[name="theme-color"]'); if(m) m.content = THEME_BG[t];
+  try{ localStorage.setItem('stand.theme', t); }catch(e){}
+  pdSetSeg($('#themeSeg'), 'mode', t);
+}
+$('#setBtn').addEventListener('click', () => {
+  $('#clQ').blur();
+  pdSetSeg($('#themeSeg'), 'mode', currentTheme());
+  $('#mSettings').classList.add('on');
+});
+$('#setBack').addEventListener('click', () => $('#mSettings').classList.remove('on'));
+$('#themeSeg').addEventListener('click', e => {
+  const b = e.target.closest('[data-mode]'); if(b) applyTheme(b.dataset.mode);
+});
+$('#setBackup').addEventListener('click', backupLibrary);
+$('#setRestore').addEventListener('click', pickRestore);
 $('#bkFile').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if(f) restoreLibrary(f); });
 $('#bkSave').addEventListener('click', saveBackup);
 $('#bkCancel').addEventListener('click', closeBackupCard);
