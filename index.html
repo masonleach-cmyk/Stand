@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Stand">
 <meta name="theme-color" content="#1B2029">
 <title>Stand</title>
@@ -31,7 +30,7 @@
   --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
   --safe-t:env(safe-area-inset-top,0px);
-  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-b:0px; /* bottom safe area not reserved; was env(safe-area-inset-bottom,0px) */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%;overflow:hidden}
@@ -8869,7 +8868,7 @@ function readSafeInsets(){  // call once at startup and on resize/orientationcha
   document.body.appendChild(p);
   const cs = getComputedStyle(p);
   safe = {t:parseFloat(cs.paddingTop)||0, r:parseFloat(cs.paddingRight)||0,
-          b:parseFloat(cs.paddingBottom)||0, l:parseFloat(cs.paddingLeft)||0};
+          b:0 /* bottom safe area not reserved */, l:parseFloat(cs.paddingLeft)||0};
   p.remove();
 }
 
