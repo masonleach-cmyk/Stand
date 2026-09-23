@@ -7,11 +7,20 @@
 <meta name="apple-mobile-web-app-title" content="Stand">
 <meta name="theme-color" content="#1B2029">
 <script>
-/* Apply the saved appearance before the first paint, so light mode never flashes dark. */
-try{ if(localStorage.getItem('stand.theme') === 'light'){
-  document.documentElement.dataset.theme = 'light';
-  document.querySelector('meta[name="theme-color"]').content = '#F3F1EC';
-} }catch(e){}
+/* Apply the saved appearance before the first paint, so it never flashes.
+   stand.theme holds "<base>-<accent>", e.g. "stone-teal". Older single-word
+   values (dark, light, stone, lamp and a few retired ones) map onto the grid. */
+try{
+  const OLD = { dark:'dark-blue', light:'stone-blue', stone:'stone-blue', lamp:'lamp-amber',
+                velvet:'dark-blue', verdigris:'dark-blue', wine:'dark-blue' };
+  let t = localStorage.getItem('stand.theme') || 'dark-blue';
+  if(OLD[t]){ t = OLD[t]; localStorage.setItem('stand.theme', t); }
+  const [base, accent] = t.split('-');
+  const bg = { stone:'#C8CBC4', lamp:'#1A1510' }[base];
+  const el = document.documentElement;
+  if(bg){ el.dataset.theme = base; document.querySelector('meta[name="theme-color"]').content = bg; }
+  if(accent && accent !== 'blue') el.dataset.accent = accent;
+}catch(e){}
 </script>
 <title>Stand</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -31,39 +40,71 @@ try{ if(localStorage.getItem('stand.theme') === 'light'){
   --text:#E8EAEE;
   --text-dim:#9AA3B2;
   --text-faint:#6C7688;
-  --pencil:#4A6FA5;
-  --pencil-hi:#6E93C9;
+  /* accent: --acc/--acc-hi for dark backgrounds, --acc-l/--acc-hi-l for Stone */
+  --acc:#4A6FA5; --acc-hi:#6E93C9; --acc-l:#3E6297; --acc-hi-l:#2F5287;
+  --pencil:var(--acc);
+  --pencil-hi:var(--acc-hi);
   --red:#B2413A;
   --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
   --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
   --safe-t:env(safe-area-inset-top,0px);
   --safe-b:0px; /* bottom safe area not reserved; was env(safe-area-inset-bottom,0px) */
 }
-/* ---------- light appearance ----------
-   Same variables, lighter values. The score viewer keeps the dark set in
-   both modes: music reads best on its black stage, and its tool palette is
-   built from white-on-dark overlays. */
+/* ---------- appearances ----------
+   Three bases, five accents each. The base sets the surfaces and text; the
+   accent only touches buttons, links, selection and focus.
+
+   Dark:      the default graphite set above.
+   Stone:     a mid-grey for daytime practice, darker than paper so the score
+              stays the brightest thing on screen. The viewer stays dark.
+   Lamplight: warm umber for dim stages and late nights, with warm accents
+              only (no cool blue). */
 :root{color-scheme:dark}
-:root[data-theme="light"]{
+:root[data-accent="teal"]   {--acc:#2D7A74;--acc-hi:#5CB8AE;--acc-l:#1F6A64;--acc-hi-l:#175A55}
+:root[data-accent="violet"] {--acc:#6A58B0;--acc-hi:#A395E8;--acc-l:#5A48A0;--acc-hi-l:#46388A}
+:root[data-accent="crimson"]{--acc:#A8424A;--acc-hi:#E57B82;--acc-l:#9A323A;--acc-hi-l:#852A31}
+:root[data-accent="amber"]  {--acc:#9A5E22;--acc-hi:#D9A35C;--acc-l:#8A5418;--acc-hi-l:#704310}
+:root[data-accent="copper"] {--acc:#A24A2A;--acc-hi:#E38B63}
+:root[data-accent="rose"]   {--acc:#A03F58;--acc-hi:#E58BA0}
+:root[data-accent="sage"]   {--acc:#4F6E4A;--acc-hi:#A2C298}
+:root[data-accent="plum"]   {--acc:#80496F;--acc-hi:#C991B8}
+
+:root[data-theme="stone"]{
   color-scheme:light;
-  --slate:#F3F1EC;
-  --slate-2:#FFFFFF;
-  --slate-3:#E7E4DC;
-  --line:#D5D0C5;
-  --text:#1B2029;
-  --text-dim:#525B6A;
-  --text-faint:#7D8594;
-  --pencil-hi:#3A5E94;
+  --slate:#C8CBC4;
+  --slate-2:#D5D8D1;
+  --slate-3:#B8BCB3;
+  --line:#A2A79D;
+  --text:#171C1A;
+  --text-dim:#39413D;
+  --text-faint:#58615B;
+  --pencil:var(--acc-l);
+  --pencil-hi:var(--acc-hi-l);
 }
-:root[data-theme="light"] #viewer{
+:root[data-theme="stone"] #viewer{
   color-scheme:dark;
   --slate:#1B2029; --slate-2:#232935; --slate-3:#2E3542; --line:#3A4251;
-  --text:#E8EAEE; --text-dim:#9AA3B2; --text-faint:#6C7688; --pencil-hi:#6E93C9;
+  --text:#E8EAEE; --text-dim:#9AA3B2; --text-faint:#6C7688;
+  --pencil:var(--acc); --pencil-hi:var(--acc-hi);
   color:var(--text);
 }
-:root[data-theme="light"] body{background:var(--slate)}
-:root[data-theme="light"] .editbtn.on{color:var(--text)}
-:root[data-theme="light"] .mv-viewport{background:var(--slate-2)}
+:root[data-theme="stone"] body{background:var(--slate)}
+:root[data-theme="stone"] .editbtn.on{color:var(--text)}
+:root[data-theme="stone"] .mv-viewport{background:var(--slate-2)}
+
+:root[data-theme="lamp"]{
+  --slate:#1A1510;
+  --slate-2:#231C15;
+  --slate-3:#2E251C;
+  --line:#40342A;
+  --text:#EEDCC0;
+  --text-dim:#BFA383;
+  --text-faint:#8E7A63;
+}
+:root[data-theme="lamp"] body{background:#0E0B08}
+:root[data-theme="lamp"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(35,28,21,.6))}
+:root[data-theme="lamp"] .dock{--dock-bg:rgba(26,21,16,.78)}
+:root[data-theme="lamp"] .dock.floating{--dock-bg:rgba(26,21,16,.88)}
 /* icons drawn with the dark theme's grays follow the theme instead */
 [stroke="#9AA3B2"]{stroke:var(--text-dim)}
 [stroke="#6C7688"]{stroke:var(--text-faint)}
@@ -130,7 +171,7 @@ html{touch-action:manipulation}
   font-size:14px;color:var(--text-dim);white-space:nowrap;transition:background .14s,border-color .14s;
 }
 .chip.on{background:var(--pencil);border-color:var(--pencil);color:#fff}
-.chip.drop{border-color:var(--pencil-hi);background:var(--slate-3);box-shadow:0 0 0 2px rgba(110,147,201,.35)}
+.chip.drop{border-color:var(--pencil-hi);background:var(--slate-3);box-shadow:0 0 0 2px color-mix(in srgb,var(--pencil-hi) 35%,transparent)}
 .chip .n{font-size:12px;color:inherit;opacity:.62}
 .chip.add{color:var(--text-faint);border-style:dashed}
 .libprog{padding:8px 20px 0}
@@ -143,7 +184,7 @@ html{touch-action:manipulation}
 .ftoggle svg{flex:none}
 .ftoggle .chev{transition:transform .2s}
 .ftoggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
-.ftoggle.active{color:var(--text);border-color:rgba(110,147,201,.55)}
+.ftoggle.active{color:var(--text);border-color:color-mix(in srgb,var(--pencil-hi) 55%,transparent)}
 .fclear{font-size:13px;color:var(--pencil-hi);padding:6px 2px;flex:none}
 .fbar .pcount{margin-left:auto;padding:0 !important;white-space:nowrap}
 .fpanel{flex:none;display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease;margin:0 20px}
@@ -186,7 +227,7 @@ html{touch-action:manipulation}
 .dbtn{flex:none;height:34px;padding:0 12px;border-radius:10px;display:grid;place-items:center;
   background:var(--slate-3);border:1px solid var(--line);color:var(--text-dim);font-weight:700;font-size:11.5px;letter-spacing:.06em}
 .dbtn:active{background:var(--line)}
-.wlink{flex:none;font-size:12px;padding:5px 10px;border-radius:9px;color:var(--pencil-hi);border:1px solid rgba(74,111,165,.45);background:none}
+.wlink{flex:none;font-size:12px;padding:5px 10px;border-radius:9px;color:var(--pencil-hi);border:1px solid color-mix(in srgb,var(--pencil) 45%,transparent);background:none}
 
 /* ---------- sections: named jump points within a score ---------- */
 .seclist{max-height:44vh;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-bottom:6px}
@@ -206,11 +247,11 @@ html{touch-action:manipulation}
 .panel-head .editbtn{display:flex;justify-content:flex-end;align-items:center}
 .editbtn.on{color:#fff;font-weight:600}
 [contenteditable]{-webkit-user-select:text;user-select:text;outline:none;border-radius:6px;
-  box-shadow:0 0 0 1px rgba(110,147,201,.45);background:rgba(74,111,165,.08);cursor:text;min-height:1.2em}
-[contenteditable]:focus{box-shadow:0 0 0 2px var(--pencil-hi);background:rgba(74,111,165,.14)}
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--pencil-hi) 45%,transparent);background:color-mix(in srgb,var(--pencil) 8%,transparent);cursor:text;min-height:1.2em}
+[contenteditable]:focus{box-shadow:0 0 0 2px var(--pencil-hi);background:color-mix(in srgb,var(--pencil) 14%,transparent)}
 [contenteditable]:empty::before{content:attr(data-ph);color:var(--text-faint)}
 .editnote{margin:0 8px 12px;padding:9px 12px;border-radius:10px;font-size:13px;line-height:1.4;color:var(--text-dim);
-  background:rgba(74,111,165,.12);border:1px solid rgba(74,111,165,.35)}
+  background:color-mix(in srgb,var(--pencil) 12%,transparent);border:1px solid color-mix(in srgb,var(--pencil) 35%,transparent)}
 .wd .restore{margin:16px 8px 8px;color:var(--red);font-size:14px;padding:8px 0}
 .wd .addfact{margin:0 8px 10px 28px;color:var(--pencil-hi);font-size:13.5px;padding:4px 0}
 .wd div.mrow{cursor:default}
@@ -348,7 +389,7 @@ html{touch-action:manipulation}
 .ptog .box{flex:none;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--text-faint);display:grid;place-items:center;
   transition:background .15s,border-color .15s}
 .ptog .box svg{opacity:0;transition:opacity .15s}
-.ptog[aria-checked="true"]{color:var(--text);border-color:rgba(110,147,201,.55);background:rgba(74,111,165,.14)}
+.ptog[aria-checked="true"]{color:var(--text);border-color:color-mix(in srgb,var(--pencil-hi) 55%,transparent);background:color-mix(in srgb,var(--pencil) 14%,transparent)}
 .ptog[aria-checked="true"] .box{background:var(--pencil);border-color:var(--pencil)}
 .ptog[aria-checked="true"] .box svg{opacity:1}
 .ptog.learned[aria-checked="true"] .box{background:#3E8E5E;border-color:#3E8E5E}
@@ -363,14 +404,14 @@ html{touch-action:manipulation}
 .fi-label{font-size:11.5px;color:var(--text-dim);margin:0 0 4px}
 /* progress on tiles and rows */
 .tag{display:inline-block;font-size:10.5px;font-weight:600;line-height:16px;padding:0 6px;border-radius:8px;vertical-align:1px;
-  color:#A9C2E6;background:rgba(74,111,165,.22)}
+  color:var(--pencil-hi);background:color-mix(in srgb,var(--pencil) 22%,transparent)}
 .tag.l{color:#8FD3A9;background:rgba(62,142,94,.24)}
 .pinbadge{flex:none;color:var(--pencil-hi);margin-right:4px;vertical-align:-2px}
 .tile .p .tag{margin-left:6px}
 .mrow .tag{flex:none}
 .mvprog{flex:none;display:flex;gap:8px;margin:10px 12px 0}
 .mvprog .ptog{height:38px;font-size:13.5px;background:var(--slate-2)}
-.wd .have .addscore{display:flex;align-items:center;gap:10px;background:none;border:1px dashed rgba(110,147,201,.55);color:var(--pencil-hi);font-weight:500}
+.wd .have .addscore{display:flex;align-items:center;gap:10px;background:none;border:1px dashed color-mix(in srgb,var(--pencil-hi) 55%,transparent);color:var(--pencil-hi);font-weight:500}
 .wd .have .addscore svg{flex:none}
 .wd .have button .tag{margin-left:6px}
 
@@ -402,13 +443,13 @@ html{touch-action:manipulation}
 .prow .nm,.prow .sub{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .prow .nm{font-size:15px;color:var(--text)}
 .prow .sub{font-size:12px;color:var(--text-faint);margin-top:1px}
-.prow.sel{background:rgba(74,111,165,.16)}
+.prow.sel{background:color-mix(in srgb,var(--pencil) 16%,transparent)}
 .prow .tick{color:var(--pencil-hi);flex:none}
 .prow.act .nm{color:var(--pencil-hi)}
 .prow.quiet .nm{color:var(--text-dim)}
 .prow .badge{flex:none;font-size:10.5px;padding:2px 7px;border-radius:9px;background:var(--slate-3);color:var(--text-dim);border:1px solid var(--line)}
 .prow .badge.warn{color:#C9A45C}
-.prow .badge.works{color:var(--pencil-hi);border-color:rgba(74,111,165,.45);padding:5px 10px;font-size:12px}
+.prow .badge.works{color:var(--pencil-hi);border-color:color-mix(in srgb,var(--pencil) 45%,transparent);padding:5px 10px;font-size:12px}
 .pnote{padding:14px 10px 6px;color:var(--text-faint);font-size:13.5px}
 mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 
@@ -433,7 +474,7 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .wrow.missing{opacity:.42}
 .wrow.missing .nm{color:var(--text-dim)}
 .wrow.missing .ds{color:var(--text-faint)}
-.wrow.owned{background:rgba(74,111,165,.10);margin:2px 0}
+.wrow.owned{background:color-mix(in srgb,var(--pencil) 10%,transparent);margin:2px 0}
 .wrow.owned:active{background:var(--slate-3)}
 .wdocs{padding:0 0 4px 14px}
 .wdocs button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;font-size:13.5px;color:var(--text)}
@@ -457,7 +498,7 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .wd h5{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-faint);margin:18px 8px 6px}
 .wd p{font-size:14.5px;line-height:1.55;color:var(--text);margin:0 8px 10px}
 .wd .have{margin:0 8px 6px;display:flex;flex-direction:column;gap:6px}
-.wd .have button{text-align:left;padding:10px 12px;border-radius:10px;background:rgba(74,111,165,.16);border:1px solid rgba(74,111,165,.4);color:var(--text);font-size:14px}
+.wd .have button{text-align:left;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--pencil) 16%,transparent);border:1px solid color-mix(in srgb,var(--pencil) 40%,transparent);color:var(--text);font-size:14px}
 .wd .have .none{font-size:13px;color:var(--text-faint)}
 .mrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px;border-radius:10px}
 .mrow:active{background:var(--slate-3)}
@@ -466,7 +507,7 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .mrow .nm{display:block;font-size:14.5px;line-height:1.3;color:var(--text)}
 .mrow .sub{display:block;font-size:12px;color:var(--text-faint);margin-top:2px}
 .mrow .chev{color:var(--text-faint)}
-.mrow.cur{background:rgba(74,111,165,.16)}
+.mrow.cur{background:color-mix(in srgb,var(--pencil) 16%,transparent)}
 .mrow.cur .num{background:var(--pencil);border-color:var(--pencil);color:#fff}
 
 /* ---- practice time ---- */
@@ -476,8 +517,8 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .wd .practice .pk{font-size:13px;color:var(--text-faint)}
 .wd .practice .pv{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums}
 .wd .practice .pactions{display:flex;gap:8px;margin-top:12px}
-.wd .practice .pactions button{flex:1;height:38px;border-radius:9px;background:rgba(74,111,165,.16);
-  border:1px solid rgba(74,111,165,.4);color:var(--text);font-size:13.5px}
+.wd .practice .pactions button{flex:1;height:38px;border-radius:9px;background:color-mix(in srgb,var(--pencil) 16%,transparent);
+  border:1px solid color-mix(in srgb,var(--pencil) 40%,transparent);color:var(--text);font-size:13.5px}
 .wd .practice .pactions button:active{background:var(--slate-3)}
 
 .dpractice{margin-top:2px}
@@ -495,6 +536,18 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .pd-seg button.on{color:var(--text)}
 .pd-seg .pdk{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/var(--n,2));border-radius:8px;background:var(--slate);
   box-shadow:0 1px 3px rgba(0,0,0,.35);transform:translateX(calc(var(--i,0)*100%));transition:transform .38s cubic-bezier(.22,.8,.24,1)}
+.pd-t .pd-cur{font-size:13px;color:var(--text-faint);font-family:var(--sans);font-weight:400}
+.appear{border:1px solid var(--line);border-radius:12px;background:var(--slate-2);overflow:hidden}
+.appear-row{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.appear-row + .appear-row{border-top:1px solid var(--line)}
+.appear-row .base{flex:1;min-width:0;font-size:14px;color:var(--text-dim)}
+.appear-row.on .base{color:var(--text)}
+.acc-dots{display:flex;gap:8px}
+.acc-dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  background:var(--b);box-shadow:inset 0 0 0 1px rgba(128,128,128,.35);transition:box-shadow .18s}
+.acc-dot::after{content:'';width:12px;height:12px;border-radius:50%;background:var(--a);transition:transform .18s}
+.acc-dot.on{box-shadow:inset 0 0 0 1px rgba(128,128,128,.35),0 0 0 2px var(--slate-2),0 0 0 3.5px var(--pencil-hi)}
+.acc-dot.on::after{transform:scale(1.25)}
 .pd-seg.sm{width:184px}
 .pd-seg.sm button{height:26px;font-size:12.5px}
 .pd-tabs{margin:2px 16px 6px}
@@ -544,18 +597,18 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .pd-dw{display:grid;grid-template-rows:repeat(7,1fr);gap:3px;font-size:10px;color:var(--text-faint);align-items:center}
 .pd-cells{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,auto);grid-template-columns:repeat(18,1fr);gap:3px}
 .pd-cells button{aspect-ratio:1;border-radius:3.5px;background:var(--slate-3);padding:0;min-width:0}
-.pd-cells button[data-lvl="1"]{background:rgba(110,147,201,.3)}
-.pd-cells button[data-lvl="2"]{background:rgba(110,147,201,.52)}
-.pd-cells button[data-lvl="3"]{background:rgba(110,147,201,.76)}
+.pd-cells button[data-lvl="1"]{background:color-mix(in srgb,var(--pencil-hi) 30%,transparent)}
+.pd-cells button[data-lvl="2"]{background:color-mix(in srgb,var(--pencil-hi) 52%,transparent)}
+.pd-cells button[data-lvl="3"]{background:color-mix(in srgb,var(--pencil-hi) 76%,transparent)}
 .pd-cells button[data-lvl="4"]{background:var(--pencil-hi)}
 .pd-cells button.fut{visibility:hidden;pointer-events:none}
 .pd-cells button.sel{box-shadow:0 0 0 1.5px var(--text)}
 .pd-heatcap{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:11px;font-size:12.5px;color:var(--text-dim);min-height:18px}
 .pd-legend{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text-faint);flex:none}
 .pd-legend i{display:block;width:10px;height:10px;border-radius:3px;background:var(--slate-3)}
-.pd-legend i[data-lvl="1"]{background:rgba(110,147,201,.3)}
-.pd-legend i[data-lvl="2"]{background:rgba(110,147,201,.52)}
-.pd-legend i[data-lvl="3"]{background:rgba(110,147,201,.76)}
+.pd-legend i[data-lvl="1"]{background:color-mix(in srgb,var(--pencil-hi) 30%,transparent)}
+.pd-legend i[data-lvl="2"]{background:color-mix(in srgb,var(--pencil-hi) 52%,transparent)}
+.pd-legend i[data-lvl="3"]{background:color-mix(in srgb,var(--pencil-hi) 76%,transparent)}
 .pd-legend i[data-lvl="4"]{background:var(--pencil-hi)}
 
 .pd-rank{display:block;width:100%;text-align:left;padding:11px 0}
@@ -636,7 +689,7 @@ button.pd-rank:active{opacity:.7}
 .ltfocus{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
 .ltfocus button{border:1px solid var(--line);background:none;color:var(--text-dim);border-radius:16px;
   padding:7px 13px;font-size:13px}
-.ltfocus button[aria-pressed="true"]{background:rgba(74,111,165,.22);border-color:var(--pencil-hi);color:var(--text)}
+.ltfocus button[aria-pressed="true"]{background:color-mix(in srgb,var(--pencil) 22%,transparent);border-color:var(--pencil-hi);color:var(--text)}
 /* ---- movement pager: a fixed stage that slides, a list that stays put ---- */
 #mvBody.mvwrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:0}
 .mvwrap .eyebrow{flex:none;margin:6px 18px 8px}
@@ -674,7 +727,7 @@ button.pd-rank:active{opacity:.7}
 .mvwrap h5{flex:none;margin:12px 18px 4px}
 .mv-list{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;padding:0 10px 12px}
 .mv-hl{position:absolute;left:10px;right:10px;top:0;height:0;border-radius:10px;pointer-events:none;
-  background:rgba(74,111,165,.2);box-shadow:inset 0 0 0 1px rgba(111,149,204,.35);
+  background:color-mix(in srgb,var(--pencil) 20%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pencil-hi) 35%,transparent);
   transition:transform .46s cubic-bezier(.22,.8,.24,1),height .46s cubic-bezier(.22,.8,.24,1)}
 .mv-hl.drag{transition:none}
 .mv-list .mrow{position:relative;background:none}
@@ -939,7 +992,7 @@ button.pd-rank:active{opacity:.7}
 .textGhost{position:fixed;z-index:60;left:0;top:0;pointer-events:none;display:none;white-space:pre;font-weight:600;
   font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;line-height:1;transform:translate(-50%,-50%);
   text-shadow:0 0 1px rgba(255,255,255,.9),0 1px 8px rgba(255,255,255,.6)}
-.textGhost::after{content:"";position:absolute;left:50%;top:calc(100% + 6px);width:2px;height:18px;margin-left:-1px;background:rgba(74,111,165,.8);border-radius:1px}
+.textGhost::after{content:"";position:absolute;left:50%;top:calc(100% + 6px);width:2px;height:18px;margin-left:-1px;background:color-mix(in srgb,var(--pencil) 80%,transparent);border-radius:1px}
 /* colour is forced black for stamps, so the swatches would be misleading here */
 .palette.noteMode .presetrow{display:none}
 
@@ -1422,12 +1475,12 @@ svg{display:block}
   </div>
   <div class="plist pdash">
     <div class="pd-sec" style="margin-top:12px">
-      <div class="pd-t"><h4>Appearance</h4></div>
-      <div class="pd-seg" id="themeSeg" style="--n:2;--i:0"><span class="pdk"></span>
-        <button type="button" data-mode="dark">Dark</button>
-        <button type="button" data-mode="light">Light</button>
+      <div class="pd-t"><h4>Appearance</h4><span class="pd-cur" id="themeName"></span></div>
+      <div class="appear" id="themeSeg" role="group" aria-label="Appearance">
+        <div class="appear-row" data-base="dark"><span class="base">Dark</span><div class="acc-dots"><button type="button" class="acc-dot" data-theme-id="dark-blue" style="--b:#1B2029;--a:#6E93C9" aria-label="Dark, blue"></button><button type="button" class="acc-dot" data-theme-id="dark-teal" style="--b:#1B2029;--a:#5CB8AE" aria-label="Dark, teal"></button><button type="button" class="acc-dot" data-theme-id="dark-violet" style="--b:#1B2029;--a:#A395E8" aria-label="Dark, violet"></button><button type="button" class="acc-dot" data-theme-id="dark-crimson" style="--b:#1B2029;--a:#E57B82" aria-label="Dark, crimson"></button><button type="button" class="acc-dot" data-theme-id="dark-amber" style="--b:#1B2029;--a:#D9A35C" aria-label="Dark, amber"></button></div></div>
+        <div class="appear-row" data-base="stone"><span class="base">Stone</span><div class="acc-dots"><button type="button" class="acc-dot" data-theme-id="stone-blue" style="--b:#C8CBC4;--a:#2F5287" aria-label="Stone, blue"></button><button type="button" class="acc-dot" data-theme-id="stone-teal" style="--b:#C8CBC4;--a:#175A55" aria-label="Stone, teal"></button><button type="button" class="acc-dot" data-theme-id="stone-violet" style="--b:#C8CBC4;--a:#46388A" aria-label="Stone, violet"></button><button type="button" class="acc-dot" data-theme-id="stone-crimson" style="--b:#C8CBC4;--a:#852A31" aria-label="Stone, crimson"></button><button type="button" class="acc-dot" data-theme-id="stone-amber" style="--b:#C8CBC4;--a:#704310" aria-label="Stone, amber"></button></div></div>
+        <div class="appear-row" data-base="lamp"><span class="base">Lamplight</span><div class="acc-dots"><button type="button" class="acc-dot" data-theme-id="lamp-amber" style="--b:#1A1510;--a:#D9A35C" aria-label="Lamplight, amber"></button><button type="button" class="acc-dot" data-theme-id="lamp-copper" style="--b:#1A1510;--a:#E38B63" aria-label="Lamplight, copper"></button><button type="button" class="acc-dot" data-theme-id="lamp-rose" style="--b:#1A1510;--a:#E58BA0" aria-label="Lamplight, rose"></button><button type="button" class="acc-dot" data-theme-id="lamp-sage" style="--b:#1A1510;--a:#A2C298" aria-label="Lamplight, sage"></button><button type="button" class="acc-dot" data-theme-id="lamp-plum" style="--b:#1A1510;--a:#C991B8" aria-label="Lamplight, plum"></button></div></div>
       </div>
-      <p class="pd-hint set-note">The score viewer stays dark in both.</p>
     </div>
     <div class="pd-sec">
       <div class="pd-t"><h4>Backup</h4></div>
@@ -10304,23 +10357,43 @@ async function restoreLibrary(file){
 $('#emptyRestore').addEventListener('click', pickRestore);
 
 /* ---------- settings ---------- */
-const THEME_BG = { dark:'#1B2029', light:'#F3F1EC' };   // status bar / theme-color
-function currentTheme(){ return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'; }
+const THEME_BG = { dark:'#1B2029', stone:'#C8CBC4', lamp:'#1A1510' };   // status bar / theme-color
+const THEME_OLD = { dark:'dark-blue', light:'stone-blue', stone:'stone-blue', lamp:'lamp-amber',
+                    velvet:'dark-blue', verdigris:'dark-blue', wine:'dark-blue' };
+const BASE_NAME = { dark:'Dark', stone:'Stone', lamp:'Lamplight' };
+function themeValid(t){ return !!document.querySelector(`#themeSeg [data-theme-id="${t}"]`); }
+function currentTheme(){
+  const el = document.documentElement;
+  return (el.dataset.theme || 'dark') + '-' + (el.dataset.accent || 'blue');
+}
+function showTheme(t){
+  document.querySelectorAll('#themeSeg .acc-dot').forEach(d => {
+    const on = d.dataset.themeId === t;
+    d.classList.toggle('on', on); d.setAttribute('aria-pressed', on);
+  });
+  const [base, accent] = t.split('-');
+  document.querySelectorAll('#themeSeg .appear-row').forEach(r => r.classList.toggle('on', r.dataset.base === base));
+  $('#themeName').textContent = BASE_NAME[base] + ', ' + accent;
+}
 function applyTheme(t){
-  if(t === 'light') document.documentElement.dataset.theme = 'light';
-  else delete document.documentElement.dataset.theme;
-  const m = document.querySelector('meta[name="theme-color"]'); if(m) m.content = THEME_BG[t];
+  t = THEME_OLD[t] || t;                  // older backups and settings
+  if(!themeValid(t)) t = 'dark-blue';
+  const [base, accent] = t.split('-');
+  const el = document.documentElement;
+  if(base !== 'dark') el.dataset.theme = base; else delete el.dataset.theme;
+  if(accent !== 'blue') el.dataset.accent = accent; else delete el.dataset.accent;
+  const m = document.querySelector('meta[name="theme-color"]'); if(m) m.content = THEME_BG[base];
   try{ localStorage.setItem('stand.theme', t); }catch(e){}
-  pdSetSeg($('#themeSeg'), 'mode', t);
+  showTheme(t);
 }
 $('#setBtn').addEventListener('click', () => {
   $('#clQ').blur();
-  pdSetSeg($('#themeSeg'), 'mode', currentTheme());
+  showTheme(currentTheme());
   $('#mSettings').classList.add('on');
 });
 $('#setBack').addEventListener('click', () => $('#mSettings').classList.remove('on'));
 $('#themeSeg').addEventListener('click', e => {
-  const b = e.target.closest('[data-mode]'); if(b) applyTheme(b.dataset.mode);
+  const b = e.target.closest('[data-theme-id]'); if(b) applyTheme(b.dataset.themeId);
 });
 $('#setBackup').addEventListener('click', backupLibrary);
 $('#setRestore').addEventListener('click', pickRestore);
