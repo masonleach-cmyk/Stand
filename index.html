@@ -9250,7 +9250,7 @@ function abortStroke(){
 }
 function eraseAt(pt){
   const list = strokesHere();
-  const tol = Math.max(0.012, (V.size*2.6*V.zoom)/V.renderW);   // match the pen's page-fixed sizing
+  const tol = 0.5/V.renderW;   // fixed 1-device-pixel-wide hit box, regardless of pen size or zoom
   let hit = false;
   for(let i=list.length-1;i>=0;i--){
     const s = list[i];
@@ -9342,6 +9342,18 @@ async function saveInk(){
       if(s.a != null) o.a = s.a;
       if(s.k != null) o.k = s.k;
       if(s.sl != null) o.sl = s.sl;
+      // Text/fingering stamps (t:'x') carry their actual content in x, plus f
+      // (italic) and m (measured width ratio) needed to draw and hit-test it.
+      // These were missing from the save allow-list, so any text stamp lost
+      // its character on the next load and rendered as the literal word
+      // "undefined" — this is what put that back.
+      if(s.x != null) o.x = s.x;
+      if(s.f != null) o.f = s.f;
+      if(s.m != null) o.m = s.m;
+      // Note stamps (t:'n') also carry tilt/flip beyond sl; save those too so
+      // a reload doesn't quietly flatten them back to defaults.
+      if(s.tl != null) o.tl = s.tl;
+      if(s.fl != null) o.fl = s.fl;
       return o;
     });
   try{
