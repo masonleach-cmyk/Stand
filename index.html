@@ -7335,9 +7335,11 @@ function syncInkPanel(){
     dot.innerHTML = '';
     dot.style.opacity = V.erasing ? .4 : 1;
     if(V.tool === 'highlight'){
-      // translucent disc with a diagonal chisel mark, echoing the marker nib
+      // translucent disc in the current colour, with a white H — same
+      // treatment as the T used for text
       dot.style.background = `hsl(${V.hue} ${V.sat}% ${V.tone}% / .45)`;
-      dot.style.backgroundImage = 'linear-gradient(135deg, transparent 42%, rgba(255,255,255,.6) 46%, rgba(255,255,255,.6) 54%, transparent 58%)';
+      dot.style.backgroundImage = '';
+      dot.innerHTML = '<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font:700 15px -apple-system,sans-serif;color:#fff">H</span>';
     }else if(V.tool === 'note'){
       dot.style.background = '#111'; dot.style.backgroundImage = '';
       dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)"><circle cx="8" cy="17" r="3"/><path d="M11 17V5l7-2v11"/></svg>';
@@ -8826,18 +8828,27 @@ function paintStroke(ctx, s, ox, oy, S){
 }
 
 // Full repaint: only on page change, zoom, pan-end, erase, undo. Culls offscreen marks.
-/* The blue "you're in markup mode" glow (#editFrame) used to just span the
-   whole screen, so on any page that doesn't fill the device edge-to-edge it
-   floated off into the letterboxing instead of framing the page. It now
-   hugs the actual on-screen page rect at any zoom level — panX/panY/
-   renderW/renderH already describe that rect once the view is settled, and
-   during a live pinch or pan, place()/setViewTransform() push the frame's
-   position every frame right alongside the page and ink layer, so it never
-   lags behind or snaps back into place after the gesture ends. */
+/* The blue "you're in markup mode" glow (#editFrame). Each of the four
+   edges makes its own call: if the page's real edge is currently on
+   screen, that border hugs it; once it's scrolled off screen, the border
+   pins to the screen's own edge instead. Left and right (and top and
+   bottom) are worked out independently, so a page that's wider than the
+   screen but not taller gets sides pinned to the screen while top/bottom
+   hug the page — or the other way round. Clamping each edge separately
+   (rather than deciding once per axis whether the whole page fits) also
+   means a border tracks the real page edge all the way into rubber-band
+   overscroll: dragging past the end of the page reveals its true edge
+   inside the screen before the page itself is fully panned to its bound,
+   and the near border follows it there instead of staying nailed to the
+   screen until the pan settles. place()/setViewTransform() push this
+   every frame during a live pinch or pan, and through the settle
+   animation, so it's never a frame behind the page. */
 function positionEditFrame(left, top, w, h){
   const el = $('#editFrame'); if(!el) return;
-  el.style.left = left + 'px'; el.style.top = top + 'px';
-  el.style.width = w + 'px'; el.style.height = h + 'px';
+  const L = Math.max(left, 0), R = Math.min(left + w, stageW);
+  const T = Math.max(top, 0), B = Math.min(top + h, stageH);
+  el.style.left = L + 'px'; el.style.width = Math.max(0, R - L) + 'px';
+  el.style.top = T + 'px'; el.style.height = Math.max(0, B - T) + 'px';
   el.style.right = 'auto'; el.style.bottom = 'auto';
 }
 function syncEditFrame(){
@@ -9632,8 +9643,13 @@ function distToSeg(p,a,b){
 
 /* ---------- modes ---------- */
 function togglePalette(force){
-  if(V.erasing) setEraser(false);
   const open = $('#palette').classList.toggle('on', force);
+  // Only bump the eraser off when the palette is actually opening (e.g. the
+  // nib button was tapped while erasing). setEraser(true) closes the palette
+  // via togglePalette(false) as a side effect — checking V.erasing here
+  // unconditionally used to catch that closing call too, immediately
+  // reversing the setEraser(true) that triggered it.
+  if(open && V.erasing) setEraser(false);
   $('#tColor').classList.toggle('open', open);
   if(open){ refreshPreviewSize(); syncInkPanel(); }
   return open;
