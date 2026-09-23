@@ -7035,6 +7035,7 @@ function pageDpr(w,h){
 function place(){
   pagewrap.style.transformOrigin = '0 0';
   pagewrap.style.transform = `translate3d(${panX}px,${panY}px,0)`;
+  positionEditFrame(panX, panY, V.renderW, V.renderH);
 }
 /* One helper drives every live view change — pinch, rubber-band pan and the
    settle animation all just set (scale, translate) with origin 0 0. */
@@ -7045,6 +7046,7 @@ function setViewTransform(s, tx, ty){
   pagewrap.style.transform = `translate3d(${tx}px,${ty}px,0) scale(${s})`;
   inkLayer.style.transformOrigin = '0 0';
   inkLayer.style.transform = `translate3d(${tx - s*inkAtX}px,${ty - s*inkAtY}px,0) scale(${s})`;
+  positionEditFrame(tx, ty, V.renderW*s, V.renderH*s);
 }
 function viewBounds(w, hgt){
   const exW = (w==null?V.renderW:w) - stageW, exH = (hgt==null?V.renderH:hgt) - stageH;
@@ -8826,20 +8828,20 @@ function paintStroke(ctx, s, ox, oy, S){
 // Full repaint: only on page change, zoom, pan-end, erase, undo. Culls offscreen marks.
 /* The blue "you're in markup mode" glow (#editFrame) used to just span the
    whole screen, so on any page that doesn't fill the device edge-to-edge it
-   floated off into the letterboxing instead of framing the page. At fit
-   zoom it now hugs the actual rendered page; once you zoom in the page can
-   run off-screen in any direction, so there's nothing sensible to hug and
-   it falls back to framing the screen itself. */
-function syncEditFrame(){
+   floated off into the letterboxing instead of framing the page. It now
+   hugs the actual on-screen page rect at any zoom level — panX/panY/
+   renderW/renderH already describe that rect once the view is settled, and
+   during a live pinch or pan, place()/setViewTransform() push the frame's
+   position every frame right alongside the page and ink layer, so it never
+   lags behind or snaps back into place after the gesture ends. */
+function positionEditFrame(left, top, w, h){
   const el = $('#editFrame'); if(!el) return;
-  if(V.zoom > 1.001){
-    el.style.left = ''; el.style.top = ''; el.style.right = ''; el.style.bottom = '';
-    el.style.width = ''; el.style.height = '';
-  }else{
-    el.style.left = panX + 'px'; el.style.top = panY + 'px';
-    el.style.width = V.renderW + 'px'; el.style.height = V.renderH + 'px';
-    el.style.right = 'auto'; el.style.bottom = 'auto';
-  }
+  el.style.left = left + 'px'; el.style.top = top + 'px';
+  el.style.width = w + 'px'; el.style.height = h + 'px';
+  el.style.right = 'auto'; el.style.bottom = 'auto';
+}
+function syncEditFrame(){
+  positionEditFrame(panX, panY, V.renderW, V.renderH);
   if(V.markup) placeDock();
 }
 
