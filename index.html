@@ -736,12 +736,82 @@ button.pd-rank:active{opacity:.7}
   padding:0 6px;white-space:nowrap;
   text-shadow:0 1px 2px rgba(0,0,0,.85), 0 0 5px rgba(0,0,0,.5);
 }
-.bar .dot{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.55)}
-.bar .unsaved{
-  width:6px;height:6px;border-radius:50%;background:var(--pencil-hi);
-  margin-left:-4px;align-self:flex-start;margin-top:12px;display:none;
+/* ---------- Ink Dock ---------- */
+.dock{
+  --dock-bg: rgba(20,24,31,.74);
+  position:absolute; z-index:16;             /* above .bar (14) and .palette (15) */
+  left:50%; bottom:calc(var(--safe-b) + 14px);   /* JS overrides via inline left/top/bottom, see placeDock() */
+  display:flex; align-items:center; gap:4px; padding:6px;
+  border-radius:32px;
+  background:var(--dock-bg);
+  backdrop-filter:blur(18px) saturate(1.4); -webkit-backdrop-filter:blur(18px) saturate(1.4);
+  box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 0 0 .5px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.06);
+  touch-action:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+  transform:translate(-50%, 24px) scale(.94); opacity:0; pointer-events:none;
+  transition:transform .32s cubic-bezier(.34,1.56,.64,1), opacity .2s ease;
 }
-.bar .unsaved.on{display:block}
+.dock.on{ transform:translate(-50%,0) scale(1); opacity:1; pointer-events:auto }
+.dock.pulling{ transition:none }
+/* invisible halo: near-misses land on the dock, never on the page */
+.dock::before{ content:''; position:absolute; inset:-14px; border-radius:46px }
+.dock.vertical{ flex-direction:column }
+.dock.vertical{ transform:translate(24px,-50%) scale(.94) }
+.dock.vertical.on{ transform:translate(0,-50%) scale(1) }
+.dock.floating{ --dock-bg: rgba(20,24,31,.86) }
+.dock.dodge{opacity:0 !important; transform:translate(-50%, 30px) scale(.9) !important; pointer-events:none !important; transition-duration:.16s}
+
+.dock button{
+  position:relative; width:48px; height:48px; border-radius:24px; flex:none;
+  display:grid; place-items:center; color:rgba(255,255,255,.88);
+  transition:transform .14s cubic-bezier(.3,.7,.3,1), background-color .14s;
+  pointer-events:none;   /* the dock controller does all hit-testing */
+}
+.dock button.pressed{ transform:scale(.88); background:rgba(255,255,255,.14) }
+.dock button.on{ background:var(--pencil); color:#fff }        /* eraser active */
+.dock button.pulse{ animation:dockPulse .25s ease }
+@keyframes dockPulse{ 0%{transform:scale(1)} 40%{transform:scale(1.15); background:rgba(255,255,255,.22)} 100%{transform:scale(1)} }
+.dock .done{ background:var(--pencil); color:#fff }
+.dock .done.pressed{ background:var(--pencil-hi) }
+.dock-div{ width:1px; height:26px; background:rgba(255,255,255,.14); margin:0 4px; flex:none }
+.dock.vertical .dock-div{ width:26px; height:1px; margin:4px 0 }
+
+/* nib: the current ink as a solid disc with a halo ring */
+.dock .dot{
+  position:relative;
+  width:30px; height:30px; border-radius:50%; border:none;
+  box-shadow:0 0 0 2px var(--dock-bg), 0 0 0 3.5px rgba(255,255,255,.55);
+}
+#tColor.open .dot{ box-shadow:0 0 0 2px var(--dock-bg), 0 0 0 3.5px var(--pencil-hi) }
+
+.dock .unsaved{ position:absolute; top:7px; right:7px; width:7px; height:7px; border-radius:50%;
+  background:#fff; display:none }
+.dock .unsaved.on{ display:block }
+
+/* tool arc: fans out from the nib on long-press (Pen / Highlighter / Note / Text) */
+.toolArc{ position:absolute; left:30px; top:30px; width:0; height:0; pointer-events:none }
+.toolArc .bubble{
+  position:absolute; left:0; top:0; width:44px; height:44px; margin:-22px 0 0 -22px;
+  border-radius:22px; background:var(--dock-bg); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  box-shadow:0 6px 18px rgba(0,0,0,.4), inset 0 0 0 .5px rgba(255,255,255,.14);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+  color:rgba(255,255,255,.88); font-size:9px; letter-spacing:.02em;
+  opacity:0; transform:translate(var(--tx0,0),var(--ty0,0)) scale(.5);
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1), opacity .16s ease;
+}
+.toolArc.on .bubble{ opacity:1; transform:translate(var(--tx,0),var(--ty,0)) scale(1) }
+.toolArc .bubble.near{ background:var(--pencil) }
+.toolArc .bubble svg{ width:18px; height:18px }
+
+/* page chip: transient page number while marking up */
+.pagechip{
+  position:absolute; z-index:16; left:50%; top:calc(var(--safe-t) + 12px);
+  transform:translate(-50%,-8px); opacity:0; pointer-events:none;
+  padding:6px 12px; border-radius:14px; background:rgba(20,24,31,.8);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  font-size:13px; font-variant-numeric:tabular-nums; color:rgba(255,255,255,.9);
+  transition:opacity .2s, transform .2s;
+}
+.pagechip.on{ opacity:1; transform:translate(-50%,0) }
 
 /* markup-mode indicator: light spilling in from the four edges. Built from
    gradients rather than inset box-shadows so the falloff is a true fade to
@@ -762,10 +832,11 @@ button.pd-rank:active{opacity:.7}
 /* palette rises above the bar only in markup mode — a full color-picker now,
    sized for real use rather than a quick strip of swatches */
 .palette{
-  position:absolute;left:8px;right:8px;bottom:calc(var(--safe-b) + 62px);z-index:15;
+  position:absolute;left:8px;right:8px;bottom:var(--pal-bottom, calc(var(--safe-b) + 90px));z-index:15;
   background:rgba(22,26,33,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-radius:20px;padding:20px 18px 16px;
   max-height:min(74vh, 620px);overflow-y:auto;
+  transform-origin:var(--pal-origin, 50% 100%);
   opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .18s,transform .18s;
 }
 .palette.on{opacity:1;transform:translateY(0);pointer-events:auto}
@@ -875,7 +946,7 @@ button.pd-rank:active{opacity:.7}
 }
 
 @media (min-width:700px){
-  .palette{left:auto;right:16px;width:560px;max-height:min(82vh,780px)}
+  .palette{left:auto;right:var(--pal-right,16px);width:560px;max-height:min(82vh,780px)}
   .knob{width:96px;height:96px}
   .palette.noteMode .knob{width:100px;height:100px}
   .palette .knobDot{width:6px;height:13px}
@@ -1112,30 +1183,27 @@ svg{display:block}
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
 
-    <button id="mPrev" aria-label="Previous page" style="display:none">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 5l-6 7 6 7"/><path d="M11 5l-6 7 6 7"/></svg>
-    </button>
-    <button id="mNext" aria-label="Next page" style="display:none">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5l6 7-6 7"/><path d="M13 5l6 7-6 7"/></svg>
-    </button>
-
     <span class="spacer"></span>
     <button class="page" id="pLabel" aria-label="Jump to a section">1 / 1</button>
     <span class="spacer"></span>
+  </div>
 
-    <button id="tColor" aria-label="Ink color" style="display:none"><i class="dot" id="colorDot"></i></button>
-    <button id="tErase" aria-label="Eraser" style="display:none">
+  <div class="dock" id="inkDock" role="toolbar" aria-label="Markup tools" aria-hidden="true">
+    <button id="tColor" data-act="nib" aria-label="Pen and colour"><i class="dot" id="colorDot"></i></button>
+    <button id="tErase" data-act="erase" aria-label="Eraser" aria-pressed="false">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 19.5h10"/><path d="M6.7 15.3l6-6a2 2 0 012.83 0l2.6 2.6a2 2 0 010 2.83l-6 6a2 2 0 01-2.83 0l-2.6-2.6a2 2 0 010-2.83z"/><path d="M12.2 10.8l4.5 4.5"/></svg>
     </button>
-    <button id="tUndo" aria-label="Undo" style="display:none">
+    <button id="tUndo" data-act="undo" aria-label="Undo">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h9.5a5.5 5.5 0 010 11h-3.5"/><path d="M8 4.5L4 8.5l4 4"/></svg>
     </button>
-
-    <button id="tPen" aria-label="Done" style="display:none">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.3"/><path d="M8 12.3l2.6 2.6L16.2 9"/></svg>
+    <span class="dock-div" aria-hidden="true"></span>
+    <button id="tPen" data-act="done" aria-label="Done" class="done">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.3l2.6 2.6L16.2 9"/></svg>
+      <i class="unsaved" id="unsaved"></i>
     </button>
-    <i class="unsaved" id="unsaved"></i>
+    <div class="toolArc" id="toolArc" aria-hidden="true"></div>
   </div>
+  <div class="pagechip" id="pageChip" aria-live="polite"></div>
 </div>
 
 <!-- ===================== MODALS ===================== -->
@@ -7152,7 +7220,7 @@ $('#swatches').addEventListener('click', e => {
   const b = e.target.closest('button'); if(!b) return;
   const i = +b.dataset.i, p = V.presets[i];
   V.hue = p.h; V.sat = p.s; V.tone = p.l; V.selectedPreset = i;
-  V.erasing = false; $('#tErase').classList.remove('on');
+  setEraser(false);
   syncInkPanel();
 });
 $('#presetSave').addEventListener('click', async () => {
@@ -7260,7 +7328,26 @@ const lightLamp = t => [V.hue, V.sat, t*100];
 function syncInkPanel(){
   const c = colorNow();
   const dot = $('#colorDot');
-  if(dot){ dot.style.background = c; dot.style.borderColor = 'rgba(255,255,255,.55)'; }
+  if(dot){
+    dot.style.borderColor = 'rgba(255,255,255,.55)';
+    dot.innerHTML = '';
+    dot.style.opacity = V.erasing ? .4 : 1;
+    if(V.tool === 'highlight'){
+      // translucent disc with a diagonal chisel mark, echoing the marker nib
+      dot.style.background = `hsl(${V.hue} ${V.sat}% ${V.tone}% / .45)`;
+      dot.style.backgroundImage = 'linear-gradient(135deg, transparent 42%, rgba(255,255,255,.6) 46%, rgba(255,255,255,.6) 54%, transparent 58%)';
+    }else if(V.tool === 'note'){
+      dot.style.background = '#111'; dot.style.backgroundImage = '';
+      dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)"><circle cx="8" cy="17" r="3"/><path d="M11 17V5l7-2v11"/></svg>';
+    }else if(V.tool === 'text'){
+      dot.style.background = c; dot.style.backgroundImage = '';
+      const dark = V.tone > 62;
+      dot.innerHTML = `<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font:700 15px -apple-system,sans-serif;color:${dark?'#111':'#fff'}">T</span>`;
+    }else{
+      // pen: solid disc in the current ink
+      dot.style.background = c; dot.style.backgroundImage = '';
+    }
+  }
 
   updateHue(hueLamp); updateSat(satLamp); updateLight(lightLamp); updateSize(null); updateStem(null); updateTilt('center'); updateTSize(null);
   $('#flipSw').setAttribute('aria-checked', String(!!V.flip));
@@ -7361,24 +7448,7 @@ function drawPreview(c){
 /* ---------- tool picker ---------- */
 $('#toolSeg').addEventListener('click', e => {
   const b = e.target.closest('button'); if(!b) return;
-  const prev = V.tool;
-  V.tool = b.dataset.tool;
-  // Stamps are always black. Stash the drawing colour on the way in and put it
-  // back on the way out, so switching to Note and back never costs you the
-  // colour you had dialled in.
-  if(V.tool === 'note' && prev !== 'note'){
-    V.savedColor = {h:V.hue, s:V.sat, l:V.tone};
-    V.hue = 0; V.sat = 0; V.tone = 0;
-  }else if(prev === 'note' && V.tool !== 'note' && V.savedColor){
-    V.hue = V.savedColor.h; V.sat = V.savedColor.s; V.tone = V.savedColor.l;
-    V.savedColor = null;
-  }
-  V.erasing = false; $('#tErase').classList.remove('on');
-  $$('#toolSeg button').forEach(x => x.classList.toggle('on', x.dataset.tool === V.tool));
-  $('#palette').classList.toggle('noteMode', V.tool === 'note');
-  $('#palette').classList.toggle('textMode', V.tool === 'text');
-  refreshPreviewSize();
-  syncInkPanel();
+  setTool(b.dataset.tool);
 });
 
 /* ---------- note direction ---------- */
@@ -7408,7 +7478,7 @@ $('#textSel').addEventListener('pointerdown', e => {
   const text = chip.dataset.typed ? $('#textIn').value : chip.dataset.text;
   if(!text){ toast('Type your text first'); $('#textIn').focus(); return; }
   V.text = text; V.textFrom = chip.dataset.typed ? 'typed' : 'finger';
-  V.erasing = false; $('#tErase').classList.remove('on');
+  setEraser(false);
   syncInkPanel();
   textDrag = { id:e.pointerId, x0:e.clientX, y0:e.clientY, on:false, text };
 });
@@ -7445,9 +7515,8 @@ function endTextDrag(e, cancel){
   const h = V.tsize * V.zoom;
   const x = e.clientX, y = e.clientY - h/2 - 34;
   syncStageOrigin();
-  const bar = $('#bar').getBoundingClientRect();
   const r = $('#stage').getBoundingClientRect();
-  if(x < r.left || x > r.right || y < r.top || y > r.bottom || (y > bar.top && !$('#bar').classList.contains('hidden'))) return;
+  if(x < r.left || x > r.right || y < r.top || y > r.bottom || overChrome(x, y)) return;
   const pt = normPt(x, y);
   if(pt[0] < -0.05 || pt[0] > 1.05 || pt[1] < -0.05 || pt[1] > 1.05){ toast('Drop text onto the page'); return; }
   if(inkShifted && !viewAnim) redrawInk();
@@ -7502,9 +7571,8 @@ function endNoteDrag(e, cancel){
   if(!d.on || cancel || !V.pdf || !V.markup) return;
   const x = e.clientX, y = e.clientY - d.h/2 - 34;
   syncStageOrigin();
-  const bar = $('#bar').getBoundingClientRect();
   const r = $('#stage').getBoundingClientRect();
-  if(x < r.left || x > r.right || y < r.top || y > r.bottom || (y > bar.top && !$('#bar').classList.contains('hidden'))) return;
+  if(x < r.left || x > r.right || y < r.top || y > r.bottom || overChrome(x, y)) return;
   const pt = normPt(x, y);
   if(pt[0] < -0.05 || pt[0] > 1.05 || pt[1] < -0.05 || pt[1] > 1.05){ toast('Drop the note onto the page'); return; }
   if(inkShifted && !viewAnim) redrawInk();
@@ -7549,7 +7617,7 @@ $('#previewBox').addEventListener('pointerdown', e => {
 let outsideTouch = null;
 document.addEventListener('pointerdown', e => {
   if(!$('#palette').classList.contains('on')) return;
-  if($('#palette').contains(e.target) || e.target.closest('#tColor')) return;
+  if($('#palette').contains(e.target) || e.target.closest('#inkDock')) return;
   if(outsideTouch){ outsideTouch = null; return; }   // a second finger joined mid-touch: a gesture, not a tap
   outsideTouch = { id:e.pointerId, x:e.clientX, y:e.clientY, t:Date.now() };
 });
@@ -7558,7 +7626,7 @@ document.addEventListener('pointerup', e => {
   const moved = Math.hypot(e.clientX-outsideTouch.x, e.clientY-outsideTouch.y) > 10;
   const quick = Date.now()-outsideTouch.t < 600;
   outsideTouch = null;
-  if(!moved && quick) $('#palette').classList.remove('on');
+  if(!moved && quick) togglePalette(false);
 });
 document.addEventListener('pointercancel', () => { outsideTouch = null; });
 
@@ -8772,6 +8840,66 @@ function syncEditFrame(){
     el.style.width = V.renderW + 'px'; el.style.height = V.renderH + 'px';
     el.style.right = 'auto'; el.style.bottom = 'auto';
   }
+  if(V.markup) placeDock();
+}
+
+/* ---------- Ink Dock: lives in the letterbox beside the page whenever there
+   is room, so it never covers the score; floats and ducks out of the way
+   when zoomed in. ---------- */
+const DOCK_T = 60;          // dock thickness (48 button + 2*6 padding)
+const DOCK_GAP = 12;        // min clearance from page edge and screen edge
+let dockRect = null;        // cached for hit-avoidance and proximity dodge
+let safe = {t:0,b:0,l:0,r:0};
+function readSafeInsets(){  // call once at startup and on resize/orientationchange
+  const p = document.createElement('div');
+  p.style.cssText = 'position:fixed;visibility:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
+  document.body.appendChild(p);
+  const cs = getComputedStyle(p);
+  safe = {t:parseFloat(cs.paddingTop)||0, r:parseFloat(cs.paddingRight)||0,
+          b:parseFloat(cs.paddingBottom)||0, l:parseFloat(cs.paddingLeft)||0};
+  p.remove();
+}
+
+function placeDock(){
+  const dock = $('#inkDock'); if(!dock) return;
+  const need = DOCK_T + DOCK_GAP*2;
+  const atFit = V.zoom <= 1.001;
+  const below = stageH - (panY + V.renderH) - safe.b;   // bottom letterbox
+  const right = stageW - (panX + V.renderW) - safe.r;   // right letterbox
+  let mode;
+  if(atFit && below >= need)      mode = 'bottom';
+  else if(atFit && right >= need) mode = 'right';
+  else                            mode = 'floating';
+
+  dock.classList.toggle('vertical', mode === 'right');
+  dock.classList.toggle('floating', mode === 'floating');
+  const s = dock.style;
+  s.top = s.left = s.bottom = s.right = '';
+  if(mode === 'bottom'){
+    // centre the dock in the band, but never closer than 12px to the home indicator
+    const y = Math.max(safe.b + DOCK_GAP, safe.b + (below - DOCK_T)/2);
+    s.left = '50%'; s.bottom = y + 'px';
+  }else if(mode === 'right'){
+    const x = panX + V.renderW + (right - DOCK_T)/2;
+    s.left = x + 'px'; s.top = '50%';
+  }else{
+    s.left = '50%'; s.bottom = (safe.b + 14) + 'px';
+  }
+  // palette sits just above (or beside) the dock
+  requestAnimationFrame(() => {
+    dockRect = dock.getBoundingClientRect();
+    const v = $('#viewer').style;
+    if(mode === 'right'){
+      v.setProperty('--pal-bottom', (safe.b + 12) + 'px');
+      v.setProperty('--pal-right', (stageW - dockRect.left + 10) + 'px');
+      v.setProperty('--pal-origin', '100% 50%');
+    }else{
+      v.setProperty('--pal-bottom', (stageH - dockRect.top + 10) + 'px');
+      v.removeProperty('--pal-right');
+      v.setProperty('--pal-origin', '50% 100%');
+    }
+  });
+  V.dockMode = mode;
 }
 function redrawInk(){
   inkAtX = panX; inkAtY = panY;
@@ -8866,7 +8994,8 @@ stage.addEventListener('pointerdown', e => {
       d0: Math.hypot(a.x-b.x, a.y-b.y) || 1,
       mx, my, cx:mx, cy:my,
       fx:(mx-stageL-panX)/(V.renderW||1), fy:(my-stageT-panY)/(V.renderH||1),
-      zoom0:V.zoom, k:1
+      zoom0:V.zoom, k:1,
+      mx0:mx, my0:my, swipe:false, t0:Date.now()
     };
     return;
   }
@@ -8907,7 +9036,7 @@ stage.addEventListener('pointermove', e => {
     const a = ptrs.get(pinch.ids[0]), b = ptrs.get(pinch.ids[1]);
     if(a && b){
       const dist = Math.hypot(a.x-b.x, a.y-b.y);
-      if(!pinch.engaged && Math.abs(dist - pinch.d0) > PINCH_ENGAGE){
+      if(!pinch.engaged && !pinch.swipe && Math.abs(dist - pinch.d0) > PINCH_ENGAGE){
         // the fingers really are spreading: become a pinch, and re-baseline from
         // this moment so the zoom doesn't jump by the slack we just allowed
         pinch.engaged = true;
@@ -8938,6 +9067,25 @@ stage.addEventListener('pointermove', e => {
         return;
       }
     }
+    // In markup, one finger draws, so page turns move to two fingers: a
+    // horizontal two-finger drag that never engages a pinch is a page swipe.
+    if(V.markup && V.zoom <= 1.001 && !pinch.engaged){
+      const mx = (a.x+b.x)/2, my = (a.y+b.y)/2;
+      const dx = mx - pinch.mx0, dy = my - pinch.my0;
+      if(!pinch.swipe && Math.abs(dx) > SWIPE_ARM && Math.abs(dx) > Math.abs(dy)*1.2){
+        pinch.swipe = true;
+        const dir = dx < 0 ? 1 : -1, t = V.page + dir;
+        swipe = {x0:pinch.mx0, y0:pinch.my0, dx:0, dir, t:Date.now(), two:true,
+                 canTurn: t >= 1 && t <= V.pdf.numPages};
+        swipe.ghost = swipe.canTurn && prepGhost(dir);
+      }
+      if(pinch.swipe && swipe){
+        e.preventDefault();
+        swipe.dx = swipe.canTurn ? dx : dx*0.3;
+        moveSwipe(swipe.dx, swipe.dir, swipe.ghost);
+        return;
+      }
+    }
     // armed but not engaged: fall through so the primary finger can still draw,
     // swipe, or end as a tap
   }
@@ -8954,7 +9102,7 @@ stage.addEventListener('pointermove', e => {
         return;
       }
     }
-    if(swipe.vert){ e.preventDefault(); return; }
+    if(swipe.vert){ e.preventDefault(); dockPull(Math.min(1, -dy / (EDIT_SWIPE*1.6))); return; }
     if(!swipe.dir){
       if(Math.abs(dx) < SWIPE_ARM || Math.abs(dx) <= Math.abs(dy)) return;
       swipe.dir = dx < 0 ? 1 : -1;
@@ -9009,7 +9157,28 @@ async function pointerFinished(e){
   const p = ptrs.get(e.pointerId);
   ptrs.delete(e.pointerId);
 
+  if(pinch && pinch.swipe){
+    // the two-finger page-turn swipe: settle it exactly like a single-finger swipe
+    pinch = null;
+    if(swipe && swipe.dir){
+      const dt = Math.max(1, Date.now()-swipe.t), speed = Math.abs(swipe.dx)/dt;
+      settleSwipe(swipe.canTurn && (Math.abs(swipe.dx) > stageW*0.16 || speed > 0.45));
+    }
+    for(const q of ptrs.values()){ q.consumed = true; }   // the remaining finger must not draw or tap
+    return;
+  }
+
   if(pinch && !pinch.engaged && (!ptrs.has(pinch.ids[0]) || !ptrs.has(pinch.ids[1]))){
+    // never became a real pinch, and never became a page swipe either — a quick
+    // two-finger tap in markup is the fast path for undo (GoodNotes/Procreate)
+    if(V.markup && !pinch.swipe && Date.now() - pinch.t0 < 320){
+      const all = [p, ...ptrs.values()].filter(Boolean);
+      if(all.length && all.every(q => Math.hypot(q.x - q.x0, q.y - q.y0) < TAP_SLOP)){
+        if(undoLast()) flashUndo();
+        for(const q of ptrs.values()) q.consumed = true;
+        pinch = null; return;
+      }
+    }
     // never became a real pinch — drop it and let this pointer be judged as a tap
     pinch = null;
   }
@@ -9068,6 +9237,7 @@ async function pointerFinished(e){
   if(swipe && swipe.vert){
     const dy = p ? p.y - swipe.y0 : 0;
     swipe = null;
+    dockPullEnd();
     if(dy < -EDIT_SWIPE && !V.markup) setMarkup(true);
     return;
   }
@@ -9118,6 +9288,7 @@ function cancelPointer(e){
   if(swipe && swipe.vert){
     const dy = cp ? cp.y - swipe.y0 : 0;
     swipe = null;
+    dockPullEnd();
     if(dy < -EDIT_SWIPE && !V.markup) setMarkup(true);
   }
   else if(swipe && swipe.dir) settleSwipe(false); else swipe = null;
@@ -9200,6 +9371,7 @@ function goPage(n, silent){
   if(V.doc && V.doc.page !== n){ V.doc.page = n; saveIndexSoon(); }
   lastNav = nowMs();
   $('#pLabel').textContent = `${n} / ${V.pdf.numPages}`;
+  if(V.markup) showPageChip(`${n} / ${V.pdf.numPages}`);
   const e = V.cache.get(n);
   if(e && e.sk === stageKey()){
     /* A render already in flight is for a page we have just left, and would
@@ -9240,8 +9412,21 @@ function clearLive(){
   lctx.setTransform(1,0,0,1,0,0);
   lctx.clearRect(0,0,liveCanvas.width,liveCanvas.height);
 }
+function dockProximityCheck(e){
+  if(V.dockMode !== 'floating' || !dockRect) return;
+  const cx = e.clientX, cy = e.clientY;
+  const dx = Math.max(dockRect.left - cx, 0, cx - dockRect.right);
+  const dy = Math.max(dockRect.top - cy, 0, cy - dockRect.bottom);
+  if(Math.hypot(dx, dy) < 110) $('#inkDock').classList.add('dodge');
+}
+let dockDodgeTimer = null;
+function dockDodgeRelease(){
+  clearTimeout(dockDodgeTimer);
+  dockDodgeTimer = setTimeout(() => $('#inkDock').classList.remove('dodge'), 350);
+}
 function beginStroke(e){
   if(inkShifted && !viewAnim) redrawInk();     // the live canvas must sit exactly over the page
+  dockProximityCheck(e);
   if(V.erasing){ stroke = {erase:true}; eraseAt(normPt(e.clientX, e.clientY)); return; }
   const pt = normPt(e.clientX, e.clientY);
   const hl = V.tool === 'highlight';
@@ -9281,6 +9466,7 @@ function beginStroke(e){
 }
 function extendStroke(e){
   if(!stroke) return;
+  dockProximityCheck(e);
   if(stroke.erase){ eraseAt(normPt(e.clientX, e.clientY)); return; }
   const S = inkDpr, W = V.renderW, H = V.renderH;
 
@@ -9347,6 +9533,7 @@ function extendStroke(e){
 }
 function endStroke(){
   if(!stroke) return;
+  dockDodgeRelease();
   const s = stroke; stroke = null;
   clearLive();
   if(!s.erase && s.p.length){
@@ -9370,6 +9557,7 @@ function makeTextMark(pt, text){
 }
 function abortStroke(){
   if(!stroke) return;
+  dockDodgeRelease();
   stroke = null;
   clearLive();
 }
@@ -9383,7 +9571,7 @@ function commitOrCancelStroke(pointerId){
   if(armed) paletteArmedPointer = null;
   if(armed && !movedFar){
     abortStroke();
-    $('#palette').classList.remove('on');
+    togglePalette(false);
   }else{
     endStroke();
   }
@@ -9441,47 +9629,269 @@ function distToSeg(p,a,b){
 }
 
 /* ---------- modes ---------- */
-function showBar(on){
-  $('#bar').classList.toggle('hidden', !on);
-  if(!on) $('#palette').classList.remove('on');
-}
-function setMarkup(on){
-  V.markup = on;
-  V.erasing = false;
-  $('#tPen').classList.toggle('on', on);
-  $('#tErase').classList.remove('on');
-  $('#editFrame').classList.toggle('on', on);
-  for(const id of ['#tColor','#tErase','#tUndo','#mPrev','#mNext','#tPen']) $(id).style.display = on ? 'grid' : 'none';
-  $('#palette').classList.remove('on');
-  if(on){ showBar(true); ensurePresetsLoaded(); refreshPreviewSize(); syncInkPanel(); syncEditFrame(); }
-  else if(V.dirty) saveInk();
-  if(!on && V.pdf) schedulePrefetch(WARM_DELAY);
-}
-$('#tPen').addEventListener('click', () => setMarkup(!V.markup));
-$('#tColor').addEventListener('click', () => {
-  if(V.erasing){ V.erasing = false; $('#tErase').classList.remove('on'); }
-  const open = $('#palette').classList.toggle('on');
+function togglePalette(force){
+  if(V.erasing) setEraser(false);
+  const open = $('#palette').classList.toggle('on', force);
+  $('#tColor').classList.toggle('open', open);
   if(open){ refreshPreviewSize(); syncInkPanel(); }
-});
-$('#tErase').addEventListener('click', () => {
-  V.erasing = !V.erasing;
-  $('#tErase').classList.toggle('on', V.erasing);
-  if(V.erasing) $('#palette').classList.remove('on');
-});
-$('#mPrev').addEventListener('click', () => goPage(V.page-1));
-$('#mNext').addEventListener('click', () => goPage(V.page+1));
-
-$('#tUndo').addEventListener('click', () => {
+  return open;
+}
+function setEraser(on){
+  V.erasing = on;
+  $('#tErase').classList.toggle('on', on);
+  $('#tErase').setAttribute('aria-pressed', String(on));
+  const dot = $('#colorDot'); if(dot) dot.style.opacity = on ? .4 : 1;
+  if(on) togglePalette(false);
+}
+function toggleEraser(){ setEraser(!V.erasing); }
+function undoLast(){
   const u = V.undo.pop();
-  if(!u){ toast('Nothing to undo'); return; }
-  if(u.page !== V.page){ goPage(u.page); setTimeout(()=>applyUndo(u), 0); return; }
-  applyUndo(u);
-});
+  if(!u){ toast('Nothing to undo'); return false; }
+  if(u.page !== V.page){ goPage(u.page); setTimeout(() => applyUndo(u), 0); return true; }
+  applyUndo(u); return true;
+}
 function applyUndo(u){
   const list = V.ink[u.page] || (V.ink[u.page] = []);
   if(u.type === 'add'){ const i = list.findIndex(s => s.id === u.id); if(i>-1) list.splice(i,1); }
   else { list.splice(Math.min(u.index, list.length), 0, u.stroke); }
   redrawInk(); markDirty();
+}
+function flashUndo(){
+  const b = $('#tUndo');
+  b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
+  setTimeout(() => b.classList.remove('pulse'), 260);
+}
+let pageChipTimer;
+function showPageChip(text){
+  const c = $('#pageChip');
+  c.textContent = text;
+  c.classList.add('on');
+  clearTimeout(pageChipTimer);
+  pageChipTimer = setTimeout(() => c.classList.remove('on'), 1100);
+}
+
+function showBar(on){
+  if(V.markup) on = false;                     // the reading bar never shows during markup
+  $('#bar').classList.toggle('hidden', !on);
+  if(!on && !V.markup) togglePalette(false);
+}
+function setMarkup(on){
+  V.markup = on;
+  setEraser(false);
+  $('#editFrame').classList.toggle('on', on);
+  togglePalette(false);
+  const dock = $('#inkDock');
+  if(on){
+    $('#bar').classList.add('hidden');
+    ensurePresetsLoaded(); refreshPreviewSize(); syncInkPanel(); syncEditFrame();
+    placeDock();
+    dock.classList.add('on'); dock.setAttribute('aria-hidden', 'false');
+  }else{
+    dock.classList.remove('on'); dock.setAttribute('aria-hidden', 'true');
+    $('#bar').classList.remove('hidden');
+    if(V.dirty) saveInk();
+  }
+  if(!on && V.pdf) schedulePrefetch(WARM_DELAY);
+}
+
+/* ---------- forgiving press controller ----------
+   All dock buttons have pointer-events:none; the dock element (plus its
+   ::before halo) receives every touch and decides which button was meant,
+   activating the NEAREST one so a miss can never draw on the page. */
+const DOCK_ACTIONS = {
+  nib:   () => togglePalette(),
+  erase: () => toggleEraser(),
+  undo:  () => undoLast() && flashUndo(),
+  done:  () => setMarkup(false),
+};
+let dockPress = null, dockClickMuteUntil = 0;
+let dockLongTimer = null, dockRepeatTimer = null;
+
+function nearestDockButton(x, y){
+  let best = null, bestD = 44;                 // must be within 44px of a button centre
+  for(const b of $$('#inkDock button')){
+    const r = b.getBoundingClientRect();
+    const d = Math.hypot(x - (r.left + r.width/2), y - (r.top + r.height/2));
+    if(d < bestD){ best = b; bestD = d; }
+  }
+  return best;
+}
+
+function overChrome(x, y){
+  const d = $('#inkDock');
+  if(!d.classList.contains('on')) return false;
+  const r = d.getBoundingClientRect();
+  return x > r.left - 14 && x < r.right + 14 && y > r.top - 14 && y < r.bottom + 14;
+}
+
+$('#inkDock').addEventListener('pointerdown', e => {
+  e.preventDefault(); e.stopPropagation();
+  if(dockPress) return;                        // ignore a second finger
+  const btn = nearestDockButton(e.clientX, e.clientY);
+  dockPress = {id:e.pointerId, x0:e.clientX, y0:e.clientY, btn, t:Date.now(), long:false};
+  try{ e.currentTarget.setPointerCapture(e.pointerId); }catch(err){}
+  if(btn) btn.classList.add('pressed');
+  startDockLongPress(dockPress);
+});
+$('#inkDock').addEventListener('pointermove', e => {
+  const p = dockPress; if(!p || p.id !== e.pointerId) return;
+  const dx = e.clientX - p.x0, dy = e.clientY - p.y0;
+  if(Math.hypot(dx, dy) > 14 && p.btn && !p.long){ p.btn.classList.remove('pressed'); p.cancelled = true; clearDockLongPress(); }
+  dockPressMove(p, e, dx, dy);
+});
+function endDockPress(e, cancel){
+  const p = dockPress; if(!p || p.id !== e.pointerId) return;
+  dockPress = null; clearDockLongPress();
+  if(p.btn) p.btn.classList.remove('pressed');
+  if(dockPressEnd(p, e, cancel)) return;       // flick-down / tool-arc pick may consume it
+  if(cancel || p.cancelled || p.long || !p.btn) return;
+  dockClickMuteUntil = Date.now() + 600;
+  DOCK_ACTIONS[p.btn.dataset.act]();
+}
+$('#inkDock').addEventListener('pointerup', e => endDockPress(e, false));
+$('#inkDock').addEventListener('pointercancel', e => endDockPress(e, true));
+// keyboard / VoiceOver activation still works; pointer activations are muted so nothing fires twice
+$('#inkDock').addEventListener('click', e => {
+  if(Date.now() < dockClickMuteUntil) return;
+  const b = e.target.closest('button[data-act]'); if(b) DOCK_ACTIONS[b.dataset.act]();
+});
+
+/* ---------- hold-to-repeat undo, nib long-press tool arc ---------- */
+function clearDockLongPress(){
+  clearTimeout(dockLongTimer); dockLongTimer = null;
+  clearInterval(dockRepeatTimer); dockRepeatTimer = null;
+}
+function startDockLongPress(p){
+  if(!p.btn) return;
+  const act = p.btn.dataset.act;
+  if(act === 'undo'){
+    dockLongTimer = setTimeout(() => {
+      p.long = true;
+      if(!undoLast()){ clearDockLongPress(); return; }
+      flashUndo();
+      dockRepeatTimer = setInterval(() => { if(!undoLast()) clearDockLongPress(); else flashUndo(); }, 110);
+    }, 420);
+  }else if(act === 'nib'){
+    dockLongTimer = setTimeout(() => { p.long = true; openToolArc(p); }, 300);
+  }
+}
+function dockPressMove(p, e, dx, dy){
+  if(p.long && p.btn && p.btn.dataset.act === 'nib'){
+    highlightArcBubble(e.clientX, e.clientY);
+    return;
+  }
+  if(p.btn === $('#tUndo')) return;   // undo has no drag behaviour (tap / hold-to-repeat only)
+  // flick-down dismiss: drag the whole dock down (or toward the screen edge in
+  // vertical mode) past the threshold to end markup, rubber-banded to the finger
+  const vertical = $('#inkDock').classList.contains('vertical');
+  const primary = vertical ? dx : dy;
+  const towardEdge = vertical ? ($('#inkDock').style.left && parseFloat($('#inkDock').style.left) > stageW/2 ? dx > 28 : dx < -28) : dy > 28;
+  if(towardEdge && Math.abs(primary) > Math.abs(vertical ? dy : dx)){
+    p.dismiss = true;
+    const d = $('#inkDock');
+    d.classList.add('pulling');
+    d.style.transform = vertical
+      ? `translate(${dx*0.6}px,-50%)`
+      : `translate(-50%,${dy*0.6}px)`;
+  }
+}
+function dockPressEnd(p, e, cancel){
+  if(p.long && p.btn && p.btn.dataset.act === 'nib'){
+    closeToolArc(!cancel);
+    return true;
+  }
+  if(p.dismiss){
+    const d = $('#inkDock');
+    d.classList.remove('pulling');
+    d.style.transform = '';
+    if(!cancel) setMarkup(false);
+    return true;
+  }
+  return false;
+}
+
+/* ---------- swipe-up physically pulls the dock into place ---------- */
+function dockPull(progress){
+  const dock = $('#inkDock');
+  if(!V.markup) placeDock();
+  dock.classList.add('pulling');
+  const vertical = dock.classList.contains('vertical');
+  dock.style.opacity = progress;
+  dock.style.transform = vertical
+    ? `translate(${(1-progress)*40}px,-50%) scale(${.94 + .06*progress})`
+    : `translate(-50%,${(1-progress)*40}px) scale(${.94 + .06*progress})`;
+  const ef = $('#editFrame'); if(ef) ef.style.opacity = progress;
+}
+function dockPullEnd(){
+  const dock = $('#inkDock');
+  dock.classList.remove('pulling');
+  dock.style.opacity = ''; dock.style.transform = '';
+  const ef = $('#editFrame'); if(ef) ef.style.opacity = '';
+}
+
+/* ---------- nib long-press tool arc (Pen / Highlighter / Note / Text) ---------- */
+const ARC_TOOLS = [
+  {tool:'pen',       label:'Pen',        svg:'<path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/>'},
+  {tool:'highlight', label:'Marker',     svg:'<path d="M5 19l3-3 8-8 2 2-8 8-3 3H5v-2z"/><path d="M13 6l5 5"/>'},
+  {tool:'note',      label:'Note',       svg:'<circle cx="8" cy="17" r="3"/><path d="M11 17V5l7-2v11"/>'},
+  {tool:'text',      label:'Text',       svg:'<path d="M5 6h14"/><path d="M12 6v14"/>'},
+];
+function setTool(tool){
+  const prev = V.tool;
+  V.tool = tool;
+  if(V.tool === 'note' && prev !== 'note'){
+    V.savedColor = {h:V.hue, s:V.sat, l:V.tone};
+    V.hue = 0; V.sat = 0; V.tone = 0;
+  }else if(prev === 'note' && V.tool !== 'note' && V.savedColor){
+    V.hue = V.savedColor.h; V.sat = V.savedColor.s; V.tone = V.savedColor.l;
+    V.savedColor = null;
+  }
+  setEraser(false);
+  $$('#toolSeg button').forEach(x => x.classList.toggle('on', x.dataset.tool === V.tool));
+  $('#palette').classList.toggle('noteMode', V.tool === 'note');
+  $('#palette').classList.toggle('textMode', V.tool === 'text');
+  refreshPreviewSize();
+  syncInkPanel();
+}
+function openToolArc(p){
+  togglePalette(false);
+  const dock = $('#inkDock');
+  const arc = $('#toolArc');
+  const vertical = dock.classList.contains('vertical');
+  const R = 84;
+  const anglesH = [160, 120, 60, 20];
+  const anglesVRight = [200, 160, 120, 90];   // fan toward the page, mirrored below
+  const anglesVLeft  = [110, 150, 210, 250];
+  const angles = !vertical ? anglesH : (dock.getBoundingClientRect().left > stageW/2 ? anglesVLeft : anglesVRight);
+  arc.innerHTML = ARC_TOOLS.map((t,i) => {
+    const rad = angles[i]*Math.PI/180;
+    const tx = Math.cos(rad)*R, ty = -Math.sin(rad)*R;
+    return `<div class="bubble${t.tool===V.tool?' near':''}" data-tool="${t.tool}" style="--tx:${tx}px;--ty:${ty}px;transition-delay:${i*25}ms">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${t.svg}</svg>
+      <span>${t.label}</span></div>`;
+  }).join('');
+  arc.classList.add('on');
+  arc.setAttribute('aria-hidden', 'false');
+}
+function highlightArcBubble(x, y){
+  const arc = $('#toolArc');
+  let best = null, bestD = 40;
+  for(const b of $$('#toolArc .bubble')){
+    const r = b.getBoundingClientRect();
+    const d = Math.hypot(x - (r.left+r.width/2), y - (r.top+r.height/2));
+    if(d < bestD){ best = b; bestD = d; }
+  }
+  $$('#toolArc .bubble').forEach(b => b.classList.toggle('near', b === best || (!best && b.dataset.tool === V.tool)));
+}
+function closeToolArc(commit){
+  const arc = $('#toolArc');
+  if(commit){
+    const chosen = arc.querySelector('.bubble.near');
+    if(chosen) setTool(chosen.dataset.tool);
+  }
+  arc.classList.remove('on');
+  arc.setAttribute('aria-hidden', 'true');
+  setTimeout(() => { if(!arc.classList.contains('on')) arc.innerHTML = ''; }, 220);
 }
 
 /* ---------- saving ---------- */
@@ -9583,10 +9993,12 @@ async function exportDoc(id){
 let rt;
 window.addEventListener('resize', () => {
   if(!$('#viewer').classList.contains('open')) return;
+  readSafeInsets(); if(V.markup) placeDock();
   clearTimeout(rt); rt = setTimeout(() => { abortPrefetch(); measure(); renderPage(); }, 180);
 });
 window.addEventListener('orientationchange', () => setTimeout(() => {
   if(window.visualViewport && visualViewport.scale > 1.01) resetPageZoom();
+  readSafeInsets(); if(V.markup) placeDock();
   abortPrefetch(); measure(); renderPage();
 }, 320));
 document.addEventListener('gesturestart', e => e.preventDefault());
@@ -9637,6 +10049,7 @@ function registerServiceWorker(){
   navigator.serviceWorker.register('sw.js').catch(err => console.warn('Offline caching unavailable:', err));
 }
 
+readSafeInsets();
 boot();
 requestDurableStorage();
 registerServiceWorker();
