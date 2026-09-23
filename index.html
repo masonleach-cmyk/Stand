@@ -96,7 +96,6 @@ html{touch-action:manipulation}
 .chip .n{font-size:12px;color:inherit;opacity:.62}
 .chip.add{color:var(--text-faint);border-style:dashed}
 .libprog{padding:8px 20px 0}
-html,body{background:var(--slate)}
 .mainseg{margin:14px 20px 0 !important}
 .mainseg button{height:32px;font-size:14px;font-weight:500}
 .fbar{display:flex;align-items:center;gap:10px;padding:10px 20px 2px;flex:none;min-height:44px}
@@ -689,7 +688,8 @@ button.pd-rank:active{opacity:.7}
 #ceShow{flex:1.3}
 
 /* ---------- viewer: bounded, GPU-composited layers ---------- */
-.stage{position:absolute;inset:0;overflow:hidden;touch-action:none;background:#000;contain:strict}
+.stage{position:absolute;inset:0;overflow:hidden;touch-action:none;background:#000;contain:strict;
+  -webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .pagewrap,.ghostwrap{
   position:absolute;left:0;top:0;background:var(--paper);
   will-change:transform;transform:translate3d(0,0,0);backface-visibility:hidden;
@@ -1113,10 +1113,10 @@ svg{display:block}
     </button>
 
     <button id="mPrev" aria-label="Previous page" style="display:none">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 5l-6 7 6 7"/><path d="M11 5l-6 7 6 7"/></svg>
     </button>
     <button id="mNext" aria-label="Next page" style="display:none">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5l6 7-6 7"/><path d="M13 5l6 7-6 7"/></svg>
     </button>
 
     <span class="spacer"></span>
@@ -1125,14 +1125,14 @@ svg{display:block}
 
     <button id="tColor" aria-label="Ink color" style="display:none"><i class="dot" id="colorDot"></i></button>
     <button id="tErase" aria-label="Eraser" style="display:none">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8.6 19H19"/><path d="M15.6 5.4l3 3a1.6 1.6 0 010 2.3l-7 7a1.6 1.6 0 01-2.3 0l-3-3a1.6 1.6 0 010-2.3l7-7a1.6 1.6 0 012.3 0z"/></svg>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 19.5h10"/><path d="M6.7 15.3l6-6a2 2 0 012.83 0l2.6 2.6a2 2 0 010 2.83l-6 6a2 2 0 01-2.83 0l-2.6-2.6a2 2 0 010-2.83z"/><path d="M12.2 10.8l4.5 4.5"/></svg>
     </button>
     <button id="tUndo" aria-label="Undo" style="display:none">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h10a5 5 0 010 10h-4"/><path d="M7.5 5.5L4 9l3.5 3.5"/></svg>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h9.5a5.5 5.5 0 010 11h-3.5"/><path d="M8 4.5L4 8.5l4 4"/></svg>
     </button>
 
     <button id="tPen" aria-label="Done" style="display:none">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.3"/><path d="M8 12.3l2.6 2.6L16.2 9"/></svg>
     </button>
     <i class="unsaved" id="unsaved"></i>
   </div>
@@ -1347,6 +1347,10 @@ svg{display:block}
   <div class="grab"></div>
   <h3 id="secHead">Sections</h3>
   <div class="seclist" id="secList"></div>
+  <div class="field" id="secAutoField" style="display:none">
+    <label>Known movements</label>
+    <div class="fchips" id="secAuto"></div>
+  </div>
   <div class="field" id="secAddField">
     <label for="secName">Name</label>
     <input id="secName" type="text" placeholder="e.g. II. Adagio cantabile" autocomplete="off" autocorrect="off" maxlength="60">
@@ -1365,6 +1369,7 @@ svg{display:block}
 <div class="busy" id="busy"><div><div class="spin"></div><p id="busyText">Working</p></div></div>
 <input type="file" id="picker" accept="application/pdf,.pdf" multiple style="position:fixed;left:-9999px">
 <div class="textGhost" id="textGhost"></div>
+<canvas class="textGhost" id="noteGhost"></canvas>
 <input type="file" id="workPicker" accept="application/pdf,.pdf" style="position:fixed;left:-9999px">
 
 <script>
@@ -4955,6 +4960,9 @@ async function addPracticeSession(session){
   S.practice.sessions.push(session);
   try{ await DB.set(K.practice, S.practice); }
   catch(e){ toast('Could not save practice time. ' + e.message); }
+  // Any logged practice time, however brief, marks the piece practiced.
+  const d = S.docs.find(x => x.id === session.pieceId);
+  if(d && !d.practiced){ d.practiced = true; saveIndexSoon(); }
   return session;
 }
 
@@ -7451,6 +7459,72 @@ function endTextDrag(e, cancel){
 window.addEventListener('pointerup', e => endTextDrag(e, false));
 window.addEventListener('pointercancel', e => endTextDrag(e, true));
 
+/* ---------- dragging straight from the big preview box ----------
+   Text already had the small "Drag" chip; notes had no drag at all — you
+   could only tap the page after picking a glyph. This lets the preview box
+   itself (the thing you're already looking at to see what you picked) be
+   the drag handle for both, same ghost-follows-finger interaction. */
+function makeNoteMark(pt){
+  return { id:uid(), t:'n', k:V.note, c:colorNow(), sl:V.stem, tl:V.tilt, fl:V.flip ? 1 : 0,
+           w:V.size*NOTE_MULT*V.zoom/V.renderW, p:[pt] };
+}
+let noteDrag = null;
+window.addEventListener('pointermove', e => {
+  if(!noteDrag || e.pointerId !== noteDrag.id) return;
+  if(!noteDrag.on){
+    if(Math.hypot(e.clientX - noteDrag.x0, e.clientY - noteDrag.y0) < 6) return;
+    noteDrag.on = true;
+    $('#palette').classList.add('dragging');
+  }
+  e.preventDefault();
+  const g = $('#noteGhost'), d = Math.min(window.devicePixelRatio || 1, 2);
+  const gh = V.size*NOTE_MULT*V.zoom;   // css-px glyph height — same math as the palette's own preview
+  const cw = Math.max(20, gh*0.9), ch = Math.max(30, gh*(0.66*V.stem + 0.3) + 14);
+  g.style.width = cw + 'px'; g.style.height = ch + 'px';
+  const bw = Math.round(cw*d), bh = Math.round(ch*d);
+  if(g.width !== bw) g.width = bw;
+  if(g.height !== bh) g.height = bh;
+  const ctx = g.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,g.width,g.height);
+  let up = gh*d*(0.66*V.stem + 0.13), down = gh*d*0.15;
+  if(V.flip){ const t = up; up = down; down = t; }
+  drawNoteGlyph(ctx, V.note, g.width/2, (g.height + up - down)/2, gh*d, colorNow(), V.stem, V.tilt, V.flip);
+  g.style.display = 'block';
+  noteDrag.h = ch;   // remembered so the drop lands exactly where the ghost was shown
+  g.style.left = e.clientX + 'px';
+  g.style.top = (e.clientY - ch/2 - 34) + 'px';
+}, {passive:false});
+function endNoteDrag(e, cancel){
+  if(!noteDrag || e.pointerId !== noteDrag.id) return;
+  const d = noteDrag; noteDrag = null;
+  $('#noteGhost').style.display = 'none';
+  $('#palette').classList.remove('dragging');
+  if(!d.on || cancel || !V.pdf || !V.markup) return;
+  const x = e.clientX, y = e.clientY - d.h/2 - 34;
+  syncStageOrigin();
+  const bar = $('#bar').getBoundingClientRect();
+  const r = $('#stage').getBoundingClientRect();
+  if(x < r.left || x > r.right || y < r.top || y > r.bottom || (y > bar.top && !$('#bar').classList.contains('hidden'))) return;
+  const pt = normPt(x, y);
+  if(pt[0] < -0.05 || pt[0] > 1.05 || pt[1] < -0.05 || pt[1] > 1.05){ toast('Drop the note onto the page'); return; }
+  if(inkShifted && !viewAnim) redrawInk();
+  addMark(makeNoteMark(pt));
+  markDirty();
+}
+window.addEventListener('pointerup', e => endNoteDrag(e, false));
+window.addEventListener('pointercancel', e => endNoteDrag(e, true));
+$('#previewBox').addEventListener('pointerdown', e => {
+  if(e.pointerType === 'mouse' && e.button !== 0) return;
+  if(V.tool === 'text'){
+    if(!V.text){ toast('Type some text or pick a fingering number first'); return; }
+    e.preventDefault();
+    textDrag = { id:e.pointerId, x0:e.clientX, y0:e.clientY, on:false, text:V.text };
+  }else if(V.tool === 'note'){
+    e.preventDefault();
+    noteDrag = { id:e.pointerId, x0:e.clientX, y0:e.clientY, on:false };
+  }
+});
+
 /* ---------- note stamp picker ---------- */
 (function buildNoteSel(){
   const host = $('#noteSel');
@@ -7491,6 +7565,13 @@ document.addEventListener('pointercancel', () => { outsideTouch = null; });
 // iOS's own pinch-to-zoom arrives as gesture events; the app does its own zoom.
 for(const t of ['gesturestart', 'gesturechange', 'gestureend'])
   document.addEventListener(t, e => e.preventDefault(), {passive:false});
+// A long press on the page must draw/erase, not open iOS's copy/Look Up
+// callout or Android's image context menu. -webkit-touch-callout:none on
+// .stage handles Safari's long-press menu; this covers the rest (right-click,
+// long-press-to-select elsewhere) so a stray finger over the page never
+// triggers a text-selection or context-menu popover instead of a mark.
+stage.addEventListener('contextmenu', e => e.preventDefault());
+stage.addEventListener('selectstart', e => e.preventDefault());
 // If the page gets zoomed anyway — pinch, or iOS's own post-rotation zoom
 // bug — snap it back and re-read positions. Toggling the viewport meta is
 // the standard nudge, but a single toggle right after a rotation sometimes
@@ -7647,6 +7728,19 @@ function renderSections(){
     </div>`).join('') : `<div class="hint" style="padding:4px 2px 14px">No named sections yet — name one and pick its page below.</div>`;
   $('#secName').value = '';
   $('#secPage').innerHTML = pageOptionsHtml(total, curPage);
+  // For a piece linked to a catalogued work, offer its own movement names as
+  // one-tap fills — no need to retype "II. Adagio cantabile" by hand when the
+  // catalogue already has it.
+  const wk = workKeyOf(d);
+  const auto = $('#secAuto'), autoField = $('#secAutoField');
+  if(wk != null && d.composer){
+    const have = new Set(list.map(s => s.name.trim().toLowerCase()));
+    const parts = (workInfo(d.composer, wk).parts || []).filter(p => p[0] && !have.has(p[0].trim().toLowerCase()));
+    if(parts.length){
+      auto.innerHTML = parts.map(p => `<button type="button" data-name="${esc(p[0])}">${esc(p[0])}</button>`).join('');
+      autoField.style.display = '';
+    }else{ autoField.style.display = 'none'; auto.innerHTML = ''; }
+  }else{ autoField.style.display = 'none'; auto.innerHTML = ''; }
 }
 function commitSectionEdit(id){
   const d = S.docs.find(x => x.id === SEC.docId); if(!d) return;
@@ -7680,6 +7774,11 @@ $('#secList').addEventListener('click', e => {
 });
 $('#secList').addEventListener('keydown', e => {
   if(e.target.id === 'secEditInput' && e.key === 'Enter'){ e.preventDefault(); commitSectionEdit(SEC.editing); }
+});
+$('#secAuto').addEventListener('click', e => {
+  const b = e.target.closest('button[data-name]'); if(!b) return;
+  $('#secName').value = b.dataset.name;
+  $('#secPage').focus();
 });
 $('#secAdd').addEventListener('click', () => {
   const d = S.docs.find(x => x.id === SEC.docId); if(!d) return;
@@ -8657,12 +8756,30 @@ function paintStroke(ctx, s, ox, oy, S){
 }
 
 // Full repaint: only on page change, zoom, pan-end, erase, undo. Culls offscreen marks.
+/* The blue "you're in markup mode" glow (#editFrame) used to just span the
+   whole screen, so on any page that doesn't fill the device edge-to-edge it
+   floated off into the letterboxing instead of framing the page. At fit
+   zoom it now hugs the actual rendered page; once you zoom in the page can
+   run off-screen in any direction, so there's nothing sensible to hug and
+   it falls back to framing the screen itself. */
+function syncEditFrame(){
+  const el = $('#editFrame'); if(!el) return;
+  if(V.zoom > 1.001){
+    el.style.left = ''; el.style.top = ''; el.style.right = ''; el.style.bottom = '';
+    el.style.width = ''; el.style.height = '';
+  }else{
+    el.style.left = panX + 'px'; el.style.top = panY + 'px';
+    el.style.width = V.renderW + 'px'; el.style.height = V.renderH + 'px';
+    el.style.right = 'auto'; el.style.bottom = 'auto';
+  }
+}
 function redrawInk(){
   inkAtX = panX; inkAtY = panY;
   inkShifted = false;
   inkLayer.style.transform = 'translate3d(0,0,0)';
   ictx.setTransform(1,0,0,1,0,0);
   ictx.clearRect(0,0,inkCanvas.width,inkCanvas.height);
+  syncEditFrame();
   const list = V.ink[V.page];
   if(!list || !list.length) return 0;
   const vx0 = (-panX)/V.renderW, vx1 = (stageW-panX)/V.renderW;
@@ -8680,6 +8797,7 @@ function redrawInk(){
 /* ---------- gestures ---------- */
 const ptrs = new Map();
 let stroke=null, pinch=null, swipe=null, panning=false, movedFar=false, liveAnchor=null;
+let paletteArmedPointer = null;   // pointerId of a pen/highlight stroke begun while the palette was open
 let inkAtX=0, inkAtY=0;   // the pan the ink canvas was last rasterized at
 let panRawX = null, panRawY = null;   // unresisted pan while a drag is live
 
@@ -8755,9 +8873,16 @@ stage.addEventListener('pointerdown', e => {
   if(ptrs.size > 2) return;
 
   movedFar = false; panning = false;
-  // with the colour menu open the page is inert: the tap that dismisses it must
-  // never also leave a mark
-  if(V.markup && !$('#palette').classList.contains('on')) beginStroke(e);
+  // With the palette open, pen/highlighter can still draw — a real stroke
+  // goes down on the page without disturbing the palette. Only a stroke that
+  // never moves (a plain tap) is treated as tap-to-dismiss instead, handled
+  // in commitOrCancelStroke() once we know whether it moved.
+  const paletteOpen = $('#palette').classList.contains('on');
+  const canDrawBehindPalette = paletteOpen && !V.erasing && (V.tool === 'pen' || V.tool === 'highlight');
+  if(V.markup && (!paletteOpen || canDrawBehindPalette)){
+    if(canDrawBehindPalette) paletteArmedPointer = e.pointerId;
+    beginStroke(e);
+  }
   else {
     // At fit, anywhere. When zoomed, anywhere that is not on the page itself —
     // the letterbox around it has nothing to pan, so a swipe there is a gesture.
@@ -8938,7 +9063,7 @@ async function pointerFinished(e){
     return;
   }
 
-  if(stroke){ endStroke(); return; }
+  if(stroke){ commitOrCancelStroke(e.pointerId); return; }
 
   if(swipe && swipe.vert){
     const dy = p ? p.y - swipe.y0 : 0;
@@ -8987,7 +9112,7 @@ function cancelPointer(e){
   if(!ptrs.has(e.pointerId)) return;
   const cp = ptrs.get(e.pointerId);
   ptrs.delete(e.pointerId);
-  if(stroke) endStroke();
+  if(stroke) commitOrCancelStroke(e.pointerId);
   // A swipe that carries on off the edge of the screen is cancelled rather than
   // released, so honour it here too instead of silently dropping the gesture.
   if(swipe && swipe.vert){
@@ -9248,6 +9373,47 @@ function abortStroke(){
   stroke = null;
   clearLive();
 }
+// A pen/highlight stroke begun while the palette was open commits normally
+// once it actually moves; if it never moved (a plain tap) there's no dot to
+// leave, so undo it and close the palette instead — the tap did what taps
+// on an open palette have always done.
+function commitOrCancelStroke(pointerId){
+  if(!stroke) return;
+  const armed = paletteArmedPointer === pointerId;
+  if(armed) paletteArmedPointer = null;
+  if(armed && !movedFar){
+    abortStroke();
+    $('#palette').classList.remove('on');
+  }else{
+    endStroke();
+  }
+}
+let hitCanvas = null, hitCtx = null;
+// Text stamps and note glyphs don't fill their bounding box — a "5" is
+// narrow, a note glyph is mostly whitespace with a stem off to one side —
+// so testing against bboxOf() alone erases on empty space around the glyph.
+// This renders just that one glyph, alone, into a small offscreen canvas at
+// the exact size/position it's drawn on screen, then reads back the single
+// pixel under the eraser to see if real ink is actually there.
+function hitsGlyph(s, pt){
+  const W = V.renderW, H = V.renderH, S = inkDpr;
+  const b = bboxOf(s);
+  const cw = Math.min(600, Math.max(8, Math.ceil((b[2]-b[0])*W*S) + 6));
+  const ch = Math.min(600, Math.max(8, Math.ceil((b[3]-b[1])*H*S) + 6));
+  if(!hitCanvas){ hitCanvas = document.createElement('canvas'); hitCtx = hitCanvas.getContext('2d'); }
+  if(hitCanvas.width !== cw) hitCanvas.width = cw;
+  if(hitCanvas.height !== ch) hitCanvas.height = ch;
+  hitCtx.clearRect(0, 0, cw, ch);
+  const cx = cw/2, cy = ch/2, h = s.w*W*S;
+  if(s.t === 'x') drawTextMark(hitCtx, s, cx, cy, h);
+  else drawNoteGlyphAlpha(hitCtx, s, cx, cy, h);
+  // same offset from the glyph's anchor point in both the render above and the
+  // query below, so pan/zoom cancel out and this always lands on the same spot
+  const qx = Math.round(cx + (pt[0]-s.p[0][0])*W*S);
+  const qy = Math.round(cy + (pt[1]-s.p[0][1])*H*S);
+  if(qx < 0 || qy < 0 || qx >= cw || qy >= ch) return false;
+  return hitCtx.getImageData(qx, qy, 1, 1).data[3] > 24;
+}
 function eraseAt(pt){
   const list = strokesHere();
   const tol = 0.5/V.renderW;   // fixed 1-device-pixel-wide hit box, regardless of pen size or zoom
@@ -9256,7 +9422,7 @@ function eraseAt(pt){
     const s = list[i];
     const b = bboxOf(s);
     if(pt[0]<b[0]-tol||pt[0]>b[2]+tol||pt[1]<b[1]-tol||pt[1]>b[3]+tol) continue;
-    const near = s.t === 'x' || s.p.some((p,j) => {
+    const near = (s.t === 'x' || s.t === 'n') ? hitsGlyph(s, pt) : s.p.some((p,j) => {
       if(Math.hypot(p[0]-pt[0], p[1]-pt[1]) < tol + s.w/2) return true;
       if(j === 0) return false;
       return distToSeg(pt, s.p[j-1], p) < tol + s.w/2;
@@ -9287,7 +9453,7 @@ function setMarkup(on){
   $('#editFrame').classList.toggle('on', on);
   for(const id of ['#tColor','#tErase','#tUndo','#mPrev','#mNext','#tPen']) $(id).style.display = on ? 'grid' : 'none';
   $('#palette').classList.remove('on');
-  if(on){ showBar(true); ensurePresetsLoaded(); refreshPreviewSize(); syncInkPanel(); }
+  if(on){ showBar(true); ensurePresetsLoaded(); refreshPreviewSize(); syncInkPanel(); syncEditFrame(); }
   else if(V.dirty) saveInk();
   if(!on && V.pdf) schedulePrefetch(WARM_DELAY);
 }
