@@ -1767,13 +1767,25 @@ function idbRunOnce(mode, fn){
   }));
 }
 
+// Restored files are kept as raw bytes rather than Blobs. WebKit's IndexedDB
+// can refuse a Blob built in memory ("Error preparing Blob/File data to be
+// stored in object store") and can mis-store one sliced from a picked file.
+// DB.get turns them back into the File/Blob every caller expects.
+const BYTES_TAG = 'stand-bytes';
+function packBytes(buf, type, name){ return { [BYTES_TAG]:1, buf, type:type || '', name:name || '' }; }
+function unpackBytes(v){
+  if(v && typeof v === 'object' && v[BYTES_TAG] === 1 && v.buf instanceof ArrayBuffer)
+    return v.name ? new File([v.buf], v.name, {type:v.type}) : new Blob([v.buf], {type:v.type});
+  return v;
+}
+
 const DB = {
   async get(k){
-    if(mem.has(k)) return mem.get(k);
+    if(mem.has(k)) return unpackBytes(mem.get(k));
     if(idbBroken) return null;
     try{
       const v = await idbRun('readonly', s => s.get(k));
-      return v === undefined ? null : v;
+      return v === undefined ? null : unpackBytes(v);
     }catch(e){ return null; }
   },
   async set(k, v){
@@ -11484,15 +11496,21 @@ async function readZip(file){
             { method:cd.getUint16(q + 10, true), size:cd.getUint32(q + 20, true), lo:cd.getUint32(q + 42, true) });
     q += 46 + nl + xl + cl;
   }
+  // An entry's own bytes, copied out of the picked file (never a slice of it:
+  // WebKit can store a sliced Blob as the whole original file).
+  async function bytes(name){
+    const e = map.get(name); if(!e) return null;
+    if(e.method !== 0) throw new Error('this zip was re-compressed. Pick the original backup file');
+    const lh = new DataView(await file.slice(e.lo, e.lo + 30).arrayBuffer());
+    const start = e.lo + 30 + lh.getUint16(26, true) + lh.getUint16(28, true);
+    const buf = await file.slice(start, start + e.size).arrayBuffer();
+    if(buf.byteLength !== e.size) throw new Error('backup entry is truncated');
+    return buf;
+  }
   return {
     names:[...map.keys()],
-    async blob(name){
-      const e = map.get(name); if(!e) return null;
-      if(e.method !== 0) throw new Error('this zip was re-compressed. Pick the original backup file');
-      const lh = new DataView(await file.slice(e.lo, e.lo + 30).arrayBuffer());
-      const start = e.lo + 30 + lh.getUint16(26, true) + lh.getUint16(28, true);
-      return file.slice(start, start + e.size);
-    }
+    bytes,
+    async blob(name){ const b = await bytes(name); return b && new Blob([b]); }
   };
 }
 
@@ -11595,8 +11613,8 @@ async function restoreLibrary(file){
       $('#busyText').textContent = `Restoring ${++i} of ${man.items.length}`;
       let v;
       if(it.blob){
-        const b = await zip.blob(it.blob); if(!b) continue;
-        v = it.fname ? new File([b], it.fname, {type:it.type || ''}) : new Blob([b], {type:it.type || ''});
+        const buf = await zip.bytes(it.blob); if(!buf) continue;
+        v = packBytes(buf, it.type, it.fname);
       }else v = it.value;
       await DB.set(it.key, v);
       keep.add(it.key);
