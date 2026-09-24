@@ -11451,14 +11451,18 @@ async function buildZip(entries){
   let off = 0;
   for(const e of entries){
     const name = enc.encode(e.name);
-    const crc = crc32(new Uint8Array(await e.blob.arrayBuffer()));
-    const size = e.blob.size;
+    // Size, checksum and contents all come from the same bytes. Trusting
+    // blob.size while writing the blob itself let WebKit put more data in the
+    // zip than its headers said, which broke every entry after it.
+    const bytes = new Uint8Array(await e.blob.arrayBuffer());
+    const crc = crc32(bytes);
+    const size = bytes.length;
     const h = new DataView(new ArrayBuffer(30));
     h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true);
     h.setUint16(10, dtime, true); h.setUint16(12, ddate, true);
     h.setUint32(14, crc, true); h.setUint32(18, size, true); h.setUint32(22, size, true);
     h.setUint16(26, name.length, true);
-    parts.push(h.buffer, name, e.blob);
+    parts.push(h.buffer, name, bytes);
     const c = new DataView(new ArrayBuffer(46));
     c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true);
     c.setUint16(12, dtime, true); c.setUint16(14, ddate, true);
