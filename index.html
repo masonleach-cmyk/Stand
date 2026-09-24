@@ -124,6 +124,11 @@ input,textarea,select{font-family:inherit;font-size:16px;color:inherit}
    pinch that began on a bar button or the palette used to zoom the WHOLE app,
    which could push the back button off screen and throw touch positions off. */
 html{touch-action:manipulation}
+/* iOS Safari boosts font sizes to keep text "readable" after certain layout
+   changes, rotation included — flipping the phone and back can leave every
+   bit of text oversized until the page reloads. Turning this auto-inflation
+   off keeps our own font sizes in charge at all times. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 #viewer{touch-action:none}
 #viewer .palette{touch-action:pan-y}
 
@@ -467,7 +472,7 @@ html{overscroll-behavior:none}
 .prow.quiet .nm{color:var(--text-dim)}
 .prow .badge{flex:none;font-size:10.5px;padding:2px 7px;border-radius:9px;background:var(--slate-3);color:var(--text-dim);border:1px solid var(--line)}
 .prow .badge.warn{color:#C9A45C}
-.prow .badge.works{color:var(--pencil-hi);border-color:color-mix(in srgb,var(--pencil) 45%,transparent);padding:5px 10px;font-size:12px}
+.prow .badge.info{color:var(--pencil-hi);border-color:color-mix(in srgb,var(--pencil) 45%,transparent);padding:5px 10px;font-size:12px}
 .pnote{padding:14px 10px 6px;color:var(--text-faint);font-size:13.5px}
 mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 
@@ -6135,10 +6140,10 @@ function composerSub(e, used){
 }
 const TICK = '<svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 function composerRow(e, used, attrs, selected, worksLink){
-  const works = worksLink && WORKS[e.name] ? `<span class="badge works" data-works="${esc(e.name)}">Works ›</span>` : '';
+  const info = worksLink && WORKS[e.name] ? `<span class="badge info" data-info="${esc(e.name)}">Info</span>` : '';
   return `<button class="prow${selected ? ' sel' : ''}" ${attrs}>
     <span class="tx"><span class="nm">${esc(e.name)}</span><span class="sub">${esc(composerSub(e, used))}</span></span>
-    ${e.custom ? '<span class="badge">Added</span>' : ''}${works}${selected ? TICK : ''}</button>`;
+    ${e.custom ? '<span class="badge">Added</span>' : ''}${info}${selected ? TICK : ''}</button>`;
 }
 
 /* ---------- the details field ---------- */
@@ -7126,11 +7131,11 @@ $('#clList').addEventListener('click', e => {
   if(sec){ $('#clQ').blur(); return openSections(sec.dataset.sec); }
   const doc = e.target.closest('[data-doc]');
   if(doc){ $('#clQ').blur(); return openDoc(doc.dataset.doc); }
-  const wl = e.target.closest('[data-works]');
-  if(wl){ $('#clQ').blur(); return openWorks(wl.dataset.works); }
+  const info = e.target.closest('[data-info]');
+  if(info){ $('#clQ').blur(); return openComposerEditor(findComposer(info.dataset.info), {}); }
   const b = e.target.closest('button'); if(!b) return;
   $('#clQ').blur();
-  if(b.dataset.open != null) openComposerEditor(findComposer(b.dataset.open), {});
+  if(b.dataset.open != null) openWorks(b.dataset.open);
   else if(b.dataset.new != null) openComposerEditor(null, { name: b.dataset.new });
   else if(b.dataset.stray != null) openComposerEditor(null, { name: b.dataset.stray, renameFrom: b.dataset.stray });
 });
