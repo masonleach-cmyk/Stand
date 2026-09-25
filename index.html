@@ -1072,6 +1072,7 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 
 /* ---------- split and merge ---------- */
 #mSplit,#mMerge{z-index:48}
+#mWorkPick{z-index:49}   /* opened from Split's naming step too */
 .linkbtn.strong{font-weight:600}
 .linkbtn:disabled{opacity:.35}
 #mDetails .btn:disabled{opacity:.4}
@@ -1116,6 +1117,9 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .sp-piece .sp-sheet{flex:none;width:58px}
 .sp-piece .field{flex:1;min-width:0;margin:0}
 .sp-piece .field input{font-size:15px;padding:9px 11px;border-radius:9px}
+.sp-work{margin-top:6px}
+.sp-work[hidden]{display:none}
+.sp-work .pickfield{font-size:14px;padding:8px 11px;border-radius:9px;min-height:0}
 .sp-note{margin:14px 2px 0;font-size:12.5px;line-height:1.5;color:var(--text-faint)}
 .mg-body{padding-left:16px;padding-right:16px}
 .mg-body .field{margin:6px 0 0}
@@ -6152,6 +6156,7 @@ $('#dWork').addEventListener('click', () => {
   if(!((d.composer && WORKS[d.composer]) || []).length) return;
   openWorkPicker(d.composer, workKeyOf(d) || '', key => {
     d.workKey = key;
+    delete d.noWork;
     d.title = workCanon(d.composer, key);
     $('#dTitle').value = d.title;
     setWorkField();
@@ -6166,16 +6171,17 @@ $('#dUnlink').addEventListener('click', () => {
   renderDetailsPractice(d);
   commitDetails();
 });
-const WP = { name:null, onPick:null, value:'' };
-function openWorkPicker(name, current, onPick){
-  WP.name = name; WP.onPick = onPick; WP.value = current;
+const WP = { name:null, onPick:null, value:'', none:false };
+// opts.none adds a "Not linked" choice at the top, which picks null.
+function openWorkPicker(name, current, onPick, opts){
+  WP.name = name; WP.onPick = onPick; WP.value = current; WP.none = !!(opts && opts.none);
   $('#wpQ').value = '';
   renderWorkPicker();
   $('#wpList').scrollTop = 0;
   $('#mWorkPick').classList.add('on');
   try{ $('#wpQ').focus({preventScroll:true}); }catch(e){}
 }
-function closeWorkPicker(){ $('#mWorkPick').classList.remove('on'); $('#wpQ').blur(); }
+function closeWorkPicker(){ $('#mWorkPick').classList.remove('on'); $('#wpQ').blur(); SP.onPickWork = false; }
 function pickWork(key){ closeWorkPicker(); if(WP.onPick) WP.onPick(key); }
 function renderWorkPicker(){
   const q = normWork($('#wpQ').value || '');
@@ -6186,10 +6192,14 @@ function renderWorkPicker(){
     return `<button class="prow${key === cur ? ' sel' : ''}" data-pick="${esc(key)}"><span class="tx"><span class="nm">${esc(shown)}</span><span class="sub">${esc(catalogueLabel(key))}</span></span>${key === cur ? TICK : ''}</button>`;
   };
   const hits = q ? list.filter(([key, title]) => normWork(title + ' ' + key + ' ' + workShown(WP.name, key)).includes(q)) : list;
-  $('#wpList').innerHTML = hits.length ? hits.map(row).join('') : `<div class="pnote">No work matches “${esc($('#wpQ').value.trim())}”.</div>`;
+  const none = WP.none && !q
+    ? `<button class="prow${cur ? '' : ' sel'}" data-none><span class="tx"><span class="nm">Not linked</span><span class="sub">Keep this piece separate from the catalogue</span></span>${cur ? '' : TICK}</button>`
+    : '';
+  $('#wpList').innerHTML = none + (hits.length ? hits.map(row).join('') : `<div class="pnote">No work matches “${esc($('#wpQ').value.trim())}”.</div>`);
 }
 $('#wpQ').addEventListener('input', renderWorkPicker);
 $('#wpList').addEventListener('click', e => {
+  if(e.target.closest('[data-none]')) return pickWork(null);
   const b = e.target.closest('[data-pick]'); if(!b) return;
   pickWork(b.getAttribute('data-pick'));
 });
@@ -6294,6 +6304,8 @@ async function storeBuiltPiece(bytes, meta, ink){
   const marked = Object.keys(ink).length > 0;
   const doc = { id, title, composer: meta.composer || '', keyInfo:'', notes: meta.notes || '', pages,
                 added: Date.now(), bytes: file.size, marked, sections: meta.sections || [] };
+  if(meta.workKey != null) doc.workKey = meta.workKey;
+  else if(meta.noWork) doc.noWork = true;
   const persist = async () => {
     await DB.set(K.pdf(id), file);
     await DB.set(K.thumb(id), thumb);
@@ -6348,7 +6360,7 @@ const errText = err => err && err.message ? err.message : 'unknown error';
    there; tapping it again joins it back to the piece before. Page 1 always
    starts the first piece. Next asks for a title for each piece. */
 const SP = { doc:null, pdf:null, pages:0, cuts:new Set(), step:1, gen:0, urls:[], queue:[], pumping:false,
-             io:null, canvas:null, ink:{}, titles:[] };
+             io:null, canvas:null, ink:{}, titles:[], works:new Map() };
 
 function spRanges(){
   const starts = [1, ...[...SP.cuts].sort((a, b) => a - b)];
@@ -6360,7 +6372,7 @@ async function spOpen(id){
   commitDetails();
   SP.gen++;
   const gen = SP.gen;
-  SP.doc = d; SP.cuts = new Set(); SP.step = 1; SP.urls = []; SP.queue = []; SP.titles = []; SP.view = false;
+  SP.doc = d; SP.cuts = new Set(); SP.step = 1; SP.urls = []; SP.queue = []; SP.titles = []; SP.works = new Map(); SP.view = false;
   Prep.pause();
   busy(true, 'Reading the pages');
   await yieldToPaint();
@@ -6389,6 +6401,7 @@ async function spOpen(id){
 
 function spClose(){
   if(SP.view) spViewClose();
+  if(SP.onPickWork) closeWorkPicker();
   SP.gen++;
   if(SP.io){ SP.io.disconnect(); SP.io = null; }
   if(SP.pdf){ const p = SP.pdf; SP.pdf = null; try{ const r = p.destroy(); if(r && r.catch) r.catch(() => {}); }catch(err){} }
@@ -6625,6 +6638,7 @@ function spShowStep(step){
   $('#spNext').disabled = false;
   const ranges = spRanges();
   const secs = sortedSections(SP.doc);
+  const hasCat = !!(SP.doc.composer && (WORKS[SP.doc.composer] || []).length);
   let h = '';
   ranges.forEach((r, i) => {
     let marked = 0; for(let p = r.from; p <= r.to; p++) if(SP.ink[p] && SP.ink[p].length) marked++;
@@ -6636,11 +6650,15 @@ function spShowStep(step){
     h += `<div class="sp-piece"><span class="sp-sheet" data-from="${r.from}"><img alt=""></span>
       <div class="field"><label for="spT${i}">Piece ${i + 1}</label>
       <input id="spT${i}" type="text" data-i="${i}" value="${esc(title)}" autocomplete="off" maxlength="120">
+      <div class="sp-work" data-w="${i}"${hasCat ? '' : ' hidden'}>
+        <button type="button" class="pickfield" data-wpick="${i}" aria-label="Work for piece ${i + 1}"><span class="v"></span>${CHEV}</button>
+      </div>
       <div class="hint">${esc(facts.join(' · '))}</div></div></div>`;
   });
   h += `<p class="sp-note">“${esc(SP.doc.title)}” will be replaced by these ${ranges.length} pieces. Markings and jump points move with their pages. Practice time already logged stays in your practice totals; the new pieces start with no practice time, progress or rating.</p>`;
   $('#spNames').innerHTML = h;
   $('#spNames').scrollTop = 0;
+  ranges.forEach((r, i) => spWorkField(i));
   $$('#spNames .sp-sheet').forEach(sh => {
     const n = Number(sh.dataset.from);
     if(SP.urls[n]) spPlaceImg(sh, SP.urls[n]);
@@ -6654,6 +6672,42 @@ function spShowStep(step){
 $('#spNames').addEventListener('input', e => {
   const i = e.target.dataset && e.target.dataset.i;
   if(i != null) SP.titles[Number(i)] = e.target.value;
+});
+
+/* Each new piece can be linked to a catalogued work, as in Catalogue in a
+   piece's details. Not linked is the default, and is kept as a real choice:
+   the piece won't be matched to a work by its title either. A link belongs
+   to its exact pages, so moving a cut drops it. */
+const CHEV = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+const spRangeKey = r => r.from + '-' + r.to;
+function spLinkAt(i){
+  const r = spRanges()[i]; if(!r) return null;
+  const k = SP.works.get(spRangeKey(r));
+  const c = SP.doc.composer;
+  return k != null && c && (WORKS[c] || []).some(w => w[0] === k) ? k : null;
+}
+function spWorkField(i){
+  const row = $(`#spNames [data-w="${i}"]`); if(!row || row.hidden) return;
+  const k = spLinkAt(i);
+  const btn = row.querySelector('.pickfield');
+  btn.classList.toggle('unset', k == null);
+  btn.querySelector('.v').textContent = k != null ? `${catalogueLabel(k)} · ${workShown(SP.doc.composer, k)}` : 'Not linked';
+}
+$('#spNames').addEventListener('click', e => {
+  const pick = e.target.closest('[data-wpick]'); if(!pick) return;
+  const i = Number(pick.dataset.wpick);
+  const r = spRanges()[i]; if(!r) return;
+  const c = SP.doc.composer;
+  SP.onPickWork = true;
+  openWorkPicker(c, spLinkAt(i) || '', key => {
+    SP.onPickWork = false;
+    if(!$('#mSplit').classList.contains('on') || SP.step !== 2) return;
+    if(key == null){ SP.works.delete(spRangeKey(r)); spWorkField(i); return; }
+    SP.works.set(spRangeKey(r), key);
+    SP.titles[i] = workCanon(c, key);
+    const el = $(`#spT${i}`); if(el) el.value = SP.titles[i];
+    spWorkField(i);
+  }, { none:true });
 });
 
 $('#spBack').addEventListener('click', () => {
@@ -6678,6 +6732,9 @@ async function spRun(){
     const el = $(`#spT${i}`);
     return (el && el.value.trim()) || spDefaultTitle(r, i);
   });
+  const links = ranges.map((r, i) => spLinkAt(i));
+  // "Not linked" only counts as a choice if the work field was there to choose in.
+  const hadField = !!(d.composer && (WORKS[d.composer] || []).length);
   busy(true, `Splitting into ${ranges.length} pieces`);
   await yieldToPaint();
   const built = [];
@@ -6694,7 +6751,7 @@ async function spRun(){
       const bytes = await out.save();
       const sections = sortedSections(d).filter(s => s.page >= r.from && s.page <= r.to)
         .map(s => ({ id:uid(), page: s.page - r.from + 1, name: s.name, auto: !!s.auto }));
-      built.push(await storeBuiltPiece(bytes, { title:titles[i], composer:d.composer, notes:d.notes, sections },
+      built.push(await storeBuiltPiece(bytes, { title:titles[i], composer:d.composer, notes:d.notes, sections, workKey:links[i], noWork:hadField && links[i] == null },
                                        shiftInk(ink, r.from, r.to, 1 - r.from)));
     }
   }catch(err){
@@ -8198,6 +8255,7 @@ $('#ceShow').addEventListener('click', () => {
    the title still says which work it is. */
 function workKeyOf(d){
   if(d.workKey && d.composer && (WORKS[d.composer] || []).some(w => w[0] === d.workKey)) return d.workKey;
+  if(d.noWork) return null;   // chosen as "Not linked" (a split piece): no title matching either
   if(!d.composer || !WORK_INDEX[d.composer]) return null;
   const r = findWork(d.composer, d.title);
   return r && r.tier <= 2 ? r.key : null;
