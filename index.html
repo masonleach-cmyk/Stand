@@ -8,17 +8,23 @@
 <meta name="theme-color" content="#1B2029">
 <script>
 /* Apply the saved appearance before the first paint, so it never flashes.
-   stand.theme holds "<base>-<accent>", e.g. "stone-teal". Older single-word
-   values (dark, light, stone, lamp and a few retired ones) map onto the grid. */
+   stand.theme holds "<base>-<accent>", e.g. "ivory-teal". Older values (single
+   words like dark, light, lamp, and the retired Stone base) map onto the grid. */
 try{
-  const OLD = { dark:'dark-blue', light:'stone-blue', stone:'stone-blue', lamp:'lamp-amber',
-                velvet:'dark-blue', verdigris:'dark-blue', wine:'dark-blue' };
+  const OLD = { dark:'dark-blue', light:'ivory-blue', lamp:'lamp-amber',
+                velvet:'dark-blue', verdigris:'dark-blue', wine:'dark-blue',
+                stone:'ivory-blue', 'stone-blue':'ivory-blue', 'stone-teal':'ivory-teal',
+                'stone-crimson':'ivory-crimson', 'stone-violet':'ivory-plum', 'stone-amber':'ivory-blue' };
   let t = localStorage.getItem('stand.theme') || 'dark-blue';
   if(OLD[t]){ t = OLD[t]; localStorage.setItem('stand.theme', t); }
-  const [base, accent] = t.split('-');
-  const bg = { stone:'#C8CBC4', lamp:'#1A1510' }[base];
+  const BG = { lamp:'#1A1510', ebony:'#000000', ivory:'#D9D2C4', pewter:'#2A2B2D', mist:'#BCC6D1', harbor:'#232A31', storm:'#252530', heather:'#2D262E', iron:'#2E2626', walnut:'#302A24', olive:'#2E2E26', moss:'#272D27', basalt:'#252E2F', flint:'#2C2A28', smoke:'#3A3B3E', dove:'#CAC6C1', thistle:'#CABFCD', lichen:'#CDCDBF', tide:'#BECECE', iris:'#BFC1D6', clay:'#CFC2BC', concrete:'#C0C2C4', chambray:'#B4C2D5', glacier:'#CEDADE', driftwood:'#CAC4BA', charcoal:'#1E1E20', ochre:'#302C24', juniper:'#262E2A', mulberry:'#2E262A', pumice:'#D2D2D0', steel:'#B9BDC1', apricot:'#DACABE', rosewater:'#CFC1C5', wisteria:'#C7C0D0', laurel:'#C0C9BD' };
+  const LIGHT = { ivory:1, mist:1, dove:1, thistle:1, lichen:1, tide:1, iris:1, clay:1, concrete:1, chambray:1, glacier:1, driftwood:1, pumice:1, steel:1, apricot:1, rosewater:1, wisteria:1, laurel:1 };
+  let [base, accent] = t.split('-');
+  // a base that no longer exists falls back to the default
+  if(base !== 'dark' && !BG[base]){ t = 'dark-blue'; base = 'dark'; accent = 'blue'; localStorage.setItem('stand.theme', t); }
   const el = document.documentElement;
-  if(bg){ el.dataset.theme = base; document.querySelector('meta[name="theme-color"]').content = bg; }
+  if(BG[base]){ el.dataset.theme = base; document.querySelector('meta[name="theme-color"]').content = BG[base]; }
+  if(LIGHT[base]) el.dataset.tone = 'light';
   if(accent && accent !== 'blue') el.dataset.accent = accent;
 }catch(e){}
 </script>
@@ -40,8 +46,8 @@ try{
   --text:#E8EAEE;
   --text-dim:#9AA3B2;
   --text-faint:#6C7688;
-  /* accent: --acc/--acc-hi for dark backgrounds, --acc-l/--acc-hi-l for Stone */
-  --acc:#4A6FA5; --acc-hi:#6E93C9; --acc-l:#3E6297; --acc-hi-l:#2F5287;
+  /* accent: --acc/--acc-hi for dark backgrounds, --acc-l/--acc-hi-l for light bases */
+  --acc:#4A6FA5; --acc-hi:#6E93C9; --acc-l:#3E6297; --acc-hi-l:#2A4B7D;
   --pencil:var(--acc);
   --pencil-hi:var(--acc-hi);
   --red:#B2413A;
@@ -51,47 +57,75 @@ try{
   --safe-b:0px; /* bottom safe area not reserved; was env(safe-area-inset-bottom,0px) */
 }
 /* ---------- appearances ----------
-   Three bases, five accents each. The base sets the surfaces and text; the
-   accent only touches buttons, links, selection and focus.
+   Each base has five accents. The base sets the surfaces and text; the accent
+   only touches buttons, links, selection and focus. Every base, light or dark,
+   stays darker than paper so the score is the brightest thing on screen.
 
    Dark:      the default graphite set above.
-   Stone:     a mid-grey for daytime practice, darker than paper so the score
-              stays the brightest thing on screen. The viewer stays dark.
    Lamplight: warm umber for dim stages and late nights, with warm accents
-              only (no cool blue). */
+              only (no cool blue).
+   Ebony:     true black with neutral greys, for the stage and for OLED
+              screens: the panels disappear and the score floats.
+   Ivory:     warm light, the colour of old key tops, for daytime practice.
+   Pewter:    a softer, lighter dark grey with less contrast than Dark.
+   Mist:      a blue-grey mid tone, between light and dark.
+   Harbor:    soft blue-grey, like Pewter with a cool cast.
+   Storm:     muted indigo-grey.
+   Heather:   soft mauve-grey.
+   Iron:      grey with a faint red-oxide warmth.
+   Walnut:    soft brown-grey, like oiled wood in shade.
+   Olive:     muted olive-grey.
+   Moss:      soft green-grey.
+   Basalt:    deep teal-grey, like wet stone.
+   Flint:     warm, near-neutral taupe grey.
+   Smoke:     a lighter neutral grey, the lowest-contrast dark base.
+   Dove:      soft warm grey.
+   Thistle:   pale mauve-grey.
+   Lichen:    pale olive-grey.
+   Tide:      pale teal-grey, like shallow water.
+   Iris:      pale periwinkle.
+   Clay:      muted pinkish taupe.
+   Concrete:  a neutral mid grey, a little darker than Mist.
+   Chambray:  a deeper, bluer sibling of Mist.
+   Glacier:   a pale icy blue, lighter than Mist.
+   Driftwood: a warm grey-brown mid tone.
+   Charcoal:  deep neutral grey, between Ebony and Pewter.
+   Ochre:     soft yellow-brown grey.
+   Juniper:   soft pine-green grey.
+   Mulberry:  soft berry-grey.
+   Pumice:    a pale neutral grey, lighter than Concrete.
+   Steel:     a cool mid grey, darker than Concrete.
+   Apricot:   soft peach.
+   Rosewater: soft pink-grey.
+   Wisteria:  soft violet-grey.
+   Laurel:    soft grey-green.
+
+   Light bases carry data-tone="light" on <html>. They use the darker
+   --acc-l/--acc-hi-l accents, and the viewer stays dark inside them. */
 :root{color-scheme:dark}
-:root[data-accent="teal"]   {--acc:#2D7A74;--acc-hi:#5CB8AE;--acc-l:#1F6A64;--acc-hi-l:#175A55}
-:root[data-accent="violet"] {--acc:#6A58B0;--acc-hi:#A395E8;--acc-l:#5A48A0;--acc-hi-l:#46388A}
+:root[data-accent="teal"]  {--acc:#2D7A74;--acc-hi:#5CB8AE;--acc-l:#1F6A64;--acc-hi-l:#145350}
+:root[data-accent="violet"]{--acc:#6A58B0;--acc-hi:#A395E8;--acc-l:#5A48A0;--acc-hi-l:#46388A}
 :root[data-accent="crimson"]{--acc:#A8424A;--acc-hi:#E57B82;--acc-l:#9A323A;--acc-hi-l:#852A31}
-:root[data-accent="amber"]  {--acc:#9A5E22;--acc-hi:#D9A35C;--acc-l:#8A5418;--acc-hi-l:#704310}
-:root[data-accent="copper"] {--acc:#A24A2A;--acc-hi:#E38B63}
-:root[data-accent="rose"]   {--acc:#A03F58;--acc-hi:#E58BA0}
-:root[data-accent="sage"]   {--acc:#4F6E4A;--acc-hi:#A2C298}
-:root[data-accent="plum"]   {--acc:#80496F;--acc-hi:#C991B8}
+:root[data-accent="amber"] {--acc:#9A5E22;--acc-hi:#D9A35C;--acc-l:#8A5418;--acc-hi-l:#704310}
+:root[data-accent="copper"]{--acc:#A24A2A;--acc-hi:#E38B63;--acc-l:#963E20;--acc-hi-l:#7A3219}
+:root[data-accent="rose"]  {--acc:#A03F58;--acc-hi:#E58BA0;--acc-l:#963A52;--acc-hi-l:#7C2F44}
+:root[data-accent="sage"]  {--acc:#4F6E4A;--acc-hi:#A2C298;--acc-l:#4A6644;--acc-hi-l:#3B5436}
+:root[data-accent="plum"]  {--acc:#80496F;--acc-hi:#C991B8;--acc-l:#7A4269;--acc-hi-l:#633454}
+:root[data-accent="silver"]{--acc:#5C6068;--acc-hi:#C3C7CE;--acc-l:#50545B;--acc-hi-l:#3F4248}
+:root[data-accent="ice"]   {--acc:#2E6A90;--acc-hi:#8CC7EC;--acc-l:#28607F;--acc-hi-l:#1F4E68}
+:root[data-accent="jade"]  {--acc:#2B7560;--acc-hi:#7FD3B5;--acc-l:#246653;--acc-hi-l:#1B5443}
+:root[data-accent="lilac"] {--acc:#6E56BE;--acc-hi:#BBAAF5;--acc-l:#5E48A8;--acc-hi-l:#4C3A8C}
+:root[data-accent="bronze"]{--acc:#86602A;--acc-hi:#D6AE6E;--acc-l:#7A5520;--acc-hi-l:#634418}
+:root[data-accent="ink"]   {--acc:#4F5A55;--acc-hi:#C4D0CA;--acc-l:#2E3A35;--acc-hi-l:#1C2622}
+:root[data-accent="brass"] {--acc:#846722;--acc-hi:#E2C47C;--acc-l:#74591A;--acc-hi-l:#5A4512}
+:root[data-accent="coral"] {--acc:#A8473A;--acc-hi:#F2957F;--acc-l:#9A3F31;--acc-hi-l:#7F3226}
+:root[data-accent="peach"] {--acc:#97562D;--acc-hi:#F0B48C;--acc-l:#8A4E28;--acc-hi-l:#6E3D1E}
+:root[data-accent="mint"]  {--acc:#2C7456;--acc-hi:#8FDDB8;--acc-l:#236548;--acc-hi-l:#1A5139}
+:root[data-accent="sky"]   {--acc:#2F679E;--acc-hi:#94C4F2;--acc-l:#285C8E;--acc-hi-l:#1F4A74}
+:root[data-accent="gold"]  {--acc:#85691C;--acc-hi:#E9CC6E;--acc-l:#735A14;--acc-hi-l:#59460E}
+:root[data-accent="blush"] {--acc:#9C4466;--acc-hi:#F0A6C0;--acc-l:#8E3A5B;--acc-hi-l:#742F4A}
 
-:root[data-theme="stone"]{
-  color-scheme:light;
-  --slate:#C8CBC4;
-  --slate-2:#D5D8D1;
-  --slate-3:#B8BCB3;
-  --line:#A2A79D;
-  --text:#171C1A;
-  --text-dim:#39413D;
-  --text-faint:#58615B;
-  --pencil:var(--acc-l);
-  --pencil-hi:var(--acc-hi-l);
-}
-:root[data-theme="stone"] #viewer{
-  color-scheme:dark;
-  --slate:#1B2029; --slate-2:#232935; --slate-3:#2E3542; --line:#3A4251;
-  --text:#E8EAEE; --text-dim:#9AA3B2; --text-faint:#6C7688;
-  --pencil:var(--acc); --pencil-hi:var(--acc-hi);
-  color:var(--text);
-}
-:root[data-theme="stone"] body{background:var(--slate)}
-:root[data-theme="stone"] .editbtn.on{color:var(--text)}
-:root[data-theme="stone"] .mv-viewport{background:var(--slate-2)}
-
+/* Lamplight */
 :root[data-theme="lamp"]{
   --slate:#1A1510;
   --slate-2:#231C15;
@@ -105,6 +139,566 @@ try{
 :root[data-theme="lamp"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(35,28,21,.6))}
 :root[data-theme="lamp"] .dock{--dock-bg:rgba(26,21,16,.78)}
 :root[data-theme="lamp"] .dock.floating{--dock-bg:rgba(26,21,16,.88)}
+
+/* Ebony */
+:root[data-theme="ebony"]{
+  --slate:#000000;
+  --slate-2:#121213;
+  --slate-3:#1E1E20;
+  --line:#2E2E31;
+  --text:#EDEDEE;
+  --text-dim:#A4A4A9;
+  --text-faint:#76767C;
+}
+:root[data-theme="ebony"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(18,18,19,.6))}
+:root[data-theme="ebony"] .dock{--dock-bg:rgba(20,20,21,.78)}
+:root[data-theme="ebony"] .dock.floating{--dock-bg:rgba(20,20,21,.88)}
+
+/* shared by every light base */
+:root[data-tone="light"]{
+  color-scheme:light;
+  --pencil:var(--acc-l);
+  --pencil-hi:var(--acc-hi-l);
+}
+:root[data-tone="light"] #viewer{
+  color-scheme:dark;
+  --pencil:var(--acc); --pencil-hi:var(--acc-hi);
+  color:var(--text);
+}
+:root[data-tone="light"] body{background:var(--slate)}
+:root[data-tone="light"] .editbtn.on{color:var(--text)}
+:root[data-tone="light"] .mv-viewport{background:var(--slate-2)}
+
+/* Ivory */
+:root[data-theme="ivory"]{
+  --slate:#D9D2C4;
+  --slate-2:#E4DED2;
+  --slate-3:#CBC3B3;
+  --line:#B0A794;
+  --text:#1F1A14;
+  --text-dim:#443C32;
+  --text-faint:#62594C;
+}
+:root[data-theme="ivory"] #viewer{
+  --slate:#1C1915; --slate-2:#25211C; --slate-3:#302B24; --line:#433C33;
+  --text:#EDE7DB; --text-dim:#B2A898; --text-faint:#81786A;
+}
+:root[data-theme="ivory"] .dock{--dock-bg:rgba(28,25,21,.78)}
+:root[data-theme="ivory"] .dock.floating{--dock-bg:rgba(28,25,21,.88)}
+
+/* Pewter */
+:root[data-theme="pewter"]{
+  --slate:#2A2B2D;
+  --slate-2:#323335;
+  --slate-3:#3D3E41;
+  --line:#505255;
+  --text:#ECECEA;
+  --text-dim:#B8B8B4;
+  --text-faint:#A2A29E;
+}
+:root[data-theme="pewter"] body{background:#1D1E1F}
+:root[data-theme="pewter"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(50,51,53,0.6))}
+:root[data-theme="pewter"] .dock{--dock-bg:rgba(42,43,45,0.78)}
+:root[data-theme="pewter"] .dock.floating{--dock-bg:rgba(42,43,45,0.88)}
+
+/* Mist */
+:root[data-theme="mist"]{
+  --slate:#BCC6D1;
+  --slate-2:#CAD3DC;
+  --slate-3:#ABB6C3;
+  --line:#8F9CAC;
+  --text:#111823;
+  --text-dim:#2D3746;
+  --text-faint:#3C4858;
+}
+:root[data-theme="mist"] #viewer{
+  --slate:#141A22; --slate-2:#1C232C; --slate-3:#262E38; --line:#36404C;
+  --text:#E6ECF2; --text-dim:#A6B2C0; --text-faint:#838F9E;
+}
+:root[data-theme="mist"] .dock{--dock-bg:rgba(20,26,34,0.78)}
+:root[data-theme="mist"] .dock.floating{--dock-bg:rgba(20,26,34,0.88)}
+
+/* Harbor */
+:root[data-theme="harbor"]{
+  --slate:#232A31;
+  --slate-2:#2A313A;
+  --slate-3:#323B46;
+  --line:#434D59;
+  --text:#EAEDF0;
+  --text-dim:#AFB9C5;
+  --text-faint:#929DAA;
+}
+:root[data-theme="harbor"] body{background:#161A1F}
+:root[data-theme="harbor"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(42,49,58,0.6))}
+:root[data-theme="harbor"] .dock{--dock-bg:rgba(35,42,49,0.78)}
+:root[data-theme="harbor"] .dock.floating{--dock-bg:rgba(35,42,49,0.88)}
+
+/* Storm */
+:root[data-theme="storm"]{
+  --slate:#252530;
+  --slate-2:#2B2B38;
+  --slate-3:#343444;
+  --line:#454557;
+  --text:#EBEBEF;
+  --text-dim:#B1B1C3;
+  --text-faint:#9292AA;
+}
+:root[data-theme="storm"] body{background:#17171E}
+:root[data-theme="storm"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(43,43,56,0.6))}
+:root[data-theme="storm"] .dock{--dock-bg:rgba(37,37,48,0.78)}
+:root[data-theme="storm"] .dock.floating{--dock-bg:rgba(37,37,48,0.88)}
+
+/* Heather */
+:root[data-theme="heather"]{
+  --slate:#2D262E;
+  --slate-2:#352D36;
+  --slate-3:#403741;
+  --line:#524754;
+  --text:#EEECEF;
+  --text-dim:#BEB4C0;
+  --text-faint:#A495A7;
+}
+:root[data-theme="heather"] body{background:#1C181D}
+:root[data-theme="heather"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(53,45,54,0.6))}
+:root[data-theme="heather"] .dock{--dock-bg:rgba(45,38,46,0.78)}
+:root[data-theme="heather"] .dock.floating{--dock-bg:rgba(45,38,46,0.88)}
+
+/* Iron */
+:root[data-theme="iron"]{
+  --slate:#2E2626;
+  --slate-2:#362D2D;
+  --slate-3:#413737;
+  --line:#544747;
+  --text:#EFECEC;
+  --text-dim:#C0B4B4;
+  --text-faint:#A79595;
+}
+:root[data-theme="iron"] body{background:#1D1818}
+:root[data-theme="iron"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(54,45,45,0.6))}
+:root[data-theme="iron"] .dock{--dock-bg:rgba(46,38,38,0.78)}
+:root[data-theme="iron"] .dock.floating{--dock-bg:rgba(46,38,38,0.88)}
+
+/* Walnut */
+:root[data-theme="walnut"]{
+  --slate:#302A24;
+  --slate-2:#39312B;
+  --slate-3:#443B34;
+  --line:#584D44;
+  --text:#F0EDEB;
+  --text-dim:#C4BAB1;
+  --text-faint:#AA9D92;
+}
+:root[data-theme="walnut"] body{background:#1F1B17}
+:root[data-theme="walnut"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(57,49,43,0.6))}
+:root[data-theme="walnut"] .dock{--dock-bg:rgba(48,42,36,0.78)}
+:root[data-theme="walnut"] .dock.floating{--dock-bg:rgba(48,42,36,0.88)}
+
+/* Olive */
+:root[data-theme="olive"]{
+  --slate:#2E2E26;
+  --slate-2:#36372D;
+  --slate-3:#414236;
+  --line:#545547;
+  --text:#EFEFEB;
+  --text-dim:#C0C1B3;
+  --text-faint:#A6A894;
+}
+:root[data-theme="olive"] body{background:#1D1D18}
+:root[data-theme="olive"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(54,55,45,0.6))}
+:root[data-theme="olive"] .dock{--dock-bg:rgba(46,46,38,0.78)}
+:root[data-theme="olive"] .dock.floating{--dock-bg:rgba(46,46,38,0.88)}
+
+/* Moss */
+:root[data-theme="moss"]{
+  --slate:#272D27;
+  --slate-2:#2E362E;
+  --slate-3:#374138;
+  --line:#485349;
+  --text:#ECEFEC;
+  --text-dim:#B5C0B6;
+  --text-faint:#96A698;
+}
+:root[data-theme="moss"] body{background:#191D19}
+:root[data-theme="moss"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(46,54,46,0.6))}
+:root[data-theme="moss"] .dock{--dock-bg:rgba(39,45,39,0.78)}
+:root[data-theme="moss"] .dock.floating{--dock-bg:rgba(39,45,39,0.88)}
+
+/* Basalt */
+:root[data-theme="basalt"]{
+  --slate:#252E2F;
+  --slate-2:#2C3637;
+  --slate-3:#354143;
+  --line:#465455;
+  --text:#EBEFEF;
+  --text-dim:#B3C0C2;
+  --text-faint:#93A7A9;
+}
+:root[data-theme="basalt"] body{background:#181D1E}
+:root[data-theme="basalt"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(44,54,55,0.6))}
+:root[data-theme="basalt"] .dock{--dock-bg:rgba(37,46,47,0.78)}
+:root[data-theme="basalt"] .dock.floating{--dock-bg:rgba(37,46,47,0.88)}
+
+/* Flint */
+:root[data-theme="flint"]{
+  --slate:#2C2A28;
+  --slate-2:#34322F;
+  --slate-3:#3F3C39;
+  --line:#514E4A;
+  --text:#EEEDEC;
+  --text-dim:#BEBBB7;
+  --text-faint:#A39F99;
+}
+:root[data-theme="flint"] body{background:#1C1B19}
+:root[data-theme="flint"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(52,50,47,0.6))}
+:root[data-theme="flint"] .dock{--dock-bg:rgba(44,42,40,0.78)}
+:root[data-theme="flint"] .dock.floating{--dock-bg:rgba(44,42,40,0.88)}
+
+/* Smoke */
+:root[data-theme="smoke"]{
+  --slate:#3A3B3E;
+  --slate-2:#424346;
+  --slate-3:#4B4D50;
+  --line:#5D5F62;
+  --text:#EDEDEE;
+  --text-dim:#CACBCE;
+  --text-faint:#B7B8BB;
+}
+:root[data-theme="smoke"] body{background:#2B2C2E}
+:root[data-theme="smoke"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(66,67,70,0.6))}
+:root[data-theme="smoke"] .dock{--dock-bg:rgba(58,59,62,0.78)}
+:root[data-theme="smoke"] .dock.floating{--dock-bg:rgba(58,59,62,0.88)}
+
+/* Dove */
+:root[data-theme="dove"]{
+  --slate:#CAC6C1;
+  --slate-2:#D5D2CD;
+  --slate-3:#C0BBB5;
+  --line:#A9A39B;
+  --text:#191715;
+  --text-dim:#3D3934;
+  --text-faint:#534E46;
+}
+:root[data-theme="dove"] #viewer{
+  --slate:#171614; --slate-2:#201E1B; --slate-3:#292723; --line:#3C3934;
+  --text:#EAE8E6; --text-dim:#B9B4AC; --text-faint:#9C958B;
+}
+:root[data-theme="dove"] .dock{--dock-bg:rgba(23,22,20,0.78)}
+:root[data-theme="dove"] .dock.floating{--dock-bg:rgba(23,22,20,0.88)}
+
+/* Thistle */
+:root[data-theme="thistle"]{
+  --slate:#CABFCD;
+  --slate-2:#D5CCD7;
+  --slate-3:#C0B2C2;
+  --line:#A998AC;
+  --text:#19141A;
+  --text-dim:#3D313F;
+  --text-faint:#534356;
+}
+:root[data-theme="thistle"] #viewer{
+  --slate:#171318; --slate-2:#201A21; --slate-3:#29222B; --line:#3C323E;
+  --text:#EAE5EB; --text-dim:#B9A9BC; --text-faint:#9B899F;
+}
+:root[data-theme="thistle"] .dock{--dock-bg:rgba(23,19,24,0.78)}
+:root[data-theme="thistle"] .dock.floating{--dock-bg:rgba(23,19,24,0.88)}
+
+/* Lichen */
+:root[data-theme="lichen"]{
+  --slate:#CDCDBF;
+  --slate-2:#D7D7CC;
+  --slate-3:#C2C2B2;
+  --line:#ACAC98;
+  --text:#1A1A14;
+  --text-dim:#3F3F31;
+  --text-faint:#565643;
+}
+:root[data-theme="lichen"] #viewer{
+  --slate:#181813; --slate-2:#21211A; --slate-3:#2B2B22; --line:#3E3E32;
+  --text:#EBEBE5; --text-dim:#BCBCA9; --text-faint:#9F9F89;
+}
+:root[data-theme="lichen"] .dock{--dock-bg:rgba(24,24,19,0.78)}
+:root[data-theme="lichen"] .dock.floating{--dock-bg:rgba(24,24,19,0.88)}
+
+/* Tide */
+:root[data-theme="tide"]{
+  --slate:#BECECE;
+  --slate-2:#CBD8D8;
+  --slate-3:#B1C4C4;
+  --line:#96AEAE;
+  --text:#141A1A;
+  --text-dim:#304040;
+  --text-faint:#425757;
+}
+:root[data-theme="tide"] #viewer{
+  --slate:#131919; --slate-2:#192121; --slate-3:#212C2C; --line:#313F3F;
+  --text:#E5EBEB; --text-dim:#A8BDBD; --text-faint:#899F9F;
+}
+:root[data-theme="tide"] .dock{--dock-bg:rgba(19,25,25,0.78)}
+:root[data-theme="tide"] .dock.floating{--dock-bg:rgba(19,25,25,0.88)}
+
+/* Iris */
+:root[data-theme="iris"]{
+  --slate:#BFC1D6;
+  --slate-2:#CDCFDF;
+  --slate-3:#B1B4CD;
+  --line:#9699B8;
+  --text:#12131C;
+  --text-dim:#2D2F43;
+  --text-faint:#414358;
+}
+:root[data-theme="iris"] #viewer{
+  --slate:#11121A; --slate-2:#171824; --slate-3:#1E1F2F; --line:#2D2F43;
+  --text:#E4E5EC; --text-dim:#A8AABD; --text-faint:#898B9F;
+}
+:root[data-theme="iris"] .dock{--dock-bg:rgba(17,18,26,0.78)}
+:root[data-theme="iris"] .dock.floating{--dock-bg:rgba(17,18,26,0.88)}
+
+/* Clay */
+:root[data-theme="clay"]{
+  --slate:#CFC2BC;
+  --slate-2:#D8CECA;
+  --slate-3:#C5B6AF;
+  --line:#AF9D95;
+  --text:#1B1513;
+  --text-dim:#41352F;
+  --text-faint:#584841;
+}
+:root[data-theme="clay"] #viewer{
+  --slate:#191412; --slate-2:#221B19; --slate-3:#2C2420; --line:#403530;
+  --text:#ECE7E4; --text-dim:#BDAEA8; --text-faint:#9F9089;
+}
+:root[data-theme="clay"] .dock{--dock-bg:rgba(25,20,18,0.78)}
+:root[data-theme="clay"] .dock.floating{--dock-bg:rgba(25,20,18,0.88)}
+
+/* Concrete */
+:root[data-theme="concrete"]{
+  --slate:#C0C2C4;
+  --slate-2:#CCCDCF;
+  --slate-3:#B4B6B9;
+  --line:#9B9EA1;
+  --text:#161718;
+  --text-dim:#36383A;
+  --text-faint:#4A4C4F;
+}
+:root[data-theme="concrete"] #viewer{
+  --slate:#151616; --slate-2:#1C1D1E; --slate-3:#252627; --line:#37383A;
+  --text:#E7E8E9; --text-dim:#B0B2B5; --text-faint:#919497;
+}
+:root[data-theme="concrete"] .dock{--dock-bg:rgba(21,22,22,0.78)}
+:root[data-theme="concrete"] .dock.floating{--dock-bg:rgba(21,22,22,0.88)}
+
+/* Chambray */
+:root[data-theme="chambray"]{
+  --slate:#B4C2D5;
+  --slate-2:#C3CEDD;
+  --slate-3:#A5B6CD;
+  --line:#899DB8;
+  --text:#11161D;
+  --text-dim:#2D3643;
+  --text-faint:#414B58;
+}
+:root[data-theme="chambray"] #viewer{
+  --slate:#11151A; --slate-2:#171C24; --slate-3:#1E252F; --line:#2D3643;
+  --text:#E4E7EC; --text-dim:#A8B1BD; --text-faint:#89929F;
+}
+:root[data-theme="chambray"] .dock{--dock-bg:rgba(17,21,26,0.78)}
+:root[data-theme="chambray"] .dock.floating{--dock-bg:rgba(17,21,26,0.88)}
+
+/* Glacier */
+:root[data-theme="glacier"]{
+  --slate:#CEDADE;
+  --slate-2:#DCE5E8;
+  --slate-3:#C0D0D5;
+  --line:#A5B9C0;
+  --text:#12191C;
+  --text-dim:#2D3E43;
+  --text-faint:#415258;
+}
+:root[data-theme="glacier"] #viewer{
+  --slate:#11181A; --slate-2:#172023; --slate-3:#1F2A2E; --line:#2E3D42;
+  --text:#E4EAEC; --text-dim:#A8B8BD; --text-faint:#89999F;
+}
+:root[data-theme="glacier"] .dock{--dock-bg:rgba(17,24,26,0.78)}
+:root[data-theme="glacier"] .dock.floating{--dock-bg:rgba(17,24,26,0.88)}
+
+/* Driftwood */
+:root[data-theme="driftwood"]{
+  --slate:#CAC4BA;
+  --slate-2:#D4CFC7;
+  --slate-3:#C0B9AD;
+  --line:#A9A193;
+  --text:#1A1814;
+  --text-dim:#3F3A31;
+  --text-faint:#564F43;
+}
+:root[data-theme="driftwood"] #viewer{
+  --slate:#181613; --slate-2:#211E1A; --slate-3:#2B2821; --line:#3F3A32;
+  --text:#EBE9E5; --text-dim:#BCB5A9; --text-faint:#9F9789;
+}
+:root[data-theme="driftwood"] .dock{--dock-bg:rgba(24,22,19,0.78)}
+:root[data-theme="driftwood"] .dock.floating{--dock-bg:rgba(24,22,19,0.88)}
+
+/* Charcoal */
+:root[data-theme="charcoal"]{
+  --slate:#1E1E20;
+  --slate-2:#252627;
+  --slate-3:#2F3032;
+  --line:#414244;
+  --text:#EDEDEE;
+  --text-dim:#B8B9BC;
+  --text-faint:#9B9DA1;
+}
+:root[data-theme="charcoal"] body{background:#0F0F10}
+:root[data-theme="charcoal"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(37,38,39,0.6))}
+:root[data-theme="charcoal"] .dock{--dock-bg:rgba(30,30,32,0.78)}
+:root[data-theme="charcoal"] .dock.floating{--dock-bg:rgba(30,30,32,0.88)}
+
+/* Ochre */
+:root[data-theme="ochre"]{
+  --slate:#302C24;
+  --slate-2:#39352B;
+  --slate-3:#443F34;
+  --line:#585244;
+  --text:#F0EEEB;
+  --text-dim:#C4BEB1;
+  --text-faint:#AAA392;
+}
+:root[data-theme="ochre"] body{background:#1F1C17}
+:root[data-theme="ochre"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(57,53,43,0.6))}
+:root[data-theme="ochre"] .dock{--dock-bg:rgba(48,44,36,0.78)}
+:root[data-theme="ochre"] .dock.floating{--dock-bg:rgba(48,44,36,0.88)}
+
+/* Juniper */
+:root[data-theme="juniper"]{
+  --slate:#262E2A;
+  --slate-2:#2D3732;
+  --slate-3:#36423C;
+  --line:#47554E;
+  --text:#EBEFED;
+  --text-dim:#B3C1BA;
+  --text-faint:#94A89E;
+}
+:root[data-theme="juniper"] body{background:#181D1B}
+:root[data-theme="juniper"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(45,55,50,0.6))}
+:root[data-theme="juniper"] .dock{--dock-bg:rgba(38,46,42,0.78)}
+:root[data-theme="juniper"] .dock.floating{--dock-bg:rgba(38,46,42,0.88)}
+
+/* Mulberry */
+:root[data-theme="mulberry"]{
+  --slate:#2E262A;
+  --slate-2:#372D32;
+  --slate-3:#42363C;
+  --line:#55474E;
+  --text:#EFEBED;
+  --text-dim:#C1B3BA;
+  --text-faint:#A8949E;
+}
+:root[data-theme="mulberry"] body{background:#1D181B}
+:root[data-theme="mulberry"] .mv-viewport{background:linear-gradient(180deg,var(--slate-2),rgba(55,45,50,0.6))}
+:root[data-theme="mulberry"] .dock{--dock-bg:rgba(46,38,42,0.78)}
+:root[data-theme="mulberry"] .dock.floating{--dock-bg:rgba(46,38,42,0.88)}
+
+/* Pumice */
+:root[data-theme="pumice"]{
+  --slate:#D2D2D0;
+  --slate-2:#DEDDDC;
+  --slate-3:#C7C6C4;
+  --line:#B0AEAB;
+  --text:#181716;
+  --text-dim:#3A3936;
+  --text-faint:#4F4D4A;
+}
+:root[data-theme="pumice"] #viewer{
+  --slate:#161615; --slate-2:#1E1E1C; --slate-3:#272725; --line:#3A3937;
+  --text:#E9E8E7; --text-dim:#B5B3B0; --text-faint:#979591;
+}
+:root[data-theme="pumice"] .dock{--dock-bg:rgba(22,22,21,0.78)}
+:root[data-theme="pumice"] .dock.floating{--dock-bg:rgba(22,22,21,0.88)}
+
+/* Steel */
+:root[data-theme="steel"]{
+  --slate:#B9BDC1;
+  --slate-2:#C5C8CB;
+  --slate-3:#ADB1B6;
+  --line:#93999F;
+  --text:#161718;
+  --text-dim:#35383B;
+  --text-faint:#484C51;
+}
+:root[data-theme="steel"] #viewer{
+  --slate:#141617; --slate-2:#1C1D1F; --slate-3:#242629; --line:#35383B;
+  --text:#E7E8E9; --text-dim:#AEB2B7; --text-faint:#8D949A;
+}
+:root[data-theme="steel"] .dock{--dock-bg:rgba(20,22,23,0.78)}
+:root[data-theme="steel"] .dock.floating{--dock-bg:rgba(20,22,23,0.88)}
+
+/* Apricot */
+:root[data-theme="apricot"]{
+  --slate:#DACABE;
+  --slate-2:#E3D6CC;
+  --slate-3:#D2BEAF;
+  --line:#BEA592;
+  --text:#1D1611;
+  --text-dim:#43362D;
+  --text-faint:#584B41;
+}
+:root[data-theme="apricot"] #viewer{
+  --slate:#1A1511; --slate-2:#241C17; --slate-3:#2F251E; --line:#43362D;
+  --text:#ECE7E4; --text-dim:#BDB1A8; --text-faint:#9F9289;
+}
+:root[data-theme="apricot"] .dock{--dock-bg:rgba(26,21,17,0.78)}
+:root[data-theme="apricot"] .dock.floating{--dock-bg:rgba(26,21,17,0.88)}
+
+/* Rosewater */
+:root[data-theme="rosewater"]{
+  --slate:#CFC1C5;
+  --slate-2:#D9CED1;
+  --slate-3:#C5B4B8;
+  --line:#AF9A9F;
+  --text:#1A1415;
+  --text-dim:#3F3134;
+  --text-faint:#564348;
+}
+:root[data-theme="rosewater"] #viewer{
+  --slate:#181314; --slate-2:#211A1B; --slate-3:#2B2124; --line:#3F3235;
+  --text:#EBE5E7; --text-dim:#BCA9AE; --text-faint:#9F898F;
+}
+:root[data-theme="rosewater"] .dock{--dock-bg:rgba(24,19,20,0.78)}
+:root[data-theme="rosewater"] .dock.floating{--dock-bg:rgba(24,19,20,0.88)}
+
+/* Wisteria */
+:root[data-theme="wisteria"]{
+  --slate:#C7C0D0;
+  --slate-2:#D3CDDA;
+  --slate-3:#BBB3C7;
+  --line:#A298B1;
+  --text:#16141A;
+  --text-dim:#373041;
+  --text-faint:#4B4158;
+}
+:root[data-theme="wisteria"] #viewer{
+  --slate:#151219; --slate-2:#1D1922; --slate-3:#25212C; --line:#373140;
+  --text:#E7E5EB; --text-dim:#B1A8BD; --text-faint:#92899F;
+}
+:root[data-theme="wisteria"] .dock{--dock-bg:rgba(21,18,25,0.78)}
+:root[data-theme="wisteria"] .dock.floating{--dock-bg:rgba(21,18,25,0.88)}
+
+/* Laurel */
+:root[data-theme="laurel"]{
+  --slate:#C0C9BD;
+  --slate-2:#CCD3CA;
+  --slate-3:#B4BFB0;
+  --line:#9BA897;
+  --text:#161915;
+  --text-dim:#353E32;
+  --text-faint:#495445;
+}
+:root[data-theme="laurel"] #viewer{
+  --slate:#151814; --slate-2:#1C201A; --slate-3:#242A22; --line:#363D33;
+  --text:#E7EAE6; --text-dim:#AFBAAB; --text-faint:#8F9F89;
+}
+:root[data-theme="laurel"] .dock{--dock-bg:rgba(21,24,20,0.78)}
+:root[data-theme="laurel"] .dock.floating{--dock-bg:rgba(21,24,20,0.88)}
 /* icons drawn with the dark theme's grays follow the theme instead */
 [stroke="#9AA3B2"]{stroke:var(--text-dim)}
 [stroke="#6C7688"]{stroke:var(--text-faint)}
@@ -623,17 +1217,91 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 .pd-seg .pdk{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/var(--n,2));border-radius:8px;background:var(--slate);
   box-shadow:0 1px 3px rgba(0,0,0,.35);transform:translateX(calc(var(--i,0)*100%));transition:transform .38s cubic-bezier(.22,.8,.24,1)}
 .pd-t .pd-cur{font-size:13px;color:var(--text-faint);font-family:var(--sans);font-weight:400}
-.appear{border:1px solid var(--line);border-radius:12px;background:var(--slate-2);overflow:hidden}
-.appear-row{display:flex;align-items:center;gap:10px;padding:10px 12px}
-.appear-row + .appear-row{border-top:1px solid var(--line)}
-.appear-row .base{flex:1;min-width:0;font-size:14px;color:var(--text-dim)}
-.appear-row.on .base{color:var(--text)}
-.acc-dots{display:flex;gap:8px}
-.acc-dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
-  background:var(--b);box-shadow:inset 0 0 0 1px rgba(128,128,128,.35);transition:box-shadow .18s}
-.acc-dot::after{content:'';width:12px;height:12px;border-radius:50%;background:var(--a);transition:transform .18s}
-.acc-dot.on{box-shadow:inset 0 0 0 1px rgba(128,128,128,.35),0 0 0 2px var(--slate-2),0 0 0 3.5px var(--pencil-hi)}
-.acc-dot.on::after{transform:scale(1.25)}
+/* ---- settings: grouped rows, switches ---- */
+.set-card{border:1px solid var(--line);border-radius:14px;background:var(--slate-2);overflow:hidden}
+.set-row{display:flex;align-items:center;gap:14px;padding:13px 14px}
+.set-row + .set-row,.set-prev + .set-row{border-top:1px solid var(--line)}
+.set-row.col{flex-direction:column;align-items:stretch;gap:10px}
+.set-row.off{opacity:.42;pointer-events:none}
+.set-row,.set-row.off{transition:opacity .2s}
+.set-l{flex:1;min-width:0}
+.set-l .nm{display:block;font-size:15px;color:var(--text)}
+.set-l .sub{display:block;font-size:12.5px;line-height:1.4;color:var(--text-faint);margin-top:2px}
+.set-seg button{font-size:12.5px}
+.set-sw{flex:none;position:relative;width:51px;height:31px;border-radius:16px;background:var(--slate-3);
+  box-shadow:inset 0 0 0 1px var(--line);transition:background .2s,box-shadow .2s}
+.set-sw i{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;
+  box-shadow:0 2px 5px rgba(0,0,0,.28);transition:transform .24s cubic-bezier(.3,.7,.2,1)}
+.set-sw[aria-checked="true"]{background:var(--pencil);box-shadow:inset 0 0 0 1px var(--pencil)}
+.set-sw[aria-checked="true"] i{transform:translateX(20px)}
+.set-prev{display:block;padding:14px 14px 13px;background:color-mix(in srgb,var(--slate) 55%,var(--slate-2))}
+.set-prev .nm{display:block;font-size:15px;color:var(--text);line-height:1.35}
+.set-prev .sub{display:block;font-size:13px;color:var(--text-faint);margin-top:3px}
+/* backup reminder in the library */
+.bkremind{flex:none;display:flex;align-items:center;gap:8px;margin:12px 20px 0;padding:10px 10px 10px 14px;
+  border:1px solid color-mix(in srgb,var(--pencil-hi) 40%,var(--line));border-radius:14px;
+  background:color-mix(in srgb,var(--pencil) 12%,var(--slate-2))}
+.bkremind[hidden]{display:none}
+.bkremind .tx{flex:1;min-width:0}
+.bkremind .nm{display:block;font-size:14px;font-weight:600;color:var(--text)}
+.bkremind .sub{display:block;font-size:12.5px;color:var(--text-dim);margin-top:1px}
+.bkremind button{flex:none;height:34px;padding:0 12px;border-radius:10px;font-size:13.5px}
+.bkremind .later{color:var(--text-dim)}
+.bkremind .now{background:var(--pencil);color:#fff;font-weight:500}
+.bkremind button:active{transform:scale(.96)}
+
+/* ---- appearance: settings row + picker screen ---- */
+.ap-open{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px 12px 12px;text-align:left;
+  border:1px solid var(--line);border-radius:14px;background:var(--slate-2)}
+.ap-open:active{background:var(--slate-3)}
+.ap-open .tx{flex:1;min-width:0}
+.ap-open .nm{display:block;font-size:15.5px;color:var(--text)}
+.ap-open .sub{display:block;font-size:13px;color:var(--text-faint);margin-top:1px}
+.ap-open .chev{color:var(--text-faint);display:grid}
+/* small swatch: the base, a sliver of score, the accent */
+.ap-sw{position:relative;flex:none;width:46px;height:46px;border-radius:11px;background:var(--sw-b);overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(128,128,128,.3)}
+.ap-sw .ap-page{left:9px;top:9px;width:19px;bottom:-4px}
+.ap-sw i{position:absolute;right:6px;bottom:6px;width:10px;height:10px;border-radius:50%;background:var(--sw-a)}
+
+/* a miniature score page, shared by the swatch and the tiles */
+.ap-page{position:absolute;background:#FBFAF6;border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,.28)}
+.ap-page::before{content:'';position:absolute;inset:14% 12% 0;
+  background:linear-gradient(to bottom,#0000 0,#0000 1px,#9AA0A6 1px,#9AA0A6 1.6px,#0000 1.6px) 0 0/100% 3px repeat-y;
+  -webkit-mask:linear-gradient(to bottom,#000 0 15px,#0000 15px 24px) 0 0/100% 24px repeat-y;
+          mask:linear-gradient(to bottom,#000 0 15px,#0000 15px 24px) 0 0/100% 24px repeat-y;opacity:.8}
+.ap-sw .ap-page::before{inset:18% 14% 0;background-size:100% 2px;
+  -webkit-mask-size:100% 14px;mask-size:100% 14px;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0 9px,#0000 9px 14px);mask-image:linear-gradient(to bottom,#000 0 9px,#0000 9px 14px)}
+
+#mAppear{z-index:41;transform:translateX(100%);transition:transform .32s cubic-bezier(.32,.72,0,1),visibility 0s linear .32s}
+#mAppear.on{transform:none;transition:transform .32s cubic-bezier(.32,.72,0,1),visibility 0s}
+#mSettings.under{transform:translateX(-24%)}
+.ap-tone{margin:4px 20px 2px}
+.ap-scroll{padding:14px 16px 24px}
+.ap-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 12px}
+.ap-tile{display:flex;flex-direction:column;align-items:stretch;gap:8px;text-align:left;min-width:0}
+.ap-mini{position:relative;display:block;aspect-ratio:5/4;border-radius:14px;background:var(--tb);overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(128,128,128,.28);transition:transform .16s ease,box-shadow .2s ease}
+.ap-mini .ap-page{left:13%;top:17%;width:42%;bottom:-10%}
+.ap-mini b{position:absolute;left:64%;right:12%;height:4px;border-radius:2px;background:var(--tt)}
+.ap-mini b:nth-of-type(1){top:22%}
+.ap-mini b:nth-of-type(2){top:34%;right:24%}
+.ap-mini em{position:absolute;left:64%;right:12%;bottom:15%;height:12px;border-radius:6px;background:var(--ta)}
+.ap-tile:active .ap-mini{transform:scale(.95)}
+.ap-tile .nm{font-size:13px;color:var(--text-dim);padding-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ap-tile.on .ap-mini{box-shadow:inset 0 0 0 1px rgba(128,128,128,.28),0 0 0 2px var(--slate),0 0 0 4px var(--pencil-hi)}
+.ap-tile.on .nm{color:var(--text);font-weight:600}
+.ap-foot{flex:none;padding:14px 20px calc(env(safe-area-inset-bottom,0px) + 16px);background:var(--slate-2);border-top:1px solid var(--line)}
+.ap-foot-t{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--text-faint);margin-bottom:12px}
+.ap-acc-nm{color:var(--text);font-size:14px;text-transform:capitalize}
+.ap-accs{display:flex;justify-content:space-between;gap:10px}
+.ap-acc{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--c);
+  box-shadow:inset 0 0 0 1px rgba(128,128,128,.3);transition:box-shadow .2s ease,transform .16s ease}
+.ap-acc:active{transform:scale(.92)}
+.ap-acc svg{opacity:0;transform:scale(.6);transition:opacity .18s,transform .18s;color:var(--ck)}
+.ap-acc.on{box-shadow:inset 0 0 0 1px rgba(128,128,128,.3),0 0 0 3px var(--slate-2),0 0 0 5px var(--c)}
+.ap-acc.on svg{opacity:1;transform:none}
 .pd-seg.sm{width:184px}
 .pd-seg.sm button{height:26px;font-size:12.5px}
 .pd-tabs{margin:2px 16px 6px}
@@ -1253,6 +1921,11 @@ svg{display:block}
       </div>
     </div>
   </div></div>
+  <div class="bkremind" id="bkRemind" role="status" hidden>
+    <span class="tx"><span class="nm">Time to back up</span><span class="sub" id="bkRemindText"></span></span>
+    <button type="button" class="later" id="bkLater">Later</button>
+    <button type="button" class="now" id="bkNow">Back up</button>
+  </div>
   <div class="plist mainlist" id="clList"></div>
   <div class="empty" id="empty" style="display:none">
     <h2>Nothing on the stand yet</h2>
@@ -1565,21 +2238,76 @@ svg{display:block}
   </div>
   <div class="plist pdash">
     <div class="pd-sec" style="margin-top:12px">
-      <div class="pd-t"><h4>Appearance</h4><span class="pd-cur" id="themeName"></span></div>
-      <div class="appear" id="themeSeg" role="group" aria-label="Appearance">
-        <div class="appear-row" data-base="dark"><span class="base">Dark</span><div class="acc-dots"><button type="button" class="acc-dot" data-theme-id="dark-blue" style="--b:#1B2029;--a:#6E93C9" aria-label="Dark, blue"></button><button type="button" class="acc-dot" data-theme-id="dark-teal" style="--b:#1B2029;--a:#5CB8AE" aria-label="Dark, teal"></button><button type="button" class="acc-dot" data-theme-id="dark-violet" style="--b:#1B2029;--a:#A395E8" aria-label="Dark, violet"></button><button type="button" class="acc-dot" data-theme-id="dark-crimson" style="--b:#1B2029;--a:#E57B82" aria-label="Dark, crimson"></button><button type="button" class="acc-dot" data-theme-id="dark-amber" style="--b:#1B2029;--a:#D9A35C" aria-label="Dark, amber"></button></div></div>
-        <div class="appear-row" data-base="stone"><span class="base">Stone</span><div class="acc-dots"><button type="button" class="acc-dot" data-theme-id="stone-blue" style="--b:#C8CBC4;--a:#2F5287" aria-label="Stone, blue"></button><button type="button" class="acc-dot" data-theme-id="stone-teal" style="--b:#C8CBC4;--a:#175A55" aria-label="Stone, teal"></button><button type="button" class="acc-dot" data-theme-id="stone-violet" style="--b:#C8CBC4;--a:#46388A" aria-label="Stone, violet"></button><button type="button" class="acc-dot" data-theme-id="stone-crimson" style="--b:#C8CBC4;--a:#852A31" aria-label="Stone, crimson"></button><button type="button" class="acc-dot" data-theme-id="stone-amber" style="--b:#C8CBC4;--a:#704310" aria-label="Stone, amber"></button></div></div>
-        <div class="appear-row" data-base="lamp"><span class="base">Lamplight</span><div class="acc-dots"><button type="button" class="acc-dot" data-theme-id="lamp-amber" style="--b:#1A1510;--a:#D9A35C" aria-label="Lamplight, amber"></button><button type="button" class="acc-dot" data-theme-id="lamp-copper" style="--b:#1A1510;--a:#E38B63" aria-label="Lamplight, copper"></button><button type="button" class="acc-dot" data-theme-id="lamp-rose" style="--b:#1A1510;--a:#E58BA0" aria-label="Lamplight, rose"></button><button type="button" class="acc-dot" data-theme-id="lamp-sage" style="--b:#1A1510;--a:#A2C298" aria-label="Lamplight, sage"></button><button type="button" class="acc-dot" data-theme-id="lamp-plum" style="--b:#1A1510;--a:#C991B8" aria-label="Lamplight, plum"></button></div></div>
+      <div class="pd-t"><h4>Appearance</h4></div>
+      <button type="button" class="ap-open" id="apOpen" aria-label="Appearance">
+        <span class="ap-sw" id="apSw" aria-hidden="true"><span class="ap-page"></span><i></i></span>
+        <span class="tx"><span class="nm" id="apOpenName"></span><span class="sub" id="apOpenSub"></span></span>
+        <span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+    </div>
+    <div class="pd-sec">
+      <div class="pd-t"><h4>Practice logging</h4></div>
+      <div class="set-card">
+        <div class="set-row">
+          <span class="set-l"><span class="nm">Log practice automatically</span><span class="sub">Times each score while it’s open in the reader.</span></span>
+          <button type="button" class="set-sw" id="setAutolog" role="switch" aria-checked="true" aria-label="Log practice automatically"><i></i></button>
+        </div>
+        <div class="set-row col" data-needs="autolog">
+          <span class="set-l"><span class="nm">Shortest session to keep</span><span class="sub">Anything shorter is treated as a quick look and not logged.</span></span>
+          <div class="pd-seg set-seg" data-pref="autologMin" style="--n:4;--i:0"><span class="pdk"></span><button type="button" data-v="30">30 s</button><button type="button" data-v="90">90 s</button><button type="button" data-v="180">3 min</button><button type="button" data-v="300">5 min</button></div>
+        </div>
+        <div class="set-row col" data-needs="autolog">
+          <span class="set-l"><span class="nm">Stop counting when idle</span><span class="sub">After this long with no page turn, touch or pedal press. The idle stretch isn’t counted, and the next touch starts the clock again.</span></span>
+          <div class="pd-seg set-seg" data-pref="autologIdle" style="--n:4;--i:0"><span class="pdk"></span><button type="button" data-v="0">Never</button><button type="button" data-v="3">3 min</button><button type="button" data-v="5">5 min</button><button type="button" data-v="10">10 min</button></div>
+        </div>
       </div>
     </div>
     <div class="pd-sec">
-      <div class="pd-t"><h4>Backup</h4></div>
+      <div class="pd-t"><h4>Titles</h4></div>
+      <div class="set-card">
+        <div class="set-prev" aria-hidden="true"><span class="nm" id="tiPrevT"></span><span class="sub" id="tiPrevC"></span></div>
+        <div class="set-row col">
+          <span class="set-l"><span class="nm">Nicknames</span></span>
+          <div class="pd-seg set-seg" data-pref="nick" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="first">Before the title</button><button type="button" data-v="after">After the title</button></div>
+        </div>
+        <div class="set-row col">
+          <span class="set-l"><span class="nm">Composer names</span></span>
+          <div class="pd-seg set-seg" data-pref="composerNames" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="full">Full name</button><button type="button" data-v="short">Surname</button></div>
+        </div>
+      </div>
+      <p class="pd-hint set-note">Titles you’ve typed or edited yourself are always shown as you wrote them.</p>
+    </div>
+    <div class="pd-sec">
+      <div class="pd-t"><h4>Backup</h4><span class="pd-cur" id="bkStatus"></span></div>
       <p class="pd-hint">One file with every score, your markings, practice time, progress and settings. Save it outside Stand, for example before reinstalling, and restore it here.</p>
       <div class="btnrow">
         <button class="btn" id="setRestore">Restore</button>
         <button class="btn go" id="setBackup">Back up library</button>
       </div>
+      <div class="set-card" style="margin-top:14px">
+        <div class="set-row col">
+          <span class="set-l"><span class="nm">Remind me to back up</span><span class="sub">A note appears in the library when a backup is due.</span></span>
+          <div class="pd-seg set-seg" data-pref="backupEvery" style="--n:4;--i:0"><span class="pdk"></span><button type="button" data-v="0">Off</button><button type="button" data-v="7">Weekly</button><button type="button" data-v="14">2 weeks</button><button type="button" data-v="30">Monthly</button></div>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
+
+<div class="panel" id="mAppear" aria-label="Appearance">
+  <div class="panel-head">
+    <button class="linkbtn" id="apBack">Back</button>
+    <h3>Appearance</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="pd-seg ap-tone" id="apTone" style="--n:2;--i:0"><span class="pdk"></span>
+    <button type="button" data-tone="dark">Dark</button>
+    <button type="button" data-tone="light">Light</button>
+  </div>
+  <div class="plist ap-scroll"><div class="ap-grid" id="apGrid" role="group" aria-label="Base"></div></div>
+  <div class="ap-foot">
+    <div class="ap-foot-t"><span>Accent</span><span class="ap-acc-nm" id="apAccName"></span></div>
+    <div class="ap-accs" id="apAccs" role="group" aria-label="Accent"></div>
   </div>
 </div>
 
@@ -5424,7 +6152,7 @@ $('#dWork').addEventListener('click', () => {
   if(!((d.composer && WORKS[d.composer]) || []).length) return;
   openWorkPicker(d.composer, workKeyOf(d) || '', key => {
     d.workKey = key;
-    d.title = workShown(d.composer, key);
+    d.title = workCanon(d.composer, key);
     $('#dTitle').value = d.title;
     setWorkField();
     renderDetailsPractice(d);
@@ -5991,7 +6719,7 @@ async function spRun(){
    named after it, unless it already has one there. */
 const MG = { ids:[], titleTouched:false };
 const mgDocs = () => MG.ids.map(id => S.docs.find(d => d.id === id)).filter(Boolean);
-const docShownTitle = d => { const k = workKeyOf(d); return k != null ? workShown(d.composer, k) : (d.title || 'Untitled'); };
+const docShownTitle = d => { const k = workKeyOf(d); return k != null ? workShown(d.composer, k) : (titleShown(d.title) || 'Untitled'); };
 
 function mgOpen(id){
   const d = S.docs.find(x => x.id === id); if(!d) return;
@@ -6005,7 +6733,7 @@ function mgOpen(id){
 function mgDefaultTitle(){
   const docs = mgDocs(); if(!docs.length) return '';
   const k0 = workKeyOf(docs[0]);
-  if(k0 != null && docs.every(d => d.composer === docs[0].composer && workKeyOf(d) === k0)) return workShown(docs[0].composer, k0);
+  if(k0 != null && docs.every(d => d.composer === docs[0].composer && workKeyOf(d) === k0)) return workCanon(docs[0].composer, k0);
   return docs[0].title || 'Untitled';
 }
 function mgRender(){
@@ -6144,6 +6872,46 @@ function strayComposers(){
 /* Titles autofilled before nicknames moved to the front are updated once, but
    only titles that are exactly a catalogue title — anything you typed or
    edited yourself is left alone. */
+/* A stored title that is exactly a catalogue title (nickname first, perhaps
+   with " — Movement n") is shown the catalogue's way when Titles is set to
+   put nicknames after; anything you typed yourself is shown as you typed it. */
+let NICK_BACK = null;
+function titleShown(t){
+  if(!t || pref('nick') !== 'after') return t;
+  if(!NICK_BACK){
+    NICK_BACK = new Map();
+    for(const c in WORKS) for(const [, w] of WORKS[c]){ const n = nicknameFirst(w); if(n !== w) NICK_BACK.set(n, w); }
+  }
+  const m = /^(.*?)( — Movement \d+)?$/.exec(t);
+  const back = NICK_BACK.get(m[1]);
+  return back ? back + (m[2] || '') : t;
+}
+/* Composer names: the full name, or the short name musicians use. The short
+   name is the briefest of the composer's own spellings that is made of words
+   from the full name, so "Ludwig van Beethoven" becomes "Beethoven" and
+   "Johann Sebastian Bach" becomes "Bach", while "Leopold Mozart" and
+   "Clara Schumann" keep their first names because the bare surname belongs
+   to someone else. */
+const SHORT_NAMES = new Map();
+function composerShort(name){
+  if(!name) return name;
+  if(SHORT_NAMES.has(name)) return SHORT_NAMES.get(name);
+  let best = name;
+  const e = findComposer(name);
+  if(e){
+    const words = name.split(/\s+/), nw = words.map(normText);
+    let bestLen = words.length;
+    for(const sp of e.keyset){
+      const sw = sp.split(' ');
+      if(sw.length >= bestLen || !sw.every(w => nw.includes(w))) continue;
+      best = words.filter((w, i) => sw.includes(nw[i])).join(' '); bestLen = sw.length;
+    }
+  }
+  SHORT_NAMES.set(name, best);
+  return best;
+}
+function composerShown(name){ return name && pref('composerNames') === 'short' ? composerShort(name) : name; }
+
 function nicknameMigrate(){
   const map = new Map();
   for(const c in WORKS) for(const [, t] of WORKS[c]){
@@ -6349,7 +7117,7 @@ function practiceTitle(pieceId){
   const wk = practiceWorkKeyOf(pieceId);
   if(wk) return workShown(wk.composer, wk.key) || `${wk.composer}, ${catalogueLabel(wk.key)}`;
   const d = S.docs.find(x => x.id === pieceId.replace(/^d\|/, ''));
-  if(d) return d.title;
+  if(d) return titleShown(d.title);
   const r = S.practice.retired && S.practice.retired[pieceId];   // split, merged or deleted
   return r ? r.title : 'Untitled piece';
 }
@@ -6462,32 +7230,76 @@ function practiceByComposer(){
   return [...map.entries()].map(([key, ms]) => ({ key, ms })).sort((a, b) => b.ms - a.ms);
 }
 
+/* ---------- preferences ----------
+   Small settings live together in localStorage under stand.prefs, so they
+   ride along in backups with the rest of the stand.* keys. */
+const PREFS_DEF = { autolog:true, autologMin:90, autologIdle:0, nick:'first', composerNames:'full', backupEvery:14 };
+let PREFS = null;
+function pref(k){
+  if(!PREFS){ try{ PREFS = JSON.parse(localStorage.getItem('stand.prefs') || '{}') || {}; }catch(e){ PREFS = {}; } }
+  return k in PREFS ? PREFS[k] : PREFS_DEF[k];
+}
+function setPref(k, v){
+  pref(k); PREFS[k] = v;
+  try{ localStorage.setItem('stand.prefs', JSON.stringify(PREFS)); }catch(e){}
+}
+
 /* ---------- the live timer ----------
    Tied to the score reader, not to app-open time. Only FOREGROUND time
    counts — accumulated from Date.now() deltas around visibilitychange,
    never a running setInterval count, since iOS suspends timers the moment
    the app backgrounds or the phone locks and a naive interval drifts.
    A 15s heartbeat is written to K.practiceLive so a session survives a
-   crash or a swipe-kill; ptRecover() reconciles it at next launch. A
-   session under 90s is treated as provisional and never saved — long
-   enough to rule out "opened it by mistake". */
-const PT = { pieceId:null, partIndex:null, startedAt:0, ms:0, resumeAt:null, hbTimer:null };
-const PT_PROVISIONAL_MS = 90000, PT_HEARTBEAT_MS = 15000;
+   crash or a swipe-kill; ptRecover() reconciles it at next launch.
 
-function ptLiveMs(){ return PT.pieceId ? PT.ms + (PT.resumeAt != null ? Date.now()-PT.resumeAt : 0) : 0; }
-function ptPauseClock(){
+   Three rules come from Settings. Auto-logging can be off altogether. A
+   session shorter than the chosen minimum (90s by default) is treated as
+   provisional and never saved — long enough to rule out "opened it by
+   mistake". And with an idle limit set, the clock stops once that long has
+   passed with no page turn, touch or pedal press; the idle stretch is cut
+   back to the last activity, and the next touch starts it again. */
+const PT = { pieceId:null, partIndex:null, startedAt:0, ms:0, resumeAt:null, hbTimer:null, lastAct:0, idle:false };
+const PT_HEARTBEAT_MS = 15000;
+const ptMinMs = () => (+pref('autologMin') || 90) * 1000;
+const ptIdleMs = () => (+pref('autologIdle') || 0) * 60000;
+
+// where the running stretch ends: now, or the last activity if the idle limit has passed since
+function ptStretchEnd(now){
+  const lim = ptIdleMs();
+  return lim && now - PT.lastAct > lim ? Math.max(PT.resumeAt, PT.lastAct) : now;
+}
+function ptLiveMs(){
+  if(!PT.pieceId) return 0;
+  return PT.ms + (PT.resumeAt != null ? ptStretchEnd(Date.now()) - PT.resumeAt : 0);
+}
+function ptIdleCheck(){
   if(!PT.pieceId || PT.resumeAt == null) return;
+  const now = Date.now(), end = ptStretchEnd(now);
+  if(end === now) return;
+  PT.ms += end - PT.resumeAt; PT.resumeAt = null; PT.idle = true;
+}
+function ptPauseClock(){
+  if(!PT.pieceId) return;
+  ptIdleCheck();
+  if(PT.resumeAt == null) return;
   PT.ms += Date.now() - PT.resumeAt;
   PT.resumeAt = null;
 }
-function ptResumeClock(){ if(PT.pieceId) PT.resumeAt = Date.now(); }
+function ptResumeClock(){ if(PT.pieceId){ PT.resumeAt = PT.lastAct = Date.now(); PT.idle = false; } }
+// any page turn, touch or pedal press in the reader
+function ptActivity(){
+  if(!PT.pieceId) return;
+  PT.lastAct = Date.now();
+  if(PT.idle && !document.hidden){ PT.idle = false; PT.resumeAt = PT.lastAct; }
+}
 
 function ptStart(doc){
+  if(!pref('autolog')) return;
   const pieceId = docRateId(doc);
   if(PT.pieceId === pieceId) return;
   if(PT.pieceId) ptStop();   // switching scores without going through the back button
   PT.pieceId = pieceId; PT.partIndex = null;
-  PT.startedAt = Date.now(); PT.ms = 0; PT.resumeAt = Date.now();
+  PT.startedAt = PT.lastAct = Date.now(); PT.ms = 0; PT.resumeAt = Date.now(); PT.idle = false;
   ptWriteHeartbeat();
   PT.hbTimer = setInterval(ptWriteHeartbeat, PT_HEARTBEAT_MS);
 }
@@ -6498,13 +7310,14 @@ async function ptStop(){
   const { pieceId, partIndex, startedAt, ms } = PT;
   PT.pieceId = null;
   try{ await DB.del(K.practiceLive); }catch(e){}
-  if(ms < PT_PROVISIONAL_MS) return;
+  if(ms < ptMinMs()) return;
   await addPracticeSession({ pieceId, partIndex, startedAt, endedAt:Date.now(), ms, source:'auto' });
   toast(`Logged ${fmtPracticeMs(ms)} on ${practiceTitle(pieceId)}`);
   practiceRefreshOpenViews();
 }
 async function ptWriteHeartbeat(){
   if(!PT.pieceId) return;
+  ptIdleCheck();
   const ms = ptLiveMs();
   try{ await DB.set(K.practiceLive, { pieceId:PT.pieceId, partIndex:PT.partIndex, startedAt:PT.startedAt, ms, heartbeatAt:Date.now() }); }
   catch(e){}
@@ -6517,7 +7330,7 @@ async function ptRecover(){
   try{ stale = await DB.get(K.practiceLive); }catch(e){ stale = null; }
   if(!stale) return;
   try{ await DB.del(K.practiceLive); }catch(e){}
-  if(stale.ms >= PT_PROVISIONAL_MS){
+  if(stale.ms >= ptMinMs()){
     await addPracticeSession({ pieceId:stale.pieceId, partIndex:stale.partIndex, startedAt:stale.startedAt, endedAt:stale.heartbeatAt, ms:stale.ms, source:'recovered' });
     toast(`Recovered ${fmtPracticeMs(stale.ms)} of practice on ${practiceTitle(stale.pieceId)}`, 4000);
   }
@@ -6528,6 +7341,7 @@ document.addEventListener('visibilitychange', () => {
   else ptResumeClock();
 });
 window.addEventListener('beforeunload', () => { if(PT.pieceId){ ptPauseClock(); ptWriteHeartbeat(); } });
+$('#viewer').addEventListener('pointerdown', ptActivity, { capture:true, passive:true });
 
 /* ---------- practice panel: overview and session log ---------- */
 const ptAddDays = (t, n) => { const d = new Date(t); d.setDate(d.getDate() + n); return +d; };
@@ -6654,7 +7468,7 @@ function pdRankHtml(){
   const rows = [...map].map(([k, ms]) => ({ k, ms })).sort((a, b) => b.ms - a.ms).slice(0, 6);
   if(!rows.length) return `<p class="pd-hint">Nothing logged in this period.</p>`;
   return rows.map(r => {
-    const inner = `<span class="top"><span class="tx"><span class="nm">${esc(pieces ? practiceTitle(r.k) : r.k)}</span>${pieces ? `<span class="sub">${esc(practiceComposer(r.k))}</span>` : ''}</span><span class="v">${pdDur(r.ms)}</span></span><span class="pd-trk"><i style="width:${Math.max(4, r.ms / rows[0].ms * 100)}%"></i></span>`;
+    const inner = `<span class="top"><span class="tx"><span class="nm">${esc(pieces ? practiceTitle(r.k) : composerShown(r.k))}</span>${pieces ? `<span class="sub">${esc(composerShown(practiceComposer(r.k)))}</span>` : ''}</span><span class="v">${pdDur(r.ms)}</span></span><span class="pd-trk"><i style="width:${Math.max(4, r.ms / rows[0].ms * 100)}%"></i></span>`;
     return pieces ? `<button type="button" class="pd-rank" data-open="${esc(r.k)}">${inner}</button>` : `<div class="pd-rank">${inner}</div>`;
   }).join('');
 }
@@ -6763,7 +7577,7 @@ function practiceLogSessions(){
 }
 function pdSessionHtml(s){
   const timed = s.source !== 'manual', open = PD.open === s.id;
-  const title = practiceTitle(s.pieceId), comp = practiceComposer(s.pieceId), part = practicePartName(s), f = PD_FOCUS[s.focus];
+  const title = practiceTitle(s.pieceId), comp = composerShown(practiceComposer(s.pieceId)), part = practicePartName(s), f = PD_FOCUS[s.focus];
   const src = s.source === 'manual' ? 'Logged by hand' : s.source === 'recovered' ? 'Timed, recovered after an interruption' : 'Timed in the reader';
   const rows = [];
   if(timed) rows.push(['Time', `${fmtClock(s.startedAt)} to ${fmtClock(s.endedAt || (s.startedAt + (s.ms || 0)))}`]);
@@ -7030,13 +7844,13 @@ function pieceRow(d){
   let name, desc = '';
   if(k != null){
     name = workShown(d.composer, k);
-    bits.push(d.composer, catalogueLabel(k));
+    bits.push(composerShown(d.composer), catalogueLabel(k));
     desc = workInfo(d.composer, k).note || '';
     // a score of one movement, or a renamed copy, keeps its own title visible
-    if(normWork(d.title) !== normWork(name)) desc = d.title + (desc ? ' · ' + desc : '');
+    if(normWork(d.title) !== normWork(workCanon(d.composer, k)) && normWork(d.title) !== normWork(name)) desc = titleShown(d.title) + (desc ? ' · ' + desc : '');
   }else{
-    name = d.title || 'Untitled';
-    bits.push(d.composer || 'Unknown composer');
+    name = titleShown(d.title) || 'Untitled';
+    bits.push(composerShown(d.composer) || 'Unknown composer');
     if(d.keyInfo) bits.push(d.keyInfo);
     const more = [];
     if(d.pages) more.push(d.pages + (d.pages === 1 ? ' page' : ' pages'));
@@ -7072,7 +7886,7 @@ function renderPieces(){
       S.prog === 'none' ? 'Every piece here has been practiced.' :
       S.prog !== 'all' ? `Nothing here is marked ${S.prog} yet. Mark progress in a piece’s details.` : 'No pieces fit these filters.'}</div>`;
   }
-  const titleOf = d => { const k = workKeyOf(d); return k != null ? workShown(d.composer, k) : (d.title || ''); };
+  const titleOf = d => { const k = workKeyOf(d); return k != null ? workShown(d.composer, k) : (titleShown(d.title) || ''); };
   const list = [...docs];
   const coll = (a, b) => a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'});
   let groups;
@@ -7083,7 +7897,7 @@ function renderPieces(){
     const m = new Map();
     const sk = n => { if(!n) return '\uffff'; const e = findComposer(n); return e ? e.sortKey : normText(n); };
     list.sort((a, b) => (sk(a.composer) < sk(b.composer) ? -1 : sk(a.composer) > sk(b.composer) ? 1 : 0) || coll(titleOf(a), titleOf(b)));
-    for(const d of list){ const g = d.composer || 'Unknown composer'; if(!m.has(g)) m.set(g, []); m.get(g).push(d); }
+    for(const d of list){ const g = composerShown(d.composer) || 'Unknown composer'; if(!m.has(g)) m.set(g, []); m.get(g).push(d); }
     groups = [...m];
   }else if(CL.sort === 'level'){
     const lv = d => { const p = pieceLevel(d); return p ? p.lv : 99; };
@@ -7831,12 +8645,23 @@ function workInfo(composer, key){
   }
   return o;
 }
-function workShown(composer, key){
+/* workCanon is the title as stored on a piece: nickname first. workShown is
+   the same title as displayed, which follows the Titles setting — nickname
+   first, or after the title the way the catalogue writes it. */
+function workCanon(composer, key){
   const w = workEntry(composer, key); if(!w) return '';
   const e = S.wedit[wkId(composer, key)];
   if(!e || (e.plain == null && e.nick == null)) return nicknameFirst(w[1]);
   const i = workInfo(composer, key);
   return i.nick ? `${i.nick} — ${i.plain}` : i.plain;
+}
+function workShown(composer, key){
+  if(pref('nick') !== 'after') return workCanon(composer, key);
+  const w = workEntry(composer, key); if(!w) return '';
+  const e = S.wedit[wkId(composer, key)];
+  if(!e || (e.plain == null && e.nick == null)) return w[1];
+  const i = workInfo(composer, key);
+  return i.nick ? `${i.plain} “${i.nick}”` : i.plain;
 }
 function workNote(composer, key){
   const e = S.wedit[wkId(composer, key)];
@@ -10789,6 +11614,7 @@ function goPage(n, silent){
   V.page = n; V.zoom = 1;
   if(V.doc && V.doc.page !== n){ V.doc.page = n; saveIndexSoon(); }
   lastNav = nowMs();
+  ptActivity();
   $('#pLabel').textContent = `${n} / ${V.pdf.numPages}`;
   if(V.markup) showPageChip(`${n} / ${V.pdf.numPages}`);
   const e = V.cache.get(n);
@@ -10818,6 +11644,7 @@ function goPage(n, silent){
    typing anywhere, and while the viewer isn't the thing on screen. */
 document.addEventListener('keydown', e => {
   if(!$('#viewer').classList.contains('open')) return;
+  ptActivity();
   if(e.target.closest('input, textarea, [contenteditable]')) return;
   if(e.metaKey || e.ctrlKey || e.altKey) return;
   if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)) goPage(V.page + 1);
@@ -11581,6 +12408,8 @@ async function saveBackup(){
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     }
     closeBackupCard();
+    try{ localStorage.setItem('stand.lastBackup', String(Date.now())); }catch(e){}
+    syncBackupStatus();
   }catch(err){
     if(err && err.name === 'AbortError') return;       // share sheet dismissed; keep the card up
     toast('Could not save the backup: ' + err.message, 4000);
@@ -11627,6 +12456,8 @@ async function restoreLibrary(file){
     await DB.delPrefix('raster:');                       // page images of the old library
     await DB.del(K.rasters);
     try{ for(const [k, v] of Object.entries(man.localStorage || {})) if(k.startsWith('stand.')) localStorage.setItem(k, v); }catch(e){}
+    // the library now matches that backup, so it counts as the last one
+    try{ localStorage.setItem('stand.lastBackup', String(man.createdAt || Date.now())); localStorage.removeItem('stand.backupSnooze'); }catch(e){}
     $('#busyText').textContent = 'Restored. Reloading';
     setTimeout(() => location.reload(), 400);
   }catch(err){
@@ -11638,23 +12469,89 @@ async function restoreLibrary(file){
 $('#emptyRestore').addEventListener('click', pickRestore);
 
 /* ---------- settings ---------- */
-const THEME_BG = { dark:'#1B2029', stone:'#C8CBC4', lamp:'#1A1510' };   // status bar / theme-color
-const THEME_OLD = { dark:'dark-blue', light:'stone-blue', stone:'stone-blue', lamp:'lamp-amber',
-                    velvet:'dark-blue', verdigris:'dark-blue', wine:'dark-blue' };
-const BASE_NAME = { dark:'Dark', stone:'Stone', lamp:'Lamplight' };
-function themeValid(t){ return !!document.querySelector(`#themeSeg [data-theme-id="${t}"]`); }
+const THEMES = [
+  {'id':'dark','name':'Dark','tone':'dark','bg':'#1B2029','acc':[['blue','#6E93C9'],['teal','#5CB8AE'],['violet','#A395E8'],['crimson','#E57B82'],['amber','#D9A35C']]},
+  {'id':'ebony','name':'Ebony','tone':'dark','bg':'#000000','acc':[['silver','#C3C7CE'],['blue','#6E93C9'],['teal','#5CB8AE'],['crimson','#E57B82'],['amber','#D9A35C']]},
+  {'id':'charcoal','name':'Charcoal','tone':'dark','bg':'#1E1E20','acc':[['silver','#C3C7CE'],['sky','#94C4F2'],['mint','#8FDDB8'],['coral','#F2957F'],['gold','#E9CC6E']]},
+  {'id':'pewter','name':'Pewter','tone':'dark','bg':'#2A2B2D','acc':[['ice','#8CC7EC'],['jade','#7FD3B5'],['sage','#A2C298'],['coral','#F2957F'],['brass','#E2C47C']]},
+  {'id':'smoke','name':'Smoke','tone':'dark','bg':'#3A3B3E','acc':[['ice','#8CC7EC'],['mint','#8FDDB8'],['peach','#F0B48C'],['lilac','#BBAAF5'],['gold','#E9CC6E']]},
+  {'id':'flint','name':'Flint','tone':'dark','bg':'#2C2A28','acc':[['brass','#E2C47C'],['coral','#F2957F'],['sage','#A2C298'],['sky','#94C4F2'],['lilac','#BBAAF5']]},
+  {'id':'lamp','name':'Lamplight','tone':'dark','bg':'#1A1510','acc':[['amber','#D9A35C'],['copper','#E38B63'],['rose','#E58BA0'],['sage','#A2C298'],['plum','#C991B8']]},
+  {'id':'walnut','name':'Walnut','tone':'dark','bg':'#302A24','acc':[['brass','#E2C47C'],['peach','#F0B48C'],['sage','#A2C298'],['blush','#F0A6C0'],['sky','#94C4F2']]},
+  {'id':'iron','name':'Iron','tone':'dark','bg':'#2E2626','acc':[['coral','#F2957F'],['gold','#E9CC6E'],['sage','#A2C298'],['sky','#94C4F2'],['silver','#C3C7CE']]},
+  {'id':'mulberry','name':'Mulberry','tone':'dark','bg':'#2E262A','acc':[['blush','#F0A6C0'],['peach','#F0B48C'],['lilac','#BBAAF5'],['sage','#A2C298'],['gold','#E9CC6E']]},
+  {'id':'heather','name':'Heather','tone':'dark','bg':'#2D262E','acc':[['blush','#F0A6C0'],['lilac','#BBAAF5'],['sage','#A2C298'],['gold','#E9CC6E'],['sky','#94C4F2']]},
+  {'id':'storm','name':'Storm','tone':'dark','bg':'#252530','acc':[['lilac','#BBAAF5'],['blush','#F0A6C0'],['peach','#F0B48C'],['mint','#8FDDB8'],['silver','#C3C7CE']]},
+  {'id':'harbor','name':'Harbor','tone':'dark','bg':'#232A31','acc':[['ice','#8CC7EC'],['jade','#7FD3B5'],['coral','#F2957F'],['gold','#E9CC6E'],['lilac','#BBAAF5']]},
+  {'id':'basalt','name':'Basalt','tone':'dark','bg':'#252E2F','acc':[['jade','#7FD3B5'],['coral','#F2957F'],['brass','#E2C47C'],['ice','#8CC7EC'],['blush','#F0A6C0']]},
+  {'id':'juniper','name':'Juniper','tone':'dark','bg':'#262E2A','acc':[['mint','#8FDDB8'],['gold','#E9CC6E'],['coral','#F2957F'],['sky','#94C4F2'],['blush','#F0A6C0']]},
+  {'id':'moss','name':'Moss','tone':'dark','bg':'#272D27','acc':[['brass','#E2C47C'],['coral','#F2957F'],['mint','#8FDDB8'],['lilac','#BBAAF5'],['silver','#C3C7CE']]},
+  {'id':'olive','name':'Olive','tone':'dark','bg':'#2E2E26','acc':[['gold','#E9CC6E'],['coral','#F2957F'],['sky','#94C4F2'],['lilac','#BBAAF5'],['mint','#8FDDB8']]},
+  {'id':'ochre','name':'Ochre','tone':'dark','bg':'#302C24','acc':[['brass','#E2C47C'],['coral','#F2957F'],['sky','#94C4F2'],['sage','#A2C298'],['lilac','#BBAAF5']]},
+  {'id':'pumice','name':'Pumice','tone':'light','bg':'#D2D2D0','acc':[['blue','#2A4B7D'],['teal','#145350'],['crimson','#852A31'],['amber','#704310'],['ink','#1C2622']]},
+  {'id':'concrete','name':'Concrete','tone':'light','bg':'#C0C2C4','acc':[['blue','#2A4B7D'],['teal','#145350'],['crimson','#852A31'],['amber','#704310'],['ink','#1C2622']]},
+  {'id':'steel','name':'Steel','tone':'light','bg':'#B9BDC1','acc':[['blue','#2A4B7D'],['teal','#145350'],['plum','#633454'],['bronze','#634418'],['ink','#1C2622']]},
+  {'id':'dove','name':'Dove','tone':'light','bg':'#CAC6C1','acc':[['blue','#2A4B7D'],['crimson','#852A31'],['sage','#3B5436'],['plum','#633454'],['ink','#1C2622']]},
+  {'id':'ivory','name':'Ivory','tone':'light','bg':'#D9D2C4','acc':[['blue','#2A4B7D'],['teal','#145350'],['crimson','#852A31'],['sage','#3B5436'],['plum','#633454']]},
+  {'id':'driftwood','name':'Driftwood','tone':'light','bg':'#CAC4BA','acc':[['bronze','#634418'],['crimson','#852A31'],['sage','#3B5436'],['blue','#2A4B7D'],['ink','#1C2622']]},
+  {'id':'apricot','name':'Apricot','tone':'light','bg':'#DACABE','acc':[['crimson','#852A31'],['bronze','#634418'],['blue','#2A4B7D'],['sage','#3B5436'],['plum','#633454']]},
+  {'id':'clay','name':'Clay','tone':'light','bg':'#CFC2BC','acc':[['crimson','#852A31'],['plum','#633454'],['sage','#3B5436'],['blue','#2A4B7D'],['bronze','#634418']]},
+  {'id':'rosewater','name':'Rosewater','tone':'light','bg':'#CFC1C5','acc':[['plum','#633454'],['crimson','#852A31'],['blue','#2A4B7D'],['sage','#3B5436'],['ink','#1C2622']]},
+  {'id':'thistle','name':'Thistle','tone':'light','bg':'#CABFCD','acc':[['plum','#633454'],['violet','#46388A'],['teal','#145350'],['crimson','#852A31'],['ink','#1C2622']]},
+  {'id':'wisteria','name':'Wisteria','tone':'light','bg':'#C7C0D0','acc':[['violet','#46388A'],['plum','#633454'],['teal','#145350'],['blue','#2A4B7D'],['ink','#1C2622']]},
+  {'id':'iris','name':'Iris','tone':'light','bg':'#BFC1D6','acc':[['violet','#46388A'],['blue','#2A4B7D'],['rose','#7C2F44'],['teal','#145350'],['ink','#1C2622']]},
+  {'id':'chambray','name':'Chambray','tone':'light','bg':'#B4C2D5','acc':[['blue','#2A4B7D'],['crimson','#852A31'],['amber','#704310'],['teal','#145350'],['ink','#1C2622']]},
+  {'id':'mist','name':'Mist','tone':'light','bg':'#BCC6D1','acc':[['blue','#2A4B7D'],['teal','#145350'],['crimson','#852A31'],['amber','#704310'],['ink','#1C2622']]},
+  {'id':'glacier','name':'Glacier','tone':'light','bg':'#CEDADE','acc':[['blue','#2A4B7D'],['teal','#145350'],['violet','#46388A'],['crimson','#852A31'],['ink','#1C2622']]},
+  {'id':'tide','name':'Tide','tone':'light','bg':'#BECECE','acc':[['teal','#145350'],['blue','#2A4B7D'],['coral','#7F3226'],['plum','#633454'],['ink','#1C2622']]},
+  {'id':'laurel','name':'Laurel','tone':'light','bg':'#C0C9BD','acc':[['bronze','#634418'],['crimson','#852A31'],['blue','#2A4B7D'],['plum','#633454'],['ink','#1C2622']]},
+  {'id':'lichen','name':'Lichen','tone':'light','bg':'#CDCDBF','acc':[['bronze','#634418'],['crimson','#852A31'],['blue','#2A4B7D'],['plum','#633454'],['ink','#1C2622']]}
+];
+/* THEMES drives the picker. Order within each tone is the order on screen:
+   neutrals first, then round the colour wheel. acc holds each accent's id and
+   the colour it shows as in the picker. */
+const THEME_BY = Object.fromEntries(THEMES.map(t => [t.id, t]));
+const THEME_BG = Object.fromEntries(THEMES.map(t => [t.id, t.bg]));   // status bar / theme-color
+const THEME_LIGHT = new Set(THEMES.filter(t => t.tone === 'light').map(t => t.id));
+const THEME_OLD = { dark:'dark-blue', light:'ivory-blue', lamp:'lamp-amber',
+                    velvet:'dark-blue', verdigris:'dark-blue', wine:'dark-blue',
+                    stone:'ivory-blue', 'stone-blue':'ivory-blue', 'stone-teal':'ivory-teal',
+                    'stone-crimson':'ivory-crimson', 'stone-violet':'ivory-plum', 'stone-amber':'ivory-blue' };
+function themeValid(t){
+  const [base, accent] = t.split('-'), T = THEME_BY[base];
+  return !!(T && T.acc.some(a => a[0] === accent));
+}
 function currentTheme(){
   const el = document.documentElement;
   return (el.dataset.theme || 'dark') + '-' + (el.dataset.accent || 'blue');
 }
+function accColor(T, id){ const a = T.acc.find(x => x[0] === id); return a ? a[1] : T.acc[0][1]; }
 function showTheme(t){
-  document.querySelectorAll('#themeSeg .acc-dot').forEach(d => {
-    const on = d.dataset.themeId === t;
-    d.classList.toggle('on', on); d.setAttribute('aria-pressed', on);
-  });
-  const [base, accent] = t.split('-');
-  document.querySelectorAll('#themeSeg .appear-row').forEach(r => r.classList.toggle('on', r.dataset.base === base));
-  $('#themeName').textContent = BASE_NAME[base] + ', ' + accent;
+  const [base, accent] = t.split('-'), T = THEME_BY[base] || THEME_BY.dark;
+  const sw = $('#apSw');
+  sw.style.setProperty('--sw-b', T.bg); sw.style.setProperty('--sw-a', accColor(T, accent));
+  $('#apOpenName').textContent = T.name;
+  $('#apOpenSub').textContent = (T.tone === 'light' ? 'Light' : 'Dark') + ', ' + accent + ' accent';
+  if($('#mAppear').classList.contains('on')) renderAppear(t);
+}
+let apTone = 'dark';
+function renderAppear(t){
+  const [base, accent] = t.split('-'), cur = THEME_BY[base] || THEME_BY.dark;
+  pdSetSeg($('#apTone'), 'tone', apTone);
+  $('#apGrid').innerHTML = THEMES.filter(T => T.tone === apTone).map(T => {
+    const on = T.id === cur.id;
+    const a = on ? accColor(T, accent) : T.acc[0][1];
+    const tt = T.tone === 'light' ? 'rgba(0,0,0,.2)' : 'rgba(255,255,255,.22)';
+    return `<button type="button" class="ap-tile${on ? ' on' : ''}" data-base="${T.id}" aria-pressed="${on}">
+      <span class="ap-mini" style="--tb:${T.bg};--ta:${a};--tt:${tt}"><span class="ap-page"></span><b></b><b></b><em></em></span>
+      <span class="nm">${T.name}</span></button>`;
+  }).join('');
+  const ck = cur.tone === 'light' ? '#fff' : 'rgba(0,0,0,.72)';
+  $('#apAccs').innerHTML = cur.acc.map(([id, c]) => {
+    const on = id === accent;
+    return `<button type="button" class="ap-acc${on ? ' on' : ''}" data-acc="${id}" style="--c:${c};--ck:${ck}" aria-pressed="${on}" aria-label="${id} accent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>`;
+  }).join('');
+  $('#apAccName').textContent = accent;
 }
 function applyTheme(t){
   t = THEME_OLD[t] || t;                  // older backups and settings
@@ -11662,6 +12559,7 @@ function applyTheme(t){
   const [base, accent] = t.split('-');
   const el = document.documentElement;
   if(base !== 'dark') el.dataset.theme = base; else delete el.dataset.theme;
+  if(THEME_LIGHT.has(base)) el.dataset.tone = 'light'; else delete el.dataset.tone;
   if(accent !== 'blue') el.dataset.accent = accent; else delete el.dataset.accent;
   const m = document.querySelector('meta[name="theme-color"]'); if(m) m.content = THEME_BG[base];
   try{ localStorage.setItem('stand.theme', t); }catch(e){}
@@ -11670,12 +12568,89 @@ function applyTheme(t){
 $('#setBtn').addEventListener('click', () => {
   $('#clQ').blur();
   showTheme(currentTheme());
+  syncSettings();
   $('#mSettings').classList.add('on');
 });
 $('#setBack').addEventListener('click', () => $('#mSettings').classList.remove('on'));
-$('#themeSeg').addEventListener('click', e => {
-  const b = e.target.closest('[data-theme-id]'); if(b) applyTheme(b.dataset.themeId);
+$('#apOpen').addEventListener('click', () => {
+  const t = currentTheme();
+  apTone = (THEME_BY[t.split('-')[0]] || THEME_BY.dark).tone;
+  renderAppear(t);
+  $('#apGrid').parentElement.scrollTop = 0;
+  $('#mAppear').classList.add('on');
+  $('#mSettings').classList.add('under');
 });
+$('#apBack').addEventListener('click', () => {
+  $('#mAppear').classList.remove('on');
+  $('#mSettings').classList.remove('under');
+});
+$('#apTone').addEventListener('click', e => {
+  const b = e.target.closest('[data-tone]'); if(!b || b.dataset.tone === apTone) return;
+  apTone = b.dataset.tone;
+  renderAppear(currentTheme());
+  $('#apGrid').parentElement.scrollTop = 0;
+});
+$('#apGrid').addEventListener('click', e => {
+  const b = e.target.closest('[data-base]'); if(!b) return;
+  const T = THEME_BY[b.dataset.base], accent = currentTheme().split('-')[1];
+  // keep the accent when the new base offers it, otherwise take the base's first
+  applyTheme(T.id + '-' + (T.acc.some(a => a[0] === accent) ? accent : T.acc[0][0]));
+});
+$('#apAccs').addEventListener('click', e => {
+  const b = e.target.closest('[data-acc]'); if(!b) return;
+  applyTheme(currentTheme().split('-')[0] + '-' + b.dataset.acc);
+});
+/* ---------- settings: practice logging, titles, backup ---------- */
+const DAY_MS = 86400000;
+function agoText(t){
+  const d = Math.floor((Date.now() - t) / DAY_MS);
+  if(d <= 0) return 'today';
+  if(d === 1) return 'yesterday';
+  if(d < 60) return `${d} days ago`;
+  return 'on ' + new Date(t).toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
+}
+function lsNum(k){ try{ return +localStorage.getItem(k) || 0; }catch(e){ return 0; } }
+function syncBackupStatus(){
+  const last = lsNum('stand.lastBackup');
+  $('#bkStatus').textContent = last ? 'Last backed up ' + agoText(last) : 'Not backed up yet';
+  checkBackupReminder();
+}
+function checkBackupReminder(){
+  const el = $('#bkRemind'), every = +pref('backupEvery') || 0;
+  let since = lsNum('stand.backupSince');
+  const last = lsNum('stand.lastBackup'), now = Date.now();
+  // the reminder clock starts the first time this version runs, not at "never"
+  if(!last && !since){ since = now; try{ localStorage.setItem('stand.backupSince', String(now)); }catch(e){} }
+  const due = every > 0 && S.docs.length > 0 && now - (last || since) >= every * DAY_MS && now >= lsNum('stand.backupSnooze');
+  el.hidden = !due;
+  if(due) $('#bkRemindText').textContent = last ? `Your last backup was ${agoText(last)}.` : 'Your library hasn’t been backed up from this phone yet.';
+}
+function syncSettings(){
+  const auto = !!pref('autolog');
+  $('#setAutolog').setAttribute('aria-checked', auto);
+  document.querySelectorAll('#mSettings [data-needs="autolog"]').forEach(r => r.classList.toggle('off', !auto));
+  document.querySelectorAll('#mSettings .set-seg').forEach(seg => pdSetSeg(seg, 'v', String(pref(seg.dataset.pref))));
+  const W = 'Ludwig van Beethoven';
+  $('#tiPrevT').textContent = workShown(W, '27/2') || 'Piano Sonata No. 14 in C-sharp minor, Op. 27 No. 2';
+  $('#tiPrevC').textContent = composerShown(W);
+  syncBackupStatus();
+}
+$('#setAutolog').addEventListener('click', () => { setPref('autolog', !pref('autolog')); syncSettings(); });
+document.querySelectorAll('#mSettings .set-seg').forEach(seg => seg.addEventListener('click', e => {
+  const b = e.target.closest('[data-v]'); if(!b) return;
+  const k = seg.dataset.pref, v = typeof PREFS_DEF[k] === 'number' ? +b.dataset.v : b.dataset.v;
+  if(pref(k) === v) return;
+  setPref(k, v);
+  if(k === 'nick' || k === 'composerNames'){ renderAll(); practiceRefreshOpenViews(); }
+  syncSettings();
+}));
+$('#bkNow').addEventListener('click', backupLibrary);
+$('#bkLater').addEventListener('click', () => {
+  try{ localStorage.setItem('stand.backupSnooze', String(Date.now() + 3 * DAY_MS)); }catch(e){}
+  checkBackupReminder();
+});
+document.addEventListener('visibilitychange', () => { if(!document.hidden && S.ready) checkBackupReminder(); });
+
 $('#setBackup').addEventListener('click', backupLibrary);
 $('#setRestore').addEventListener('click', pickRestore);
 $('#bkFile').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if(f) restoreLibrary(f); });
@@ -11720,6 +12695,7 @@ async function boot(){
     syncInkPanel();
     await loadLibrary();
     await ptRecover();
+    checkBackupReminder();
   }catch(err){
     console.error(err);
     showStartupError('Something unexpected happened while starting up: ' + err.message);
