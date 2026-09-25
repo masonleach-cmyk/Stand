@@ -1424,7 +1424,6 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
 
 #mAppear{z-index:41;transform:translateX(100%);transition:transform .32s cubic-bezier(.32,.72,0,1),visibility 0s linear .32s}
 #mAppear.on{transform:none;transition:transform .32s cubic-bezier(.32,.72,0,1),visibility 0s}
-#mSettings.under{transform:translateX(-24%)}
 .ap-tone{margin:4px 20px 2px}
 .ap-scroll{padding:14px 16px 24px}
 .ap-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 12px}
@@ -2083,17 +2082,16 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 .pd-acts button:disabled{opacity:.38;text-decoration:line-through}
 .pd-rank.gone{opacity:.55}
 
-/* the pieces a restore or re-render just brought in, dealt like cards */
-.ap-acc.dealt{animation:dealK .5s cubic-bezier(.3,1.5,.5,1) both}
-@keyframes dealK{from{scale:.2;rotate:-120deg;opacity:0}to{scale:1;rotate:0deg;opacity:1}}
-.ap-foot-t .ap-mix{display:flex;align-items:center;gap:4px;margin-left:auto}
-.ap-foot-t .ap-l{display:flex;align-items:baseline;gap:10px}
-#apShuffle,#apReset{height:30px;border-radius:9px;color:var(--text-dim);display:grid;place-items:center}
-#apShuffle{width:34px;border:1px solid var(--line);background:var(--slate-3)}
-#apShuffle:active{scale:.92}
-#apShuffle.spin svg{animation:shufSpin .5s cubic-bezier(.3,.7,.3,1)}
-@keyframes shufSpin{to{rotate:180deg}}
-#apReset{padding:0 8px;font-size:12.5px;color:var(--pencil-hi)}
+/* Accent shuffle: a sixth circle at the end of the swatch row, the same
+   size as the swatches. Shuffling recolours the four swatches in place,
+   so nothing in the footer moves or changes size. */
+.ap-accrow{display:flex;align-items:center;gap:10px}
+.ap-accrow .ap-accs{flex:1;min-width:0}
+.ap-accrow .ap-div{flex:none;width:1px;height:30px;background:var(--line)}
+#apShuffle{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+  background:var(--slate-3);border:1px solid var(--line);color:var(--text-dim);transition:transform .16s ease,background .16s}
+#apShuffle:active{transform:scale(.92);background:var(--line)}
+.ap-acc{transition:box-shadow .2s ease,transform .16s ease,background-color .35s ease}
 
 /* ---------- piece list settings ---------- */
 .set-sub{font-size:12.5px;color:var(--text-faint);margin:16px 2px 7px}
@@ -2110,10 +2108,57 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 :root[data-pl-wrap="one"] :is(#clList,.pl-prev) .prow.piece .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 @media (prefers-reduced-motion:reduce){
-  .glow,.nudge,.armed,.vanishing,.staff.sour span,.ap-acc.dealt,#wdBody.rewind > *,
+  .glow,.nudge,.armed,.vanishing,.staff.sour span,#wdBody.rewind > *,
   #clPractice.sweeping > svg path,.dock .unsaved.err,.glow .pinbadge{animation:none}
   .armed::after{animation-duration:var(--arm-ms,4000ms)}
 }
+/* ---------- the scroll line ----------
+   A hairline between the part of a screen that stays put and the part that
+   scrolls. It isn't switched on and off: its opacity (and a slight outward
+   draw) follows the scroll position itself, eased, so it arrives exactly as
+   fast as your finger moves the list. Nothing to see at the top. */
+.edge{position:relative;flex:none;height:0;z-index:3;pointer-events:none}
+.edge::after{content:"";position:absolute;left:20px;right:20px;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--line) 16%,var(--line) 84%,transparent);
+  opacity:var(--e,0);transform:scaleX(calc(.86 + .14 * var(--e,0)));transform-origin:50% 0;
+  transition:opacity .22s cubic-bezier(.25,.1,.25,1),transform .22s cubic-bezier(.25,.1,.25,1)}
+@media (min-resolution:2dppx){
+  .edge::after{transform:scaleX(calc(.86 + .14 * var(--e,0))) scaleY(.5)}
+}
+/* The filter row sits midway between the Pieces/Composers switch and this
+   line: 10px above its 32px controls (the row's own top padding) and 10px
+   below (its 2px bottom padding plus this 8px). */
+#clEdge{margin-top:8px}
+
+/* ---------- settings: a short index, each topic on its own page ---------- */
+.subpage{z-index:41;transform:translateX(100%);transition:transform .32s cubic-bezier(.32,.72,0,1),visibility 0s linear .32s}
+.subpage.on{transform:none;transition:transform .32s cubic-bezier(.32,.72,0,1),visibility 0s}
+#mSettings.under{transform:translateX(-24%)}
+.setpage .plist.pdash{padding-top:6px}
+.setroot .set-sub{margin:26px 4px 8px}
+.setroot .set-sub:first-of-type{margin-top:14px}
+.setroot #faultSec{margin:14px 0 4px}
+.set-link{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:58px;padding:10px 14px;
+  text-align:left;background:none;color:inherit;transition:background .15s}
+.set-link:active{background:var(--slate-3)}
+.set-link + .set-link::before{content:"";position:absolute;top:0;right:0;left:58px;height:1px;background:var(--line)}
+.set-link .ic{flex:none;width:30px;height:30px;display:grid;place-items:center;color:var(--text-dim)}
+.set-link .tx{flex:1;min-width:0}
+.set-link .nm{display:block;font-size:15.5px;color:var(--text)}
+.set-link .sub{display:block;font-size:13px;color:var(--text-faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.set-link .chev{flex:none;color:var(--text-faint);display:grid;opacity:.8}
+/* the appearance swatch, small enough to sit in the icon column */
+.set-link .ap-sw{width:30px;height:30px;border-radius:8px}
+.set-link .ap-sw .ap-page{left:6px;top:6px;width:12px;bottom:-3px}
+.set-link .ap-sw .ap-page::before{display:none}
+.set-link .ap-sw i{right:4px;bottom:4px;width:7px;height:7px}
+/* inside a topic: captions over cards, the preview held still above them */
+.setpage:not(#mSettings) .set-sub:first-child{margin-top:8px}
+.set-pin{flex:none;padding:4px 20px 14px}
+.set-pin .set-prev,.set-pin .pl-prev{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.set-pin .pl-prev{border-bottom:1px solid var(--line)}
+.set-lead{margin:8px 2px 6px;font-size:15px;color:var(--text)}
+@media (prefers-reduced-motion:reduce){ .edge::after{transition:none} }
 </style>
 </head>
 <body>
@@ -2212,6 +2257,7 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
     <button type="button" class="later" id="bkLater">Later</button>
     <button type="button" class="now" id="bkNow">Back up</button>
   </div>
+  <div class="edge" id="clEdge" aria-hidden="true"></div>
   <div class="plist mainlist" id="clList"></div>
   <button type="button" class="fexit" id="fExit" aria-hidden="true" tabindex="-1">
     <svg class="back" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>
@@ -2523,187 +2569,246 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
   <div class="plist pdash" id="pdBody"></div>
 </div>
 
-<div class="panel" id="mSettings" aria-label="Settings">
+<div class="panel setpage" id="mSettings" aria-label="Settings">
   <div class="panel-head">
     <button class="linkbtn" id="setBack">Back</button>
     <h3>Settings</h3>
     <span class="linkbtn" aria-hidden="true"></span>
   </div>
-  <div class="plist pdash">
-    <div class="pd-sec" id="faultSec" hidden style="margin-top:12px">
+  <div class="edge" aria-hidden="true"></div>
+  <div class="plist pdash setroot">
+    <div class="pd-sec" id="faultSec" hidden>
       <div class="pd-t"><h4>Problems</h4><button type="button" id="faultClear">Clear</button></div>
       <div class="fault-list" id="faultList"></div>
     </div>
-    <div class="pd-sec" style="margin-top:12px">
-      <div class="pd-t"><h4>Appearance</h4></div>
-      <button type="button" class="ap-open" id="apOpen" aria-label="Appearance">
-        <span class="ap-sw" id="apSw" aria-hidden="true"><span class="ap-page"></span><i></i></span>
-        <span class="tx"><span class="nm" id="apOpenName"></span><span class="sub" id="apOpenSub"></span></span>
-        <span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+    <div class="set-sub">Display</div>
+    <div class="set-card">
+      <button type="button" class="set-link" id="apOpen">
+        <span class="ic"><span class="ap-sw" id="apSw" aria-hidden="true"><span class="ap-page"></span><i></i></span></span><span class="tx"><span class="nm">Appearance</span><span class="sub" id="apOpenSub"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="set-link" data-page="mSetTitles">
+        <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7V5h15v2"/><path d="M12 5v14"/><path d="M9 19h6"/></svg></span><span class="tx"><span class="nm">Titles</span><span class="sub" id="sumTitles"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="set-link" data-page="mSetList">
+        <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><path d="M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01" stroke-width="2.6"/></svg></span><span class="tx"><span class="nm">Pieces list</span><span class="sub" id="sumList"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
       </button>
     </div>
-    <div class="pd-sec">
-      <div class="pd-t"><h4>Practice logging</h4></div>
-      <div class="set-card">
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Log practice automatically</span><span class="sub">Times each score while it’s open in the reader.</span></span>
-          <button type="button" class="set-sw" id="setAutolog" role="switch" aria-checked="true" aria-label="Log practice automatically"><i></i></button>
-        </div>
-        <div class="set-row col" data-needs="autolog">
-          <span class="set-l"><span class="nm">Shortest session to keep</span><span class="sub">Anything shorter is treated as a quick look and not logged.</span></span>
-          <div class="pd-seg set-seg" data-pref="autologMin" style="--n:4;--i:0"><span class="pdk"></span><button type="button" data-v="30">30 s</button><button type="button" data-v="90">90 s</button><button type="button" data-v="180">3 min</button><button type="button" data-v="300">5 min</button></div>
-        </div>
-        <div class="set-row col" data-needs="autolog">
-          <span class="set-l"><span class="nm">Stop counting when idle</span><span class="sub">After this long with no page turn, touch or pedal press. The idle stretch isn’t counted, and the next touch starts the clock again.</span></span>
-          <div class="pd-seg set-seg" data-pref="autologIdle" style="--n:4;--i:0"><span class="pdk"></span><button type="button" data-v="0">Never</button><button type="button" data-v="3">3 min</button><button type="button" data-v="5">5 min</button><button type="button" data-v="10">10 min</button></div>
-        </div>
+    <div class="set-sub">Library</div>
+    <div class="set-card">
+      <button type="button" class="set-link" data-page="mSetPractice">
+        <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span><span class="tx"><span class="nm">Practice logging</span><span class="sub" id="sumPractice"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="set-link" data-page="mSetFolders">
+        <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.2a2 2 0 012-2h3.9l2.1 2.3h7a2 2 0 012 2v8.3a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/></svg></span><span class="tx"><span class="nm">Folders</span><span class="sub" id="sumFolders"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button type="button" class="set-link" data-page="mSetBackup">
+        <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v9a2 2 0 002 2h10a2 2 0 002-2V9"/><path d="M10 13h4"/></svg></span><span class="tx"><span class="nm">Backup</span><span class="sub" id="sumBackup"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="panel subpage setpage" id="mSetTitles" aria-label="Titles">
+  <div class="panel-head">
+    <button class="linkbtn" data-back>Back</button>
+    <h3>Titles</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="set-pin"><div class="set-prev" aria-hidden="true"><span class="nm" id="tiPrevT"></span><span class="sub" id="tiPrevC"></span></div></div>
+  <div class="edge" aria-hidden="true"></div>
+  <div class="plist pdash">
+    <div class="set-card">
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Nicknames</span><span class="sub">“Moonlight”, “Pathétique”, “Raindrop”.</span></span>
+        <button type="button" class="set-sw" data-pref="nickShow" role="switch" aria-checked="true" aria-label="Nicknames"><i></i></button>
+      </div>
+      <div class="set-row col" id="setNickPosRow">
+        <span class="set-l"><span class="nm">Nickname position</span></span>
+        <div class="pd-seg set-seg" data-pref="nick" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="first">Before the title</button><button type="button" data-v="after">After the title</button></div>
+      </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Catalogue numbers</span><span class="sub">Op. 27 No. 2, K. 331, BWV 846 and the like, inside the title.</span></span>
+        <button type="button" class="set-sw" data-pref="titleCat" role="switch" aria-checked="true" aria-label="Catalogue numbers"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Keys</span><span class="sub">The “in C-sharp minor” part of a title.</span></span>
+        <button type="button" class="set-sw" data-pref="titleKey" role="switch" aria-checked="true" aria-label="Keys"><i></i></button>
+      </div>
+      <div class="set-row col">
+        <span class="set-l"><span class="nm">Composer names</span></span>
+        <div class="pd-seg set-seg" data-pref="composerNames" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="full">Full name</button><button type="button" data-v="short">Surname</button></div>
+      </div>
+      <div class="set-row col">
+        <span class="set-l"><span class="nm">Leave them out</span><span class="sub">Where hidden nicknames, catalogue numbers and keys are dropped from titles.</span></span>
+        <div class="pd-seg set-seg" data-pref="titleScope" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="all">Everywhere</button><button type="button" data-v="list">Pieces list only</button></div>
       </div>
     </div>
-    <div class="pd-sec">
-      <div class="pd-t"><h4>Folders</h4></div>
-      <div class="set-card">
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Always use folder view</span><span class="sub">Pieces always opens in your folders, and the folder switch is hidden.</span></span>
-          <button type="button" class="set-sw" id="setFolderAlways" role="switch" aria-checked="false" aria-label="Always use folder view"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">My order only</span><span class="sub">Turns sorting off. Pieces and folders stay exactly where you put them; new ones start at the top.</span></span>
-          <button type="button" class="set-sw" id="setManual" role="switch" aria-checked="false" aria-label="My order only"><i></i></button>
-        </div>
-        <div class="set-row col">
-          <span class="set-l"><span class="nm">Back button</span><span class="sub">Which side of the screen the round button for leaving a folder sits on.</span></span>
-          <div class="pd-seg set-seg" data-pref="exitSide" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="left">Left</button><button type="button" data-v="right">Right</button></div>
-        </div>
-        <div class="set-row col" id="setFolderPlaceRow">
-          <span class="set-l"><span class="nm">Folders in Recently played</span><span class="sub">On top keeps folders above your pieces. With pieces puts each folder in the list by the last time you opened a piece inside it.</span></span>
-          <div class="pd-seg set-seg" data-pref="folderPlace" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="top">On top</button><button type="button" data-v="mixed">With pieces</button></div>
-        </div>
+    <p class="pd-hint set-note">Titles you’ve typed or edited yourself are always shown as you wrote them.</p>
+  </div>
+</div>
+
+<div class="panel subpage setpage" id="mSetList" aria-label="Pieces list">
+  <div class="panel-head">
+    <button class="linkbtn" data-back>Back</button>
+    <h3>Pieces list</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="set-pin"><div class="pl-prev" id="plPrev" aria-hidden="true" inert></div></div>
+  <div class="edge" aria-hidden="true"></div>
+  <div class="plist pdash">
+    <div class="set-sub">Layout</div>
+    <div class="set-card">
+      <div class="set-row col">
+        <span class="set-l"><span class="nm">Row spacing</span></span>
+        <div class="pd-seg set-seg" data-pref="plDensity" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="comfortable">Comfortable</button><button type="button" data-v="compact">Compact</button></div>
+      </div>
+      <div class="set-row col">
+        <span class="set-l"><span class="nm">Long titles</span></span>
+        <div class="pd-seg set-seg" data-pref="plWrap" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="wrap">Wrap</button><button type="button" data-v="one">One line</button></div>
       </div>
     </div>
-    <div class="pd-sec">
-      <div class="pd-t"><h4>Titles</h4></div>
-      <div class="set-card">
-        <div class="set-prev" aria-hidden="true"><span class="nm" id="tiPrevT"></span><span class="sub" id="tiPrevC"></span></div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Nicknames</span><span class="sub">“Moonlight”, “Pathétique”, “Raindrop”.</span></span>
-          <button type="button" class="set-sw" data-pref="nickShow" role="switch" aria-checked="true" aria-label="Nicknames"><i></i></button>
-        </div>
-        <div class="set-row col" id="setNickPosRow">
-          <span class="set-l"><span class="nm">Nickname position</span></span>
-          <div class="pd-seg set-seg" data-pref="nick" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="first">Before the title</button><button type="button" data-v="after">After the title</button></div>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Catalogue numbers</span><span class="sub">Op. 27 No. 2, K. 331, BWV 846 and the like, inside the title.</span></span>
-          <button type="button" class="set-sw" data-pref="titleCat" role="switch" aria-checked="true" aria-label="Catalogue numbers"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Keys</span><span class="sub">The “in C-sharp minor” part of a title.</span></span>
-          <button type="button" class="set-sw" data-pref="titleKey" role="switch" aria-checked="true" aria-label="Keys"><i></i></button>
-        </div>
-        <div class="set-row col">
-          <span class="set-l"><span class="nm">Composer names</span></span>
-          <div class="pd-seg set-seg" data-pref="composerNames" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="full">Full name</button><button type="button" data-v="short">Surname</button></div>
-        </div>
-        <div class="set-row col">
-          <span class="set-l"><span class="nm">Leave them out</span><span class="sub">Where hidden nicknames, catalogue numbers and keys are dropped from titles.</span></span>
-          <div class="pd-seg set-seg" data-pref="titleScope" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="all">Everywhere</button><button type="button" data-v="list">Pieces list only</button></div>
-        </div>
+    <div class="set-sub">Under the title</div>
+    <div class="set-card">
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Composer</span></span>
+        <button type="button" class="set-sw" data-pref="plComposer" role="switch" aria-checked="true" aria-label="Composer"><i></i></button>
       </div>
-      <p class="pd-hint set-note">Titles you’ve typed or edited yourself are always shown as you wrote them.</p>
-    </div>
-    <div class="pd-sec">
-      <div class="pd-t"><h4>Pieces list</h4></div>
-      <div class="set-card">
-        <div class="pl-prev" id="plPrev" aria-hidden="true" inert></div>
-        <div class="set-row col">
-          <span class="set-l"><span class="nm">Row spacing</span></span>
-          <div class="pd-seg set-seg" data-pref="plDensity" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="comfortable">Comfortable</button><button type="button" data-v="compact">Compact</button></div>
-        </div>
-        <div class="set-row col">
-          <span class="set-l"><span class="nm">Long titles</span></span>
-          <div class="pd-seg set-seg" data-pref="plWrap" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="wrap">Wrap</button><button type="button" data-v="one">One line</button></div>
-        </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Catalogue number</span><span class="sub">Op., K., BWV and so on, for pieces matched to a work.</span></span>
+        <button type="button" class="set-sw" data-pref="plCat" role="switch" aria-checked="true" aria-label="Catalogue number"><i></i></button>
       </div>
-      <div class="set-sub">Under the title</div>
-      <div class="set-card">
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Composer</span></span>
-          <button type="button" class="set-sw" data-pref="plComposer" role="switch" aria-checked="true" aria-label="Composer"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Catalogue number</span><span class="sub">Op., K., BWV and so on, for pieces matched to a work.</span></span>
-          <button type="button" class="set-sw" data-pref="plCat" role="switch" aria-checked="true" aria-label="Catalogue number"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Key or tempo</span><span class="sub">What you typed in a piece’s details.</span></span>
-          <button type="button" class="set-sw" data-pref="plKeyInfo" role="switch" aria-checked="true" aria-label="Key or tempo"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Folder</span><span class="sub">Which folder a piece is in, shown when searching.</span></span>
-          <button type="button" class="set-sw" data-pref="plFolder" role="switch" aria-checked="true" aria-label="Folder"><i></i></button>
-        </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Key or tempo</span><span class="sub">What you typed in a piece’s details.</span></span>
+        <button type="button" class="set-sw" data-pref="plKeyInfo" role="switch" aria-checked="true" aria-label="Key or tempo"><i></i></button>
       </div>
-      <div class="set-sub">Description</div>
-      <div class="set-card">
-        <div class="set-row">
-          <span class="set-l"><span class="nm">About the work</span><span class="sub">The catalogue’s one-line description.</span></span>
-          <button type="button" class="set-sw" data-pref="plAbout" role="switch" aria-checked="true" aria-label="About the work"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Your own title</span><span class="sub">When a score’s name differs from the work it’s matched to.</span></span>
-          <button type="button" class="set-sw" data-pref="plOwnTitle" role="switch" aria-checked="true" aria-label="Your own title"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Your notes</span></span>
-          <button type="button" class="set-sw" data-pref="plNotes" role="switch" aria-checked="true" aria-label="Your notes"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">File details</span><span class="sub">Pages, file size, date added and the title stored in the PDF.</span></span>
-          <button type="button" class="set-sw" data-pref="plFile" role="switch" aria-checked="true" aria-label="File details"><i></i></button>
-        </div>
-      </div>
-      <div class="set-sub">Beside the title</div>
-      <div class="set-card">
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Progress</span><span class="sub">Practiced and Learned.</span></span>
-          <button type="button" class="set-sw" data-pref="plProgress" role="switch" aria-checked="true" aria-label="Progress"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Difficulty</span></span>
-          <button type="button" class="set-sw" data-pref="plLevel" role="switch" aria-checked="true" aria-label="Difficulty"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Pin</span></span>
-          <button type="button" class="set-sw" data-pref="plPin" role="switch" aria-checked="true" aria-label="Pin"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">Sections button</span></span>
-          <button type="button" class="set-sw" data-pref="plSections" role="switch" aria-checked="true" aria-label="Sections button"><i></i></button>
-        </div>
-        <div class="set-row">
-          <span class="set-l"><span class="nm">About button</span></span>
-          <button type="button" class="set-sw" data-pref="plAboutLink" role="switch" aria-checked="true" aria-label="About button"><i></i></button>
-        </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Folder</span><span class="sub">Which folder a piece is in, shown when searching.</span></span>
+        <button type="button" class="set-sw" data-pref="plFolder" role="switch" aria-checked="true" aria-label="Folder"><i></i></button>
       </div>
     </div>
-    <div class="pd-sec">
-      <div class="pd-t"><h4>Backup</h4><span class="pd-cur" id="bkStatus"></span></div>
-      <p class="pd-hint">One file with every score, your markings, practice time, progress and settings. Save it outside Stand, for example before reinstalling, and restore it here.</p>
-      <div class="btnrow">
-        <button class="btn" id="setRestore">Restore</button>
-        <button class="btn go" id="setBackup">Back up library</button>
+    <div class="set-sub">Description</div>
+    <div class="set-card">
+      <div class="set-row">
+        <span class="set-l"><span class="nm">About the work</span><span class="sub">The catalogue’s one-line description.</span></span>
+        <button type="button" class="set-sw" data-pref="plAbout" role="switch" aria-checked="true" aria-label="About the work"><i></i></button>
       </div>
-      <div class="set-card" style="margin-top:14px">
-        <div class="set-row col">
-          <span class="set-l"><span class="nm">Remind me to back up</span><span class="sub">A note appears in the library when a backup is due.</span></span>
-          <div class="pd-seg set-seg" data-pref="backupEvery" style="--n:4;--i:0"><span class="pdk"></span><button type="button" data-v="0">Off</button><button type="button" data-v="7">Weekly</button><button type="button" data-v="14">2 weeks</button><button type="button" data-v="30">Monthly</button></div>
-        </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Your own title</span><span class="sub">When a score’s name differs from the work it’s matched to.</span></span>
+        <button type="button" class="set-sw" data-pref="plOwnTitle" role="switch" aria-checked="true" aria-label="Your own title"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Your notes</span></span>
+        <button type="button" class="set-sw" data-pref="plNotes" role="switch" aria-checked="true" aria-label="Your notes"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">File details</span><span class="sub">Pages, file size, date added and the title stored in the PDF.</span></span>
+        <button type="button" class="set-sw" data-pref="plFile" role="switch" aria-checked="true" aria-label="File details"><i></i></button>
+      </div>
+    </div>
+    <div class="set-sub">Beside the title</div>
+    <div class="set-card">
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Progress</span><span class="sub">Practiced and Learned.</span></span>
+        <button type="button" class="set-sw" data-pref="plProgress" role="switch" aria-checked="true" aria-label="Progress"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Difficulty</span></span>
+        <button type="button" class="set-sw" data-pref="plLevel" role="switch" aria-checked="true" aria-label="Difficulty"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Pin</span></span>
+        <button type="button" class="set-sw" data-pref="plPin" role="switch" aria-checked="true" aria-label="Pin"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Sections button</span></span>
+        <button type="button" class="set-sw" data-pref="plSections" role="switch" aria-checked="true" aria-label="Sections button"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">About button</span></span>
+        <button type="button" class="set-sw" data-pref="plAboutLink" role="switch" aria-checked="true" aria-label="About button"><i></i></button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="panel" id="mAppear" aria-label="Appearance">
+<div class="panel subpage setpage" id="mSetPractice" aria-label="Practice logging">
+  <div class="panel-head">
+    <button class="linkbtn" data-back>Back</button>
+    <h3>Practice logging</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="edge" aria-hidden="true"></div>
+  <div class="plist pdash">
+    <div class="set-card">
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Log practice automatically</span><span class="sub">Times each score while it’s open in the reader.</span></span>
+        <button type="button" class="set-sw" id="setAutolog" role="switch" aria-checked="true" aria-label="Log practice automatically"><i></i></button>
+      </div>
+      <div class="set-row col" data-needs="autolog">
+        <span class="set-l"><span class="nm">Shortest session to keep</span><span class="sub">Anything shorter is treated as a quick look and not logged.</span></span>
+        <div class="pd-seg set-seg" data-pref="autologMin" style="--n:4;--i:0"><span class="pdk"></span><button type="button" data-v="30">30 s</button><button type="button" data-v="90">90 s</button><button type="button" data-v="180">3 min</button><button type="button" data-v="300">5 min</button></div>
+      </div>
+      <div class="set-row col" data-needs="autolog">
+        <span class="set-l"><span class="nm">Stop counting when idle</span><span class="sub">After this long with no page turn, touch or pedal press. The idle stretch isn’t counted, and the next touch starts the clock again.</span></span>
+        <div class="pd-seg set-seg" data-pref="autologIdle" style="--n:4;--i:0"><span class="pdk"></span><button type="button" data-v="0">Never</button><button type="button" data-v="3">3 min</button><button type="button" data-v="5">5 min</button><button type="button" data-v="10">10 min</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel subpage setpage" id="mSetFolders" aria-label="Folders">
+  <div class="panel-head">
+    <button class="linkbtn" data-back>Back</button>
+    <h3>Folders</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="edge" aria-hidden="true"></div>
+  <div class="plist pdash">
+    <div class="set-card">
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Always use folder view</span><span class="sub">Pieces always opens in your folders, and the folder switch is hidden.</span></span>
+        <button type="button" class="set-sw" id="setFolderAlways" role="switch" aria-checked="false" aria-label="Always use folder view"><i></i></button>
+      </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">My order only</span><span class="sub">Turns sorting off. Pieces and folders stay exactly where you put them; new ones start at the top.</span></span>
+        <button type="button" class="set-sw" id="setManual" role="switch" aria-checked="false" aria-label="My order only"><i></i></button>
+      </div>
+      <div class="set-row col">
+        <span class="set-l"><span class="nm">Back button</span><span class="sub">Which side of the screen the round button for leaving a folder sits on.</span></span>
+        <div class="pd-seg set-seg" data-pref="exitSide" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="left">Left</button><button type="button" data-v="right">Right</button></div>
+      </div>
+      <div class="set-row col" id="setFolderPlaceRow">
+        <span class="set-l"><span class="nm">Folders in Recently played</span><span class="sub">On top keeps folders above your pieces. With pieces puts each folder in the list by the last time you opened a piece inside it.</span></span>
+        <div class="pd-seg set-seg" data-pref="folderPlace" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="top">On top</button><button type="button" data-v="mixed">With pieces</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel subpage setpage" id="mSetBackup" aria-label="Backup">
+  <div class="panel-head">
+    <button class="linkbtn" data-back>Back</button>
+    <h3>Backup</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="edge" aria-hidden="true"></div>
+  <div class="plist pdash">
+    <p class="set-lead" id="bkStatus"></p>
+    <p class="pd-hint">One file with every score, your markings, practice time, progress and settings. Save it outside Stand, for example before reinstalling, and restore it here.</p>
+    <div class="btnrow">
+      <button class="btn" id="setRestore">Restore</button>
+      <button class="btn go" id="setBackup">Back up library</button>
+    </div>
+    <div class="set-card" style="margin-top:14px">
+      <div class="set-row col">
+        <span class="set-l"><span class="nm">Remind me to back up</span><span class="sub">A note appears in the library when a backup is due.</span></span>
+        <div class="pd-seg set-seg" data-pref="backupEvery" style="--n:4;--i:0"><span class="pdk"></span><button type="button" data-v="0">Off</button><button type="button" data-v="7">Weekly</button><button type="button" data-v="14">2 weeks</button><button type="button" data-v="30">Monthly</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel subpage" id="mAppear" aria-label="Appearance">
   <div class="panel-head">
     <button class="linkbtn" id="apBack">Back</button>
     <h3>Appearance</h3>
@@ -2713,11 +2818,15 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
     <button type="button" data-tone="dark">Dark</button>
     <button type="button" data-tone="light">Light</button>
   </div>
+  <div class="edge" aria-hidden="true"></div>
   <div class="plist ap-scroll"><div class="ap-grid" id="apGrid" role="group" aria-label="Base"></div></div>
   <div class="ap-foot">
-    <div class="ap-foot-t"><span class="ap-l"><span>Accent</span><span class="ap-acc-nm" id="apAccName"></span></span>
-      <span class="ap-mix"><button type="button" id="apReset" hidden>Reset</button><button type="button" id="apShuffle" aria-label="Shuffle the other accents" title="Shuffle the other accents"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg></button></span></div>
-    <div class="ap-accs" id="apAccs" role="group" aria-label="Accent"></div>
+    <div class="ap-foot-t"><span>Accent</span><span class="ap-acc-nm" id="apAccName"></span></div>
+    <div class="ap-accrow">
+      <div class="ap-accs" id="apAccs" role="group" aria-label="Accent"></div>
+      <span class="ap-div" aria-hidden="true"></span>
+      <button type="button" id="apShuffle" aria-label="Shuffle the other accents" title="Shuffle the other accents"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg></button>
+    </div>
   </div>
 </div>
 
@@ -11709,7 +11818,8 @@ function closeDocument(){
    score is 24MB; eight pages of a large scan is several times that, and iOS
    kills a tab that asks for too much canvas at once. */
 const CACHE_MAX = 6;             // pages, at most
-const CACHE_PIXELS = 8e6;        // ...and roughly 32MB of bitmap, whichever binds first
+const CACHE_PIXELS = 14e6;       // ...and roughly 56MB of bitmap, whichever binds first
+                                 // (an iPad page is 3.5-5.5 MP, a phone page under 1 MP)
 
 function dprCap(){ return Math.min(window.devicePixelRatio || 1, 2); }
 function stageKey(w = stageW, h = stageH){ return Math.round(w) + 'x' + Math.round(h) + '@' + dprCap(); }
@@ -11738,11 +11848,40 @@ function sweepSoon(){
   }, 1200);
 }
 
-/* The ghost is a full page bitmap that only exists during a swipe. Left
-   allocated it is a second full-size canvas sitting idle for the whole session. */
+/* The ghost is the page that rides in beside this one during a swipe. It
+   used to be allocated and filled on the swipe's first movement: a full-page
+   canvas and a full-page copy (about 6 ms at iPad size) inside the gesture's
+   very first frame, which is all of a 120 Hz iPad's frame budget. Now the
+   next page is drawn into it ahead of time, once a turn has settled, so a
+   forward swipe starts with nothing to do. It costs one page of memory while
+   a score is open, and is handed back when the score closes. */
+let ghostFor = 0, ghostEntry = null;   // which page, from which cache entry, the ghost holds
+function hideGhost(){ ghostwrap.style.visibility = 'hidden'; }
 function freeGhost(){
-  ghostwrap.style.visibility = 'hidden';
+  hideGhost();
+  ghostFor = 0; ghostEntry = null; clearTimeout(ghostStageT);
   if(ghostCanvas.width > 1){ ghostCanvas.width = 1; ghostCanvas.height = 1; }
+}
+function drawGhost(n, e){
+  if(ghostCanvas.width !== e.canvas.width || ghostCanvas.height !== e.canvas.height){
+    ghostCanvas.width = e.canvas.width; ghostCanvas.height = e.canvas.height;
+  }
+  gctx.setTransform(1,0,0,1,0,0);
+  gctx.drawImage(e.canvas, 0, 0);
+  for(const s of (V.ink[n] || [])) drawStroke(gctx, s, ghostCanvas.width, ghostCanvas.height);
+  ghostFor = n; ghostEntry = e;
+}
+// once things are quiet after a turn, put the next page in the ghost
+let ghostStageT = null;
+function stageGhostSoon(){
+  clearTimeout(ghostStageT);
+  ghostStageT = setTimeout(() => {
+    if(!V.pdf || swipe || V.zoom !== 1 || V.markup || handsBusy()) return;
+    const n = V.page + 1, e = V.cache.get(n);
+    if(!e || e.sk !== stageKey() || !e.canvas || !e.canvas.width) return;
+    if(ghostFor === n && ghostEntry === e) return;
+    drawGhost(n, e);
+  }, 220);
 }
 
 /* An entry's bitmap is a canvas when pdf.js drew it and an ImageBitmap when it
@@ -11767,6 +11906,11 @@ function putCache(n, e){
   e.n = n;
   V.cache.set(n, e);
   trimCache();
+  if(n === V.page + 1) stageGhostSoon();
+  if(swipe && swipe.ghost === 'blank' && n === V.page + swipe.dir && V.cache.get(n) === e){
+    swipe.ghost = prepGhost(swipe.dir);
+    moveSwipe(swipe.dx, swipe.dir, swipe.ghost);
+  }
 }
 function clearCache(){
   for(const e of V.cache.values()) freeEntry(e);
@@ -11776,18 +11920,27 @@ function dropStale(){
   const sk = stageKey();
   for(const [k, e] of V.cache) if(e.sk !== sk){ freeEntry(e); V.cache.delete(k); }
 }
+/* Which pages to hold in memory, best first: this one, the next, the previous,
+   then further ahead. The cache keeps exactly the pages at the front of this
+   list that fit the budget, and the prefetcher only ever fetches those same
+   pages. They used to judge separately: the cache ranked by bare distance,
+   breaking ties by whichever page arrived first, so the page it had just
+   fetched ahead was the one thrown out, and the prefetcher fetched it again,
+   endlessly. On an iPad the budget held only two pages, so the page thrown out
+   was the next one: every swipe slid in black and every tap waited on a render. */
+function cacheWindow(){
+  const p = V.page, N = V.pdf ? V.pdf.numPages : 0;
+  return [p, p+1, p-1, p+2, p+3, p-2].filter(n => n >= 1 && n <= N);
+}
+function cacheSlots(){
+  let px = 0;
+  for(const e of V.cache.values()) if(e.canvas && e.canvas.width){ px = e.canvas.width * e.canvas.height; break; }
+  // never fewer than this page and both its neighbours, however big the pages
+  return px ? Math.max(3, Math.min(CACHE_MAX, Math.floor(CACHE_PIXELS / px))) : 3;
+}
 function trimCache(){
-  const keys = [...V.cache.keys()].sort((a,b) => Math.abs(a-V.page) - Math.abs(b-V.page));
-  let px = 0, kept = 0;
-  for(const k of keys){
-    const e = V.cache.get(k);
-    px += e.canvas.width * e.canvas.height;
-    kept++;
-    // always keep the page you're on and its neighbour, whatever their size
-    if(kept > CACHE_MAX || (kept > 2 && px > CACHE_PIXELS)){
-      freeEntry(e); V.cache.delete(k);
-    }
-  }
+  const keep = new Set(cacheWindow().slice(0, cacheSlots()));
+  for(const [k, e] of V.cache) if(!keep.has(k)){ freeEntry(e); V.cache.delete(k); }
 }
 
 /* ---------- saved page images ----------
@@ -12155,8 +12308,8 @@ function abortPrefetch(){
 }
 function nextBackgroundPage(sk){
   const p = V.page, N = V.pdf.numPages;
-  for(const n of [p+1, p+2, p-1, p+3]){
-    if(n < 1 || n > N) continue;
+  // exactly the pages the cache will keep, in the order it values them
+  for(const n of cacheWindow().slice(1, cacheSlots())){
     const e = V.cache.get(n);
     if(!e || e.sk !== sk) return {n, near:true};
   }
@@ -12164,7 +12317,8 @@ function nextBackgroundPage(sk){
   // forward from here first, then back towards the start
   for(let i = 0; i < N; i++){
     const n = p + i <= N ? p + i : N - i;
-    if(Raster.has(n, sk)) continue;
+    // saved, or already on its way to being saved: nothing more to do
+    if(Raster.has(n, sk) || Raster.queued.has(Raster.key(V.id, sk, n))) continue;
     const e = V.cache.get(n);
     if(e && e.sk === sk){ if(!e.saved) Raster.save(V.id, n, e); continue; }
     return {n, near:false};
@@ -12197,6 +12351,9 @@ function startJob(n, sk, near){
       // one warm page's pixels in memory at a time
       if(!near) await Raster.drained();
       if(job.dead || pdf !== V.pdf) return null;
+      // a warm page that got saved while this job waited needs nothing more:
+      // loading it back would decode it only to let it go again
+      if(!near && Raster.has(n, sk)) return null;
       let e = Raster.has(n, sk) ? await Raster.load(id, sk, n) : null;
       if(!e){
         // the reader's own render always goes first
@@ -12268,8 +12425,10 @@ function untilSuperseded(){ return new Promise(r => { wakeLive = r; }); }
 let blankTimer = null;
 function blankSoon(){
   if(blankTimer) return;
-  blankTimer = setTimeout(() => {
-    blankTimer = null;
+  blankTimer = setTimeout(blankNow, 120);
+}
+function blankNow(){
+    clearTimeout(blankTimer); blankTimer = null;
     pctx.setTransform(1,0,0,1,0,0);
     pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pdfCanvas.width, pdfCanvas.height);
     ictx.setTransform(1,0,0,1,0,0);
@@ -12277,7 +12436,6 @@ function blankSoon(){
     hideZoom();
     shownPage = 0;
     stage.classList.add('loading');
-  }, 120);
 }
 function unblank(){
   clearTimeout(blankTimer); blankTimer = null;
@@ -12443,7 +12601,7 @@ async function renderPage(keepPan){
   finally{
     V.rendering = false;
     unblank();
-    if(pdf === V.pdf){ schedulePrefetch(); sweepSoon(); }
+    if(pdf === V.pdf){ schedulePrefetch(); sweepSoon(); stageGhostSoon(); }
     else if(V.pdf && V.want !== null){ V.want = null; renderPage(); }   // a new score asked while the old one wound down
   }
 }
@@ -13078,15 +13236,20 @@ function prepGhost(dir){
   const n = V.page + dir;
   if(!V.pdf || n < 1 || n > V.pdf.numPages) return false;
   const e = V.cache.get(n);
-  if(!e || e.sk !== stageKey()) { schedulePrefetch(); return false; }
-  if(ghostCanvas.width !== e.canvas.width || ghostCanvas.height !== e.canvas.height){
-    ghostCanvas.width = e.canvas.width; ghostCanvas.height = e.canvas.height;
+  if(!e || e.sk !== stageKey() || !e.canvas || !e.canvas.width){
+    /* Not ready yet. A blank sheet the size of this page rides in instead of
+       nothing (the stage behind is black), and putCache() swaps the real page
+       in the moment it arrives, mid-swipe or not. */
+    ghostCanvas.style.visibility = 'hidden';
+    ghostwrap.style.width = V.renderW+'px'; ghostwrap.style.height = V.renderH+'px';
+    ghostwrap.style.visibility = 'visible';
+    schedulePrefetch(0);
+    return 'blank';
   }
+  ghostCanvas.style.visibility = '';
+  if(ghostFor !== n || ghostEntry !== e) drawGhost(n, e);   // usually already there
   ghostwrap.style.width = e.w+'px'; ghostwrap.style.height = e.h+'px';
   ghostCanvas.style.width = e.w+'px'; ghostCanvas.style.height = e.h+'px';
-  gctx.setTransform(1,0,0,1,0,0);
-  gctx.drawImage(e.canvas, 0, 0);
-  for(const s of (V.ink[n] || [])) drawStroke(gctx, s, ghostCanvas.width, ghostCanvas.height);
   ghostwrap.style.visibility = 'visible';
   return true;
 }
@@ -13106,23 +13269,24 @@ function settleSwipe(go){
   moveSwipe(end, dir, s.ghost);
   setTimeout(() => {
     pagewrap.style.transition = ''; inkLayer.style.transition = ''; ghostwrap.style.transition = '';
-    freeGhost();
-    if(go) goPage(V.page + dir);
+    hideGhost();
+    if(go) goPage(V.page + dir, false, true);
     else { place(); inkLayer.style.transform = 'translate3d(0,0,0)'; }
   }, 180);
 }
 function cancelSwipe(){
   if(!swipe) return;
   swipe = null;
-  freeGhost();
+  hideGhost();
   place(); inkLayer.style.transform = 'translate3d(0,0,0)';
 }
 
 /* ---------- paging: synchronous when the bitmap is ready ---------- */
-function goPage(n, silent){
+function goPage(n, silent, fromSwipe){
   if(!V.pdf) return false;
   n = Math.max(1, Math.min(V.pdf.numPages, n));
   if(n === V.page) return false;
+  if(ghostFor === V.page) ghostFor = 0;
   if(V.dirty) saveInk();
   V.page = n; V.zoom = 1;
   if(V.doc && V.doc.page !== n){ V.doc.page = n; saveIndexSoon(); }
@@ -13144,8 +13308,16 @@ function goPage(n, silent){
       centerPage();
       redrawInk();
       schedulePrefetch();
+      stageGhostSoon();
       return true;
     }
+  }
+  if(fromSwipe){
+    // the old page has slid off-screen: put a blank sheet and the spinner where
+    // the new page will land, rather than leaving black while it's drawn
+    blankNow();
+    inkLayer.style.transform = 'translate3d(0,0,0)';
+    centerPage();
   }
   renderPage();
   return false;
@@ -13662,6 +13834,7 @@ function closeToolArc(commit){
 let saveTimer;
 function markDirty(){
   V.dirty = true;
+  if(ghostFor === V.page) ghostFor = 0;
   $('#unsaved').classList.add('on');
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveInk, 1200);
@@ -14047,22 +14220,22 @@ const ACCENT_POOL = {
 };
 const accSwatch = (T, id) => ACCENT_POOL[id][T.tone === 'light' ? 1 : 0];
 const THEME_ACC_DEFAULT = Object.fromEntries(THEMES.map(T => [T.id, T.acc.map(a => a[0])]));
-function accentMix(){
-  try{ const m = JSON.parse(localStorage.getItem('stand.accentMix') || '{}'); return m && typeof m === 'object' ? m : {}; }catch(e){ return {}; }
-}
 function setBaseAccents(T, ids){ T.acc = ids.map(id => [id, accSwatch(T, id)]); }
-// a shuffled base keeps its mix across launches, and backups carry it
-(function applyAccentMix(){
-  const m = accentMix();
+try{ localStorage.removeItem('stand.accentMix'); }catch(e){}   // left by the build that kept shuffles
+/* Shuffles are for trying colours on, not kept: every time Appearance
+   opens, each base shows its own five again. The accent you're wearing is
+   the exception. If a shuffle gave it to you, it stays in its slot so it's
+   still there to see and tap. */
+function accentsToDefault(){
+  const [base, accent] = currentTheme().split('-');
   for(const T of THEMES){
-    const ids = m[T.id];
-    if(Array.isArray(ids) && ids.length === 5 && new Set(ids).size === 5 && ids.every(id => ACCENT_POOL[id])) setBaseAccents(T, ids);
+    const ids = THEME_ACC_DEFAULT[T.id].slice();
+    if(T.id === base && !ids.includes(accent) && ACCENT_POOL[accent]){
+      const i = T.acc.findIndex(a => a[0] === accent);
+      ids[i >= 0 ? i : ids.length - 1] = accent;
+    }
+    setBaseAccents(T, ids);
   }
-})();
-function saveAccentMix(base, ids){
-  const m = accentMix();
-  if(ids) m[base] = ids; else delete m[base];
-  try{ localStorage.setItem('stand.accentMix', JSON.stringify(m)); }catch(e){}
 }
 function shuffleAccents(){
   const [base, accent] = currentTheme().split('-'), T = THEME_BY[base] || THEME_BY.dark;
@@ -14070,39 +14243,35 @@ function shuffleAccents(){
   // fresh colours: nothing that's showing now, so every swap is a real change
   const pool = Object.keys(ACCENT_POOL).filter(id => !was.includes(id));
   for(let i = pool.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-  const ids = was.map(id => id === accent ? id : pool.pop());
-  setBaseAccents(T, ids);
-  saveAccentMix(T.id, ids);
-  renderAppear(currentTheme(), accent);
-}
-function resetAccents(){
-  const [base, accent] = currentTheme().split('-'), T = THEME_BY[base] || THEME_BY.dark;
-  const ids = THEME_ACC_DEFAULT[T.id];
-  setBaseAccents(T, ids);
-  saveAccentMix(T.id, null);
-  // the accent you're using may not be one of the originals
-  if(ids.includes(accent)) renderAppear(currentTheme(), accent);
-  else applyTheme(T.id + '-' + ids[0]);
+  setBaseAccents(T, was.map(id => id === accent ? id : pool.pop()));
+  // recolour the swatches where they stand; the colours cross-fade
+  const btns = [...$('#apAccs').children];
+  T.acc.forEach(([id, c], i) => {
+    const btn = btns[i]; if(!btn || btn.dataset.acc === id) return;
+    btn.dataset.acc = id;
+    btn.style.setProperty('--c', c);
+    btn.setAttribute('aria-label', id + ' accent');
+  });
 }
 function themeValid(t){
-  const [base, accent] = t.split('-'), T = THEME_BY[base];
-  return !!(T && T.acc.some(a => a[0] === accent));
+  // any accent from the pool is valid on any base, since a shuffle can hand you one
+  const [base, accent] = t.split('-');
+  return !!(THEME_BY[base] && ACCENT_POOL[accent]);
 }
 function currentTheme(){
   const el = document.documentElement;
   return (el.dataset.theme || 'dark') + '-' + (el.dataset.accent || 'blue');
 }
-function accColor(T, id){ const a = T.acc.find(x => x[0] === id); return a ? a[1] : T.acc[0][1]; }
+function accColor(T, id){ const a = T.acc.find(x => x[0] === id); return a ? a[1] : ACCENT_POOL[id] ? accSwatch(T, id) : T.acc[0][1]; }
 function showTheme(t){
   const [base, accent] = t.split('-'), T = THEME_BY[base] || THEME_BY.dark;
   const sw = $('#apSw');
   sw.style.setProperty('--sw-b', T.bg); sw.style.setProperty('--sw-a', accColor(T, accent));
-  $('#apOpenName').textContent = T.name;
-  $('#apOpenSub').textContent = (T.tone === 'light' ? 'Light' : 'Dark') + ', ' + accent + ' accent';
+  $('#apOpenSub').textContent = `${T.name}, ${accent} accent`;
   if($('#mAppear').classList.contains('on')) renderAppear(t);
 }
 let apTone = 'dark';
-function renderAppear(t, keep){
+function renderAppear(t){
   const [base, accent] = t.split('-'), cur = THEME_BY[base] || THEME_BY.dark;
   pdSetSeg($('#apTone'), 'tone', apTone);
   $('#apGrid').innerHTML = THEMES.filter(T => T.tone === apTone).map(T => {
@@ -14114,18 +14283,13 @@ function renderAppear(t, keep){
       <span class="nm">${T.name}</span></button>`;
   }).join('');
   const ck = cur.tone === 'light' ? '#fff' : 'rgba(0,0,0,.72)';
-  // after a shuffle, the four new swatches are dealt in; the one kept stays put
-  let deal = 0;
   $('#apAccs').innerHTML = cur.acc.map(([id, c]) => {
-    const on = id === accent, dealt = keep && id !== keep;
-    return `<button type="button" class="ap-acc${on ? ' on' : ''}${dealt ? ' dealt' : ''}" data-acc="${id}" style="--c:${c};--ck:${ck}${dealt ? `;animation-delay:${60 * deal++}ms` : ''}" aria-pressed="${on}" aria-label="${id} accent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>`;
+    const on = id === accent;
+    return `<button type="button" class="ap-acc${on ? ' on' : ''}" data-acc="${id}" style="--c:${c};--ck:${ck}" aria-pressed="${on}" aria-label="${id} accent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>`;
   }).join('');
   $('#apAccName').textContent = accent;
-  const def = THEME_ACC_DEFAULT[cur.id] || [];
-  $('#apReset').hidden = cur.acc.every((a, i) => a[0] === def[i]);
 }
-$('#apShuffle').addEventListener('click', () => { replayClass($('#apShuffle'), 'spin', 520); shuffleAccents(); });
-$('#apReset').addEventListener('click', resetAccents);
+$('#apShuffle').addEventListener('click', shuffleAccents);
 function applyTheme(t){
   t = THEME_OLD[t] || t;                  // older backups and settings
   if(!themeValid(t)) t = 'dark-blue';
@@ -14147,8 +14311,59 @@ $('#setBtn').addEventListener('click', () => {
   $('#mSettings').classList.add('on');
 });
 $('#faultClear').addEventListener('click', () => { FAULTS.length = 0; renderFaults(); });
+/* Settings is a short index; each topic slides in on its own page, the
+   way Appearance always has. Every row says where things stand now. */
+function openSetPage(id){
+  const pg = $('#' + id); if(!pg) return;
+  syncSettings();
+  pg.querySelector('.plist').scrollTop = 0;
+  pg.classList.add('on');
+  $('#mSettings').classList.add('under');
+}
+function closeSetPage(pg){
+  pg.classList.remove('on');
+  $('#mSettings').classList.remove('under');
+  syncSettings();
+}
+document.querySelectorAll('#mSettings .set-link[data-page]').forEach(b => b.addEventListener('click', () => openSetPage(b.dataset.page)));
+document.querySelectorAll('.subpage [data-back]').forEach(b => b.addEventListener('click', () => closeSetPage(b.closest('.subpage'))));
+const SEC_LABEL = { 30:'30 s', 90:'90 s', 180:'3 min', 300:'5 min' };
+const LIST_DETAILS = ['plComposer','plCat','plKeyInfo','plFolder','plAbout','plOwnTitle','plNotes','plFile','plProgress','plLevel','plPin','plSections','plAboutLink'];
+const capFirst = t => t.charAt(0).toUpperCase() + t.slice(1);
+function syncSetSummaries(){
+  const t = [!pref('nickShow') ? 'no nicknames' : pref('nick') === 'after' ? 'nicknames after' : 'nicknames first'];
+  if(!pref('titleCat')) t.push('no catalogue numbers');
+  if(!pref('titleKey')) t.push('no keys');
+  t.push(pref('composerNames') === 'short' ? 'surnames' : 'full names');
+  $('#sumTitles').textContent = capFirst(t.join(', '));
+  const on = LIST_DETAILS.filter(k => pref(k)).length;
+  $('#sumList').textContent = (pref('plDensity') === 'compact' ? 'Compact' : 'Comfortable') + ', ' +
+    (on === LIST_DETAILS.length ? 'every detail shown' : `${on} of ${LIST_DETAILS.length} details shown`);
+  $('#sumPractice').textContent = pref('autolog') ? `Automatic, sessions over ${SEC_LABEL[pref('autologMin')] || pref('autologMin') + ' s'}` : 'Off';
+  const f = [pref('folderAlways') ? 'Always in folder view' : 'Folder view when you choose'];
+  if(manualOnly()) f.push('your order only');
+  $('#sumFolders').textContent = f.join(', ');
+}
+
+/* ---------- the scroll line ----------
+   Each .edge sits just above the list it watches. Its --e runs 0 to 1 over
+   the first 36px of scrolling, eased at both ends, so the line fades in
+   and out in step with the scroll rather than on a switch. */
+function watchEdge(edge, scroller){
+  if(!edge || !scroller) return;
+  let raf = 0;
+  const update = () => {
+    raf = 0;
+    const t = Math.min(1, Math.max(0, scroller.scrollTop / 36));
+    edge.style.setProperty('--e', (t * t * (3 - 2 * t)).toFixed(3));
+  };
+  scroller.addEventListener('scroll', () => { if(!raf) raf = requestAnimationFrame(update); }, { passive:true });
+  update();
+}
+document.querySelectorAll('.edge').forEach(e => watchEdge(e, e.nextElementSibling));
 $('#setBack').addEventListener('click', () => $('#mSettings').classList.remove('on'));
 $('#apOpen').addEventListener('click', () => {
+  accentsToDefault();
   const t = currentTheme();
   apTone = (THEME_BY[t.split('-')[0]] || THEME_BY.dark).tone;
   renderAppear(t);
@@ -14188,7 +14403,7 @@ function agoText(t){
 function lsNum(k){ try{ return +localStorage.getItem(k) || 0; }catch(e){ return 0; } }
 function syncBackupStatus(){
   const last = lsNum('stand.lastBackup');
-  $('#bkStatus').textContent = last ? 'Last backed up ' + agoText(last) : 'Not backed up yet';
+  $('#bkStatus').textContent = $('#sumBackup').textContent = last ? 'Last backed up ' + agoText(last) : 'Not backed up yet';
   checkBackupReminder();
 }
 function checkBackupReminder(){
@@ -14204,15 +14419,16 @@ function checkBackupReminder(){
 function syncSettings(){
   const auto = !!pref('autolog');
   $('#setAutolog').setAttribute('aria-checked', auto);
-  document.querySelectorAll('#mSettings [data-needs="autolog"]').forEach(r => r.classList.toggle('off', !auto));
-  document.querySelectorAll('#mSettings .set-seg').forEach(seg => pdSetSeg(seg, 'v', String(pref(seg.dataset.pref))));
+  document.querySelectorAll('.setpage [data-needs="autolog"]').forEach(r => r.classList.toggle('off', !auto));
+  document.querySelectorAll('.setpage .set-seg').forEach(seg => pdSetSeg(seg, 'v', String(pref(seg.dataset.pref))));
   const W = 'Ludwig van Beethoven';
   $('#tiPrevT').textContent = workShown(W, '27/2', 'list') || 'Piano Sonata No. 14 in C-sharp minor, Op. 27 No. 2';
   $('#tiPrevC').textContent = composerShown(W);
-  document.querySelectorAll('#mSettings .set-sw[data-pref]').forEach(b => b.setAttribute('aria-checked', String(!!pref(b.dataset.pref))));
+  document.querySelectorAll('.setpage .set-sw[data-pref]').forEach(b => b.setAttribute('aria-checked', String(!!pref(b.dataset.pref))));
   // with nicknames hidden everywhere, where they'd go no longer matters
   $('#setNickPosRow').classList.toggle('off', !pref('nickShow') && pref('titleScope') !== 'list');
   renderListPreview();
+  syncSetSummaries();
   $('#setFolderAlways').setAttribute('aria-checked', String(!!pref('folderAlways')));
   $('#setManual').setAttribute('aria-checked', String(manualOnly()));
   $('#setFolderPlaceRow').classList.toggle('off', manualOnly());   // nothing to sort, so nothing to place
@@ -14232,7 +14448,7 @@ $('#setManual').addEventListener('click', () => {
 });
 $('#setAutolog').addEventListener('click', () => { setPref('autolog', !pref('autolog')); syncSettings(); });
 // Titles and Pieces list switches: one pref each, named on the switch
-document.querySelectorAll('#mSettings .set-sw[data-pref]').forEach(b => b.addEventListener('click', () => {
+document.querySelectorAll('.setpage .set-sw[data-pref]').forEach(b => b.addEventListener('click', () => {
   const k = b.dataset.pref;
   setPref(k, !pref(k));
   titlesChanged();
@@ -14260,7 +14476,7 @@ function renderListPreview(){
               notes:'Encore for the spring recital', pages:3, bytes:412000, added:Date.now() - 20 * DAY_MS, practiced:true, learned:true };
   box.innerHTML = pieceRow(a, 'Recital') + pieceRow(b, 'Recital');
 }
-document.querySelectorAll('#mSettings .set-seg').forEach(seg => seg.addEventListener('click', e => {
+document.querySelectorAll('.setpage .set-seg').forEach(seg => seg.addEventListener('click', e => {
   const b = e.target.closest('[data-v]'); if(!b) return;
   const k = seg.dataset.pref, v = typeof PREFS_DEF[k] === 'number' ? +b.dataset.v : b.dataset.v;
   if(pref(k) === v) return;
