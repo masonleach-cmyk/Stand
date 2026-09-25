@@ -10373,12 +10373,6 @@ async function openWorkDetail(composer, key, keepScroll){
       : `<button class="addscore" data-addscore="1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add a score for this work</button>`}</div>
     ${ed || I.about ? `<h5>About the work</h5>${T('p', 'about', I.about, '', 'About the work')}` : ''}
     ${ed || I.ctx ? `<h5>Historical context</h5>${T('p', 'ctx', I.ctx, '', 'Historical context')}` : ''}`;
-  if(ed){
-    h += `<h5>Did you know?</h5><ul class="dyk">${I.facts.map(f => T('li', 'fact', f, '', 'Leave empty to remove')).join('')}</ul>
-      <button class="addfact" data-addfact="1">Add a fact</button>`;
-  }else if(I.facts.length){
-    h += `<h5>Did you know?</h5><ul class="dyk">${I.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`;
-  }
   if(I.parts.length){
     h += `<h5>${esc(partsLabel(key, I.parts))} · ${I.parts.length}</h5>` + I.parts.map((p, i) => ed
       ? `<div class="mrow"><span class="num">${partNumber(key, i, I.parts)}</span>
@@ -10417,14 +10411,6 @@ $('#wdBody').addEventListener('click', async e => {
   if(e.target.closest('[data-addscore]')) return $('#workPicker').click();
   if(e.target.closest('[data-logpractice]')) return openLogTime(`w|${WD.composer}|${WD.key}`);
   { const sb = e.target.closest('[data-sessions]'); if(sb) return openPracticeDashboard({ tab:'log', piece:sb.dataset.sessions, over:true }); }
-  if(e.target.closest('[data-addfact]')){
-    const ul = $('#wdBody .dyk');
-    const li = document.createElement('li');
-    li.dataset.edit = 'fact'; li.dataset.ph = 'A new fact';
-    li.setAttribute('contenteditable', 'plaintext-only');
-    ul.appendChild(li); li.focus();
-    return;
-  }
   if(e.target.closest('[data-restore]')){
     delete S.wedit[wkId(WD.composer, WD.key)];
     try{ await DB.set(K.workEdits, S.wedit); }catch(err){}
@@ -11784,6 +11770,9 @@ $('#vBack').addEventListener('click', async () => {
    ends with a tab that gets killed. */
 function closeDocument(){
   resetGestures();
+  // a glide still under way is dropped, not landed: there's no page to turn to
+  if(settling){ clearTimeout(settling.t); settling = null; }
+  pagewrap.style.transition = inkLayer.style.transition = ghostwrap.style.transition = '';
   releaseWakeLock();
   ptStop();   // no-op if #vBack already stopped it; a safety net for any other path that closes the viewer
   if(V.pdf && V.id && stageW){
@@ -12888,6 +12877,7 @@ stage.addEventListener('pointerdown', e => {
   // landing while the last pinch was still gliding into place used to start its
   // pinch from numbers the animation was about to overwrite.
   stopViewAnim();
+  const caught = ptrs.size === 0 ? catchSettle() : (finishSettle(), 0);
   syncStageOrigin();
   if(ptrs.size === 0 && (panning || panRawX != null || pinch || inkShifted)) resetGestures();
   // hist is seeded at touch-down so even a gesture delivered in a single move
@@ -12932,8 +12922,10 @@ stage.addEventListener('pointerdown', e => {
     // the letterbox around it has nothing to pan, so a swipe there is a gesture.
     const lx = e.clientX - stageL, ly = e.clientY - stageT;
     const onPage = lx >= panX && lx <= panX + V.renderW && ly >= panY && ly <= panY + V.renderH;
-    if(V.zoom === 1 || !onPage)
-      swipe = {x0:e.clientX, y0:e.clientY, dx:0, dir:0, t:Date.now(), ghost:false};
+    if(V.zoom === 1 || !onPage){
+      swipe = {x0:e.clientX, y0:e.clientY, dx:caught, base:caught, dir:0, t:Date.now(), ghost:false};
+      if(caught) moveSwipe(caught, 0, false);    // held where it was caught
+    }else if(caught){ place(); inkLayer.style.transform = 'translate3d(0,0,0)'; }
   }
 }, {passive:false});
 
@@ -13028,7 +13020,7 @@ stage.addEventListener('pointermove', e => {
     e.preventDefault();
     // Full travel whenever a page exists to turn to; the ghost is just the preview.
     // Resistance only at the very first and last page.
-    swipe.dx = swipe.canTurn ? dx : dx*0.3;
+    swipe.dx = (swipe.base || 0) + (swipe.canTurn ? dx : dx*0.3);
     moveSwipe(swipe.dx, swipe.dir, swipe.ghost);
     return;
   }
@@ -13151,18 +13143,25 @@ async function pointerFinished(e){
 
   if(swipe && swipe.vert){
     const dy = p ? p.y - swipe.y0 : 0;
+    const held = swipe.base;
     swipe = null;
+    if(held){ swipe = { dir:0, ghost:false }; settleSwipe(false); }   // a caught page glides home
     dockPullEnd();
     if(dy < -EDIT_SWIPE && !V.markup) setMarkup(true);
     return;
   }
   if(swipe && swipe.dir){
     const dt = Math.max(1, Date.now()-swipe.t);
-    const speed = Math.abs(swipe.dx)/dt;
-    const go = swipe.canTurn && (Math.abs(swipe.dx) > stageW*0.16 || speed > 0.45);
+    // judged by what the finger did, counted the way the swipe is going: a
+    // flick, or a drag of a sixth of the screen, turns the page, wherever a
+    // caught page happened to be when the finger landed
+    const finger = p ? (p.x - swipe.x0) * -swipe.dir : 0;
+    const go = swipe.canTurn && (finger > stageW*0.16 || finger / dt > 0.45);
     settleSwipe(go);
     return;
   }
+  // a caught page that became a tap or a hold glides the rest of the way home
+  if(swipe && swipe.base){ swipe.dir = 0; settleSwipe(false); }
   swipe = null;
 
   if(panning){
@@ -13258,21 +13257,42 @@ function moveSwipe(dx, dir, ghost){
   inkLayer.style.transform = `translate3d(${dx}px,0,0)`;
   if(ghost) ghostwrap.style.transform = `translate3d(${panX+dx+dir*stageW}px,${panY}px,0)`;
 }
+/* After a swipe lets go, the page glides the rest of the way (0.17 s) and
+   only then does the turn land. A new touch inside that glide used to start
+   from the page being left: the incoming sheet showed the wrong page, the
+   still-running glide dragged the page behind the finger, and then the turn
+   landed mid-drag and snapped everything back. Now a touch catches the glide:
+   the turn lands at once, and the page it brought in stays exactly where it
+   was on screen for the new gesture to carry on from. */
+let settling = null;
 function settleSwipe(go){
   const s = swipe; swipe = null;
   if(!s){ return; }
+  finishSettle();
   const dir = s.dir, end = go ? -dir*stageW : 0;
   const ease = 'transform .17s cubic-bezier(.22,.61,.36,1)';
   pagewrap.style.transition = ease;
   inkLayer.style.transition = ease;
   ghostwrap.style.transition = ease;
   moveSwipe(end, dir, s.ghost);
-  setTimeout(() => {
-    pagewrap.style.transition = ''; inkLayer.style.transition = ''; ghostwrap.style.transition = '';
-    hideGhost();
-    if(go) goPage(V.page + dir, false, true);
-    else { place(); inkLayer.style.transform = 'translate3d(0,0,0)'; }
-  }, 180);
+  settling = { go, dir, ghost: !!s.ghost, t: setTimeout(finishSettle, 180) };
+}
+function finishSettle(){
+  const st = settling; if(!st) return;
+  settling = null; clearTimeout(st.t);
+  pagewrap.style.transition = ''; inkLayer.style.transition = ''; ghostwrap.style.transition = '';
+  hideGhost();
+  if(st.go) goPage(V.page + st.dir, false, true);
+  else { place(); inkLayer.style.transform = 'translate3d(0,0,0)'; }
+}
+// Land a glide that's under way and say how far from rest, in px, the page
+// now on screen was when caught (0 when nothing was gliding).
+function catchSettle(){
+  const st = settling; if(!st) return 0;
+  const from = st.go && st.ghost ? ghostwrap : pagewrap;
+  const x = new DOMMatrix(getComputedStyle(from).transform).m41;   // this frame's position
+  finishSettle();
+  return st.go && !st.ghost ? 0 : Math.round(x - panX);
 }
 function cancelSwipe(){
   if(!swipe) return;
@@ -13332,6 +13352,7 @@ document.addEventListener('keydown', e => {
   ptActivity();
   if(e.target.closest('input, textarea, [contenteditable]')) return;
   if(e.metaKey || e.ctrlKey || e.altKey) return;
+  finishSettle();
   if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)) goPage(V.page + 1);
   else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) goPage(V.page - 1);
   else return;
