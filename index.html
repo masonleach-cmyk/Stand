@@ -846,6 +846,64 @@ html{overscroll-behavior:none}
 .dbtn:active{background:var(--line)}
 .wlink{flex:none;font-size:12px;padding:5px 10px;border-radius:9px;color:var(--pencil-hi);border:1px solid color-mix(in srgb,var(--pencil) 45%,transparent);background:none}
 
+/* ---------- folders ----------
+   The switch beside Filter and sort, the folder rows (folders first, loose
+   pieces after), the header shown inside a folder, and the slide that
+   answers going in or back out. */
+.fview{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:16px;
+  border:1px solid var(--line);background:var(--slate-2);color:var(--text-dim);transition:background .18s,border-color .18s,color .18s}
+.fview svg path{transition:fill .18s}
+.fview[aria-pressed="true"]{color:var(--pencil-hi);border-color:color-mix(in srgb,var(--pencil-hi) 55%,transparent);
+  background:color-mix(in srgb,var(--pencil) 20%,var(--slate-2))}
+.fview[aria-pressed="true"] svg path{fill:color-mix(in srgb,currentColor 28%,transparent)}
+.fview:active{transform:scale(.92)}
+#library:not(.pieces) .fview{display:none}
+
+.fic{flex:none;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:var(--pencil-hi);
+  background:color-mix(in srgb,var(--pencil) 15%,transparent);border:1px solid color-mix(in srgb,var(--pencil) 30%,transparent)}
+.fic svg path{fill:color-mix(in srgb,currentColor 18%,transparent)}
+.prow.folder{cursor:pointer;gap:12px}
+.prow.folder .ds{-webkit-line-clamp:1}
+.prow.folder .dbtn{align-self:center}
+.prow.folder.flash{animation:fFlash 1.1s ease-out}
+@keyframes fFlash{0%,35%{background:color-mix(in srgb,var(--pencil) 24%,transparent)}100%{background:transparent}}
+.prow.fnew{gap:12px;color:var(--pencil-hi);min-height:52px}
+.prow.fnew .fic{background:none;border:1.5px dashed color-mix(in srgb,var(--pencil-hi) 50%,transparent)}
+.prow.fnew .nm{color:var(--pencil-hi);font-size:14.5px}
+.fsep{height:1px;background:var(--line);margin:8px 10px 6px}
+
+.fhead{padding:8px 10px 14px;margin:0 0 6px;border-bottom:1px solid var(--line)}
+.fcrumbs{display:flex;align-items:center;gap:1px;margin:0 0 6px -6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.fcrumbs::-webkit-scrollbar{display:none}
+.fcrumbs button{flex:none;display:flex;align-items:center;gap:2px;height:30px;padding:0 6px;border-radius:8px;
+  font-size:13.5px;color:var(--pencil-hi);white-space:nowrap;max-width:46vw;overflow:hidden;text-overflow:ellipsis}
+.fcrumbs button:active{background:var(--slate-3)}
+.fcrumbs .sep{flex:none;color:var(--text-faint);font-size:13px}
+.fhead h2{font-family:var(--serif);font-weight:600;font-size:25px;line-height:1.15;margin:0;color:var(--text);overflow-wrap:anywhere}
+.fhead .fdesc{font-size:13.5px;line-height:1.5;color:var(--text-dim);margin:6px 0 0;white-space:pre-line;max-width:62ch}
+.fhead .fbtns{display:flex;gap:8px;margin-top:12px}
+.fhead .fbtns button{display:flex;align-items:center;gap:6px;height:32px;padding:0 13px 0 11px;border-radius:16px;font-size:13px;
+  border:1px solid var(--line);background:var(--slate-2);color:var(--text-dim)}
+.fhead .fbtns button.go{color:var(--pencil-hi);border-color:color-mix(in srgb,var(--pencil) 45%,transparent)}
+.fhead .fbtns button:active{transform:scale(.96)}
+.fempty{padding:26px 10px 8px;text-align:center;color:var(--text-faint);font-size:13.5px;line-height:1.5}
+.fempty button{margin-top:12px;height:38px;padding:0 16px;border-radius:19px;background:var(--pencil);color:#fff;font-size:14px;font-weight:500}
+
+#clList.fgo-in{animation:fgoIn .26s cubic-bezier(.32,.72,0,1)}
+#clList.fgo-out{animation:fgoOut .26s cubic-bezier(.32,.72,0,1)}
+@keyframes fgoIn{from{opacity:.2;transform:translateX(22px)}to{opacity:1;transform:none}}
+@keyframes fgoOut{from{opacity:.2;transform:translateX(-22px)}to{opacity:1;transform:none}}
+
+/* choosing pieces for a folder */
+#mFolderAdd{z-index:48}
+.fcheck{flex:none;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--text-faint);display:grid;place-items:center;
+  transition:background .15s,border-color .15s}
+.fcheck svg{opacity:0;transition:opacity .15s}
+.prow.sel .fcheck{background:var(--pencil);border-color:var(--pencil)}
+.prow.sel .fcheck svg{opacity:1}
+#mFolder textarea{min-height:64px}
+#foDelete{display:grid;place-items:center}
+
 /* ---------- sections: named jump points within a score ---------- */
 .seclist{max-height:44vh;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-bottom:6px}
 .secrow{display:flex;align-items:center;gap:10px;padding:9px 4px;border-radius:10px}
@@ -960,7 +1018,10 @@ html{overscroll-behavior:none}
   transform:translateY(101%);transition:transform .26s cubic-bezier(.32,.72,0,1),visibility 0s linear .26s;visibility:hidden;
   max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
 }
-.sheetmodal.on{transform:translateY(0);visibility:visible;transition:transform .26s cubic-bezier(.32,.72,0,1),visibility 0s}
+.sheetmodal.on{transform:translateY(0);visibility:visible;transition:transform .26s cubic-bezier(.32,.72,0,1),bottom .22s ease,max-height .22s ease,visibility 0s}
+/* --kb and --vvh come from the keyboard tracker in the script: with the
+   on-screen keyboard up, a sheet rides on top of it instead of under it */
+.sheetmodal{bottom:var(--kb,0px);max-height:min(88vh,calc(var(--vvh,100vh) - var(--safe-t) - 16px))}
 .sheetmodal.dragging{transition:none}
 .grab{width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 14px;touch-action:none;cursor:grab;position:relative}
 .grab::before{content:'';position:absolute;left:50%;top:50%;width:64px;height:32px;transform:translate(-50%,-50%)}
@@ -1886,6 +1947,7 @@ svg{display:block}
 
   <div class="fbar">
     <button class="ftoggle" id="fToggle" aria-expanded="false" aria-controls="fPanel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span id="fSummary">Filter and sort</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <button class="fview" id="fFolders" aria-pressed="false" aria-label="Folder view" title="Folder view"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3.5 7.2a2 2 0 012-2h3.9l2.1 2.3h7a2 2 0 012 2v8.3a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/></svg></button>
     <button class="fclear" id="fClear" hidden>Clear filters</button>
     <span class="pcount" id="clCount"></span>
   </div>
@@ -1893,7 +1955,7 @@ svg{display:block}
     <div class="fgroup pc">
       <div class="flabel">Sort by</div>
       <div class="fchips" id="pcSort">
-        <button data-s="order">Recently added</button>
+        <button data-s="played">Recently played</button>
         <button data-s="title">Title</button>
         <button data-s="composer">Composer</button>
         <button data-s="level">Difficulty</button>
@@ -2090,6 +2152,7 @@ svg{display:block}
     <div class="field"><label for="dKey">Key or tempo</label><input id="dKey" type="text" placeholder="B♭ · ♩=132"></div>
   </div>
   <div class="field"><label for="dNotes">Notes</label><textarea id="dNotes" placeholder="Cuts, repeats, who you played it with."></textarea></div>
+  <div class="field"><label for="dFolder">Folder</label><select id="dFolder"></select></div>
   <div class="fi-label">Catalogue</div>
   <div class="field">
     <button type="button" class="pickfield" id="dWork"><span class="v"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -2405,6 +2468,35 @@ svg{display:block}
   </div>
 </div>
 
+<div class="sheetmodal compact top" id="mFolder" aria-label="Folder">
+  <div class="grab"></div>
+  <h3 id="foHead">New folder</h3>
+  <div class="field"><label for="foName">Name</label><input id="foName" type="text" placeholder="Recital program" autocomplete="off" enterkeyhint="done"></div>
+  <div class="field"><label for="foDesc">Description (optional)</label><textarea id="foDesc" placeholder="What it’s for, a date, who it’s with."></textarea></div>
+  <div class="field"><label for="foParent">Inside</label><select id="foParent"></select></div>
+  <div class="btnrow">
+    <button class="btn danger" id="foDelete" aria-label="Delete folder"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
+    <button class="btn" id="foCancel">Cancel</button>
+    <button class="btn go" id="foSave">Create</button>
+  </div>
+</div>
+
+<div class="panel" id="mFolderAdd" aria-label="Choose pieces for this folder">
+  <div class="panel-head">
+    <button class="linkbtn" id="faCancel">Cancel</button>
+    <h3 id="faHead">Add pieces</h3>
+    <button class="linkbtn strong" id="faDone">Done</button>
+  </div>
+  <div class="searchrow">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C7688" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input id="faQ" type="search" placeholder="Search your pieces" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+  </div>
+  <div class="pcount" id="faCount"></div>
+  <div class="plist" id="faList"></div>
+</div>
+
 <div class="backdrop top" id="backdrop3"></div>
 <div class="sheetmodal compact top" id="mSections" aria-label="Sections">
   <div class="grab"></div>
@@ -2570,7 +2662,7 @@ async function estimateUsage(){
 }
 
 /* ---------- app state ---------- */
-const S = { docs:[], sets:[], set:null, query:'', ready:false, prog:'all', src:'all', mv:{}, rate:{}, wedit:{}, practice:{sessions:[]} };
+const S = { docs:[], sets:[], folders:[], set:null, query:'', ready:false, prog:'all', src:'all', mv:{}, rate:{}, wedit:{}, practice:{sessions:[]} };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
 /* ---------- small helpers ---------- */
@@ -2587,20 +2679,22 @@ const esc = s => (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','
    ======================================================================= */
 async function loadLibrary(){
   const idx = await DB.get(K.index);
-  if(idx){ S.docs = idx.docs || []; S.sets = idx.sets || []; }
+  if(idx){ S.docs = idx.docs || []; S.sets = idx.sets || []; S.folders = Array.isArray(idx.folders) ? idx.folders : []; }
   try{ S.mv = (await DB.get(K.progress)) || {}; }catch(e){ S.mv = {}; }
   try{ S.rate = (await DB.get(K.ratings)) || {}; }catch(e){ S.rate = {}; }
   try{ S.wedit = (await DB.get(K.workEdits)) || {}; }catch(e){ S.wedit = {}; }
   try{ S.practice = (await DB.get(K.practice)) || { sessions:[] }; }catch(e){ S.practice = { sessions:[] }; }
   await loadComposers();
-  if(nicknameMigrate()) await saveIndexNow();
+  const foldersFixed = sanitizeFolders();
+  const playedSeeded = await seedPlayed();
+  if(nicknameMigrate() || foldersFixed || playedSeeded) await saveIndexNow();
   S.ready = true;
   await renderAll();
 }
 let idxTimer;
 function saveIndexSoon(){ clearTimeout(idxTimer); idxTimer = setTimeout(saveIndexNow, 350); }
 async function saveIndexNow(){
-  try{ await DB.set(K.index, { docs:S.docs, sets:S.sets, v:1 }); }
+  try{ await DB.set(K.index, { docs:S.docs, sets:S.sets, folders:S.folders, v:1 }); }
   catch(e){ toast('Could not save the library. ' + e.message); }
 }
 
@@ -5894,6 +5988,8 @@ async function importFile(file){
 
   const doc = { id, title, composer, keyInfo:'', notes:'', pages:pdf.numPages,
                 added:Date.now(), bytes:buf.byteLength, marked:false, sections };
+  // added while looking inside a folder: it goes into that folder
+  if(CL.filter === 'pieces' && FV.on && folderById(FV.cwd)) doc.folder = FV.cwd;
   // The copy opened to read the page count and draw the thumbnail is finished
   // with. Left undestroyed, importing a dozen scores left a dozen parsed
   // documents in memory for the rest of the session.
@@ -5943,6 +6039,7 @@ function hideModals(){
   $('#mPractice').classList.remove('on');
   if($('#mSplit').classList.contains('on')) spClose();
   $('#mMerge').classList.remove('on');
+  $('#mFolderAdd').classList.remove('on');
   editingId=null;
   if(wasEditing) renderAll();
 }
@@ -5957,7 +6054,7 @@ $('#dClose').addEventListener('click', hideModals);
 function initSheetDrag(sheet){
   const grab = sheet.querySelector('.grab');
   if(!grab) return;
-  const closeThis = () => (sheet.id === 'mComposerEdit' ? closeComposerEditor() : sheet.id === 'mLogTime' ? closeLogTime() : sheet.id === 'mSections' ? closeSections() : hideModals());
+  const closeThis = () => (sheet.id === 'mComposerEdit' ? closeComposerEditor() : sheet.id === 'mLogTime' ? closeLogTime() : sheet.id === 'mSections' ? closeSections() : sheet.id === 'mFolder' ? closeFolderEditor() : hideModals());
   let dragging = false, startY = 0, dy = 0, startedAt = 0, pid = null;
   grab.addEventListener('pointerdown', e => {
     dragging = true; startY = e.clientY; dy = 0; startedAt = Date.now(); pid = e.pointerId;
@@ -5991,6 +6088,7 @@ function openDetails(id){
   setComposerField(d.composer || '');
   $('#dKey').value = d.keyInfo || '';
   $('#dNotes').value = d.notes || '';
+  fillFolderSelect($('#dFolder'), folderById(d.folder) ? d.folder : '', null, 'None', true);
   renderFileInfo(d);
   setWorkField();
   renderDetailsPractice(d);
@@ -6205,7 +6303,7 @@ $('#wpList').addEventListener('click', e => {
 });
 $('#wpCancel').addEventListener('click', closeWorkPicker);
 /* Save details -> Pin: bumps the piece to the top of Pieces, but only while
-   the list is unfiltered (Recently added · Any · Any) — see renderPieces(). */
+   the list is unfiltered (Recently played · Any · Any) — see renderPieces(). */
 $('#dPin').addEventListener('click', () => {
   const d = S.docs.find(x => x.id === editingId); if(!d) return hideModals();
   const pinned = d.pinned = !d.pinned;
@@ -6337,6 +6435,8 @@ async function replacePieces(olds, fresh){
   const first = S.docs.findIndex(d => oldIds.has(d.id));
   let practiceChanged = false;
   for(const d of olds) if(retirePracticeName(d)) practiceChanged = true;
+  const home = olds.find(d => d.folder && folderById(d.folder));
+  if(home) for(const d of fresh) if(!d.folder) d.folder = home.folder;
   const rest = S.docs.filter(d => !oldIds.has(d.id));
   const at = first < 0 ? 0 : S.docs.slice(0, first).filter(d => !oldIds.has(d.id)).length;
   rest.splice(at, 0, ...fresh);
@@ -7140,7 +7240,7 @@ $('#cpCancel').addEventListener('click', closeComposerPicker);
    shows what the file itself tells us. */
 const CL = { filter:(() => { try{ return localStorage.getItem('stand.menu') || 'library'; }catch(e){ return 'library'; } })(),
              cfilter:(() => { try{ return localStorage.getItem('stand.composerFilter') || 'library'; }catch(e){ return 'library'; } })(),
-             sort:(() => { try{ return localStorage.getItem('stand.pieceSort') || 'order'; }catch(e){ return 'order'; } })() };
+             sort:(() => { try{ const v = localStorage.getItem('stand.pieceSort'); return !v || v === 'order' ? 'played' : v; }catch(e){ return 'played'; } })() };
 if(CL.filter !== 'pieces') CL.filter = CL.cfilter;
 function openComposerList(){ hideModals(); renderComposerList(); }
 function closeComposerList(){}
@@ -7895,7 +7995,7 @@ function pieceLevel(d){
   const k = workKeyOf(d), dl = k != null ? difficultyOf(d.composer, k) : null;
   return dl && dl.h ? { lv: dl.h, mine: false, ap: !!dl.ap } : null;
 }
-function pieceRow(d){
+function pieceRow(d, showFolder){
   const k = workKeyOf(d);
   const bits = [], tags = [];
   let name, desc = '';
@@ -7920,6 +8020,8 @@ function pieceRow(d){
   const pl = pieceLevel(d);
   const lvl = pl ? `<span class="lvl${pl.mine || pl.ap ? ' est' : ''}" style="--c:${levelColor(pl.lv)}" title="${pl.mine ? 'Your rating' : pl.ap ? 'Estimated, on Henle’s scale' : 'Henle level'}">${pl.ap && !pl.mine ? '≈' : ''}${pl.lv}</span>` : '';
   const hasPage = k != null && (WORK_DETAILS_KEYS[d.composer] || {})[k];
+  const inF = showFolder === true && folderById(d.folder);
+  if(inF) bits.push('In ' + inF.name);
   const pin = d.pinned ? `<svg class="pinbadge" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-label="Pinned"><path d="M12 2a1 1 0 011 1v6.4l3.45 1.72A2 2 0 0118 13v1a1 1 0 01-1 1h-4v5.5a1 1 0 01-2 0V15H7a1 1 0 01-1-1v-1a2 2 0 011.55-1.88L11 9.4V3a1 1 0 011-1z"/></svg>` : '';
   return `<div class="prow piece" role="button" tabindex="0" data-doc="${esc(d.id)}">
     <span class="tx"><span class="nm">${pin}${esc(name)}</span><span class="sub">${esc(bits.join(' · '))}</span>${desc ? `<span class="ds">${esc(desc)}</span>` : ''}</span>
@@ -7937,12 +8039,24 @@ function renderPieces(){
   $('#clCount').textContent = S.docs.length
     ? (docs.length === S.docs.length ? `${docs.length} ${docs.length === 1 ? 'piece' : 'pieces'}` : `${docs.length} of ${S.docs.length}`)
     : '';
-  if(!S.docs.length) return '';
+  if(!S.docs.length && !(FV.on && S.folders.length)) return '';
+  // folder view: one level at a time, folders first
+  if(FV.on && !q) return renderFolderLevel(docs);
+  // a search in folder view looks through the folders as well as the pieces
+  const fhits = FV.on && q ? matchingFolders(q) : [];
+  let h = fhits.length ? '<h4>Folders</h4>' + fhits.map(folderRow).join('') + (docs.length ? '<h4>Pieces</h4>' : '') : '';
   if(!docs.length){
-    return `<div class="pnote">${q ? 'No piece matches that search.' :
+    return h || `<div class="pnote">${q ? 'No piece matches that search.' :
       S.prog === 'none' ? 'Every piece here has been practiced.' :
       S.prog !== 'all' ? `Nothing here is marked ${S.prog} yet. Mark progress in a piece’s details.` : 'No pieces fit these filters.'}</div>`;
   }
+  return h + renderPieceGroups(docs, FV.on && !!q);
+}
+// When a piece was last opened, or added if it never has been — so a score
+// you've just added comes in at the top instead of sinking below the rest.
+const playedAt = d => d.played || d.added || 0;
+// Sorts and groups a list of pieces by the chosen sort, then draws it.
+function renderPieceGroups(docs, showFolder){
   const titleOf = d => { const k = workKeyOf(d); return k != null ? workShown(d.composer, k) : (titleShown(d.title) || ''); };
   const list = [...docs];
   const coll = (a, b) => a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'});
@@ -7963,9 +8077,13 @@ function renderPieces(){
     for(const d of list){ const v = lv(d); const g = v === 99 ? 'Not rated' : `Level ${v} · ${HENLE_WORD(v)}`; if(!m.has(g)) m.set(g, []); m.get(g).push(d); }
     groups = [...m];
   }else{
+    // Recently played: last opened first. Ties (nothing opened yet) keep the
+    // library's own order, newest added first.
+    const at = new Map(list.map((d, i) => [d, i]));
+    list.sort((a, b) => playedAt(b) - playedAt(a) || at.get(a) - at.get(b));
     // Pinned pieces only jump the queue on the plain, unfiltered "Recently
-    // added" view — the same state the Filter and sort panel shows as
-    // Recently added · Any · Any. Any other sort or filter, and pins are
+    // played" view — the same state the Filter and sort panel shows as
+    // Recently played · Any · Any. Any other sort or filter, and pins are
     // just a badge; the list stays in that sort's own order.
     if(S.prog === 'all' && S.src === 'all'){
       const pinned = list.filter(d => d.pinned);
@@ -7976,8 +8094,326 @@ function renderPieces(){
     }
     groups = [['', list]];
   }
-  return groups.map(([g, ds]) => (g ? `<h4>${esc(g)} · ${ds.length}</h4>` : '') + ds.map(pieceRow).join('')).join('');
+  return groups.map(([g, ds]) => (g ? `<h4>${esc(g)} · ${ds.length}</h4>` : '') + ds.map(d => pieceRow(d, showFolder)).join('')).join('');
 }
+
+/* =======================================================================
+   Folders
+
+   Your own grouping for pieces, nested as deep as you like. A folder is
+   { id, name, desc, parent, created } in S.folders and is saved with the
+   library index, so backups carry it; a piece names its folder in
+   doc.folder. Nothing is ever deleted with a folder: its pieces and
+   folders move up into whatever held it.
+
+   Folder view is the switch beside Filter and sort. On, Pieces opens one
+   level at a time with that level's folders first and its loose pieces
+   after, sorted and filtered the usual way. Off, every piece is in one list
+   as before and folders are ignored.
+   ======================================================================= */
+const FV = {
+  on:(() => { try{ return localStorage.getItem('stand.folderView') === '1'; }catch(e){ return false; } })(),
+  cwd:(() => { try{ return localStorage.getItem('stand.folderCwd') || null; }catch(e){ return null; } })(),
+  dir:0,        // which way the next render slides: 1 in, -1 back out
+  flash:null    // a folder just made, briefly highlighted
+};
+const FOLDER_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3.5 7.2a2 2 0 012-2h3.9l2.1 2.3h7a2 2 0 012 2v8.3a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/></svg>';
+const folderById = id => id ? S.folders.find(f => f.id === id) || null : null;
+const docFolder = d => folderById(d.folder) ? d.folder : null;
+const folderColl = (a, b) => a.name.localeCompare(b.name, undefined, {numeric:true, sensitivity:'base'});
+function childFolders(pid){ pid = pid || null; return S.folders.filter(f => (f.parent || null) === pid); }
+function folderPath(id){
+  const out = []; let f = folderById(id), guard = 0;
+  while(f && guard++ < 100){ out.unshift(f); f = folderById(f.parent); }
+  return out;
+}
+// the folder and every folder inside it, however deep
+function folderTree(id){
+  const out = new Set([id]); let grew = true;
+  while(grew){ grew = false; for(const f of S.folders) if(f.parent && out.has(f.parent) && !out.has(f.id)){ out.add(f.id); grew = true; } }
+  return out;
+}
+function folderStats(id){
+  const ids = folderTree(id); let pieces = 0, last = 0;
+  for(const d of S.docs) if(d.folder && ids.has(d.folder)){ pieces++; last = Math.max(last, playedAt(d)); }
+  return { pieces, last, sub: childFolders(id).length };
+}
+// Recently played puts the folder with the most recently opened piece
+// first; every other sort is by name.
+function sortFolders(list){
+  if(CL.sort !== 'played') return list.sort(folderColl);
+  const t = new Map(list.map(f => [f, Math.max(folderStats(f.id).last, f.created || 0)]));
+  return list.sort((a, b) => t.get(b) - t.get(a) || folderColl(a, b));
+}
+function matchingFolders(q){
+  const n = normText(q);
+  return S.folders.filter(f => normText(f.name).includes(n) || normText(f.desc || '').includes(n)).sort(folderColl);
+}
+function folderRow(f){
+  const st = folderStats(f.id);
+  const bits = [st.pieces === 1 ? '1 piece' : st.pieces + ' pieces'];
+  if(st.sub) bits.push(st.sub === 1 ? '1 folder' : st.sub + ' folders');
+  const flash = FV.flash === f.id ? ' flash' : '';
+  return `<div class="prow folder${flash}" role="button" tabindex="0" data-folder="${esc(f.id)}">
+    <span class="fic">${FOLDER_SVG}</span>
+    <span class="tx"><span class="nm">${esc(f.name)}</span><span class="sub">${bits.join(' · ')}</span>${f.desc ? `<span class="ds">${esc(f.desc)}</span>` : ''}</span>
+    <button class="dbtn" data-fedit="${esc(f.id)}" aria-label="Edit folder ${esc(f.name)}">…</button>
+  </div>`;
+}
+function folderHeader(f){
+  const path = folderPath(f.id).slice(0, -1);
+  const back = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
+  const crumbs = [`<button data-cd="">${back}All pieces</button>`,
+    ...path.map(p => `<span class="sep" aria-hidden="true">›</span><button data-cd="${esc(p.id)}">${esc(p.name)}</button>`)];
+  return `<div class="fhead">
+    <nav class="fcrumbs" aria-label="Folder path">${crumbs.join('')}</nav>
+    <h2>${esc(f.name)}</h2>
+    ${f.desc ? `<p class="fdesc">${esc(f.desc)}</p>` : ''}
+    <div class="fbtns">
+      <button class="go" data-fadd="${esc(f.id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add pieces</button>
+      <button data-fedit="${esc(f.id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>Edit</button>
+    </div>
+  </div>`;
+}
+function renderFolderLevel(docs){
+  if(FV.cwd && !folderById(FV.cwd)) FV.cwd = null;
+  const cwd = FV.cwd, f = folderById(cwd);
+  const here = docs.filter(d => docFolder(d) === cwd);
+  const subs = sortFolders(childFolders(cwd));
+  const allHere = S.docs.filter(d => docFolder(d) === cwd).length;
+  const bits = [];
+  if(subs.length) bits.push(subs.length === 1 ? '1 folder' : subs.length + ' folders');
+  bits.push(here.length === allHere ? `${here.length} ${here.length === 1 ? 'piece' : 'pieces'}` : `${here.length} of ${allHere} pieces`);
+  $('#clCount').textContent = bits.join(' · ');
+  let h = f ? folderHeader(f) : '';
+  h += subs.map(folderRow).join('');
+  h += `<button class="prow fnew" data-fnew><span class="fic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span><span class="tx"><span class="nm">New folder</span></span></button>`;
+  FV.flash = null;
+  if(here.length) return h + '<div class="fsep"></div>' + renderPieceGroups(here);
+  if(allHere) return h + `<div class="pnote">No piece ${f ? 'in this folder' : 'outside a folder'} fits these filters.</div>`;
+  if(f && !subs.length) return h + `<div class="fempty">Nothing in this folder yet.<br><button data-fadd="${esc(f.id)}">Add pieces</button></div>`;
+  return h;
+}
+function enterFolder(id){
+  const from = folderPath(FV.cwd).length;
+  FV.cwd = folderById(id) ? id : null;
+  const to = folderPath(FV.cwd).length;
+  FV.dir = to > from ? 1 : to < from ? -1 : 0;
+  try{ localStorage.setItem('stand.folderCwd', FV.cwd || ''); }catch(e){}
+  if($('#clQ').value){ $('#clQ').value = ''; $('#clQ').blur(); }
+  renderComposerList();
+  $('#clList').scrollTop = 0;
+}
+function folderSlide(){
+  if(!FV.dir) return;
+  const el = $('#clList'), cls = FV.dir > 0 ? 'fgo-in' : 'fgo-out';
+  FV.dir = 0;
+  el.classList.remove('fgo-in', 'fgo-out'); void el.offsetWidth; el.classList.add(cls);
+  clearTimeout(folderSlide.t); folderSlide.t = setTimeout(() => el.classList.remove(cls), 320);
+}
+// Drops references to folders that no longer exist and breaks any loop in
+// the nesting, so a hand-edited or half-restored index can't hang the list.
+function sanitizeFolders(){
+  let changed = false;
+  const n0 = S.folders.length;
+  S.folders = S.folders.filter(f => f && typeof f.id === 'string' && typeof f.name === 'string');
+  if(S.folders.length !== n0) changed = true;
+  const ids = new Set(S.folders.map(f => f.id));
+  for(const f of S.folders) if(f.parent && (!ids.has(f.parent) || f.parent === f.id)){ f.parent = null; changed = true; }
+  for(const f of S.folders){
+    const seen = new Set([f.id]); let p = folderById(f.parent);
+    while(p){ if(seen.has(p.id)){ f.parent = null; changed = true; break; } seen.add(p.id); p = folderById(p.parent); }
+  }
+  for(const d of S.docs) if(d.folder && !ids.has(d.folder)){ delete d.folder; changed = true; }
+  return changed;
+}
+// Once, for a library from before Recently played existed: work out when
+// each score was last open from what's already stored — the page-image
+// cache stamps the last open, and a practice session counts too when it
+// can only have been this one score.
+async function seedPlayed(){
+  try{ if(localStorage.getItem('stand.playedSeeded')) return false; }catch(e){ return false; }
+  let ix = {};
+  try{ ix = (await DB.get(K.rasters)) || {}; }catch(e){}
+  const n = new Map();
+  for(const d of S.docs){ const r = docRateId(d); n.set(r, (n.get(r) || 0) + 1); }
+  let changed = false;
+  for(const d of S.docs){
+    if(d.played) continue;
+    let t = (ix[d.id] && ix[d.id].t) || 0;
+    const r = docRateId(d);
+    if(n.get(r) === 1){ const last = practiceLastAt(r); if(last) t = Math.max(t, last); }
+    if(t){ d.played = t; changed = true; }
+  }
+  try{ localStorage.setItem('stand.playedSeeded', '1'); }catch(e){}
+  return changed;
+}
+// A <select> of every folder as a tree. exclude: ids to leave out along with
+// everything inside them (a folder can't go inside itself).
+function fillFolderSelect(sel, value, exclude, noneLabel, withNew){
+  const opts = [`<option value="">${esc(noneLabel)}</option>`];
+  const walk = (pid, depth) => {
+    for(const f of childFolders(pid).sort(folderColl)){
+      if(exclude && exclude.has(f.id)) continue;
+      opts.push(`<option value="${esc(f.id)}">${'\u2003'.repeat(depth)}${esc(f.name)}</option>`);
+      walk(f.id, depth + 1);
+    }
+  };
+  walk(null, 0);
+  if(withNew) opts.push('<option value="__new">New folder…</option>');
+  sel.innerHTML = opts.join('');
+  sel.value = value || '';
+}
+
+/* ---------- new and edit folder ---------- */
+const FE = { id:null, onSaved:null, arm:false, armTimer:null };
+function openFolderEditor(id, opts){
+  opts = opts || {};
+  const f = folderById(id);
+  FE.id = f ? f.id : null; FE.onSaved = opts.onSaved || null;
+  FE.arm = false; clearTimeout(FE.armTimer);
+  $('#foHead').textContent = f ? 'Edit folder' : 'New folder';
+  $('#foName').value = f ? f.name : '';
+  $('#foDesc').value = f ? (f.desc || '') : '';
+  const parent = f ? (f.parent || '') : (opts.parent || '');
+  fillFolderSelect($('#foParent'), folderById(parent) ? parent : '', f ? folderTree(f.id) : null, 'Top level');
+  $('#foDelete').style.display = f ? '' : 'none';
+  $('#foSave').textContent = f ? 'Save' : 'Create';
+  $('#backdrop2').classList.add('on');
+  $('#mFolder').classList.add('on');
+  $('#mFolder').scrollTop = 0;
+}
+function closeFolderEditor(){
+  $('#mFolder').classList.remove('on');
+  // the piece-details sheet can be underneath; only its own backdrop stays
+  $('#backdrop2').classList.remove('on');
+  for(const id of ['#foName', '#foDesc']) $(id).blur();
+  FE.onSaved = null; FE.arm = false; clearTimeout(FE.armTimer);
+}
+async function saveFolder(){
+  const name = $('#foName').value.trim().replace(/\s+/g, ' ');
+  if(!name){ $('#foName').focus(); toast('Give the folder a name'); return; }
+  const desc = $('#foDesc').value.trim(), parent = $('#foParent').value || null;
+  let f = folderById(FE.id);
+  const created = !f;
+  if(f) Object.assign(f, { name, desc, parent });
+  else { f = { id:uid(), name, desc, parent, created:Date.now() }; S.folders.push(f); FV.flash = f.id; }
+  const cb = FE.onSaved;
+  closeFolderEditor();
+  if(cb) cb(f);
+  await saveIndexNow();
+  renderComposerList();
+  toast(created ? `Created “${name}”` : 'Folder saved');
+}
+$('#foSave').addEventListener('click', saveFolder);
+$('#foName').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); saveFolder(); } });
+$('#foCancel').addEventListener('click', closeFolderEditor);
+// Tap twice, like deleting a piece. The folder goes; what was in it moves up.
+$('#foDelete').addEventListener('click', async () => {
+  const f = folderById(FE.id); if(!f) return closeFolderEditor();
+  if(!FE.arm){
+    FE.arm = true;
+    const st = folderStats(f.id);
+    toast(st.pieces || st.sub ? `Tap again to delete “${f.name}”. What’s in it moves up a level.` : `Tap again to delete “${f.name}”.`, 4000);
+    clearTimeout(FE.armTimer); FE.armTimer = setTimeout(() => { FE.arm = false; }, 4000);
+    return;
+  }
+  const up = f.parent || null, upName = up ? folderById(up).name : 'All pieces';
+  let moved = 0;
+  for(const d of S.docs) if(d.folder === f.id){ if(up) d.folder = up; else delete d.folder; moved++; }
+  for(const c of S.folders) if(c.parent === f.id){ c.parent = up; moved++; }
+  S.folders = S.folders.filter(x => x.id !== f.id);
+  if(FV.cwd === f.id){ FV.cwd = up; FV.dir = -1; try{ localStorage.setItem('stand.folderCwd', up || ''); }catch(e){} }
+  closeFolderEditor();
+  await saveIndexNow();
+  renderComposerList();
+  toast(moved ? `Deleted “${f.name}”. Its contents are now in ${upName}.` : `Deleted “${f.name}”`, 3200);
+});
+
+/* ---------- choose the pieces in a folder ----------
+   Everything you have, ticked if it's in this folder. Ticking one from
+   another folder moves it here; unticking moves it up a level. */
+const FA = { id:null, sel:new Set(), orig:new Set(), order:[] };
+function openFolderAdd(id){
+  const f = folderById(id); if(!f) return;
+  FA.id = id;
+  FA.orig = new Set(S.docs.filter(d => d.folder === id).map(d => d.id));
+  FA.sel = new Set(FA.orig);
+  // this folder's pieces first, then the rest by when they were last played
+  const at = new Map(S.docs.map((d, i) => [d.id, i]));
+  FA.order = [...S.docs].sort((a, b) => (FA.orig.has(b.id) - FA.orig.has(a.id)) || playedAt(b) - playedAt(a) || at.get(a.id) - at.get(b.id));
+  $('#faHead').textContent = f.name;
+  $('#faQ').value = '';
+  renderFolderAdd();
+  $('#faList').scrollTop = 0;
+  $('#mFolderAdd').classList.add('on');
+}
+function closeFolderAdd(){ $('#mFolderAdd').classList.remove('on'); $('#faQ').blur(); }
+const FA_CHECK = '<span class="fcheck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
+function renderFolderAdd(){
+  const q = normText($('#faQ').value || '');
+  const nameOf = d => { const k = workKeyOf(d); return k != null ? workShown(d.composer, k) : (titleShown(d.title) || 'Untitled'); };
+  const hits = FA.order.filter(d => S.docs.includes(d) && (!q || [nameOf(d), d.title, d.composer, d.keyInfo].some(v => normText(v || '').includes(q))));
+  const n = FA.sel.size;
+  $('#faCount').textContent = n === 1 ? '1 piece in this folder' : `${n} pieces in this folder`;
+  if(!S.docs.length){ $('#faList').innerHTML = '<div class="pnote">Add some sheet music first, then put it in folders here.</div>'; return; }
+  $('#faList').innerHTML = hits.length ? hits.map(d => {
+    const on = FA.sel.has(d.id), other = d.folder !== FA.id && folderById(d.folder);
+    const sub = [composerShown(d.composer) || 'Unknown composer'];
+    if(other) sub.push('In ' + other.name);
+    return `<button class="prow${on ? ' sel' : ''}" data-fa="${esc(d.id)}" aria-pressed="${on}">
+      <span class="tx"><span class="nm">${esc(nameOf(d))}</span><span class="sub">${esc(sub.join(' · '))}</span></span>${FA_CHECK}</button>`;
+  }).join('') : `<div class="pnote">No piece matches “${esc($('#faQ').value.trim())}”.</div>`;
+}
+$('#faQ').addEventListener('input', renderFolderAdd);
+$('#faList').addEventListener('click', e => {
+  const b = e.target.closest('[data-fa]'); if(!b) return;
+  const id = b.dataset.fa;
+  if(FA.sel.has(id)) FA.sel.delete(id); else FA.sel.add(id);
+  const on = FA.sel.has(id);
+  b.classList.toggle('sel', on); b.setAttribute('aria-pressed', String(on));
+  const n = FA.sel.size;
+  $('#faCount').textContent = n === 1 ? '1 piece in this folder' : `${n} pieces in this folder`;
+});
+$('#faCancel').addEventListener('click', closeFolderAdd);
+$('#faDone').addEventListener('click', async () => {
+  const f = folderById(FA.id); if(!f) return closeFolderAdd();
+  let added = 0, removed = 0;
+  for(const d of S.docs){
+    if(FA.sel.has(d.id) && d.folder !== f.id){ d.folder = f.id; added++; }
+    else if(!FA.sel.has(d.id) && FA.orig.has(d.id) && d.folder === f.id){ if(f.parent) d.folder = f.parent; else delete d.folder; removed++; }
+  }
+  closeFolderAdd();
+  if(!added && !removed) return;
+  await saveIndexNow();
+  renderComposerList();
+  toast(added && !removed ? `Added ${added} ${added === 1 ? 'piece' : 'pieces'} to “${f.name}”`
+      : removed && !added ? `Took ${removed} ${removed === 1 ? 'piece' : 'pieces'} out of “${f.name}”` : `Updated “${f.name}”`);
+});
+
+$('#fFolders').addEventListener('click', () => {
+  FV.on = !FV.on;
+  FV.dir = 0;
+  try{ localStorage.setItem('stand.folderView', FV.on ? '1' : '0'); }catch(e){}
+  renderComposerList();
+  $('#clList').scrollTop = 0;
+});
+// the piece-details sheet's own folder field
+$('#dFolder').addEventListener('change', e => {
+  const d = S.docs.find(x => x.id === editingId); if(!d) return;
+  const v = e.target.value;
+  if(v === '__new'){
+    e.target.value = docFolder(d) || '';
+    openFolderEditor(null, { parent: FV.on ? FV.cwd : null, onSaved: f => {
+      d.folder = f.id; saveIndexSoon();
+      fillFolderSelect($('#dFolder'), f.id, null, 'None', true);
+    }});
+    return;
+  }
+  if(v) d.folder = v; else delete d.folder;
+  saveIndexSoon();
+});
+
 function placeSortKnobIn(sel){
   const seg = $(sel); if(!seg) return;
   const on = seg.querySelector('button.on'), knob = seg.querySelector('.sortknob');
@@ -7991,7 +8427,7 @@ function renderComposerList(){
   const f = CL.filter;
   syncMenuControls();
   $('#empty').style.display = !S.docs.length && f === 'pieces' ? 'block' : 'none';
-  if(f === 'pieces'){ $('#clList').innerHTML = renderPieces(); return; }
+  if(f === 'pieces'){ $('#clList').innerHTML = renderPieces(); folderSlide(); return; }
 
   const used = usageCounts(), stray = strayComposers();
   let list = q ? searchComposers(q) : composerEntries;
@@ -8029,7 +8465,7 @@ function searchLike(name, q){ return normText(name).includes(normText(q)); }
 $('#clQ').addEventListener('input', renderComposerList);
 /* One switch between pieces and composers; everything else folds away under
    a single filter button whose label says what is currently applied. */
-const SORT_NAMES = { order:'Recently added', title:'Title', composer:'Composer', level:'Difficulty' };
+const SORT_NAMES = { played:'Recently played', title:'Title', composer:'Composer', level:'Difficulty' };
 const PROG_NAMES = { none:'Not practiced', practiced:'Practiced', learned:'Learned' };
 const SRC_NAMES = { cat:'Matched', other:'Not matched' };
 const COMP_NAMES = { library:'My composers', all:'All composers', added:'Added by me' };
@@ -8052,6 +8488,8 @@ function syncMenuControls(){
     parts = [COMP_NAMES[CL.cfilter]];
   }
   $('#fSummary').textContent = parts.join(' · ');
+  $('#fFolders').setAttribute('aria-pressed', String(FV.on));
+  $('#fFolders').title = FV.on ? 'Folder view on' : 'Folder view';
   $('#fToggle').classList.toggle('active', active);
   $('#fClear').hidden = !active;
 }
@@ -8084,6 +8522,15 @@ $('#pcSort').addEventListener('click', e => {
 });
 window.addEventListener('resize', () => placeSortKnobIn('#mainSeg'));
 $('#clList').addEventListener('click', e => {
+  const fe = e.target.closest('[data-fedit]');
+  if(fe){ $('#clQ').blur(); return openFolderEditor(fe.dataset.fedit); }
+  const fa = e.target.closest('[data-fadd]');
+  if(fa){ $('#clQ').blur(); return openFolderAdd(fa.dataset.fadd); }
+  const cd = e.target.closest('[data-cd]');
+  if(cd) return enterFolder(cd.dataset.cd || null);
+  const fo = e.target.closest('[data-folder]');
+  if(fo) return enterFolder(fo.dataset.folder);
+  if(e.target.closest('[data-fnew]')){ $('#clQ').blur(); return openFolderEditor(null, { parent: FV.cwd }); }
   const det = e.target.closest('[data-details]');
   if(det){ $('#clQ').blur(); return openDetails(det.dataset.details); }
   const wd = e.target.closest('[data-wd]');
@@ -8101,7 +8548,9 @@ $('#clList').addEventListener('click', e => {
   else if(b.dataset.stray != null) openComposerEditor(null, { name: b.dataset.stray, renameFrom: b.dataset.stray });
 });
 $('#clList').addEventListener('keydown', e => {
-  if(e.key !== 'Enter' || !e.target.matches('.prow.piece')) return;
+  if(e.key !== 'Enter') return;
+  if(e.target.matches('.prow.folder')) return enterFolder(e.target.dataset.folder);
+  if(!e.target.matches('.prow.piece')) return;
   openDoc(e.target.dataset.doc);
 });
 $('#clAdd').addEventListener('click', () => openComposerEditor(null, { name: CL.filter === 'pieces' ? '' : $('#clQ').value.trim() }));
@@ -8161,7 +8610,6 @@ function openComposerEditor(entry, opts){
   $('#ceCancel').textContent = builtin ? 'Close' : 'Cancel';
   $('#backdrop2').classList.add('on');
   $('#mComposerEdit').classList.add('on');
-  if(!entry && !name) try{ $('#ceName').focus({preventScroll:true}); }catch(e){}
 }
 function closeComposerEditor(){
   $('#mComposerEdit').classList.remove('on');
@@ -8178,7 +8626,7 @@ $('#ceName').addEventListener('input', () => {
 });
 $('#ceKeys').addEventListener('input', () => { $('#ceKeys').dataset.touched = '1'; });
 $('#ceCancel').addEventListener('click', closeComposerEditor);
-$('#backdrop2').addEventListener('click', () => ($('#mLogTime').classList.contains('on') ? closeLogTime() : closeComposerEditor()));
+$('#backdrop2').addEventListener('click', () => ($('#mFolder').classList.contains('on') ? closeFolderEditor() : $('#mLogTime').classList.contains('on') ? closeLogTime() : closeComposerEditor()));
 
 async function renameInLibrary(from, to){
   let n = 0;
@@ -9959,6 +10407,47 @@ if(window.visualViewport){
   });
 }
 
+/* ---------- keep sheets above the on-screen keyboard ----------
+   iOS doesn't shrink the page for the keyboard: it slides up over the page,
+   and a sheet pinned to the bottom of the screen ends up underneath it. So
+   the keyboard's height is read from the visual viewport, every sheet is
+   lifted onto it and shortened to the space that's left, and the field
+   you're typing in is scrolled into view inside the sheet. */
+(function(){
+  const vv = window.visualViewport; if(!vv) return;
+  const root = document.documentElement;
+  let raf = 0, was = false;
+  function revealField(){
+    const el = document.activeElement;
+    if(!el || !el.matches || !el.matches('input,textarea,select')) return;
+    const sheet = el.closest('.sheetmodal.on'); if(!sheet) return;
+    const s = sheet.getBoundingClientRect(), r = el.getBoundingClientRect();
+    if(r.bottom > s.bottom - 16) sheet.scrollTop += r.bottom - s.bottom + 28;
+    else if(r.top < s.top + 16) sheet.scrollTop -= s.top - r.top + 28;
+  }
+  function sync(){
+    raf = 0;
+    const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    const on = kb > 80 && vv.scale < 1.01;   // not pinch zoom or toolbar wobble
+    root.style.setProperty('--kb', on ? kb + 'px' : '0px');
+    root.style.setProperty('--vvh', Math.round(on ? vv.height : window.innerHeight) + 'px');
+    // iOS can leave the page nudged up after the keyboard goes away
+    if(was && !on && (window.scrollY || document.documentElement.scrollTop)) window.scrollTo(0, 0);
+    was = on;
+    if(on) setTimeout(revealField, 240);   // once the sheet has finished moving
+  }
+  const queue = () => { if(!raf) raf = requestAnimationFrame(sync); };
+  vv.addEventListener('resize', queue);
+  vv.addEventListener('scroll', queue);
+  window.addEventListener('resize', queue);
+  // moving between fields with the keyboard already up doesn't resize anything
+  document.addEventListener('focusin', e => {
+    if(e.target.closest && e.target.closest('.sheetmodal')){ queue(); setTimeout(revealField, 300); }
+  });
+  document.addEventListener('focusout', () => setTimeout(queue, 60));
+  queue();
+})();
+
 
 
 /* ---------- open ---------- */
@@ -10191,6 +10680,8 @@ async function openDoc(id, opts){
     setTimeout(measure, 320);   // again once the slide-in transition has settled
     await renderPage();
     ptStart(doc);   // the score is actually on screen now — start the practice clock
+    doc.played = Date.now();   // for the Recently played sort
+    saveIndexSoon();
   }catch(err){
     console.error(err); toast('Could not open that file: ' + (err && err.message ? err.message : 'unknown error'), 5000);
   }
