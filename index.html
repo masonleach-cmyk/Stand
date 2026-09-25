@@ -917,6 +917,7 @@ html{overscroll-behavior:none}
 .fexit.drop .up{display:block}
 .fexit.drop .lbl{opacity:1;transition-delay:.12s}
 .fexit.drop.hot{background:var(--pencil);border-style:solid;border-color:var(--pencil);color:#fff;transform:scale(1.02)}
+#library.exitright .fexit{left:auto;right:calc(max(0px,(100% - 860px) / 2) + 18px)}
 #library.infolder #clList{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 92px)}
 .btn.foadd{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:0 0 14px}
 .btn.foadd[hidden]{display:none}
@@ -2423,6 +2424,10 @@ svg{display:block}
         <div class="set-row">
           <span class="set-l"><span class="nm">My order only</span><span class="sub">Turns sorting off. Pieces and folders stay exactly where you put them; new ones start at the top.</span></span>
           <button type="button" class="set-sw" id="setManual" role="switch" aria-checked="false" aria-label="My order only"><i></i></button>
+        </div>
+        <div class="set-row col">
+          <span class="set-l"><span class="nm">Back button</span><span class="sub">Which side of the screen the round button for leaving a folder sits on.</span></span>
+          <div class="pd-seg set-seg" data-pref="exitSide" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="left">Left</button><button type="button" data-v="right">Right</button></div>
         </div>
         <div class="set-row col" id="setFolderPlaceRow">
           <span class="set-l"><span class="nm">Folders in Recently played</span><span class="sub">On top keeps folders above your pieces. With pieces puts each folder in the list by the last time you opened a piece inside it.</span></span>
@@ -7492,7 +7497,7 @@ function practiceByComposer(){
 /* ---------- preferences ----------
    Small settings live together in localStorage under stand.prefs, so they
    ride along in backups with the rest of the stand.* keys. */
-const PREFS_DEF = { folderPlace:'top', folderAlways:false, manualOnly:false, autolog:true, autologMin:90, autologIdle:0, nick:'first', composerNames:'full', backupEvery:14 };
+const PREFS_DEF = { exitSide:'left', folderPlace:'top', folderAlways:false, manualOnly:false, autolog:true, autologMin:90, autologIdle:0, nick:'first', composerNames:'full', backupEvery:14 };
 let PREFS = null;
 function pref(k){
   if(!PREFS){ try{ PREFS = JSON.parse(localStorage.getItem('stand.prefs') || '{}') || {}; }catch(e){ PREFS = {}; } }
@@ -8296,6 +8301,7 @@ function syncExit(){
   el.setAttribute('aria-hidden', String(!f));
   el.setAttribute('aria-label', f ? `Back to ${up ? up.name : 'All pieces'}` : 'Back');
   $('#library').classList.toggle('infolder', !!f);
+  $('#library').classList.toggle('exitright', pref('exitSide') === 'right');
 }
 /* ---------- one level of folder view, in order ----------
    Three ways a level can be ordered:
@@ -13728,7 +13734,7 @@ document.querySelectorAll('#mSettings .set-seg').forEach(seg => seg.addEventList
   if(pref(k) === v) return;
   setPref(k, v);
   if(k === 'nick' || k === 'composerNames'){ renderAll(); practiceRefreshOpenViews(); }
-  if(k === 'folderPlace') renderAll();
+  if(k === 'folderPlace' || k === 'exitSide') renderAll();
   syncSettings();
 }));
 $('#bkNow').addEventListener('click', backupLibrary);
