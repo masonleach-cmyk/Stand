@@ -803,7 +803,8 @@ html{overscroll-behavior:none}
 .ftoggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
 .ftoggle.active{color:var(--text);border-color:color-mix(in srgb,var(--pencil-hi) 55%,transparent)}
 .fclear{font-size:13px;color:var(--pencil-hi);padding:6px 2px;flex:none}
-.fbar .pcount{margin-left:auto;padding:0 !important;white-space:nowrap}
+.fbar .pcount{margin-left:auto;padding:0 !important;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.fbar .ftoggle{flex-shrink:0}
 .fpanel{flex:none;display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease;margin:0 20px}
 .fpanel.open{grid-template-rows:1fr}
 .fpanel > .fin{min-height:0;overflow:hidden}
@@ -858,6 +859,14 @@ html{overscroll-behavior:none}
 .fview[aria-pressed="true"] svg path{fill:color-mix(in srgb,currentColor 28%,transparent)}
 .fview:active{transform:scale(.92)}
 #library:not(.pieces) .fview{display:none}
+/* New folder: slides out beside the folder switch while folder view is on,
+   and folds away again when it isn't needed */
+.fnewbtn{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:16px;overflow:hidden;
+  border:1.5px dashed color-mix(in srgb,var(--pencil-hi) 60%,transparent);background:none;color:var(--pencil-hi);
+  transition:width .24s cubic-bezier(.32,.72,0,1),margin .24s cubic-bezier(.32,.72,0,1),opacity .18s,border-width .24s}
+.fnewbtn svg{flex:none}
+.fnewbtn:active{transform:scale(.92);background:color-mix(in srgb,var(--pencil) 14%,transparent)}
+#library:not(.fmode) .fnewbtn{width:0;margin-left:-10px;opacity:0;border-width:0;pointer-events:none}
 
 .fic{flex:none;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:var(--pencil-hi);
   background:color-mix(in srgb,var(--pencil) 15%,transparent);border:1px solid color-mix(in srgb,var(--pencil) 30%,transparent)}
@@ -867,25 +876,91 @@ html{overscroll-behavior:none}
 .prow.folder .dbtn{align-self:center}
 .prow.folder.flash{animation:fFlash 1.1s ease-out}
 @keyframes fFlash{0%,35%{background:color-mix(in srgb,var(--pencil) 24%,transparent)}100%{background:transparent}}
-.prow.fnew{gap:12px;color:var(--pencil-hi);min-height:52px}
-.prow.fnew .fic{background:none;border:1.5px dashed color-mix(in srgb,var(--pencil-hi) 50%,transparent)}
-.prow.fnew .nm{color:var(--pencil-hi);font-size:14.5px}
 .fsep{height:1px;background:var(--line);margin:8px 10px 6px}
 
-.fhead{padding:8px 10px 14px;margin:0 0 6px;border-bottom:1px solid var(--line)}
-.fcrumbs{display:flex;align-items:center;gap:1px;margin:0 0 6px -6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.fcrumbs::-webkit-scrollbar{display:none}
-.fcrumbs button{flex:none;display:flex;align-items:center;gap:2px;height:30px;padding:0 6px;border-radius:8px;
-  font-size:13.5px;color:var(--pencil-hi);white-space:nowrap;max-width:46vw;overflow:hidden;text-overflow:ellipsis}
-.fcrumbs button:active{background:var(--slate-3)}
-.fcrumbs .sep{flex:none;color:var(--text-faint);font-size:13px}
-.fhead h2{font-family:var(--serif);font-weight:600;font-size:25px;line-height:1.15;margin:0;color:var(--text);overflow-wrap:anywhere}
-.fhead .fdesc{font-size:13.5px;line-height:1.5;color:var(--text-dim);margin:6px 0 0;white-space:pre-line;max-width:62ch}
-.fhead .fbtns{display:flex;gap:8px;margin-top:12px}
-.fhead .fbtns button{display:flex;align-items:center;gap:6px;height:32px;padding:0 13px 0 11px;border-radius:16px;font-size:13px;
-  border:1px solid var(--line);background:var(--slate-2);color:var(--text-dim)}
-.fhead .fbtns button.go{color:var(--pencil-hi);border-color:color-mix(in srgb,var(--pencil) 45%,transparent)}
-.fhead .fbtns button:active{transform:scale(.96)}
+/* ---------- inside a folder ----------
+   The name, large, with the … menu beside it and one hairline beneath,
+   drawn in from the left as you arrive. Nothing else competes with it. */
+.fhead{display:flex;align-items:flex-start;gap:14px;padding:14px 10px 16px;margin:0 0 8px;position:relative}
+.fhead::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:1px;background:var(--line);transform-origin:left center}
+.fhead .fname{flex:1;min-width:0;margin:0;font-family:var(--sans);font-size:30px;font-weight:650;line-height:1.1;letter-spacing:-.022em;
+  color:var(--text);overflow-wrap:anywhere;text-wrap:balance;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fmore{flex:none;width:36px;height:36px;margin-top:-1px;border-radius:50%;display:grid;place-items:center;color:var(--text-dim);
+  background:var(--slate-2);border:1px solid var(--line);transition:transform .18s cubic-bezier(.2,.8,.2,1)}
+.fmore:active{transform:scale(.9)}
+.fhead.enter .fname{animation:fhName .5s cubic-bezier(.2,.8,.2,1) both}
+.fhead.enter::after{animation:fhLine .7s cubic-bezier(.3,.7,.1,1) .08s both}
+@keyframes fhName{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fhLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (min-width:700px){ .fhead .fname{font-size:36px} }
+
+/* ---------- the way out ----------
+   A small round button floating at the bottom of the screen, under your
+   thumb, whenever you're inside a folder. Pick up a piece and it opens out
+   into a wide drop bar naming where the piece would go. */
+.fexit{position:absolute;z-index:12;left:calc(max(0px,(100% - 860px) / 2) + 18px);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);
+  width:48px;height:48px;border-radius:24px;display:flex;align-items:center;gap:10px;padding:0 0 0 14px;overflow:hidden;
+  color:var(--pencil-hi);background:color-mix(in srgb,var(--slate-2) 84%,transparent);
+  -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);
+  border:1px solid color-mix(in srgb,var(--pencil) 32%,var(--line));box-shadow:0 8px 24px rgba(0,0,0,.28),0 1px 3px rgba(0,0,0,.2);
+  transition:width .32s cubic-bezier(.32,.72,0,1),height .32s cubic-bezier(.32,.72,0,1),border-radius .32s cubic-bezier(.32,.72,0,1),
+    background .18s,color .18s,border-color .18s,transform .3s cubic-bezier(.2,.8,.2,1),opacity .22s;
+  opacity:0;transform:translateY(12px) scale(.8);pointer-events:none}
+.fexit.on{opacity:1;transform:none;pointer-events:auto}
+.fexit:active{transform:scale(.92)}
+.fexit svg{flex:none}
+.fexit .up{display:none}
+.fexit .lbl{white-space:nowrap;font-size:14.5px;font-weight:600;opacity:0;transition:opacity .15s}
+.fexit.drop{width:calc(min(100%,860px) - 36px);height:58px;border-radius:18px;padding-left:18px;
+  border-style:dashed;border-color:color-mix(in srgb,var(--pencil-hi) 60%,transparent)}
+.fexit.drop .back{display:none}
+.fexit.drop .up{display:block}
+.fexit.drop .lbl{opacity:1;transition-delay:.12s}
+.fexit.drop.hot{background:var(--pencil);border-style:solid;border-color:var(--pencil);color:#fff;transform:scale(1.02)}
+#library.infolder #clList{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 92px)}
+.btn.foadd{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:0 0 14px}
+.btn.foadd[hidden]{display:none}
+#library.falways .fview{display:none}
+
+/* Arrange: slides out beside New folder; on, it reads Done */
+.farrbtn{flex:none;height:32px;width:32px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:16px;overflow:hidden;
+  border:1px solid var(--line);background:var(--slate-2);color:var(--text-dim);font-size:13px;font-weight:600;
+  transition:width .24s cubic-bezier(.32,.72,0,1),margin .24s cubic-bezier(.32,.72,0,1),opacity .18s,background .18s,color .18s,border-color .18s}
+.farrbtn span{display:none}
+.farrbtn[aria-pressed="true"]{width:62px;background:var(--pencil);border-color:var(--pencil);color:#fff}
+.farrbtn[aria-pressed="true"] svg{display:none}
+.farrbtn[aria-pressed="true"] span{display:inline}
+.farrbtn:active{transform:scale(.94)}
+#library:not(.fmode) .farrbtn{width:0;margin-left:-10px;opacity:0;border-width:0;pointer-events:none}
+#library.arranging .fbar .pcount{opacity:0}
+.farr{margin:2px 10px 6px;font-size:12.5px;line-height:1.45;color:var(--text-dim)}
+.farr .grip{display:inline-grid !important;width:auto;height:auto;margin:0 2px;vertical-align:-4px;color:var(--text-dim)}
+
+/* rows you can pick up */
+#clList .prow{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.grip{display:none;flex:none;align-self:center;width:40px;height:44px;margin:-6px -8px -6px -2px;place-items:center;
+  color:var(--text-faint);touch-action:none;cursor:grab}
+#library.arranging #clList .grip{display:grid}
+#library.arranging #clList .prow.piece > .side,#library.arranging #clList .prow.folder > .dbtn{display:none}
+#library.arranging #clList .prow.piece{align-items:center}
+#library.arranging #clList .prow.piece .ds{-webkit-line-clamp:1}
+.prow.pressing{transform:scale(.975);background:var(--slate-3);transition:transform .28s ease-out,background .28s}
+#library.dragging #clList .prow.shift{transition:transform .22s cubic-bezier(.2,.8,.2,1),background .15s,box-shadow .15s}
+#library.dragging #clList{cursor:grabbing}
+#library.dragging,#library.dragging *{-webkit-user-select:none;user-select:none}
+.prow.lifted{position:relative;z-index:6;background:var(--slate-2);
+  box-shadow:0 12px 30px rgba(0,0,0,.4),0 0 0 1px color-mix(in srgb,var(--pencil-hi) 40%,transparent);transition:opacity .15s,box-shadow .2s}
+.prow.lifted.into{opacity:.5}
+.prow.lifted.settle{transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s;box-shadow:0 0 0 0 transparent}
+.prow.lifted.gone{transition:transform .24s cubic-bezier(.4,0,.8,.4),opacity .24s;opacity:0}
+.prow.folder.droptarget{position:relative;z-index:7;background:color-mix(in srgb,var(--pencil) 20%,var(--slate));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--pencil-hi) 70%,transparent)}
+.prow.folder.droptarget .fic{background:var(--pencil);color:#fff;transform:scale(1.08);transition:transform .15s,background .15s}
+
+/* the back arrow that comes in as you swipe out of a folder */
+.fswipe{position:fixed;z-index:20;width:42px;height:42px;border-radius:50%;display:none;place-items:center;pointer-events:none;
+  background:var(--slate-3);border:1px solid var(--line);color:var(--text-dim);opacity:0;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.fswipe.on{display:grid}
+.fswipe.ready{background:var(--pencil);border-color:var(--pencil);color:#fff}
 .fempty{padding:26px 10px 8px;text-align:center;color:var(--text-faint);font-size:13.5px;line-height:1.5}
 .fempty button{margin-top:12px;height:38px;padding:0 16px;border-radius:19px;background:var(--pencil);color:#fff;font-size:14px;font-weight:500}
 
@@ -1948,13 +2023,16 @@ svg{display:block}
   <div class="fbar">
     <button class="ftoggle" id="fToggle" aria-expanded="false" aria-controls="fPanel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span id="fSummary">Filter and sort</span><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
     <button class="fview" id="fFolders" aria-pressed="false" aria-label="Folder view" title="Folder view"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3.5 7.2a2 2 0 012-2h3.9l2.1 2.3h7a2 2 0 012 2v8.3a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/></svg></button>
+    <button class="fnewbtn" id="fNew" aria-label="New folder" title="New folder" tabindex="-1"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.2a2 2 0 012-2h3.9l2.1 2.3h7a2 2 0 012 2v8.3a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/><path d="M12 11v5M9.5 13.5h5"/></svg></button>
+    <button class="farrbtn" id="fArrange" aria-pressed="false" aria-label="Arrange" title="Arrange" tabindex="-1"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4v16M4.5 7.5L8 4l3.5 3.5M16 20V4M12.5 16.5L16 20l3.5-3.5"/></svg><span>Done</span></button>
     <button class="fclear" id="fClear" hidden>Clear filters</button>
     <span class="pcount" id="clCount"></span>
   </div>
   <div class="fpanel" id="fPanel"><div class="fin">
-    <div class="fgroup pc">
+    <div class="fgroup pc" id="pcSortGroup">
       <div class="flabel">Sort by</div>
       <div class="fchips" id="pcSort">
+        <button data-s="custom" id="pcCustom" hidden>Your order</button>
         <button data-s="played">Recently played</button>
         <button data-s="title">Title</button>
         <button data-s="composer">Composer</button>
@@ -1993,6 +2071,12 @@ svg{display:block}
     <button type="button" class="now" id="bkNow">Back up</button>
   </div>
   <div class="plist mainlist" id="clList"></div>
+  <button type="button" class="fexit" id="fExit" aria-hidden="true" tabindex="-1">
+    <svg class="back" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>
+    <svg class="up" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg>
+    <span class="lbl" id="fExitLbl"></span>
+  </button>
+  <div class="fswipe" id="fSwipe" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 6l-6 6 6 6"/></svg></div>
   <div class="empty" id="empty" style="display:none">
     <h2>Nothing on the stand yet</h2>
     <p>Add a PDF and it will appear under All pieces and its composer.</p>
@@ -2330,6 +2414,23 @@ svg{display:block}
       </div>
     </div>
     <div class="pd-sec">
+      <div class="pd-t"><h4>Folders</h4></div>
+      <div class="set-card">
+        <div class="set-row">
+          <span class="set-l"><span class="nm">Always use folder view</span><span class="sub">Pieces always opens in your folders, and the folder switch is hidden.</span></span>
+          <button type="button" class="set-sw" id="setFolderAlways" role="switch" aria-checked="false" aria-label="Always use folder view"><i></i></button>
+        </div>
+        <div class="set-row">
+          <span class="set-l"><span class="nm">My order only</span><span class="sub">Turns sorting off. Pieces and folders stay exactly where you put them; new ones start at the top.</span></span>
+          <button type="button" class="set-sw" id="setManual" role="switch" aria-checked="false" aria-label="My order only"><i></i></button>
+        </div>
+        <div class="set-row col" id="setFolderPlaceRow">
+          <span class="set-l"><span class="nm">Folders in Recently played</span><span class="sub">On top keeps folders above your pieces. With pieces puts each folder in the list by the last time you opened a piece inside it.</span></span>
+          <div class="pd-seg set-seg" data-pref="folderPlace" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="top">On top</button><button type="button" data-v="mixed">With pieces</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="pd-sec">
       <div class="pd-t"><h4>Titles</h4></div>
       <div class="set-card">
         <div class="set-prev" aria-hidden="true"><span class="nm" id="tiPrevT"></span><span class="sub" id="tiPrevC"></span></div>
@@ -2471,6 +2572,7 @@ svg{display:block}
 <div class="sheetmodal compact top" id="mFolder" aria-label="Folder">
   <div class="grab"></div>
   <h3 id="foHead">New folder</h3>
+  <button type="button" class="btn go foadd" id="foAdd" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add pieces</button>
   <div class="field"><label for="foName">Name</label><input id="foName" type="text" placeholder="Recital program" autocomplete="off" enterkeyhint="done"></div>
   <div class="field"><label for="foDesc">Description (optional)</label><textarea id="foDesc" placeholder="What it’s for, a date, who it’s with."></textarea></div>
   <div class="field"><label for="foParent">Inside</label><select id="foParent"></select></div>
@@ -2662,7 +2764,7 @@ async function estimateUsage(){
 }
 
 /* ---------- app state ---------- */
-const S = { docs:[], sets:[], folders:[], set:null, query:'', ready:false, prog:'all', src:'all', mv:{}, rate:{}, wedit:{}, practice:{sessions:[]} };
+const S = { docs:[], sets:[], folders:[], layout:{}, set:null, query:'', ready:false, prog:'all', src:'all', mv:{}, rate:{}, wedit:{}, practice:{sessions:[]} };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
 /* ---------- small helpers ---------- */
@@ -2679,7 +2781,7 @@ const esc = s => (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','
    ======================================================================= */
 async function loadLibrary(){
   const idx = await DB.get(K.index);
-  if(idx){ S.docs = idx.docs || []; S.sets = idx.sets || []; S.folders = Array.isArray(idx.folders) ? idx.folders : []; }
+  if(idx){ S.docs = idx.docs || []; S.sets = idx.sets || []; S.folders = Array.isArray(idx.folders) ? idx.folders : []; S.layout = idx.layout && typeof idx.layout === 'object' ? idx.layout : {}; }
   try{ S.mv = (await DB.get(K.progress)) || {}; }catch(e){ S.mv = {}; }
   try{ S.rate = (await DB.get(K.ratings)) || {}; }catch(e){ S.rate = {}; }
   try{ S.wedit = (await DB.get(K.workEdits)) || {}; }catch(e){ S.wedit = {}; }
@@ -2694,7 +2796,7 @@ async function loadLibrary(){
 let idxTimer;
 function saveIndexSoon(){ clearTimeout(idxTimer); idxTimer = setTimeout(saveIndexNow, 350); }
 async function saveIndexNow(){
-  try{ await DB.set(K.index, { docs:S.docs, sets:S.sets, folders:S.folders, v:1 }); }
+  try{ await DB.set(K.index, { docs:S.docs, sets:S.sets, folders:S.folders, layout:S.layout, v:1 }); }
   catch(e){ toast('Could not save the library. ' + e.message); }
 }
 
@@ -7390,7 +7492,7 @@ function practiceByComposer(){
 /* ---------- preferences ----------
    Small settings live together in localStorage under stand.prefs, so they
    ride along in backups with the rest of the stand.* keys. */
-const PREFS_DEF = { autolog:true, autologMin:90, autologIdle:0, nick:'first', composerNames:'full', backupEvery:14 };
+const PREFS_DEF = { folderPlace:'top', folderAlways:false, manualOnly:false, autolog:true, autologMin:90, autologIdle:0, nick:'first', composerNames:'full', backupEvery:14 };
 let PREFS = null;
 function pref(k){
   if(!PREFS){ try{ PREFS = JSON.parse(localStorage.getItem('stand.prefs') || '{}') || {}; }catch(e){ PREFS = {}; } }
@@ -7995,7 +8097,7 @@ function pieceLevel(d){
   const k = workKeyOf(d), dl = k != null ? difficultyOf(d.composer, k) : null;
   return dl && dl.h ? { lv: dl.h, mine: false, ap: !!dl.ap } : null;
 }
-function pieceRow(d, showFolder){
+function pieceRow(d, showFolder, grip){
   const k = workKeyOf(d);
   const bits = [], tags = [];
   let name, desc = '';
@@ -8030,7 +8132,7 @@ function pieceRow(d, showFolder){
       <span class="row" style="gap:6px">
         ${(d.sections && d.sections.length) ? `<button class="wlink sm" data-sec="${esc(d.id)}">Sections ›</button>` : ''}
         ${hasPage ? `<button class="wlink sm" data-wd="${esc(d.composer)}" data-wk="${esc(k)}">About ›</button>` : ''}
-      </span></span>
+      </span></span>${grip === true ? GRIP : ''}
   </div>`;
 }
 function renderPieces(){
@@ -8056,7 +8158,11 @@ function renderPieces(){
 // you've just added comes in at the top instead of sinking below the rest.
 const playedAt = d => d.played || d.added || 0;
 // Sorts and groups a list of pieces by the chosen sort, then draws it.
-function renderPieceGroups(docs, showFolder){
+function groupPieces(docs){
+  if(manualOnly()){
+    const pos = manualPos(), at = d => pos.has(d.id) ? pos.get(d.id) : 1e9;
+    return [['', [...docs].sort((a, b) => at(a) - at(b))]];
+  }
   const titleOf = d => { const k = workKeyOf(d); return k != null ? workShown(d.composer, k) : (titleShown(d.title) || ''); };
   const list = [...docs];
   const coll = (a, b) => a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'});
@@ -8094,7 +8200,11 @@ function renderPieceGroups(docs, showFolder){
     }
     groups = [['', list]];
   }
-  return groups.map(([g, ds]) => (g ? `<h4>${esc(g)} · ${ds.length}</h4>` : '') + ds.map(d => pieceRow(d, showFolder)).join('')).join('');
+  return groups;
+}
+const orderedPieces = docs => groupPieces(docs).flatMap(g => g[1]);
+function renderPieceGroups(docs, showFolder, grip){
+  return groupPieces(docs).map(([g, ds]) => (g ? `<h4>${esc(g)} · ${ds.length}</h4>` : '') + ds.map(d => pieceRow(d, showFolder, grip)).join('')).join('');
 }
 
 /* =======================================================================
@@ -8115,8 +8225,10 @@ const FV = {
   on:(() => { try{ return localStorage.getItem('stand.folderView') === '1'; }catch(e){ return false; } })(),
   cwd:(() => { try{ return localStorage.getItem('stand.folderCwd') || null; }catch(e){ return null; } })(),
   dir:0,        // which way the next render slides: 1 in, -1 back out
-  flash:null    // a folder just made, briefly highlighted
+  flash:null,   // a folder just made, briefly highlighted
+  arrange:false // arranging by hand: grips show, taps on pieces don't open them
 };
+const GRIP = '<span class="grip" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 8h14M5 12h14M5 16h14"/></svg></span>';
 const FOLDER_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3.5 7.2a2 2 0 012-2h3.9l2.1 2.3h7a2 2 0 012 2v8.3a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/></svg>';
 const folderById = id => id ? S.folders.find(f => f.id === id) || null : null;
 const docFolder = d => folderById(d.folder) ? d.folder : null;
@@ -8138,11 +8250,19 @@ function folderStats(id){
   for(const d of S.docs) if(d.folder && ids.has(d.folder)){ pieces++; last = Math.max(last, playedAt(d)); }
   return { pieces, last, sub: childFolders(id).length };
 }
+// A folder counts as played when a piece inside it (however deep) was
+// opened; one that never has counts from when it was made, the same way a
+// piece that's never been opened counts from when it was added.
+function folderTime(f){
+  const ids = folderTree(f.id); let t = 0;
+  for(const d of S.docs) if(d.played && d.folder && ids.has(d.folder)) t = Math.max(t, d.played);
+  return t || f.created || 0;
+}
 // Recently played puts the folder with the most recently opened piece
 // first; every other sort is by name.
 function sortFolders(list){
   if(CL.sort !== 'played') return list.sort(folderColl);
-  const t = new Map(list.map(f => [f, Math.max(folderStats(f.id).last, f.created || 0)]));
+  const t = new Map(list.map(f => [f, folderTime(f)]));
   return list.sort((a, b) => t.get(b) - t.get(a) || folderColl(a, b));
 }
 function matchingFolders(q){
@@ -8150,48 +8270,134 @@ function matchingFolders(q){
   return S.folders.filter(f => normText(f.name).includes(n) || normText(f.desc || '').includes(n)).sort(folderColl);
 }
 function folderRow(f){
-  const st = folderStats(f.id);
-  const bits = [st.pieces === 1 ? '1 piece' : st.pieces + ' pieces'];
-  if(st.sub) bits.push(st.sub === 1 ? '1 folder' : st.sub + ' folders');
   const flash = FV.flash === f.id ? ' flash' : '';
   return `<div class="prow folder${flash}" role="button" tabindex="0" data-folder="${esc(f.id)}">
     <span class="fic">${FOLDER_SVG}</span>
-    <span class="tx"><span class="nm">${esc(f.name)}</span><span class="sub">${bits.join(' · ')}</span>${f.desc ? `<span class="ds">${esc(f.desc)}</span>` : ''}</span>
-    <button class="dbtn" data-fedit="${esc(f.id)}" aria-label="Edit folder ${esc(f.name)}">…</button>
+    <span class="tx"><span class="nm">${esc(f.name)}</span>${f.desc ? `<span class="ds">${esc(f.desc)}</span>` : ''}</span>
+    <button class="dbtn" data-fedit="${esc(f.id)}" aria-label="Edit folder ${esc(f.name)}">…</button>${GRIP}
   </div>`;
 }
 function folderHeader(f){
-  const path = folderPath(f.id).slice(0, -1);
-  const back = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
-  const crumbs = [`<button data-cd="">${back}All pieces</button>`,
-    ...path.map(p => `<span class="sep" aria-hidden="true">›</span><button data-cd="${esc(p.id)}">${esc(p.name)}</button>`)];
-  return `<div class="fhead">
-    <nav class="fcrumbs" aria-label="Folder path">${crumbs.join('')}</nav>
-    <h2>${esc(f.name)}</h2>
-    ${f.desc ? `<p class="fdesc">${esc(f.desc)}</p>` : ''}
-    <div class="fbtns">
-      <button class="go" data-fadd="${esc(f.id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add pieces</button>
-      <button data-fedit="${esc(f.id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>Edit</button>
-    </div>
+  // only when the folder shown has changed, not every time the list redraws
+  const enter = FV.headFor !== f.id ? ' enter' : '';
+  FV.headFor = f.id;
+  return `<div class="fhead${enter}">
+    <h2 class="fname">${esc(f.name)}</h2>
+    <button class="fmore" data-fedit="${esc(f.id)}" aria-label="Folder options for ${esc(f.name)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg></button>
   </div>`;
 }
+// The floating way out: shown inside a folder, on the Pieces list, when not searching.
+function syncExit(){
+  const el = $('#fExit'); if(!el) return;
+  const f = CL.filter === 'pieces' && FV.on && !($('#clQ').value || '').trim() ? folderById(FV.cwd) : null;
+  const up = f && folderById(f.parent);
+  el.classList.toggle('on', !!f);
+  el.tabIndex = f ? 0 : -1;
+  el.setAttribute('aria-hidden', String(!f));
+  el.setAttribute('aria-label', f ? `Back to ${up ? up.name : 'All pieces'}` : 'Back');
+  $('#library').classList.toggle('infolder', !!f);
+}
+/* ---------- one level of folder view, in order ----------
+   Three ways a level can be ordered:
+     your order   you've arranged this folder by hand (S.layout[folder])
+     mixed        Recently played with "Folders: with pieces" in Settings:
+                  folders and pieces in one list by when they were played
+     folders top  the default: folders first, then pieces in the sort's order
+   Your order wins over the other two until you pick a sort again. */
+const levelKey = () => FV.cwd || '';
+const ik = x => x.f ? 'f:' + x.f.id : 'd:' + x.d.id;
+// Settings › My order only: nothing is ever sorted, everything is where you put it
+const manualOnly = () => !!pref('manualOnly');
+function isCustom(key){
+  if(manualOnly()) return true;
+  const L = S.layout[key];
+  return !!(L && L.custom && Array.isArray(L.order));
+}
+function levelCustom(key){ return FV.on && isCustom(key == null ? levelKey() : key); }
+function levelItems(docs, cwd){
+  cwd = (cwd === undefined ? FV.cwd : cwd) || null;
+  const subs = childFolders(cwd), key = cwd || '';
+  if(isCustom(key)){
+    const L = S.layout[key] && Array.isArray(S.layout[key].order) ? S.layout[key] : (S.layout[key] = { order:[], custom:true });
+    // Where anything not placed yet would sit. Under My order only that's
+    // simply newest first, so nothing ever shifts because it was played.
+    const base = manualOnly()
+      ? [...subs.slice().sort((a, b) => (b.created || 0) - (a.created || 0)).map(f => ({f})), ...docs.map(d => ({d}))]
+      : [...sortFolders(subs).map(f => ({f})), ...orderedPieces(docs).map(d => ({d}))];
+    const pos = new Map(L.order.map((k, i) => [k, i]));
+    const fresh = base.filter(x => !pos.has(ik(x)));
+    // anything new comes in at the top, where you'll see it, and stays put from then on
+    if(fresh.length){ L.order = [...fresh.map(ik), ...L.order]; saveIndexSoon(); }
+    return { flat:true, items:[...fresh, ...base.filter(x => pos.has(ik(x))).sort((a, b) => pos.get(ik(a)) - pos.get(ik(b)))] };
+  }
+  if(CL.sort === 'played' && pref('folderPlace') === 'mixed'){
+    const ds = orderedPieces(docs);
+    const pinsFirst = S.prog === 'all' && S.src === 'all';
+    const pinned = pinsFirst ? ds.filter(d => d.pinned) : [];
+    const rest = [...ds.filter(d => !pinned.includes(d)).map((d, o) => ({d, t:playedAt(d), o})),
+                  ...subs.map(f => ({f, t:folderTime(f), o:-1}))];
+    rest.sort((a, b) => b.t - a.t || a.o - b.o);
+    return { flat:true, items:[...pinned.map(d => ({d})), ...rest] };
+  }
+  return { flat:false, folders:sortFolders(subs), docs };
+}
+// every item at a level, filters or not, in the order it shows in
+function levelFullOrder(cwd){
+  cwd = (cwd === undefined ? FV.cwd : cwd) || null;
+  const L = levelItems(S.docs.filter(d => docFolder(d) === cwd), cwd);
+  return L.flat ? L.items.map(ik) : [...L.folders.map(f => 'f:' + f.id), ...orderedPieces(L.docs).map(d => 'd:' + d.id)];
+}
+// Under My order only, the one-list view (and search) reads your folders
+// top to bottom: each folder's pieces sit where that folder does.
+function manualPos(){
+  const pos = new Map(); let n = 0, guard = 0;
+  const walk = cwd => {
+    if(guard++ > 5000) return;
+    for(const x of levelItems(S.docs.filter(d => docFolder(d) === cwd), cwd).items){ if(x.f) walk(x.f.id); else pos.set(x.d.id, n++); }
+  };
+  walk(null);
+  return pos;
+}
+// Turning My order only on keeps every level exactly as it looks right now.
+function freezeOrder(){
+  for(const cwd of [null, ...S.folders.map(f => f.id)]){
+    const key = cwd || '';
+    if(isCustom(key)) continue;
+    S.layout[key] = { order: levelFullOrder(cwd), custom:true };
+  }
+  saveIndexSoon();
+}
+// Reordering only what's showing (a filter may hide some): the hidden ones
+// keep their places and the shown ones fill the rest in their new order.
+function mergeShown(full, shown){
+  const set = new Set(shown); let k = 0;
+  const out = full.map(x => set.has(x) ? shown[k++] : x);
+  for(const x of shown) if(!full.includes(x)) out.push(x);
+  return out;
+}
+const itemRow = x => x.f ? folderRow(x.f) : pieceRow(x.d, false, true);
 function renderFolderLevel(docs){
   if(FV.cwd && !folderById(FV.cwd)) FV.cwd = null;
   const cwd = FV.cwd, f = folderById(cwd);
   const here = docs.filter(d => docFolder(d) === cwd);
-  const subs = sortFolders(childFolders(cwd));
   const allHere = S.docs.filter(d => docFolder(d) === cwd).length;
-  const bits = [];
-  if(subs.length) bits.push(subs.length === 1 ? '1 folder' : subs.length + ' folders');
-  bits.push(here.length === allHere ? `${here.length} ${here.length === 1 ? 'piece' : 'pieces'}` : `${here.length} of ${allHere} pieces`);
-  $('#clCount').textContent = bits.join(' · ');
+  // pieces at this level only; the folders are right there to see
+  $('#clCount').textContent = f ? '' : here.length === allHere ? `${here.length} ${here.length === 1 ? 'piece' : 'pieces'}` : `${here.length} of ${allHere}`;
+  if(!f) FV.headFor = null;
   let h = f ? folderHeader(f) : '';
-  h += subs.map(folderRow).join('');
-  h += `<button class="prow fnew" data-fnew><span class="fic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span><span class="tx"><span class="nm">New folder</span></span></button>`;
+  const L = levelItems(here);
+  const any = L.flat ? L.items.length : L.folders.length + here.length;
+  if(FV.arrange && any) h += `<p class="farr">Drag ${GRIP} to reorder. Drop onto a folder to put it inside${f ? ', or onto the bar that appears at the bottom to move it out' : ''}.</p>`;
+  if(L.flat) h += L.items.map(itemRow).join('');
+  else{
+    h += L.folders.map(folderRow).join('');
+    if(here.length) h += (L.folders.length ? '<div class="fsep"></div>' : '') + renderPieceGroups(here, false, true);
+  }
   FV.flash = null;
-  if(here.length) return h + '<div class="fsep"></div>' + renderPieceGroups(here);
-  if(allHere) return h + `<div class="pnote">No piece ${f ? 'in this folder' : 'outside a folder'} fits these filters.</div>`;
-  if(f && !subs.length) return h + `<div class="fempty">Nothing in this folder yet.<br><button data-fadd="${esc(f.id)}">Add pieces</button></div>`;
+  if(!here.length){
+    if(allHere) h += `<div class="pnote">No piece ${f ? 'in this folder' : 'outside a folder'} fits these filters.</div>`;
+    else if(f && !childFolders(cwd).length) h += `<div class="fempty">Nothing in this folder yet.<br><button data-fadd="${esc(f.id)}">Add pieces</button></div>`;
+  }
   return h;
 }
 function enterFolder(id){
@@ -8272,7 +8478,8 @@ function openFolderEditor(id, opts){
   const f = folderById(id);
   FE.id = f ? f.id : null; FE.onSaved = opts.onSaved || null;
   FE.arm = false; clearTimeout(FE.armTimer);
-  $('#foHead').textContent = f ? 'Edit folder' : 'New folder';
+  $('#foHead').textContent = f ? f.name : 'New folder';
+  $('#foAdd').hidden = !f;
   $('#foName').value = f ? f.name : '';
   $('#foDesc').value = f ? (f.desc || '') : '';
   const parent = f ? (f.parent || '') : (opts.parent || '');
@@ -8308,6 +8515,7 @@ async function saveFolder(){
 $('#foSave').addEventListener('click', saveFolder);
 $('#foName').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); saveFolder(); } });
 $('#foCancel').addEventListener('click', closeFolderEditor);
+$('#foAdd').addEventListener('click', () => { const id = FE.id; closeFolderEditor(); openFolderAdd(id); });
 // Tap twice, like deleting a piece. The folder goes; what was in it moves up.
 $('#foDelete').addEventListener('click', async () => {
   const f = folderById(FE.id); if(!f) return closeFolderEditor();
@@ -8323,6 +8531,7 @@ $('#foDelete').addEventListener('click', async () => {
   for(const d of S.docs) if(d.folder === f.id){ if(up) d.folder = up; else delete d.folder; moved++; }
   for(const c of S.folders) if(c.parent === f.id){ c.parent = up; moved++; }
   S.folders = S.folders.filter(x => x.id !== f.id);
+  delete S.layout[f.id];
   if(FV.cwd === f.id){ FV.cwd = up; FV.dir = -1; try{ localStorage.setItem('stand.folderCwd', up || ''); }catch(e){} }
   closeFolderEditor();
   await saveIndexNow();
@@ -8391,7 +8600,290 @@ $('#faDone').addEventListener('click', async () => {
       : removed && !added ? `Took ${removed} ${removed === 1 ? 'piece' : 'pieces'} out of “${f.name}”` : `Updated “${f.name}”`);
 });
 
+$('#fNew').addEventListener('click', () => { $('#clQ').blur(); openFolderEditor(null, { parent: FV.cwd }); });
+$('#fExit').addEventListener('click', () => {
+  if(DR.active) return;
+  const f = folderById(FV.cwd); if(!f) return;
+  enterFolder(f.parent || null);
+});
+$('#fArrange').addEventListener('click', () => {
+  FV.arrange = !FV.arrange;
+  if(FV.arrange && $('#clQ').value){ $('#clQ').value = ''; $('#clQ').blur(); }
+  renderComposerList();
+});
+
+/* ---------- arranging by hand ----------
+   Press and hold any piece or folder in folder view and it lifts off the
+   list under your finger (or grab the ≡ handle in Arrange, no wait). The
+   rest part to show where it will land, the list scrolls itself when you
+   near an edge, and letting go drops it there. Held over the middle of a
+   folder, that folder lights up and letting go files it inside; held over
+   the back button, it moves up a level. The first move in a folder turns
+   it into Your order, which then sticks until a sort is chosen again. */
+const DR = { active:false, eat:false, lp:null, items:[], me:null, i:0, t:0, drop:null, raf:0, touch:false };
+const levelRows = () => [...$('#clList').children].filter(el => el.matches('.prow.folder, .prow.piece'));
+const rowKey = el => el.dataset.folder ? 'f:' + el.dataset.folder : 'd:' + el.dataset.doc;
+const canArrange = () => FV.on && CL.filter === 'pieces' && !($('#clQ').value || '').trim() && !$('#viewer').classList.contains('open');
+function cancelLP(){
+  if(!DR.lp) return;
+  clearTimeout(DR.lp.t); clearTimeout(DR.lp.p);
+  DR.lp.row.classList.remove('pressing');
+  DR.lp = null;
+}
+function dragStart(row, y, pid, touch){
+  const list = $('#clList'), key = levelKey();
+  // What you see becomes this folder's own order, ready to change. The rows
+  // stay put until you let go: iOS stops sending touches to a finger whose
+  // row has been redrawn out from under it.
+  DR.wasCustom = levelCustom(key);
+  DR.prevLayout = S.layout[key] ? { ...S.layout[key] } : null;
+  if(!DR.wasCustom) S.layout[key] = { order: mergeShown(levelFullOrder(), levelRows().map(rowKey)), custom:true };
+  const lr = list.getBoundingClientRect();
+  DR.items = levelRows().map(el => { const r = el.getBoundingClientRect();
+    return { el, key:rowKey(el), top:r.top - lr.top + list.scrollTop, h:r.height, folder:el.dataset.folder || null }; });
+  DR.i = DR.t = DR.items.findIndex(it => it.el === row);
+  if(DR.i < 0) return;
+  DR.me = DR.items[DR.i];
+  Object.assign(DR, { active:true, pid, touch:!!touch, y0:y, y, s0:list.scrollTop, drop:null });
+  // inside a folder, the way-out button opens into a drop bar
+  const cur = folderById(FV.cwd);
+  DR.exit = cur ? $('#fExit') : null;
+  if(DR.exit){
+    const up = folderById(cur.parent);
+    $('#fExitLbl').textContent = `Move to ${up ? up.name : 'All pieces'}`;
+    DR.exit.classList.add('drop');
+  }
+  $('#library').classList.add('dragging');
+  row.classList.add('lifted');
+  for(const it of DR.items) if(it !== DR.me) it.el.classList.add('shift');
+  try{ navigator.vibrate && navigator.vibrate(8); }catch(e){}
+  dragMove(y);
+  DR.raf = requestAnimationFrame(dragScroll);
+}
+function shiftOf(j){
+  const { i, t } = DR, h = DR.me.h;
+  if(j > i && j <= t) return -h;
+  if(j < i && j >= t) return h;
+  return 0;
+}
+function dragMove(y){
+  DR.y = y;
+  const list = $('#clList'), lr = list.getBoundingClientRect();
+  const dy = y - DR.y0 + (list.scrollTop - DR.s0);
+  const py = y - lr.top + list.scrollTop;          // the finger, in list coordinates
+  let drop = null;
+  if(DR.exit){
+    const er = DR.exit.getBoundingClientRect();
+    if(y > er.top - 14) drop = { up:true };
+  }
+  if(!drop) DR.items.forEach((it, j) => {
+    if(drop || it === DR.me || !it.folder) return;
+    const top = it.top + shiftOf(j);
+    if(py > top + it.h * .26 && py < top + it.h * .74) drop = { folder:it.folder, j };
+  });
+  if(!drop){
+    // it goes where your finger is, however tall the row or wherever you grabbed it
+    let t = 0;
+    DR.items.forEach((it, j) => { if(j !== DR.i && it.top + it.h / 2 < py) t++; });
+    if(t !== DR.t){
+      DR.t = t;
+      DR.items.forEach((it, j) => { if(it !== DR.me){ const s = shiftOf(j); it.el.style.transform = s ? `translate3d(0,${s}px,0)` : ''; } });
+    }
+  }
+  if((drop && drop.folder) !== (DR.drop && DR.drop.folder) || !!(drop && drop.up) !== !!(DR.drop && DR.drop.up)){
+    for(const it of DR.items) it.el.classList.toggle('droptarget', !!(drop && drop.folder === it.folder && it !== DR.me));
+    if(DR.exit) DR.exit.classList.toggle('hot', !!(drop && drop.up));
+    DR.me.el.classList.toggle('into', !!drop);
+  }
+  DR.drop = drop;
+  // over a folder it shrinks and lets the folder show through, ready to go in
+  DR.me.el.style.transform = `translate3d(0,${dy}px,0) scale(${drop ? .94 : 1.02})`;
+}
+// near the top or bottom of the list, it scrolls under you
+function dragScroll(){
+  if(!DR.active) return;
+  const list = $('#clList'), lr = list.getBoundingClientRect();
+  // the bottom edge sits above the drop bar, so hovering on the bar doesn't scroll
+  const top = lr.top, bottom = DR.exit ? Math.min(lr.bottom, DR.exit.getBoundingClientRect().top - 14) : lr.bottom, edge = 64;
+  let v = 0;
+  if(DR.y < top + edge) v = -Math.ceil((top + edge - Math.max(DR.y, top - 40)) / 5);
+  else if(DR.y > bottom - edge && DR.y < bottom) v = Math.ceil((DR.y - (bottom - edge)) / 5);
+  if(v){ const before = list.scrollTop; list.scrollTop += v; if(list.scrollTop !== before) dragMove(DR.y); }
+  DR.raf = requestAnimationFrame(dragScroll);
+}
+function nameOfKey(k){
+  if(k.startsWith('f:')){ const f = folderById(k.slice(2)); return f ? f.name : 'Folder'; }
+  const d = S.docs.find(x => x.id === k.slice(2)); if(!d) return 'Piece';
+  const wk = workKeyOf(d); return wk != null ? workShown(d.composer, wk) : (titleShown(d.title) || 'Untitled');
+}
+// Files a piece or folder somewhere else. false if it can't go there.
+function moveKeyTo(k, dest){
+  dest = dest || null;
+  if(k.startsWith('f:')){
+    const f = folderById(k.slice(2));
+    if(!f || (dest && folderTree(f.id).has(dest))) return false;
+    f.parent = dest;
+  }else{
+    const d = S.docs.find(x => x.id === k.slice(2)); if(!d) return false;
+    if(dest) d.folder = dest; else delete d.folder;
+  }
+  const L = S.layout[levelKey()];
+  if(L && L.order) L.order = L.order.filter(x => x !== k);
+  return true;
+}
+function dragEnd(cancel){
+  if(!DR.active) return;
+  DR.active = false;
+  cancelAnimationFrame(DR.raf);
+  DR.eat = true; setTimeout(() => { DR.eat = false; }, 450);
+  const list = $('#clList'), me = DR.me, key = levelKey(), drop = cancel ? null : DR.drop;
+  const top = list.scrollTop;
+  let msg = '';
+  me.el.classList.add('settle');
+  if(DR.exit){ const ex = DR.exit; setTimeout(() => ex.classList.remove('drop', 'hot'), drop && drop.up ? 260 : 0); }
+  if(drop){
+    const dest = drop.up ? (folderById(FV.cwd) || {}).parent || null : drop.folder;
+    const destName = dest ? folderById(dest).name : 'All pieces';
+    if(moveKeyTo(me.key, dest)){
+      // it shrinks away into where it went
+      const lr = list.getBoundingClientRect();
+      const target = drop.up ? DR.exit.getBoundingClientRect().top - lr.top + list.scrollTop - me.top - me.h / 3
+                             : DR.items[drop.j].top + shiftOf(drop.j) - me.top;
+      me.el.classList.add('gone');
+      me.el.style.transform = `translate3d(${drop.up ? 0 : 24}px,${target}px,0) scale(.55)`;
+      if(!drop.up) FV.flash = dest;
+      msg = `Moved “${nameOfKey(me.key)}” to ${drop.up && !dest ? 'All pieces' : '“' + destName + '”'}`;
+      if(!DR.wasCustom){ if(DR.prevLayout) S.layout[key] = DR.prevLayout; else delete S.layout[key]; }
+      saveIndexSoon();
+    }else msg = 'A folder can’t go inside itself';
+  }else{
+    const { i, t, items } = DR;
+    const slot = t > i ? items[t].top + items[t].h - (me.top + me.h) : t < i ? items[t].top - me.top : 0;
+    me.el.style.transform = `translate3d(0,${slot}px,0)`;
+    if(cancel || t === i){
+      // picked up and put back: nothing about the folder's order changes
+      if(!DR.wasCustom){ if(DR.prevLayout) S.layout[key] = DR.prevLayout; else delete S.layout[key]; }
+    }else{
+      const shown = items.map(it => it.key).filter(k => k !== me.key);
+      shown.splice(t, 0, me.key);
+      S.layout[key].order = mergeShown(levelFullOrder(), shown);
+      S.layout[key].custom = true;
+      saveIndexSoon();
+      if(!DR.wasCustom) msg = `${FV.cwd ? 'This folder' : 'All pieces'} is now in your order. Pick a sort in Filter and sort to go back.`;
+    }
+  }
+  setTimeout(() => {
+    $('#library').classList.remove('dragging');
+    renderComposerList(); list.scrollTop = top;
+    if(msg) toast(msg, msg.length > 60 ? 4200 : 2400);
+  }, drop ? 240 : 210);
+}
+$('#clList').addEventListener('pointerdown', e => {
+  if(e.button > 0 || DR.active || !canArrange()) return;
+  const row = e.target.closest('.prow.folder, .prow.piece');
+  if(!row || row.parentElement !== $('#clList')) return;
+  if(FV.arrange && e.target.closest('.grip')){
+    e.preventDefault();
+    return dragStart(row, e.clientY, e.pointerId, e.pointerType === 'touch');
+  }
+  if(e.target.closest('button')) return;       // the … and About buttons keep their taps
+  cancelLP();
+  const lp = DR.lp = { row, x:e.clientX, y:e.clientY, pid:e.pointerId, touch:e.pointerType === 'touch' };
+  lp.p = setTimeout(() => row.classList.add('pressing'), 140);
+  lp.t = setTimeout(() => {
+    if(DR.lp !== lp) return;
+    row.classList.remove('pressing'); DR.lp = null;
+    dragStart(row, lp.y, lp.pid, lp.touch);
+  }, 420);
+});
+window.addEventListener('pointermove', e => {
+  if(DR.active){ if(!DR.touch && e.pointerId === DR.pid){ e.preventDefault(); dragMove(e.clientY); } return; }
+  if(DR.lp && e.pointerId === DR.lp.pid){
+    if(Math.hypot(e.clientX - DR.lp.x, e.clientY - DR.lp.y) > 8) cancelLP();
+    else DR.lp.y = e.clientY;
+  }
+}, { passive:false });
+window.addEventListener('pointerup', e => { if(DR.active && !DR.touch && e.pointerId === DR.pid) dragEnd(false); else cancelLP(); });
+window.addEventListener('pointercancel', e => { if(DR.active && !DR.touch && e.pointerId === DR.pid) dragEnd(true); else if(!DR.active) cancelLP(); });
+$('#clList').addEventListener('contextmenu', e => { if(FV.on && e.target.closest('.prow')) e.preventDefault(); });
+
+/* ---------- swiping out of a folder ----------
+   Inside a folder, drag the list to the right from anywhere: it follows
+   your finger with a back arrow coming in at the edge, and past the arrow's
+   mark (or with a quick flick) it carries on out to the folder above. */
+const SW = { state:null, x0:0, y0:0, dx:0, lastX:0, lastT:0, v:0 };
+const SW_DIST = 84;
+$('#clList').addEventListener('touchstart', e => {
+  SW.state = null;
+  if(DR.active || FV.arrange || !FV.on || !FV.cwd || CL.filter !== 'pieces' || e.touches.length !== 1) return;
+  if(($('#clQ').value || '').trim()) return;
+  const t = e.touches[0];
+  Object.assign(SW, { state:0, x0:t.clientX, y0:t.clientY, dx:0, lastX:t.clientX, lastT:e.timeStamp, v:0 });
+}, { passive:true });
+document.addEventListener('touchmove', e => {
+  // a lifted row: the page mustn't scroll underneath it
+  if(DR.active){ e.preventDefault(); if(DR.touch && e.touches[0]) dragMove(e.touches[0].clientY); return; }
+  if(SW.state == null) return;
+  const t = e.touches[0]; if(!t) return;
+  const dx = t.clientX - SW.x0, dy = t.clientY - SW.y0;
+  if(SW.state === 0){
+    if(Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)){ SW.state = null; return; }
+    if(dx > 12 && dx > Math.abs(dy) * 1.3){ SW.state = 1; cancelLP(); swipeBegin(); }
+    else return;
+  }
+  e.preventDefault();
+  const dt = Math.max(1, e.timeStamp - SW.lastT);
+  SW.v = SW.v * .6 + ((t.clientX - SW.lastX) / dt) * .4;
+  SW.lastX = t.clientX; SW.lastT = e.timeStamp;
+  swipeMove(Math.max(0, dx));
+}, { passive:false });
+function touchDone(cancel){
+  if(DR.active && DR.touch) return dragEnd(cancel);
+  cancelLP();
+  if(SW.state === 1) swipeEnd(cancel);
+  SW.state = null;
+}
+document.addEventListener('touchend', e => { if(!e.touches.length) touchDone(false); });
+document.addEventListener('touchcancel', () => touchDone(true));
+function swipeBegin(){
+  const list = $('#clList'), lr = list.getBoundingClientRect(), hint = $('#fSwipe');
+  list.style.transition = 'none';
+  hint.style.transition = 'none';
+  hint.style.left = (lr.left + 10) + 'px';
+  hint.style.top = (lr.top + Math.min(lr.height / 2, 220)) + 'px';
+  hint.classList.add('on');
+}
+function swipeMove(dx){
+  SW.dx = dx;
+  const p = Math.min(1, dx / SW_DIST), hint = $('#fSwipe');
+  $('#clList').style.transform = `translate3d(${dx}px,0,0)`;
+  hint.style.opacity = String(Math.min(1, p * 1.4));
+  hint.style.transform = `translate(${-28 + p * 28}px,-50%) scale(${.6 + p * .4})`;
+  hint.classList.toggle('ready', dx >= SW_DIST);
+}
+function swipeEnd(cancel){
+  const list = $('#clList'), hint = $('#fSwipe');
+  const go = !cancel && (SW.dx >= SW_DIST || (SW.dx > 30 && SW.v > .45));
+  list.style.transition = 'transform .2s cubic-bezier(.32,.72,0,1), opacity .2s';
+  hint.style.transition = 'opacity .18s, transform .2s';
+  hint.style.opacity = '0';
+  if(!go){
+    list.style.transform = '';
+    setTimeout(() => { list.style.transition = ''; hint.classList.remove('on', 'ready'); }, 220);
+    return;
+  }
+  list.style.transform = `translate3d(${list.clientWidth}px,0,0)`;
+  list.style.opacity = '0';
+  setTimeout(() => {
+    list.style.transition = 'none'; list.style.transform = ''; list.style.opacity = '';
+    hint.classList.remove('on', 'ready');
+    const f = folderById(FV.cwd);
+    enterFolder(f ? f.parent || null : null);
+    requestAnimationFrame(() => { list.style.transition = ''; });
+  }, 190);
+}
 $('#fFolders').addEventListener('click', () => {
+  if(pref('folderAlways')) return;
   FV.on = !FV.on;
   FV.dir = 0;
   try{ localStorage.setItem('stand.folderView', FV.on ? '1' : '0'); }catch(e){}
@@ -8427,6 +8919,7 @@ function renderComposerList(){
   const f = CL.filter;
   syncMenuControls();
   $('#empty').style.display = !S.docs.length && f === 'pieces' ? 'block' : 'none';
+  syncExit();
   if(f === 'pieces'){ $('#clList').innerHTML = renderPieces(); folderSlide(); return; }
 
   const used = usageCounts(), stray = strayComposers();
@@ -8462,7 +8955,7 @@ function renderComposerList(){
   $('#clList').innerHTML = h;
 }
 function searchLike(name, q){ return normText(name).includes(normText(q)); }
-$('#clQ').addEventListener('input', renderComposerList);
+$('#clQ').addEventListener('input', () => { if(FV.arrange && $('#clQ').value.trim()) FV.arrange = false; renderComposerList(); });
 /* One switch between pieces and composers; everything else folds away under
    a single filter button whose label says what is currently applied. */
 const SORT_NAMES = { played:'Recently played', title:'Title', composer:'Composer', level:'Difficulty' };
@@ -8474,7 +8967,14 @@ function syncMenuControls(){
   $('#library').classList.toggle('pieces', pieces);
   $$('#mainSeg button').forEach(b => b.classList.toggle('on', (b.dataset.v === 'pieces') === pieces));
   requestAnimationFrame(() => placeSortKnobIn('#mainSeg'));
-  $$('#pcSort button').forEach(b => b.classList.toggle('on', b.dataset.s === CL.sort));
+  if(pref('folderAlways')) FV.on = true;
+  const manual = manualOnly();
+  const custom = pieces && (manual || levelCustom());
+  const L = S.layout[levelKey()];
+  $('#pcCustom').hidden = manual || !(pieces && FV.on && L && Array.isArray(L.order) && L.order.length);
+  $('#pcSortGroup').hidden = manual;
+  $('#library').classList.toggle('falways', !!pref('folderAlways'));
+  $$('#pcSort button').forEach(b => b.classList.toggle('on', custom ? b.dataset.s === 'custom' : b.dataset.s === CL.sort));
   $$('#progChips button').forEach(b => b.classList.toggle('on', b.dataset.p === S.prog));
   $$('#srcChips button').forEach(b => b.classList.toggle('on', b.dataset.m === S.src));
   $$('#clChips button').forEach(b => b.classList.toggle('on', b.dataset.f === CL.cfilter));
@@ -8482,13 +8982,22 @@ function syncMenuControls(){
   if(pieces){
     const filters = [PROG_NAMES[S.prog], SRC_NAMES[S.src]].filter(Boolean);
     active = filters.length > 0;
-    parts = [SORT_NAMES[CL.sort], ...filters];
+    parts = [custom ? 'Your order' : SORT_NAMES[CL.sort], ...filters];
   }else{
     active = CL.cfilter !== 'library';
     parts = [COMP_NAMES[CL.cfilter]];
   }
   $('#fSummary').textContent = parts.join(' · ');
   $('#fFolders').setAttribute('aria-pressed', String(FV.on));
+  if(!(pieces && FV.on)) FV.arrange = false;
+  $('#library').classList.toggle('fmode', pieces && FV.on);
+  $('#library').classList.toggle('arranging', FV.arrange);
+  for(const id of ['#fNew', '#fArrange']){
+    $(id).tabIndex = pieces && FV.on ? 0 : -1;
+    $(id).setAttribute('aria-hidden', String(!(pieces && FV.on)));
+  }
+  $('#fArrange').setAttribute('aria-pressed', String(FV.arrange));
+  $('#fArrange').setAttribute('aria-label', FV.arrange ? 'Done arranging' : 'Arrange');
   $('#fFolders').title = FV.on ? 'Folder view on' : 'Folder view';
   $('#fToggle').classList.toggle('active', active);
   $('#fClear').hidden = !active;
@@ -8515,12 +9024,26 @@ $('#fClear').addEventListener('click', () => {
   renderComposerList();
 });
 $('#pcSort').addEventListener('click', e => {
-  const b = e.target.closest('button[data-s]'); if(!b || b.dataset.s === CL.sort) return;
+  const b = e.target.closest('button[data-s]'); if(!b) return;
+  const L = S.layout[levelKey()], custom = CL.filter === 'pieces' && levelCustom();
+  // Your order belongs to the folder you're in; picking a sort sets it aside
+  // (it's kept, and Your order brings it back)
+  if(b.dataset.s === 'custom'){
+    if(L && !custom){ L.custom = true; saveIndexSoon(); renderComposerList(); $('#clList').scrollTop = 0; }
+    return;
+  }
+  if(b.dataset.s === CL.sort && !custom) return;
+  if(custom){ L.custom = false; saveIndexSoon(); }
   CL.sort = b.dataset.s;
   try{ localStorage.setItem('stand.pieceSort', CL.sort); }catch(err){}
   renderComposerList(); $('#clList').scrollTop = 0;
 });
 window.addEventListener('resize', () => placeSortKnobIn('#mainSeg'));
+$('#clList').addEventListener('click', e => {
+  if(DR.eat){ e.preventDefault(); e.stopImmediatePropagation(); return; }
+  // arranging: folders and the path still take you places, nothing else opens
+  if(FV.arrange && !e.target.closest('[data-cd],[data-folder]')){ e.preventDefault(); e.stopImmediatePropagation(); return; }
+}, true);
 $('#clList').addEventListener('click', e => {
   const fe = e.target.closest('[data-fedit]');
   if(fe){ $('#clQ').blur(); return openFolderEditor(fe.dataset.fedit); }
@@ -8530,7 +9053,6 @@ $('#clList').addEventListener('click', e => {
   if(cd) return enterFolder(cd.dataset.cd || null);
   const fo = e.target.closest('[data-folder]');
   if(fo) return enterFolder(fo.dataset.folder);
-  if(e.target.closest('[data-fnew]')){ $('#clQ').blur(); return openFolderEditor(null, { parent: FV.cwd }); }
   const det = e.target.closest('[data-details]');
   if(det){ $('#clQ').blur(); return openDetails(det.dataset.details); }
   const wd = e.target.closest('[data-wd]');
@@ -13182,8 +13704,23 @@ function syncSettings(){
   const W = 'Ludwig van Beethoven';
   $('#tiPrevT').textContent = workShown(W, '27/2') || 'Piano Sonata No. 14 in C-sharp minor, Op. 27 No. 2';
   $('#tiPrevC').textContent = composerShown(W);
+  $('#setFolderAlways').setAttribute('aria-checked', String(!!pref('folderAlways')));
+  $('#setManual').setAttribute('aria-checked', String(manualOnly()));
+  $('#setFolderPlaceRow').classList.toggle('off', manualOnly());   // nothing to sort, so nothing to place
   syncBackupStatus();
 }
+$('#setFolderAlways').addEventListener('click', () => {
+  const v = !pref('folderAlways');
+  setPref('folderAlways', v);
+  if(v){ FV.on = true; try{ localStorage.setItem('stand.folderView', '1'); }catch(e){} }
+  syncSettings(); renderAll();
+});
+$('#setManual').addEventListener('click', () => {
+  const v = !manualOnly();
+  if(v) freezeOrder();          // keeps every folder looking exactly as it does now
+  setPref('manualOnly', v);
+  syncSettings(); renderAll();
+});
 $('#setAutolog').addEventListener('click', () => { setPref('autolog', !pref('autolog')); syncSettings(); });
 document.querySelectorAll('#mSettings .set-seg').forEach(seg => seg.addEventListener('click', e => {
   const b = e.target.closest('[data-v]'); if(!b) return;
@@ -13191,6 +13728,7 @@ document.querySelectorAll('#mSettings .set-seg').forEach(seg => seg.addEventList
   if(pref(k) === v) return;
   setPref(k, v);
   if(k === 'nick' || k === 'composerNames'){ renderAll(); practiceRefreshOpenViews(); }
+  if(k === 'folderPlace') renderAll();
   syncSettings();
 }));
 $('#bkNow').addEventListener('click', backupLibrary);
