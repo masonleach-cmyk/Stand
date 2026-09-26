@@ -2340,6 +2340,14 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 .pf-svg .pf-hit{pointer-events:all;fill:transparent;stroke:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pf-svg .pf-shh{fill:var(--cz-acc);stroke:none;font:italic 600 4.2px var(--serif);text-anchor:middle}
 .lib-head.pf-on .wordmark h1{opacity:0}
+/* each layer of the performance is its own composited layer: the still ones are
+   rasterised once, and only the moving ones repaint */
+.pf-host .pf-layer{will-change:transform}
+.pf-veil{stop-color:var(--cz-bg)}
+/* the count and the Settings button always sit above the scene */
+.lib-head .wm-right{position:relative;z-index:2}
+/* the performance sets its candle light itself, every frame: no transitions to restart */
+.pf-svg .cz-glow,.pf-svg .cz-flame{transition:none}
 #pfRow{border-top:1px solid var(--line)}
 .lib-head .pf-host{left:20px;right:20px}
 /* the activities page */
@@ -14842,6 +14850,10 @@ function mk(tag, attrs, parent){
   if(parent) parent.appendChild(e);
   return e;
 }
+// writes that skip themselves when nothing changed: most of a figure is still from
+// one frame to the next, and every real write costs a style pass and a repaint
+function setA(e, k, v){ const c = e.__a || (e.__a = {}); v = String(v); if(c[k] !== v){ c[k] = v; e.setAttribute(k, v); } }
+function setO(e, v){ v = String(v); if(e.__o !== v){ e.__o = v; e.style.opacity = v; } }
 /* smooth closed/open curve through points (Catmull-Rom as cubic Béziers) */
 function curve(pts, closed, t = .5){
   const n = pts.length, g = i => closed ? pts[(i + n) % n] : pts[clamp(i, 0, n - 1)];
@@ -15814,18 +15826,18 @@ class Composer {
     const seg = (a, b) => 'M' + P(...a) + 'L' + P(...b);
     const leg = (S, hp, lg) => {
       const k = lg.j, an = lg.e, x = an[0], y = an[1], X = d => x + d * fs;
-      S.thO.setAttribute('d', seg(hp, k)); S.thI.setAttribute('d', seg(hp, k));
-      S.shO.setAttribute('d', seg(k, an)); S.shI.setAttribute('d', seg(k, an));
-      S.shoe.setAttribute('d', `M${P(X(-1.15), y + 1)}L${P(X(2.75), y + 1)}Q${P(X(3), y + .1)} ${P(X(1.4), y - .15)}L${P(X(-.85), y - .35)}Z`);
-      S.buckle.setAttribute('cx', n2(X(.95))); S.buckle.setAttribute('cy', n2(y + .15));
+      setA(S.thO, 'd', seg(hp, k)); setA(S.thI, 'd', seg(hp, k));
+      setA(S.shO, 'd', seg(k, an)); setA(S.shI, 'd', seg(k, an));
+      setA(S.shoe, 'd', `M${P(X(-1.15), y + 1)}L${P(X(2.75), y + 1)}Q${P(X(3), y + .1)} ${P(X(1.4), y - .15)}L${P(X(-.85), y - .35)}Z`);
+      setA(S.buckle, 'cx', n2(X(.95))); setA(S.buckle, 'cy', n2(y + .15));
     };
     const arm = (S, sh, am) => {
       const el = am.j, h = am.e, d = nrm(sub(h, el));
-      S.uO.setAttribute('d', seg(sh, el)); S.uI.setAttribute('d', seg(sh, el));
-      S.fO.setAttribute('d', seg(el, add(h, d, -1.1))); S.fI.setAttribute('d', seg(el, add(h, d, -1.1)));
+      setA(S.uO, 'd', seg(sh, el)); setA(S.uI, 'd', seg(sh, el));
+      setA(S.fO, 'd', seg(el, add(h, d, -1.1))); setA(S.fI, 'd', seg(el, add(h, d, -1.1)));
       const c = seg(add(h, d, -1.55), add(h, d, -.95));
-      S.cO.setAttribute('d', c); S.cI.setAttribute('d', c);
-      S.hand.setAttribute('cx', n2(h[0])); S.hand.setAttribute('cy', n2(h[1]));
+      setA(S.cO, 'd', c); setA(S.cI, 'd', c);
+      setA(S.hand, 'cx', n2(h[0])); setA(S.hand, 'cy', n2(h[1]));
     };
     leg(F_.farLeg, hpF, KF);
     leg(F_.nearLeg, hpN, KN);
@@ -15842,30 +15854,30 @@ class Composer {
         .map(([X, u]) => { const q = at(0, u); return [q[0] + X, q[1]]; });
       coat = side.map((q, i) => mix(pr(q, 0), front[i], sb));
     }
-    F_.coat.setAttribute('d', curve(coat, true, .34));
+    setA(F_.coat, 'd', curve(coat, true, .34));
     const A = (v, u) => pr(at(v, u), 0);
-    F_.lapel.setAttribute('d', 'M' + P(...A(1.5, 10.9)) + 'L' + P(...A(2.35, 7.2)) + 'L' + P(...A(1.95, 5.1)));
-    F_.jabot.setAttribute('d', 'M' + P(...A(1.3, 11)) + 'Q' + P(...A(3.1, 10.6)) + ' ' + P(...A(2.2, 9.3)) + 'Q' + P(...A(2.9, 8.7)) + ' ' + P(...A(2, 8)) + 'L' + P(...A(1.4, 9.6)) + 'Z');
-    F_.buttons.setAttribute('d', [7, 5.6, 4.2].map(u => { const q = A(2.35 - (7 - u) * .02, u); return 'M' + P(q[0] - .01, q[1]) + 'l.02 0'; }).join(''));
-    F_.pocket.setAttribute('d', 'M' + P(...A(.4, 2.6)) + 'L' + P(...A(2.1, 2.9)));
-    F_.lapel.style.opacity = F_.pocket.style.opacity = sb > .001 ? n2(cb) : '';
+    setA(F_.lapel, 'd', 'M' + P(...A(1.5, 10.9)) + 'L' + P(...A(2.35, 7.2)) + 'L' + P(...A(1.95, 5.1)));
+    setA(F_.jabot, 'd', 'M' + P(...A(1.3, 11)) + 'Q' + P(...A(3.1, 10.6)) + ' ' + P(...A(2.2, 9.3)) + 'Q' + P(...A(2.9, 8.7)) + ' ' + P(...A(2, 8)) + 'L' + P(...A(1.4, 9.6)) + 'Z');
+    setA(F_.buttons, 'd', [7, 5.6, 4.2].map(u => { const q = A(2.35 - (7 - u) * .02, u); return 'M' + P(q[0] - .01, q[1]) + 'l.02 0'; }).join(''));
+    setA(F_.pocket, 'd', 'M' + P(...A(.4, 2.6)) + 'L' + P(...A(2.1, 2.9)));
+    { const v = sb > .001 ? n2(cb) : ''; setO(F_.lapel, v); setO(F_.pocket, v); }
     // the head leads the turn: the profile narrows and fades as the front view comes in
     // like a sprite, the swap happens where both views are equally narrow, so there's no double image
     const th = this.th ?? tb, ch = Math.cos(th), sh = Math.sin(th), fw = ss((sh - .74) / .07);
-    F_.head.setAttribute('transform', `translate(${P(...pr(H.c, 0))})`);
-    F_.hp.setAttribute('transform', (th ? `scale(${n2((ch < 0 ? -1 : 1) * lerp(1, .5, ss((sh - .15) / .62)))} 1) ` : '') + `rotate(${n2(H.a * 57.2958)})`);
-    F_.hp.style.opacity = fw ? n2(1 - fw) : '';
-    F_.hf.style.opacity = n2(fw);
+    setA(F_.head, 'transform', `translate(${P(...pr(H.c, 0))})`);
+    setA(F_.hp, 'transform', (th ? `scale(${n2((ch < 0 ? -1 : 1) * lerp(1, .5, ss((sh - .15) / .62)))} 1) ` : '') + `rotate(${n2(H.a * 57.2958)})`);
+    setO(F_.hp, fw ? n2(1 - fw) : '');
+    setO(F_.hf, n2(fw));
     if(fw){
-      F_.hf.setAttribute('transform', `translate(0 ${n2(p.head * 1.6)}) scale(${n2(lerp(.52, 1, ss((sh - .75) / .22)))} 1)`);
-      F_.feat.setAttribute('transform', `translate(${n2(ch * 1.3)} 0)`);   // three-quarter view: the face sits toward where he's looking
+      setA(F_.hf, 'transform', `translate(0 ${n2(p.head * 1.6)}) scale(${n2(lerp(.52, 1, ss((sh - .75) / .22)))} 1)`);
+      setA(F_.feat, 'transform', `translate(${n2(ch * 1.3)} 0)`);   // three-quarter view: the face sits toward where he's looking
     }
     const blink = (this.t % 3.9) < .13 || p.eye < .5;
-    F_.eye.style.opacity = blink ? 0 : 1; F_.lid.style.opacity = blink ? 1 : 0;
-    F_.eyesF.style.opacity = blink ? 0 : 1; F_.lidsF.style.opacity = blink ? 1 : 0;
-    F_.queue.setAttribute('transform', `rotate(${n2(p.tw * 10)} -3.35 1.7)`);
-    F_.ribbon.setAttribute('transform', `rotate(${n2(p.tw * 12)} -3.9 2.3)`);
-    F_.mane.setAttribute('transform', `rotate(${n2(p.tw * 5)} -1 0)`); F_.strands.setAttribute('transform', `rotate(${n2(p.tw * 5)} -1 0)`);
+    setO(F_.eye, blink ? 0 : 1); setO(F_.lid, blink ? 1 : 0);
+    setO(F_.eyesF, blink ? 0 : 1); setO(F_.lidsF, blink ? 1 : 0);
+    setA(F_.queue, 'transform', `rotate(${n2(p.tw * 10)} -3.35 1.7)`);
+    setA(F_.ribbon, 'transform', `rotate(${n2(p.tw * 12)} -3.9 2.3)`);
+    setA(F_.mane, 'transform', `rotate(${n2(p.tw * 5)} -1 0)`); setA(F_.strands, 'transform', `rotate(${n2(p.tw * 5)} -1 0)`);
     const hopY = this.hopY = this.hop > 0 ? -Math.sin(Math.PI * this.hop / .42) * this.hopH : 0;
     // from the side his far arm is behind his coat; facing you, both arms are in front of it
     const front = sb > .6;
@@ -15874,7 +15886,7 @@ class Composer {
       this.actor.insertBefore(this.lay.farArm, front ? this.lay.pre.sk.parentNode : this.lay.mid.sk.parentNode);
     }
     const sw = this.swing ? this.swing.a * 57.2958 : 0;   // hanging from his collar, he swings about it
-    this.actor.setAttribute('transform', `translate(${n2(this.x)} ${n2(hopY + this.ride + (this.liftY || 0))})` + (Math.abs(sw) > .05 ? ` rotate(${n2(sw)} 0 -27.5)` : '') + ` scale(${n2(this.face)} 1)`);
+    setA(this.actor, 'transform', `translate(${n2(this.x)} ${n2(hopY + this.ride + (this.liftY || 0))})` + (Math.abs(sw) > .05 ? ` rotate(${n2(sw)} 0 -27.5)` : '') + ` scale(${n2(this.face)} 1)`);
     this.J = { p, shN, shF, H, hn:JN.e, hf:JF.e, en:JN.j, ef:JF.j, kn:KN.j, kf:KF.j, at, w:this._w || 0 };
   }
 }
@@ -16541,6 +16553,16 @@ const ACTS = [
    conductor for a crescendo from everyone. Tap the audience between pieces
    and they applaud, and the band takes another bow; tap someone mid-piece
    and they leap up cheering, and get shushed. */
+// shown, faded or gone: at 0 the element leaves rendering altogether, at 1 it has no opacity at all
+function setV(e, v){
+  const k = v <= .01 ? 'none' : v >= .99 ? '' : n2(v);
+  if(e.__v === k) return;
+  e.__v = k;
+  if(k === 'none'){ e.style.display = 'none'; }
+  else { e.style.display = ''; e.style.opacity = k; }
+}
+// an audience member's shoulders, down to b below the seat line
+const PF_BODY = b => `M-4.6 ${n2(b)}V-.8Q-4.5 -4 -2 -4.45Q0 -4.85 2 -4.45Q4.5 -4 4.6 -.8V${n2(b)}Z`;
 const DECK = -8, PF_GAP = 4.5, PF_EDGE = 12, PF_TOP = -62, PF_BAY = 30, PF_BAYMIN = 26;
 const PF_ORDER = ['harp', 'piano', 'cello', 'timpani', 'flute', 'violin', 'conduct'];
 // the violinist and the flautist each get a plain music stand, down on the stage
@@ -16664,7 +16686,7 @@ class Musician {
     const self = this;
     return { dy(layer, tag, attrs){ return mk(tag, attrs, self.lay[layer].dy); }, g(layer){ return mk('g', {}, self.lay[layer].dy); } };
   }
-  setDyn(w){ this.dyw = w; for(const k of ['back', 'mid', 'pre', 'top']) this.lay[k].dy.style.opacity = n2(w); }
+  setDyn(w){ this.dyw = w; for(const k of ['back', 'mid', 'pre', 'top']) setV(this.lay[k].dy, w); }
   borrow(){ const s = this.sp; if(!this.borrowed && s.front && s.front.childNodes.length){ this.lay.pre.sk.appendChild(s.front); this.borrowed = true; } }
   // a fresh start for each piece: whatever the act keeps (timers, strings, planned runs) begins again
   rebuild(){
@@ -16751,7 +16773,7 @@ class Musician {
     }
     // they come and go behind the drapes
     const Lx = P.lay, inside = Math.min(this.x - Lx.L, Lx.R - this.x);
-    this.actor.style.opacity = n2(ss((inside + 2) / 9));
+    setV(this.actor, ss((inside + 2) / 9));
     this.render(pose);
     if(upd){ FLOOR = fl; a.update(tp, this.S, this.J, this, sp.R); }
     FLOOR = 0;
@@ -16762,43 +16784,52 @@ Musician.prototype.render = Composer.prototype.render;
 class Performance {
   constructor(host, opts){
     this.host = host; this.o = opts || {};
-    this.svg = mk('svg', { class:'cz-svg pf-svg', 'aria-hidden':'true', focusable:'false' }, host);
+    /* Four stacked layers, so the browser only repaints what moves. The hall,
+       the boards, the furniture and the drapes don't change once drawn, so they
+       live in their own layers and are rasterised once; the band, the audience,
+       the flames and the notes live in the other two. In paint order:
+         back   hall walls and boxes, the stage, the furniture       (still)
+         mid    lighting, people in the boxes, the band, the flames  (moving)
+         front  box fronts, the drapes, the fade behind the gear     (still)
+         top    the stalls, notes and bravos, the pen                (moving) */
     const id = ++Performance.n;
     this.gid = 'pfg' + id;
-    const defs = mk('defs', {}, this.svg), rg = mk('radialGradient', { id:this.gid }, defs);
+    const layer = still => { const svg = mk('svg', { class:'cz-svg pf-svg pf-layer' + (still ? ' pf-still' : ''), 'aria-hidden':'true', focusable:'false' }, host); return { svg, w:mk('g', {}, svg) }; };
+    const back = layer(true), mid = layer(false), front = layer(true), top = layer(false);
+    this.layers = [back, mid, front, top];
+    this.svg = back.svg;
+    const defs = mk('defs', {}, back.svg), rg = mk('radialGradient', { id:this.gid }, defs);
     mk('stop', { offset:'0', class:'cz-g0' }, rg); mk('stop', { offset:'1', class:'cz-g1' }, rg);
     const pgr = mk('radialGradient', { id:'pfp' + id }, defs);
     for(const [o, c] of [[0, 'cz-p0'], [.4, 'cz-p1'], [1, 'cz-p2']]) mk('stop', { offset:o, class:c }, pgr);
     const sg = mk('radialGradient', { id:'pfs' + id }, defs);
     for(const [o, c] of [[0, 'cz-s0'], [.55, 'cz-s1'], [1, 'cz-s2']]) mk('stop', { offset:o, class:c }, sg);
-    // the audience sits in the stalls: nothing of them shows below the staff line
-    const cp = mk('clipPath', { id:'pfc' + id }, defs);
-    mk('rect', { x:-5000, y:-400, width:10000, height:400.4 }, cp);
-    // the hall fades out behind the count and the Settings button, so they stay easy to read
-    this.fadeG = mk('linearGradient', { id:'pff' + id, gradientUnits:'userSpaceOnUse', x1:0, x2:1, y1:0, y2:0 }, defs);
-    mk('stop', { offset:0, 'stop-color':'#fff', 'stop-opacity':1 }, this.fadeG);
-    mk('stop', { offset:1, 'stop-color':'#fff', 'stop-opacity':.14 }, this.fadeG);
-    const fm = mk('mask', { id:'pfm' + id, maskUnits:'userSpaceOnUse', x:-5000, y:-400, width:10000, height:800 }, defs);
-    mk('rect', { x:-5000, y:-400, width:10000, height:800, fill:`url(#pff${id})` }, fm);
-    this.world = mk('g', {}, this.svg);
-    this.roomG = mk('g', { class:'cz-room' }, this.world);
-    this.wash = mk('ellipse', { class:'cz-spot', style:`fill:url(#pfs${id});opacity:0` }, this.roomG);
-    this.spot = mk('ellipse', { class:'cz-spot', rx:17, ry:26, style:`fill:url(#pfs${id});opacity:0` }, this.roomG);
-    // the concert hall around the stage: pilasters, sconces, and two tiers of boxes with their own audience
-    this.hallG = mk('g', { mask:`url(#pfm${id})` }, this.roomG);
-    this.hallBack = mk('g', {}, this.hallG);
-    this.boxG = mk('g', {}, this.hallG);
-    this.hallFront = mk('g', {}, this.hallG);
-    this.stageG = mk('g', {}, this.roomG);
-    this.stationsG = mk('g', {}, this.roomG);
-    this.deck = mk('g', { transform:`translate(0 ${DECK})` }, this.roomG);
+    // the hall fades out behind the count and the Settings button, so they stay easy to read:
+    // a veil of the background colour over it (much cheaper than a mask)
+    this.fadeG = mk('linearGradient', { id:'pff' + id, gradientUnits:'userSpaceOnUse', x1:1e4, x2:1e4 + 1, y1:0, y2:0 }, defs);
+    mk('stop', { offset:0, class:'pf-veil', 'stop-opacity':0 }, this.fadeG);
+    mk('stop', { offset:1, class:'pf-veil', 'stop-opacity':.86 }, this.fadeG);
+    // back
+    this.hallBack = mk('g', {}, back.w);
+    this.stageG = mk('g', {}, back.w);
+    this.stationsG = mk('g', {}, back.w);
+    // mid
+    this.wash = mk('ellipse', { class:'cz-spot', style:`fill:url(#pfs${id});opacity:0` }, mid.w);
+    this.spot = mk('ellipse', { class:'cz-spot', rx:17, ry:26, style:`fill:url(#pfs${id});opacity:0` }, mid.w);
+    this.boxG = mk('g', {}, mid.w);
+    this.glowsG = mk('g', {}, mid.w);
+    this.deck = mk('g', { transform:`translate(0 ${DECK})` }, mid.w);
     this.band = mk('g', {}, this.deck);
-    this.drapesG = mk('g', {}, this.roomG);
-    this.crowdG = mk('g', { 'clip-path':`url(#pfc${id})` }, this.roomG);
-    this.crowdHit = mk('rect', { class:'pf-hit' }, this.roomG);
-    this.boxHits = mk('g', {}, this.roomG);
-    this.fx = mk('g', { class:'cz-fx' }, this.roomG);
-    this.pen = mk('g', { class:'cz-pen', style:'opacity:0' }, this.roomG);
+    this.boxHits = mk('g', {}, mid.w);
+    // front
+    this.hallFront = mk('g', {}, front.w);
+    this.drapesG = mk('g', {}, front.w);
+    this.veil = mk('rect', { x:-5000, y:-80, width:10000, height:80.6, style:`fill:url(#pff${id})` }, front.w);
+    // top
+    this.crowdG = mk('g', {}, top.w);
+    this.crowdHit = mk('rect', { class:'pf-hit' }, top.w);
+    this.fx = mk('g', { class:'cz-fx' }, top.w);
+    this.pen = mk('g', { class:'cz-pen', style:'opacity:0' }, top.w);
     mk('circle', { class:'cz-glow', r:4.2, style:`fill:url(#pfp${id})` }, this.pen);
     mk('circle', { class:'cz-nib', r:.62 }, this.pen);
     this.parts = []; this.M = []; this.C = []; this.lights = []; this.sconces = []; this.boxes = [];
@@ -16812,7 +16843,7 @@ class Performance {
     const r = this.host.getBoundingClientRect(), o = this.o.scale;
     const s = typeof o === 'function' ? o(r.width) : o || 1;
     this.W = Math.max(40, r.width / s); this.H = Math.max(30, r.height / s); this.s = s;
-    this.svg.setAttribute('viewBox', `0 ${n2(-this.H)} ${n2(this.W)} ${n2(this.H)}`);
+    for(const L of this.layers) L.svg.setAttribute('viewBox', `0 ${n2(-this.H)} ${n2(this.W)} ${n2(this.H)}`);
     this.fit(true);
   }
   /* The stage always fits its window (drawn smaller if need be, never cropped),
@@ -16839,13 +16870,13 @@ class Performance {
     const e = 1 - Math.exp(-dt * 3);
     this.k += (this.fk - this.k) * e; this.ox += (this.fo - this.ox) * e; this.place();
   }
-  place(){ this.world.setAttribute('transform', `translate(${n2(this.ox)} 0) scale(${Math.round(this.k * 1e4) / 1e4})`); }
+  place(){ const t = `translate(${n2(this.ox)} 0) scale(${Math.round(this.k * 1e4) / 1e4})`; for(const L of this.layers) L.w.setAttribute('transform', t); }
   toWorld(cx, cy){ const r = this.host.getBoundingClientRect(), s = this.s || 1; return [((cx - r.left) / s - this.ox) / this.k, (cy - r.bottom) / s / this.k]; }
   dayPart(){ const h = new Date().getHours(); this.night = h >= 22 || h < 5; }
 
   /* ---- the stage, the band, the audience ---- */
   build(){
-    for(const g of [this.stageG, this.stationsG, this.band, this.drapesG, this.crowdG]) g.replaceChildren();
+    for(const g of [this.stageG, this.stationsG, this.band, this.drapesG, this.crowdG, this.glowsG]) g.replaceChildren();
     this.clearParts();
     const lay = this.lay = stageLayout(this.actsNow()), { L, R } = lay, mid = (L + R) / 2;
     const sk = (par, d, cls = 'cz-prop') => mk('path', { d, class:cls + ' cz-sk', pathLength:1 }, par);
@@ -16860,9 +16891,9 @@ class Performance {
     const nL = Math.max(2, Math.round((R - L) / 24));
     for(let i = 0; i < nL; i++){
       const x = n2(L + (R - L) * (i + .5) / nL);
-      const glow = mk('circle', { class:'cz-glow', cx:x, cy:DECK - 2.2, r:4.5, style:`fill:url(#${this.gid})` }, this.stageG);
+      const glow = mk('circle', { class:'cz-glow', cx:x, cy:DECK - 2.2, r:4.5, style:`fill:url(#${this.gid})` }, this.glowsG);
       sk(this.stageG, `M${x - .5} ${DECK - .1}V${DECK - 1.3}H${x + .5}V${DECK - .1}`, 'cz-prop cz-fine');
-      const flame = mk('path', { class:'cz-acc cz-flame' }, this.stageG);
+      const flame = mk('path', { class:'cz-acc cz-flame' }, this.glowsG);
       this.lights.push({ x, glow, flame, ph:Math.random() * TAU });
     }
     // the instruments, each at its chair
@@ -16895,7 +16926,7 @@ class Performance {
     sk(this.drapesG, swags, 'pf-drape');
     sk(this.drapesG, `M${L - 6} ${PF_TOP - 1.2}H${R + 6}`);
     if(tas) sk(this.drapesG, tas, 'pf-tassel');
-    this.room = { list:[{ g:this.hallG }, { g:this.stageG }, ...lay.list, { g:this.drapesG }] };
+    this.room = { list:[{ g:this.hallBack }, { g:this.hallFront }, { g:this.stageG }, ...lay.list, { g:this.drapesG }] };
     // the lighting: a wash over the whole stage, and a spot for whoever has the tune
     this.wash.setAttribute('cx', n2(mid)); this.wash.setAttribute('cy', -26);
     this.wash.setAttribute('rx', n2((R - L) / 2 + 8)); this.wash.setAttribute('ry', 32);
@@ -16917,6 +16948,7 @@ class Performance {
      swagged curtains and people leaning on the rail. */
   buildHall(live){
     for(const g of [this.hallBack, this.hallFront, this.boxHits]) g.replaceChildren();
+    for(const L of this.sconces || []){ L.glow.remove(); L.flame.remove(); }
     this.sconces = []; this.boxes = [];
     if(!this.lay || !this.hall) return;
     const { L, R } = this.lay, H = this.hall;
@@ -16932,9 +16964,9 @@ class Performance {
         const u0 = i * PF_BAY, [pa, pb] = span(u0, u0 + 3), cx = n2((pa + pb) / 2);
         sk(this.hallBack, `M${pa} 0V${PF_TOP + .6}H${pb}V0`, 'pf-pil');
         sk(this.hallBack, `M${n2(pa - .7)} ${PF_TOP + .6}H${n2(pb + .7)}M${n2(pa - .5)} -1.2H${n2(pb + .5)}`, 'cz-prop cz-fine');
-        const glow = mk('circle', { class:'cz-glow', cx, cy:-33.4, r:5, style:`fill:url(#${this.gid})` }, this.hallBack);
+        const glow = mk('circle', { class:'cz-glow', cx, cy:-33.4, r:5, style:`fill:url(#${this.gid})` }, this.glowsG);
         sk(this.hallBack, `M${n2(cx - 1.15)} -31.4H${n2(cx + 1.15)}L${n2(cx + .6)} -30.2H${n2(cx - .6)}ZM${cx} -31.4V-32.5`, 'cz-prop cz-fine');
-        const flame = mk('path', { class:'cz-acc cz-flame' }, this.hallBack);
+        const flame = mk('path', { class:'cz-acc cz-flame' }, this.glowsG);
         this.sconces.push({ x:cx, y:-32.5, glow, flame, ph:Math.random() * TAU });
         const [A, B] = span(u0 + 3.6, u0 + PF_BAY - .2), M = n2((A + B) / 2);
         for(const [rail, top] of [[-24, -38], [-46, -60.4]]){
@@ -16982,11 +17014,11 @@ class Performance {
     const r = Math.random, kind = KINDS[(r() * KINDS.length) | 0], child = !box && r() < .1;
     const side = Math.sign(this.center - x) || 1;
     const prop = box ? (r() < .34 ? 'fan' : r() < .55 ? 'glasses' : null) : (r() < .09 ? 'fan' : r() < .15 ? 'glasses' : null);
-    const g = mk('g', { class:'pf-aud', style:'opacity:0' }, par), tint = 'pf-c' + (1 + ((r() * 4) | 0));
-    const arms = mk('path', { class:'cz-o', style:'stroke-width:1.55;opacity:0' }, g);
-    const armsI = mk('path', { class:tint, style:'stroke:var(--pfc);stroke-width:.6;opacity:0' }, g);
+    const g = mk('g', { class:'pf-aud', style:'display:none' }, par), tint = 'pf-c' + (1 + ((r() * 4) | 0));
+    const arms = mk('path', { class:'cz-o', style:'stroke-width:1.55;display:none' }, g);
+    const armsI = mk('path', { class:tint, style:'stroke:var(--pfc);stroke-width:.6;display:none' }, g);
     // in a box, the balustrade hides everything below the shoulders
-    mk('path', { class:'pf-body ' + tint, d:box ? 'M-4.6 1.4V-.8Q-4.5 -4 -2 -4.45Q0 -4.85 2 -4.45Q4.5 -4 4.6 -.8V1.4Z' : 'M-4.6 7V-.8Q-4.5 -4 -2 -4.45Q0 -4.85 2 -4.45Q4.5 -4 4.6 -.8V7Z' }, g);
+    const body = mk('path', { class:'pf-body ' + tint, d:PF_BODY(box ? 1.4 : .3) }, g);
     const head = mk('g', {}, g);
     if(kind === 'bun') mk('circle', { class:'pf-hd pf-dark', cy:-2.9, r:1.2 }, head);
     mk('circle', { class:'pf-hd ' + (kind === 'wig' ? 'pf-pale' : kind === 'grey' ? 'pf-grey' : 'pf-dark'), r:2.55 }, head);
@@ -17007,12 +17039,13 @@ class Performance {
       mk('path', { class:'pf-rib', d:[-137, -110, -83, -56, -29].map(a => 'M0 0L' + pt(a)).join('') }, fan);
       mk('circle', { class:'pf-palm', r:.72 }, fan);
     } else if(prop === 'glasses'){   // opera glasses, raised to watch whoever has the tune
-      glass = mk('g', { style:'opacity:0', transform:`translate(${n2(side * 2.2)} -.4) scale(${side} 1)` }, head);
+      glass = mk('g', { style:'display:none', transform:`translate(${n2(side * 2.2)} -.4) scale(${side} 1)` }, head);
       mk('path', { class:'pf-hat', d:'M0 -.8H1.7V.8H0Z' }, glass);
       mk('circle', { class:'pf-palm', cx:.9, cy:1.55, r:.7 }, glass);
     }
-    const hands = [0, 1].map(() => mk('circle', { class:'pf-palm', r:.8, style:'opacity:0' }, g));
-    return { g, head, hands, arms, armsI, x, y0, box, side, fan, glass, gl:0, bias:box ? side * .85 : 0,
+    const hands = [0, 1].map(() => mk('circle', { class:'pf-palm', r:.8, style:'display:none' }, g));
+    for(const e of [g, arms, armsI, ...hands, glass]) if(e) e.__v = 'none';
+    return { g, head, hands, arms, armsI, body, bodyB:box ? 1.4 : .3, x, y0, box, side, fan, glass, gl:0, bias:box ? side * .85 : 0,
       kind, sc:box ? .98 + r() * .08 : child ? .92 : 1.2 + r() * .14, arr:0, ph:r() * TAU,
       sway:.25 + r() * .75, rate:3.8 + r() * 1.4, hx:0, lean:0, tilt:0, jy:0, jv:0, stand:0, clapAt:-9, clapEnd:-9,
       standUp:false, doze:0, dozy:r() < .35, cheer:-9, look:0, chat:0, chatT:3 + r() * 8, murm:0 };
@@ -17040,9 +17073,42 @@ class Performance {
   }
   stop(){
     this.clearParts();
-    for(const g of [this.stageG, this.stationsG, this.band, this.drapesG, this.crowdG, this.hallBack, this.hallFront, this.boxG, this.boxHits]) g.replaceChildren();
+    for(const g of [this.stageG, this.stationsG, this.band, this.drapesG, this.crowdG, this.hallBack, this.hallFront, this.boxG, this.boxHits, this.glowsG]) g.replaceChildren();
     this.M = []; this.C = []; this.sconces = []; this.boxes = []; this.lay = null; this.room = null; this.sk = null; this.hall = null; this.hallKey = null;
     this.pen.style.opacity = 0; this.spot.style.opacity = 0; this.wash.style.opacity = 0;
+  }
+  /* the composer's pen draws the stage and the hall, as it draws his room;
+     here the strokes are gathered from the still layers */
+  sketch(){
+    const paths = [this.hallBack, this.hallFront, this.stageG, this.stationsG, this.drapesG].flatMap(r => [...r.querySelectorAll('.cz-sk')]);
+    this.sk = null;
+    if(this.reduced.matches){ paths.forEach(p => p.classList.add('in', 'now')); return 0; }
+    const worlds = this.layers.map(L => L.w);
+    const toRoom = p => {   // path coords -> world coords, from the transforms between them
+      let m = new DOMMatrix();
+      for(let e = p; e && !worlds.includes(e); e = e.parentNode){
+        const tl = e.transform && e.transform.baseVal;
+        if(tl && tl.numberOfItems){ const c = tl.consolidate().matrix; m = new DOMMatrix([c.a, c.b, c.c, c.d, c.e, c.f]).multiply(m); }
+      }
+      return m;
+    };
+    for(const s of this.room.list) s.g.classList.add('cz-dark');
+    const lens = paths.map(p => { try{ return p.getTotalLength(); }catch(e){ return 10; } });
+    const total = lens.reduce((a, b) => a + b, 0), v = Math.max(150, total / 3.1);
+    const list = []; let T = .45, pos = null;
+    paths.forEach((p, i) => {
+      const e = { p, m:toRoom(p), L:lens[i], st:this.room.list.find(q => q.g.contains(p)) };
+      e.a = this.skPt(e, 0); e.b = this.skPt(e, e.L);
+      if(pos) T += Math.min(.2, .03 + len(sub(e.a, pos)) / (v * 3.4));
+      e.t0 = T; e.t1 = T + Math.max(.05, e.L / v); T = e.t1; pos = e.b;
+      p.classList.add('pen'); p.style.strokeDashoffset = 1;
+      list.push(e);
+    });
+    const f = Math.min(1, 3.1 / (T - .45));
+    for(const e of list){ e.t0 = .45 + (e.t0 - .45) * f; e.t1 = .45 + (e.t1 - .45) * f; }
+    T = .45 + (T - .45) * f;
+    this.sk = { list, T:0, i:0, end:T, dry:[] };
+    return T;
   }
   get center(){ return this.lay ? (this.lay.L + this.lay.R) / 2 : 0; }
   cond(){ return this.M.find(m => m.sp.id === 'conduct'); }
@@ -17050,6 +17116,10 @@ class Performance {
   /* ---- the evening ---- */
   step(dt){
     if(!this.lay) return;
+    // thirty frames a second is plenty for figures this size, and halves the work
+    this.acc = (this.acc || 0) + dt;
+    if(this.acc < 1 / 31) return;
+    dt = Math.min(.1, this.acc); this.acc = 0; this.frame = (this.frame || 0) + 1;
     const reduced = this.reduced.matches;
     this.t += dt; this.T += dt;
     if((this.zt += dt) > 1){ this.zt = 0; this.fit(); this.dayPart(); }
@@ -17210,9 +17280,9 @@ class Performance {
     const fx = this.focus ? this.focus.x : this.soloist ? this.soloist.x : null;
     for(const c of this.C){
       const a = (t - c.arr) / .45;
-      if(a < 0){ c.g.style.opacity = 0; continue; }
-      // taking their seat: up from the stalls with a little settle
-      const arr = ss(a), bounce = a > .6 && a < 1.4 ? -Math.sin(Math.PI * (a - .6) / .8) * .9 : 0;
+      if(a < 0){ setV(c.g, 0); continue; }
+      // taking their seat: standing a moment, then sitting down with a little settle
+      const arr = ss(a), bounce = a > .6 && a < 1.4 ? -Math.sin(Math.PI * (a - .6) / .8) * .6 : 0;
       // clapping: hands up, meeting over their heads, a little bounce in the seat
       const w = ss((t - c.clapAt) / .2) * (1 - ss((t - c.clapEnd) / .3));
       const g = Math.pow(Math.abs(Math.sin((t - c.clapAt) * Math.PI * c.rate)), .6);
@@ -17239,32 +17309,38 @@ class Performance {
       c.tilt += (tilt - c.tilt) * (1 - Math.exp(-dt * 5));
       c.murm = Math.max(0, c.murm - dt);
       const clapB = w * -.45 * g - .3 * cheer;
-      const y = c.y0 + (1 - arr) * 4 + bounce + c.jy + clapB - 3.5 * c.stand - 3 * cheer - c.doze * -.5;
-      c.g.style.opacity = n2(arr);
-      c.g.setAttribute('transform', `translate(${n2(c.x)} ${n2(y)}) scale(${n2(c.sc)})`);
-      c.head.setAttribute('transform', `translate(${n2(c.hx)} ${n2(-7 + c.doze * .6)}) rotate(${n2(c.tilt)})`);
+      // never below the seat line (nothing is clipped), and the body always reaches down to it
+      const rise = Math.min(0, -3.2 * (1 - arr) + bounce + c.jy + clapB - 3.5 * c.stand - 3 * cheer);
+      const bb = (c.box ? 1.4 : .3) - rise / c.sc;
+      if(Math.abs(bb - c.bodyB) > .06){ c.bodyB = bb; c.body.setAttribute('d', PF_BODY(bb)); }
+      setV(c.g, arr);
+      // positions in steps too small to see, so a still audience member costs nothing
+      const q = v => Math.round(v * 8) / 8;
+      setA(c.g, 'transform', `translate(${n2(c.x)} ${q(c.y0 + rise)}) scale(${n2(c.sc)})`);
+      setA(c.head, 'transform', `translate(${q(c.hx)} ${q(-7 + c.doze * .6)}) rotate(${Math.round(c.tilt)})`);
       // arms and hands, when they're up
       const up = Math.max(w, cheer);
       if(up > .01){
         const hy = -10.9 - .9 * c.stand, sep = .8 + 1.9 * g;
         let hl = [-sep, hy], hr = [sep, hy];
         if(cheer > w){ const wv = Math.sin(ch * 14) * 1.2; hl = [-4.6, -3]; hr = [3.4 + wv, -12.4]; }
-        c.hands[0].setAttribute('cx', n2(hl[0])); c.hands[0].setAttribute('cy', n2(hl[1]));
-        c.hands[1].setAttribute('cx', n2(hr[0])); c.hands[1].setAttribute('cy', n2(hr[1]));
+        setA(c.hands[0], 'cx', n2(hl[0])); setA(c.hands[0], 'cy', n2(hl[1]));
+        setA(c.hands[1], 'cx', n2(hr[0])); setA(c.hands[1], 'cy', n2(hr[1]));
         const d = `M-3.3 -3.6Q${n2(hl[0] - 2)} ${n2((hl[1] - 3.6) / 2)} ${P(...hl)}M3.3 -3.6Q${n2(hr[0] + 2)} ${n2((hr[1] - 3.6) / 2)} ${P(...hr)}`;
-        c.arms.setAttribute('d', d); c.armsI.setAttribute('d', d);
+        setA(c.arms, 'd', d); setA(c.armsI, 'd', d);
       }
-      for(const e of [...c.hands, c.arms, c.armsI]) e.style.opacity = n2(up);
+      for(const e of c.hands) setV(e, up);
+      setV(c.arms, up); setV(c.armsI, up);
       // a fan: fanning briskly between pieces, gently while they play, put down to clap
       if(c.fan){
         const k = playing ? Math.sin(t * 2.6 + c.ph) * 5 : Math.sin(t * 10 + c.ph) * 15;
-        c.fan.setAttribute('transform', `translate(${n2(c.side * 3 + c.hx * .4)} -7.6) rotate(${n2(c.side * 28 + k - c.doze * 40 * c.side)})`);
-        c.fan.style.opacity = n2(1 - up);
+        setA(c.fan, 'transform', `translate(${n2(c.side * 3 + c.hx * .4)} -7.6) rotate(${Math.round(c.side * 28 + k - c.doze * 40 * c.side)})`);
+        setV(c.fan, 1 - up);
       }
       // opera glasses: up to the eyes while there's something to watch
       if(c.glass){
         c.gl += ((playing && c.doze < .3 && up < .1 ? 1 : 0) - c.gl) * (1 - Math.exp(-dt * 3));
-        c.glass.style.opacity = n2(c.gl);
+        setV(c.glass, c.gl);
       }
     }
   }
@@ -17281,25 +17357,29 @@ class Performance {
     this.flare *= Math.exp(-dt * 2.2);
     const ka = reduced ? 1 : 1 - Math.exp(-dt * 1.4);
     this.washA += (want - this.washA) * ka;
-    this.wash.style.opacity = n2(Math.min(1, this.washA * .75 + this.flare * .3));
+    const q = v => Math.round(v * 40) / 40;   // light levels in steps: the big washes only repaint when it shows
+    setO(this.wash, q(Math.min(1, this.washA * .75 + this.flare * .3)));
+    setO(this.glowsG, this.sk ? 0 : 1);   // no candles lit until the pen has finished
     const f = this.focus || this.soloist;
     const sx = f ? f.x + f.face * 6 : this.spotX, sa = f ? 1 : 0;
     const kx = reduced ? 1 : 1 - Math.exp(-dt * 3);
     this.spotX += (sx - this.spotX) * kx; this.spotA += (sa - this.spotA) * (reduced ? 1 : 1 - Math.exp(-dt * 2));
-    this.spot.setAttribute('cx', n2(this.spotX)); this.spot.setAttribute('cy', DECK - 18);
-    this.spot.style.opacity = n2(Math.min(1, this.spotA * (1 + this.flare * .4)));
+    setA(this.spot, 'cx', Math.round(this.spotX * 4) / 4); setA(this.spot, 'cy', DECK - 18);
+    setV(this.spot, q(Math.min(1, this.spotA * (1 + this.flare * .4))));
     const lit = this.sk ? 0 : Math.min(1, .45 + this.washA * .6);
     // the house lights go down for each piece, and come up for the applause
     const house = this.sk ? 0 : (ph === 'play' && !this.holding) || ph === 'hush' ? .3 : 1;
     this.houseA = (this.houseA ?? 0) + (house - (this.houseA ?? 0)) * (reduced ? 1 : 1 - Math.exp(-dt * 1.2));
-    const flick = (L, y, glowR, k) => {
+    const flick = (L, y, glowR, k) => {   // (q, above, rounds light levels)
       const fl = reduced ? 0 : Math.sin(this.t * 17 + L.ph) * .25 + Math.sin(this.t * 7.3 + L.ph) * .35;
-      L.flame.setAttribute('d', `M${L.x} ${n2(y)}Q${n2(L.x - 1 + fl * .2)} ${n2(y - 1)} ${n2(L.x + fl * .45)} ${n2(y - 2.7 + fl * .3)}Q${n2(L.x + 1 + fl * .2)} ${n2(y - 1)} ${L.x} ${n2(y)}Z`);
-      L.glow.setAttribute('r', n2((glowR + fl * .6) * (.8 + .35 * k)));
-      L.glow.style.opacity = n2(k);
+      setA(L.flame, 'd', `M${L.x} ${n2(y)}Q${n2(L.x - 1 + fl * .2)} ${n2(y - 1)} ${n2(L.x + fl * .45)} ${n2(y - 2.7 + fl * .3)}Q${n2(L.x + 1 + fl * .2)} ${n2(y - 1)} ${L.x} ${n2(y)}Z`);
+      setA(L.glow, 'r', Math.round((glowR + fl * .6) * (.8 + .35 * k) * 10) / 10);
+      setV(L.glow, q(k));
     };
-    for(const L of this.lights) flick(L, DECK - 1.3, 4.2, lit);
-    for(const L of this.sconces){ flick(L, L.y, 4.6, this.houseA); L.flame.style.opacity = n2(.35 + .65 * this.houseA); }
+    // the candles flicker in turn, a third of them each frame
+    const fr = this.frame || 0;
+    this.lights.forEach((L, i) => { if((fr + i) % 3 === 0 || reduced) flick(L, DECK - 1.3, 4.2, lit); });
+    this.sconces.forEach((L, i) => { if((fr + i) % 3 === 0 || reduced){ flick(L, L.y, 4.6, this.houseA); setO(L.flame, q(.35 + .65 * this.houseA)); } });
   }
   flourish(){
     this.flare = 1.2;
@@ -17333,7 +17413,7 @@ class Performance {
 }
 Performance.n = 0;
 // the pen that draws the stage is the composer's own
-for(const k of ['sketch', 'skPt', 'tickSketch', 'clearParts', 'tickParts']) Performance.prototype[k] = Composer.prototype[k];
+for(const k of ['skPt', 'tickSketch', 'clearParts', 'tickParts']) Performance.prototype[k] = Composer.prototype[k];
 
 const RUN = new Set(); let raf = 0, last = 0;
 function loop(now){
