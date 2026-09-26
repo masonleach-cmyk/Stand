@@ -1382,6 +1382,17 @@ mark.hl{background:none;color:var(--pencil-hi);font-weight:600}
   box-shadow:0 2px 5px rgba(0,0,0,.28);transition:transform .24s cubic-bezier(.3,.7,.2,1)}
 .set-sw[aria-checked="true"]{background:var(--pencil);box-shadow:inset 0 0 0 1px var(--pencil)}
 .set-sw[aria-checked="true"] i{transform:translateX(20px)}
+/* sliders: the filled part of the track is the accent, the knob matches the switches */
+.set-range{display:flex;flex-direction:column;gap:2px}
+.set-range input{-webkit-appearance:none;appearance:none;display:block;width:100%;height:30px;margin:0;padding:0;background:transparent;--v:50%;cursor:pointer}
+.set-range input::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--pencil) var(--v),var(--slate-3) var(--v))}
+.set-range input::-moz-range-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--pencil) var(--v),var(--slate-3) var(--v))}
+.set-range input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:27px;height:27px;margin-top:-11.5px;border:none;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.28),0 0 0 .5px rgba(0,0,0,.08)}
+.set-range input::-moz-range-thumb{width:27px;height:27px;border:none;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.28),0 0 0 .5px rgba(0,0,0,.08)}
+.set-range input:focus{outline:none}
+.set-range input:focus-visible::-webkit-slider-thumb{box-shadow:0 2px 5px rgba(0,0,0,.28),0 0 0 3px color-mix(in srgb,var(--pencil) 50%,transparent)}
+.set-range input:focus-visible::-moz-range-thumb{box-shadow:0 2px 5px rgba(0,0,0,.28),0 0 0 3px color-mix(in srgb,var(--pencil) 50%,transparent)}
+.set-range-ends{display:flex;justify-content:space-between;font-size:12px;color:var(--text-faint)}
 .set-prev{display:block;padding:14px 14px 13px;background:color-mix(in srgb,var(--slate) 55%,var(--slate-2))}
 .set-prev .nm{display:block;font-size:15px;color:var(--text);line-height:1.35}
 .set-prev .sub{display:block;font-size:13px;color:var(--text-faint);margin-top:3px}
@@ -2205,7 +2216,7 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 .cz-svg .cz-hair{fill:var(--cz-ink);stroke:var(--cz-ink);stroke-width:.4}
 .cz-strand{stroke:var(--cz-strand);stroke-width:.36}
 .cz-hairline{stroke:var(--cz-ink);stroke-width:.9}
-.cz-svg .cz-eye{fill:var(--cz-ink);stroke:none}
+.cz-svg .cz-eye,.cz-svg .cz-eyes{fill:var(--cz-ink);stroke:none}
 .cz-brow{stroke-width:.85}
 .cz-acc{stroke:var(--cz-acc)}
 .cz-ribbon{stroke-width:.7}
@@ -2227,7 +2238,43 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 .cz-svg .cz-sk.in{stroke-dashoffset:0;fill-opacity:1}
 .cz-svg .cz-sk.out{stroke-dashoffset:-1.25;fill-opacity:0;
   transition:stroke-dashoffset .7s cubic-bezier(.5,0,.75,.4),fill-opacity .3s ease}
+.cz-svg .cz-sk.pen{transition:stroke 1.3s ease,fill-opacity .6s ease}
+.cz-svg .cz-sk.wet{stroke:var(--cz-acc)}
 .cz-svg .cz-sk.now{transition:none}
+/* the pen that draws the room: a bright nib with a halo of light */
+.cz-svg .cz-nib{fill:var(--cz-acc);stroke:none}
+.cz-p0{stop-color:var(--cz-acc);stop-opacity:.7}
+.cz-p1{stop-color:var(--cz-acc);stop-opacity:.22}
+.cz-p2{stop-color:var(--cz-acc);stop-opacity:0}
+/* a piece of furniture still being drawn keeps its candle unlit */
+.cz-svg .cz-glow,.cz-svg .cz-flame{transition:opacity .9s ease}
+.cz-svg .cz-dark .cz-glow,.cz-svg .cz-dark .cz-flame{opacity:0}
+/* the stage light that follows him: a soft pool of the accent colour */
+.cz-s0{stop-color:var(--cz-acc);stop-opacity:.2}
+.cz-s1{stop-color:var(--cz-acc);stop-opacity:.07}
+.cz-s2{stop-color:var(--cz-acc);stop-opacity:0}
+[data-tone=light] .cz-s0{stop-opacity:.12}
+[data-tone=light] .cz-s1{stop-opacity:.04}
+.cz-svg .cz-watch{stroke:var(--cz-acc);stroke-width:.45}
+.cz-svg .cz-watchface{fill:var(--cz-skin);stroke:var(--cz-acc);stroke-width:.45}
+.cz-chain{stroke:var(--cz-acc);stroke-width:.3}
+.cz-page{transition:opacity .45s ease}
+.cz-svg .cz-bravo{fill:var(--cz-acc);stroke:none;font:italic 600 5.4px var(--serif);text-anchor:middle}
+.cz-svg .cz-hit{touch-action:none;cursor:grab}
+/* the night sky over his room */
+.cz-svg .cz-star{fill:var(--cz-lace);stroke:none}
+.cz-svg .cz-moon{fill:var(--cz-lace);stroke:none}
+.cz-svg .cz-daze{fill:var(--cz-acc);stroke:none}
+.cz-room{transition:opacity 2s ease}
+/* the top line of the staff is his floor, and it's a string: it gives under a
+   landing, quivers under footsteps and rings with the timpani. While he's on,
+   the drawn line takes over from the plain one (after the fade, so the staff
+   never has a gap) */
+.cz-svg .cz-staffline{fill:none;stroke:var(--line);stroke-opacity:.55;stroke-width:1;vector-effect:non-scaling-stroke;stroke-linecap:butt}
+.lib-head .staff span:first-child,.cz-prev .staff span:first-child{transition:visibility 0s}
+.lib-head.cz-on .staff span:first-child,.cz-prev:has(#czPrevHost.on) .staff span:first-child{visibility:hidden;transition:visibility 0s .7s}
+.lib-head:has(.staff.sour) .cz-staffline{animation:czSour 1.1s ease-out}
+@keyframes czSour{12%,60%{stroke:var(--red);stroke-opacity:1}}
 /* in the header: standing on the top line of the staff. While he's on, the
    wordmark steps aside (it stays in the layout, so nothing else moves) */
 .lib-head{position:relative}
@@ -2243,6 +2290,58 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 /* Beethoven: the mane replaces the periwig, the cravat takes the accent */
 .cz-svg:not(.cz-beet) .cz-beetpart,.cz-beet .cz-wigpart{display:none}
 .cz-svg.cz-beet .cz-jabot{fill:var(--cz-acc)}
+/* ---------- the performance ----------
+   A little stage in the same pencil: a band of the composer's colleagues, a
+   row of the audience seen from behind, candle footlights and tied-back
+   drapes. It takes the composer's place; the two are never on together. */
+.cz-svg:not(.pf-svg) .cz-bunpart{display:none}
+.pf-svg .cz-beetpart,.pf-svg .cz-bunpart{display:none}
+.pf-svg .pf-beet .cz-beetpart,.pf-svg .pf-bun .cz-bunpart{display:inline}
+.pf-svg .pf-beet .cz-wigpart,.pf-svg .pf-bun .cz-wigpart{display:none}
+.pf-svg .pf-beet .cz-jabot{fill:var(--cz-acc)}
+/* the players who aren't the conductor wear their own hair (dressHead), not his */
+.pf-svg .pf-own .cz-wigpart,.pf-svg .pf-own .cz-beetpart,.pf-svg .pf-own .cz-bunpart{display:none}
+.pf-svg .pf-hk{fill:var(--cz-ink);stroke:var(--cz-ink);stroke-width:.4}
+.pf-svg .pf-hg{fill:var(--cz-wig);stroke:var(--cz-ink);stroke-width:.4}
+.pf-svg .pf-hl{fill:var(--cz-lace);stroke:var(--cz-ink);stroke-width:.4}
+.pf-svg .pf-ear{fill:var(--cz-skin);stroke:var(--cz-ink);stroke-width:.45}
+.pf-svg .pf-spec{stroke:var(--cz-ink);stroke-width:.42}
+.pf-svg .pf-band{stroke:var(--cz-acc);stroke-width:.75}
+.pf-svg .pf-gem{fill:var(--cz-acc);stroke:none}
+/* the hall: pilasters, the shadowed insides of the boxes, fans in the audience */
+.pf-svg .pf-pil{fill:color-mix(in srgb,var(--text) 4%,var(--cz-bg));stroke:var(--cz-far);stroke-width:.8}
+.pf-svg .pf-inside{fill:color-mix(in srgb,#000 16%,var(--cz-bg));stroke:var(--cz-far);stroke-width:.6}
+.pf-svg .pf-fan{fill:color-mix(in srgb,var(--cz-acc) 34%,var(--cz-bg));stroke:var(--cz-ink);stroke-width:.4}
+.pf-svg .pf-rib{stroke:var(--cz-ink);stroke-width:.28}
+/* each player's coat, mixed from the theme like his */
+.pf-svg .pf-t1{--cz-cloth:color-mix(in srgb,var(--cz-acc) 30%,var(--cz-bg));--cz-cloth-far:color-mix(in srgb,var(--cz-acc) 15%,var(--cz-bg))}
+.pf-svg .pf-t2{--cz-cloth:color-mix(in srgb,var(--text) 27%,var(--cz-bg));--cz-cloth-far:color-mix(in srgb,var(--text) 13%,var(--cz-bg))}
+.pf-svg .pf-t3{--cz-cloth:color-mix(in srgb,var(--cz-acc) 16%,color-mix(in srgb,var(--text) 12%,var(--cz-bg)));--cz-cloth-far:color-mix(in srgb,var(--cz-acc) 8%,color-mix(in srgb,var(--text) 6%,var(--cz-bg)))}
+.pf-svg .pf-drape{fill:color-mix(in srgb,var(--cz-acc) 17%,var(--cz-bg));stroke:var(--cz-prop);stroke-width:.9}
+.pf-svg .pf-fold{stroke:color-mix(in srgb,var(--cz-acc) 34%,var(--cz-bg));stroke-width:.55}
+.pf-svg .pf-cord{stroke:var(--cz-acc);stroke-width:.8}
+.pf-svg .pf-tassel{fill:var(--cz-acc);stroke:none}
+.pf-svg .pf-board{fill:color-mix(in srgb,var(--text) 6%,var(--cz-bg));stroke:var(--cz-prop);stroke-width:1}
+.pf-svg .pf-bill{fill:var(--cz-far);stroke:none;font:italic 500 3.6px var(--serif);text-anchor:middle;letter-spacing:.05px}
+/* the audience, from behind */
+.pf-svg .pf-aud{transition:none}
+.pf-svg .pf-body{fill:var(--pfc);stroke:var(--cz-ink);stroke-width:.6}
+.pf-svg .pf-c1{--pfc:color-mix(in srgb,var(--text) 16%,var(--cz-bg))}
+.pf-svg .pf-c2{--pfc:color-mix(in srgb,var(--cz-acc) 26%,var(--cz-bg))}
+.pf-svg .pf-c3{--pfc:color-mix(in srgb,var(--text) 26%,var(--cz-bg))}
+.pf-svg .pf-c4{--pfc:color-mix(in srgb,var(--cz-acc) 12%,color-mix(in srgb,var(--text) 10%,var(--cz-bg)))}
+.pf-svg .pf-hd{stroke:var(--cz-ink);stroke-width:.55}
+.pf-svg .pf-dark{fill:var(--cz-ink)} .pf-svg .pf-grey{fill:var(--cz-wig)} .pf-svg .pf-pale{fill:var(--cz-lace)}
+.pf-svg .pf-hat{fill:var(--cz-ink);stroke:var(--cz-ink);stroke-width:.4}
+.pf-svg .pf-bonnet{fill:color-mix(in srgb,var(--cz-acc) 22%,var(--cz-bg));stroke:var(--cz-ink);stroke-width:.5}
+.pf-svg .pf-feather{stroke:var(--cz-acc);stroke-width:.7}
+.pf-svg .pf-bow{fill:var(--cz-acc);stroke:none}
+.pf-svg .pf-palm{fill:var(--cz-skin);stroke:var(--cz-ink);stroke-width:.45}
+.pf-svg .pf-hit{pointer-events:all;fill:transparent;stroke:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pf-svg .pf-shh{fill:var(--cz-acc);stroke:none;font:italic 600 4.2px var(--serif);text-anchor:middle}
+.lib-head.pf-on .wordmark h1{opacity:0}
+#pfRow{border-top:1px solid var(--line)}
+.lib-head .pf-host{left:20px;right:20px}
 /* the activities page */
 #mSettings .set-link.off{opacity:.42;pointer-events:none}
 .set-sw[aria-disabled="true"]{opacity:.45;pointer-events:none}
@@ -2271,6 +2370,7 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
     </div>
     <div class="staff"><span></span><span></span><span></span><span></span><span></span></div>
     <div class="cz-host" id="czHost" aria-hidden="true"></div>
+    <div class="cz-host pf-host" id="pfHost" aria-hidden="true"></div>
   </div>
 
   <div class="searchrow">
@@ -2698,17 +2798,47 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
       <div class="cz-prev" aria-hidden="true">
         <div class="staff"><span></span><span></span><span></span><span></span><span></span></div>
         <div class="cz-host" id="czPrevHost"></div>
+        <div class="cz-host pf-host" id="pfPrevHost"></div>
       </div>
       <div class="set-row">
-        <span class="set-l"><span class="nm">Resident composer</span><span class="sub">A tiny composer keeps a music room on the staff above your library, and wanders about it playing, writing and taking coffee.</span></span>
+        <span class="set-l"><span class="nm">Resident composer</span><span class="sub">A tiny composer keeps a music room on the staff above your library, and wanders about it playing, writing and taking coffee. Tap him to say hello, or pick him up and move him.</span></span>
         <button type="button" class="set-sw" id="setComposer" role="switch" aria-checked="false" aria-label="Resident composer"><i></i></button>
       </div>
       <div class="set-row col" id="czHeadRow">
         <span class="set-l"><span class="nm">Composer</span></span>
         <div class="pd-seg set-seg" data-pref="composerHead" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="wig">Mozart</button><button type="button" data-v="beethoven">Beethoven</button></div>
       </div>
+      <div class="set-row col" id="czPaceRow">
+        <span class="set-l"><span class="nm">How often he changes activity</span><span class="sub" id="czPaceSub"></span></span>
+        <div class="set-range">
+          <input type="range" id="czPace" min="0" max="100" step="1" aria-label="How often he changes activity">
+          <span class="set-range-ends" aria-hidden="true"><span>Rarely</span><span>Often</span></span>
+        </div>
+      </div>
       <button type="button" class="set-link" data-page="mSetCz" id="czActsLink">
         <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5V6l10-2v11.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="15.5" r="2.5"/></svg></span><span class="tx"><span class="nm">Activities</span><span class="sub" id="sumCz"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <div class="set-row" id="pfRow">
+        <span class="set-l"><span class="nm">Performance</span><span class="sub">A little concert hall above your library instead, where a band plays to a tiny audience. Tap a player for a solo, the conductor for a crescendo, or the audience to start the applause. Only one of these can be on at a time.</span></span>
+        <button type="button" class="set-sw" id="setPerform" role="switch" aria-checked="false" aria-label="Performance"><i></i></button>
+      </div>
+      <div class="set-row col" id="pfCondRow">
+        <span class="set-l"><span class="nm">Conductor</span></span>
+        <div class="pd-seg set-seg" data-pref="performConductor" style="--n:2;--i:1"><span class="pdk"></span><button type="button" data-v="wig">Mozart</button><button type="button" data-v="beethoven">Beethoven</button></div>
+      </div>
+      <div class="set-row col" id="pfCrowdRow">
+        <span class="set-l"><span class="nm">Audience</span></span>
+        <div class="pd-seg set-seg" data-pref="performCrowd" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="few">A few</button><button type="button" data-v="full">Full house</button></div>
+      </div>
+      <div class="set-row col" id="pfLenRow">
+        <span class="set-l"><span class="nm">Length of each piece</span><span class="sub" id="pfLenSub"></span></span>
+        <div class="set-range">
+          <input type="range" id="pfLen" min="0" max="100" step="1" aria-label="Length of each piece">
+          <span class="set-range-ends" aria-hidden="true"><span>Short</span><span>Long</span></span>
+        </div>
+      </div>
+      <button type="button" class="set-link" data-page="mSetPf" id="pfInstLink">
+        <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 20V9l7-4 7 4v11"/><path d="M9 20v-5h6v5"/></svg></span><span class="tx"><span class="nm">Instruments</span><span class="sub" id="sumPf"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
       </button>
     </div>
   </div>
@@ -2727,6 +2857,19 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
     <div class="set-sub">Between pieces</div>
     <div class="set-card" id="czActsRest"></div>
     <p class="pd-hint set-note">Furniture he no longer needs leaves his room, and the rest moves together. He always keeps at least one thing to do.</p>
+  </div>
+</div>
+
+<div class="panel subpage setpage" id="mSetPf" aria-label="Performance instruments">
+  <div class="panel-head">
+    <button class="linkbtn" data-back>Back</button>
+    <h3>Instruments</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="edge" aria-hidden="true"></div>
+  <div class="plist pdash">
+    <div class="set-card" id="pfInst"></div>
+    <p class="pd-hint set-note">Players whose instruments are off stay home, and the rest of the band closes up. There’s always at least one on stage.</p>
   </div>
 </div>
 
@@ -3367,6 +3510,8 @@ function fault(text, el){
   if(el) nudge(el);
   document.documentElement.classList.add('faulted');
   const st = $('.lib-head .staff'); if(st) replayClass(st, 'sour', 1400);
+  try{ if(czMain.alive) czMain.sour(); }catch(e){}   // before the composer is set up, nothing to twang
+  try{ if(pfMain.alive) pfMain.sour(); }catch(e){}
   renderFaults();
 }
 function renderFaults(){
@@ -8129,7 +8274,9 @@ const PREFS_DEF = { exitSide:'left', folderPlace:'top', folderAlways:false, manu
   plAbout:true, plOwnTitle:true, plNotes:true, plFile:true, plProgress:true, plLevel:true, plPin:true,
   plSections:true, plAboutLink:true,
   // the settings easter egg
-  composer:false, composerHead:'wig', composerOff:[] };
+  composer:false, composerHead:'wig', composerOff:[], composerPace:50,
+  // the other easter egg (only one of the two is ever on)
+  perform:false, performCrowd:'few', performOff:[], performLen:50, performConductor:'beethoven' };
 let PREFS = null;
 function pref(k){
   if(!PREFS){ try{ PREFS = JSON.parse(localStorage.getItem('stand.prefs') || '{}') || {}; }catch(e){ PREFS = {}; } }
@@ -14579,7 +14726,16 @@ function syncSettings(){
   $('#setFolderPlaceRow').classList.toggle('off', manualOnly());   // nothing to sort, so nothing to place
   $('#setComposer').setAttribute('aria-checked', String(!!pref('composer')));
   $('#czHeadRow').classList.toggle('off', !pref('composer'));
+  $('#czPaceRow').classList.toggle('off', !pref('composer'));
+  czPaceShow();
   $('#czActsLink').classList.toggle('off', !pref('composer'));
+  const pf = !!pref('perform');
+  $('#setPerform').setAttribute('aria-checked', String(pf));
+  $('#pfCondRow').classList.toggle('off', !pf);
+  $('#pfCrowdRow').classList.toggle('off', !pf);
+  $('#pfLenRow').classList.toggle('off', !pf);
+  $('#pfInstLink').classList.toggle('off', !pf);
+  pfLenShow();
   czSyncActs();
   syncBackupStatus();
 }
@@ -14634,6 +14790,8 @@ document.querySelectorAll('.setpage .set-seg').forEach(seg => seg.addEventListen
   if(k === 'plDensity' || k === 'plWrap') applyListLook();
   if(k === 'folderPlace' || k === 'exitSide') renderAll();
   if(k === 'composerHead') czHead();
+  if(k === 'performCrowd') pfRestart();
+  if(k === 'performConductor' && pfReady) for(const c of [pfMain, pfPrev]) c.setConductor();
   syncSettings();
 }));
 $('#bkNow').addEventListener('click', backupLibrary);
@@ -14657,8 +14815,11 @@ $('#bkCancel').addEventListener('click', closeBackupCard);
 
    Everything is one small SVG per host, drawn procedurally: the figure is a
    two-bone IK rig (hips, shoulders, knees, elbows) posed by each activity as
-   a pure function of time, so poses blend cleanly in and out. It only runs
-   while its host is actually on screen, at ~30 fps. */
+   a pure function of time, so poses blend cleanly in and out, with springy
+   follow-through layered on top. A pen draws his room in, a stage light
+   follows him, and the staff line he stands on is a string that answers his
+   steps. Tap him and he hops; tap three times and he bows. It only runs while
+   its host is actually on screen, at up to 60 fps. */
 const CZ = (() => {
 const NS = 'http://www.w3.org/2000/svg';
 const TAU = Math.PI * 2;
@@ -14734,13 +14895,15 @@ function headOf(p){
   const nk = [p.hip[0] + Math.sin(p.lean) * L.to, p.hip[1] - Math.cos(p.lean) * L.to], a = p.lean + p.head;
   return { c:[nk[0] + Math.sin(a) * L.nk, nk[1] - Math.cos(a) * L.nk], a };
 }
+const ZDEF = { zn:1.9, zf:-1.9 };   // hand depths, when a pose doesn't set them
 function blend(a, b, k){
   if(k <= 0) return a; if(k >= 1) return b;
   const o = {};
   for(const key in a){
-    const va = a[key], vb = key in b ? b[key] : va;
+    const va = a[key], vb = key in b ? b[key] : key in ZDEF ? ZDEF[key] : va;
     o[key] = Array.isArray(va) ? mix(va, vb, k) : lerp(va, vb, k);
   }
+  for(const key in b) if(!(key in o) && key in ZDEF) o[key] = lerp(ZDEF[key], b[key], k);
   return o;
 }
 
@@ -14770,6 +14933,76 @@ function layoutRoom(acts = ACTS){
   return { list:out, W:cur - GAP };
 }
 
+/* The figure: the same little rig for the resident composer and for every
+   musician on the performance stage. Builds self.lay (drawing layers) and self.f. */
+function makeRig(self){
+  self.lay = {};
+  for(const n of ['back', 'farLeg', 'farArm', 'mid', 'coat', 'nearLeg', 'pre', 'head', 'nearArm', 'top']){
+    const e = mk('g', { class:'cz-' + n }, self.actor);
+    self.lay[n] = ['back', 'mid', 'pre', 'top'].includes(n) ? { sk:mk('g', {}, e), dy:mk('g', {}, e) } : e;
+  }
+  const F = self.f = {};
+  // limbs are outlined tubes: a dark stroke with a narrower cloth-coloured one on top,
+  // so knees and elbows join cleanly at any angle
+  const legSet = par => ({ thO:mk('path', { class:'cz-o cz-thO' }, par), shO:mk('path', { class:'cz-o cz-shO' }, par),
+    shI:mk('path', { class:'cz-stock cz-shI' }, par), thI:mk('path', { class:'cz-i cz-thI' }, par),
+    shoe:mk('path', { class:'cz-shoe' }, par), buckle:mk('circle', { class:'cz-buckle', r:.34 }, par) });
+  const armSet = par => ({ uO:mk('path', { class:'cz-o cz-uaO' }, par), fO:mk('path', { class:'cz-o cz-faO' }, par),
+    uI:mk('path', { class:'cz-i cz-uaI' }, par), fI:mk('path', { class:'cz-i cz-faI' }, par),
+    cO:mk('path', { class:'cz-o cz-cfO' }, par), cI:mk('path', { class:'cz-lace cz-cfI' }, par),
+    hand:mk('circle', { class:'cz-hand', r:.82 }, par) });
+  self.lay.farLeg.classList.add('cz-farpart'); self.lay.farArm.classList.add('cz-farpart');
+  F.farLeg = legSet(self.lay.farLeg);
+  F.farArm = armSet(self.lay.farArm);
+  F.coat     = mk('path', { class:'cz-body cz-coat' }, self.lay.coat);
+  F.lapel    = mk('path', { class:'cz-line cz-fine' }, self.lay.coat);
+  F.buttons  = mk('path', { class:'cz-buttons' }, self.lay.coat);
+  F.pocket   = mk('path', { class:'cz-line cz-fine' }, self.lay.coat);
+  F.jabot    = mk('path', { class:'cz-lacefill cz-jabot' }, self.lay.coat);
+  F.nearLeg = legSet(self.lay.nearLeg);
+  F.head     = mk('g', {}, self.lay.head);
+  F.hp       = mk('g', {}, F.head);   // in profile
+  // seen from the front, for the middle of a turn: the wig (or mane) frames the face
+  F.hf       = mk('g', { style:'opacity:0' }, F.head);
+  mk('circle', { class:'cz-hair cz-bunpart', cy:-4.5, r:1.45 }, F.hf);
+  mk('circle', { class:'cz-skin', r:3.45 }, F.hf);
+  mk('path', { class:'cz-hair cz-bunpart', d:'M-3.55 -.1C-3.9 -2.8 -2.15 -4.35 0 -4.35C2.15 -4.35 3.9 -2.8 3.55 -.1C2.95 -1.65 1.75 -2.5 0 -2.5C-1.75 -2.5 -2.95 -1.65 -3.55 -.1Z' }, F.hf);
+  F.feat     = mk('g', {}, F.hf);
+  F.eyesF    = mk('path', { class:'cz-eyes', d:'M-1.2 -.55m-.42 0a.42 .42 0 1 0 .84 0a.42 .42 0 1 0 -.84 0M1.2 -.55m-.42 0a.42 .42 0 1 0 .84 0a.42 .42 0 1 0 -.84 0' }, F.feat);
+  F.lidsF    = mk('path', { class:'cz-line cz-fine', d:'M-1.7 -.5q.5 .35 1 0M.7 -.5q.5 .35 1 0', style:'opacity:0' }, F.feat);
+  mk('path', { class:'cz-line cz-hair', d:'M.05 -.05l.3 .95l-.45 .05' }, F.feat);
+  mk('path', { class:'cz-line cz-hair', d:'M-.65 1.85q.65 .3 1.3 0' }, F.feat);
+  mk('path', { class:'cz-line cz-brow cz-beetpart', d:'M-2.05 -1.6L-.7 -1.25M2.05 -1.6L.7 -1.25' }, F.feat);
+  mk('path', { class:'cz-hair cz-wigpart', d:'M-3.6 .3C-3.95 -2.6 -2.2 -4.55 0 -4.55C2.2 -4.55 3.95 -2.6 3.6 .3C3.05 -1.25 1.8 -2.25 0 -2.25C-1.8 -2.25 -3.05 -1.25 -3.6 .3Z' }, F.hf);
+  for(const x of [-1, 1]) for(const [y, rx, ry] of [[-.75, .72, .88], [1, .82, 1.05]]) mk('ellipse', { class:'cz-hair cz-wigpart', cx:x * 3.55, cy:y, rx, ry }, F.hf);
+  mk('path', { class:'cz-strand cz-wigpart', d:'M-3.55 -.75m-.35 0q.35 -.5 .7 0M3.55 -.75m-.35 0q.35 -.5 .7 0M-3.55 1m-.4 0q.4 -.6 .8 0M3.55 1m-.4 0q.4 -.6 .8 0' }, F.hf);
+  mk('path', { class:'cz-hair cz-beetpart', d:'M-3.75 2.7Q-5.7 1 -4.85 -1.3Q-5.7 -3.55 -3.35 -4.65Q-1.85 -6.35 0 -5.45Q1.85 -6.35 3.35 -4.65Q5.7 -3.55 4.85 -1.3Q5.7 1 3.75 2.7Q3.85 .2 2.85 -1.2Q1.6 -2.45 0 -2.05Q-1.6 -2.45 -2.85 -1.2Q-3.85 .2 -3.75 2.7Z' }, F.hf);
+  mk('path', { class:'cz-strand cz-beetpart', d:'M-1 -4.4q-1.4 .6 -2.3 2M1 -4.4q1.4 .6 2.3 2M0 -4.85v1.5M-3.9 -1.4q-.6 1.2 -.3 2.6M3.9 -1.4q.6 1.2 .3 2.6' }, F.hf);
+  // Mozart: a powdered periwig with side rolls, the queue tied with a ribbon
+  F.queue    = mk('path', { class:'cz-hairline cz-wigpart', d:'M-3.35 1.6q-1.1 1 -1.9 3.1' }, F.hp);
+  F.ribbon   = mk('path', { class:'cz-acc cz-ribbon cz-wigpart', d:'M-3.9 2.3q-1.5 -1.3 -1.8 .1q.1 .9 1.8 -.1q-.1 1.8 -1.3 1.8q-.9 -.3 1.3 -1.8' }, F.hp);
+  // a bun, for some of the musicians on the performance stage (hidden for the composer)
+  mk('circle', { class:'cz-hair cz-bunpart', cx:-3.9, cy:-2.2, r:1.65 }, F.hp);
+  F.face     = mk('path', { class:'cz-skin', d:'M3.5 -.9L4.45 .45L3.28 1.12A3.55 3.55 0 1 1 3.5 -.9Z' }, F.hp);
+  F.mouth    = mk('path', { class:'cz-line cz-hair', d:'M3.3 1.95l-.75 .12' }, F.hp);
+  F.wig      = mk('path', { class:'cz-hair cz-wigpart', d:'M2.55 -2.55C1.9 -4.35 -1.3 -4.95 -3.3 -3.35C-4.75 -2.2 -4.75 .3 -3.8 1.95C-3.1 2.35 -2.5 2.2 -2.2 1.7C-1.4 1.4 -1 .7 -1.3 .1C-1.5 -.8 -.9 -1.9 .3 -2.2C1.1 -2.4 1.9 -2.2 2.55 -2.55Z' }, F.hp);
+  F.rolls    = mk('path', { class:'cz-strand cz-wigpart', d:'M-3.55 1.1q-.2 -1 .8 -1.1q.8 0 .7 .75M-3.75 -.75q-.1 -1 .9 -1q.8 .05 .65 .8M-1.2 -3.35q1.1 -.6 2.3 -.35' }, F.hp);
+  // Beethoven: the storm of hair, over the head so it's solid all the way through
+  F.mane     = mk('path', { class:'cz-hair cz-beetpart', d:'M2.75 -2.3C2.9 -3.4 2.4 -4.5 1.2 -5Q1.3 -5.9 .3 -5.9Q-.9 -6.7 -2.3 -5.9Q-3.9 -6.3 -4.8 -4.9Q-6.4 -4.5 -6.2 -2.9Q-7.3 -1.9 -6.5 -.6Q-7.2 .8 -5.9 1.5Q-6 3 -4.4 3.1Q-3.4 3.5 -2.7 2.6C-2.1 1.7 -1.4 1.2 -1.35 .3C-1.3 -.7 -.8 -1.5 .1 -1.85C.8 -2.1 1.4 -1.8 1.8 -2.25Q2.2 -1.95 2.75 -2.3Z' }, F.hp);
+  F.strands  = mk('path', { class:'cz-strand cz-beetpart', d:'M.8 -4.3q-1.6 -.4 -3 .6M-.6 -3q-2 .1 -3.4 1.9M-2.4 -1.2q-1.4 .7 -2.2 2.4M-4.6 -3.6q-.9 .5 -1.1 1.4' }, F.hp);
+  mk('path', { class:'cz-hair cz-bunpart', d:'M2.6 -2.5C1.9 -4.45 -1.45 -4.95 -3.35 -3.3C-4.55 -2.2 -4.55 -.1 -3.65 1.45C-2.95 1.25 -2.35 .55 -2.2 -.3C-1.85 -1.4 -.95 -2.05 .35 -2.2C1.2 -2.35 2 -2.15 2.6 -2.5Z' }, F.hp);
+  mk('path', { class:'cz-strand cz-bunpart', d:'M-4.9 -2.3q.95 -.9 1.9 .1M-1.1 -3.45q1.1 -.5 2.3 -.25' }, F.hp);
+  F.brow     = mk('path', { class:'cz-line cz-brow cz-beetpart', d:'M1.05 -1.7L2.7 -1.25' }, F.hp);
+  F.eye      = mk('circle', { class:'cz-eye', cx:1.8, cy:-.8, r:.44 }, F.hp);
+  F.lid      = mk('path', { class:'cz-line cz-fine', d:'M1.2 -.75q.6 .45 1.2 0', style:'opacity:0' }, F.hp);
+  F.nearArm = armSet(self.lay.nearArm);
+  // his pocket watch, for idle moments: the chain runs back to the waistcoat pocket
+  F.watch    = mk('g', { style:'opacity:0' }, self.lay.top.sk);
+  F.chain    = mk('path', { class:'cz-chain' }, F.watch);
+  F.dial     = mk('g', {}, F.watch);
+  mk('circle', { class:'cz-watchface', r:1.05 }, F.dial);
+  F.hands    = mk('path', { class:'cz-watch' }, F.dial);
+}
 class Composer {
   constructor(host, opts){
     this.host = host; this.o = opts || {};
@@ -14778,60 +15011,60 @@ class Composer {
     this.gid = 'czg' + id; this.mid = 'czm' + id;
     const defs = mk('defs', {}, this.svg), rg = mk('radialGradient', { id:this.gid }, defs);
     mk('stop', { offset:'0', class:'cz-g0' }, rg); mk('stop', { offset:'1', class:'cz-g1' }, rg);
+    const pgr = mk('radialGradient', { id:'czp' + id }, defs);
+    for(const [o, c] of [[0, 'cz-p0'], [.4, 'cz-p1'], [1, 'cz-p2']]) mk('stop', { offset:o, class:c }, pgr);
+    const sg = mk('radialGradient', { id:'czs' + id }, defs);
+    for(const [o, c] of [[0, 'cz-s0'], [.55, 'cz-s1'], [1, 'cz-s2']]) mk('stop', { offset:o, class:c }, sg);
     this.fade = mk('linearGradient', { id:'czf' + id, gradientUnits:'userSpaceOnUse', x1:0, x2:100, y1:0, y2:0 }, defs);
     this.stops = [0, 1, 2, 3].map(i => mk('stop', { offset:[0, .1, .9, 1][i], 'stop-color':'#fff', 'stop-opacity':i % 3 ? 1 : 0 }, this.fade));
     const mask = this.mask = mk('mask', { id:this.mid, maskUnits:'userSpaceOnUse' }, defs);
     this.maskRect = mk('rect', { fill:`url(#czf${id})` }, mask);
+    this.strEl = mk('path', { class:'cz-staffline' }, this.svg);   // the top staff line, as a string
     this.view = mk('g', { mask:`url(#${this.mid})` }, this.svg);
+    this.sky = mk('g', { class:'cz-sky' }, this.view);   // stars stay put while the stage window drifts
     this.cam = mk('g', {}, this.view);
+    this.spot = mk('ellipse', { class:'cz-spot', rx:27, ry:23, cy:-15, style:`fill:url(#czs${id});opacity:0` }, this.cam);
     this.roomG = mk('g', { class:'cz-room' }, this.cam);
     this.actor = mk('g', { class:'cz-actor' }, this.cam);
+    // a freshly written page, carried from the desk to the piano or the podium stand
+    this.page = mk('g', { class:'cz-page', style:'opacity:0' }, this.cam);
+    mk('path', { class:'cz-ink cz-fill cz-fine', d:'M-1.45 -2.05H1.45V2.05H-1.45Z' }, this.page);
+    mk('path', { class:'cz-far cz-hair', d:'M-.95 -1.25H.95M-.95 -.45H.95M-.95 .35H.95M-.95 1.15H.95' }, this.page);
+    for(const [x, y] of [[-.55, -1.05], [0, -.62], [.5, -1.3], [-.3, .52], [.35, .2]]) mk('circle', { class:'cz-dot', cx:x, cy:y, r:.26 }, this.page);
     this.fx = mk('g', { class:'cz-fx' }, this.cam);
-    this.lay = {};
-    for(const n of ['back', 'farLeg', 'farArm', 'mid', 'coat', 'nearLeg', 'pre', 'head', 'nearArm', 'top']){
-      const e = mk('g', { class:'cz-' + n }, this.actor);
-      this.lay[n] = ['back', 'mid', 'pre', 'top'].includes(n) ? { sk:mk('g', {}, e), dy:mk('g', {}, e) } : e;
-    }
-    const F = this.f = {};
-    // limbs are outlined tubes: a dark stroke with a narrower cloth-coloured one on top,
-    // so knees and elbows join cleanly at any angle
-    const legSet = par => ({ thO:mk('path', { class:'cz-o cz-thO' }, par), shO:mk('path', { class:'cz-o cz-shO' }, par),
-      shI:mk('path', { class:'cz-stock cz-shI' }, par), thI:mk('path', { class:'cz-i cz-thI' }, par),
-      shoe:mk('path', { class:'cz-shoe' }, par), buckle:mk('circle', { class:'cz-buckle', r:.34 }, par) });
-    const armSet = par => ({ uO:mk('path', { class:'cz-o cz-uaO' }, par), fO:mk('path', { class:'cz-o cz-faO' }, par),
-      uI:mk('path', { class:'cz-i cz-uaI' }, par), fI:mk('path', { class:'cz-i cz-faI' }, par),
-      cO:mk('path', { class:'cz-o cz-cfO' }, par), cI:mk('path', { class:'cz-lace cz-cfI' }, par),
-      hand:mk('circle', { class:'cz-hand', r:.82 }, par) });
-    this.lay.farLeg.classList.add('cz-farpart'); this.lay.farArm.classList.add('cz-farpart');
-    F.farLeg = legSet(this.lay.farLeg);
-    F.farArm = armSet(this.lay.farArm);
-    F.coat     = mk('path', { class:'cz-body cz-coat' }, this.lay.coat);
-    F.lapel    = mk('path', { class:'cz-line cz-fine' }, this.lay.coat);
-    F.buttons  = mk('path', { class:'cz-buttons' }, this.lay.coat);
-    F.pocket   = mk('path', { class:'cz-line cz-fine' }, this.lay.coat);
-    F.jabot    = mk('path', { class:'cz-lacefill cz-jabot' }, this.lay.coat);
-    F.nearLeg = legSet(this.lay.nearLeg);
-    F.head     = mk('g', {}, this.lay.head);
-    // Mozart: a powdered periwig with side rolls, the queue tied with a ribbon
-    F.queue    = mk('path', { class:'cz-hairline cz-wigpart', d:'M-3.35 1.6q-1.1 1 -1.9 3.1' }, F.head);
-    F.ribbon   = mk('path', { class:'cz-acc cz-ribbon cz-wigpart', d:'M-3.9 2.3q-1.5 -1.3 -1.8 .1q.1 .9 1.8 -.1q-.1 1.8 -1.3 1.8q-.9 -.3 1.3 -1.8' }, F.head);
-    F.face     = mk('path', { class:'cz-skin', d:'M3.5 -.9L4.45 .45L3.28 1.12A3.55 3.55 0 1 1 3.5 -.9Z' }, F.head);
-    F.mouth    = mk('path', { class:'cz-line cz-hair', d:'M3.3 1.95l-.75 .12' }, F.head);
-    F.wig      = mk('path', { class:'cz-hair cz-wigpart', d:'M2.55 -2.55C1.9 -4.35 -1.3 -4.95 -3.3 -3.35C-4.75 -2.2 -4.75 .3 -3.8 1.95C-3.1 2.35 -2.5 2.2 -2.2 1.7C-1.4 1.4 -1 .7 -1.3 .1C-1.5 -.8 -.9 -1.9 .3 -2.2C1.1 -2.4 1.9 -2.2 2.55 -2.55Z' }, F.head);
-    F.rolls    = mk('path', { class:'cz-strand cz-wigpart', d:'M-3.55 1.1q-.2 -1 .8 -1.1q.8 0 .7 .75M-3.75 -.75q-.1 -1 .9 -1q.8 .05 .65 .8M-1.2 -3.35q1.1 -.6 2.3 -.35' }, F.head);
-    // Beethoven: the storm of hair, over the head so it's solid all the way through
-    F.mane     = mk('path', { class:'cz-hair cz-beetpart', d:'M2.75 -2.3C2.9 -3.4 2.4 -4.5 1.2 -5Q1.3 -5.9 .3 -5.9Q-.9 -6.7 -2.3 -5.9Q-3.9 -6.3 -4.8 -4.9Q-6.4 -4.5 -6.2 -2.9Q-7.3 -1.9 -6.5 -.6Q-7.2 .8 -5.9 1.5Q-6 3 -4.4 3.1Q-3.4 3.5 -2.7 2.6C-2.1 1.7 -1.4 1.2 -1.35 .3C-1.3 -.7 -.8 -1.5 .1 -1.85C.8 -2.1 1.4 -1.8 1.8 -2.25Q2.2 -1.95 2.75 -2.3Z' }, F.head);
-    F.strands  = mk('path', { class:'cz-strand cz-beetpart', d:'M.8 -4.3q-1.6 -.4 -3 .6M-.6 -3q-2 .1 -3.4 1.9M-2.4 -1.2q-1.4 .7 -2.2 2.4M-4.6 -3.6q-.9 .5 -1.1 1.4' }, F.head);
-    F.brow     = mk('path', { class:'cz-line cz-brow cz-beetpart', d:'M1.05 -1.7L2.7 -1.25' }, F.head);
-    F.eye      = mk('circle', { class:'cz-eye', cx:1.8, cy:-.8, r:.44 }, F.head);
-    F.lid      = mk('path', { class:'cz-line cz-fine', d:'M1.2 -.75q.6 .45 1.2 0', style:'opacity:0' }, F.head);
-    F.nearArm = armSet(this.lay.nearArm);
-    this.hit = mk('rect', { class:'cz-hit', x:-7, y:-40, width:14, height:41 }, this.actor);
-    this.hit.addEventListener('pointerdown', e => { e.stopPropagation(); this.poke(); });
+    this.daze = mk('g', { style:'opacity:0' }, this.cam);   // little stars round his head after a hard landing
+    this.dazeS = [0, 1, 2].map(() => mk('path', { class:'cz-daze', d:'M0 -1.05L.3 -.3L1.05 0L.3 .3L0 1.05L-.3 .3L-1.05 0L-.3 -.3Z' }, this.daze));
+    this.pen = mk('g', { class:'cz-pen', style:'opacity:0' }, this.cam);
+    mk('circle', { class:'cz-glow', r:4.2, style:`fill:url(#czp${id})` }, this.pen);
+    mk('circle', { class:'cz-nib', r:.62 }, this.pen);
+    makeRig(this);
+    this.hit = mk('rect', { class:'cz-hit', x:-8, y:-41, width:16, height:42 }, this.actor);
+    // a tap says hello; press and drag to pick him up by the collar
+    this.hit.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      if(!this.room || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      this.grab = { id:e.pointerId, x0:e.clientX, y0:e.clientY, cx:e.clientX, cy:e.clientY, on:false };
+      try{ this.hit.setPointerCapture(e.pointerId); }catch(err){}
+    });
+    this.hit.addEventListener('pointermove', e => {
+      const g = this.grab; if(!g || e.pointerId !== g.id) return;
+      g.cx = e.clientX; g.cy = e.clientY;
+      if(!g.on && !this.reduced.matches && Math.hypot(g.cx - g.x0, g.cy - g.y0) > 7) this.pickUp();
+    });
+    const let_ = e => {
+      const g = this.grab; if(!g || e.pointerId !== g.id) return;
+      this.grab = null;
+      if(g.on) this.letGo(); else if(e.type === 'pointerup') this.poke();
+    };
+    this.hit.addEventListener('pointerup', let_); this.hit.addEventListener('pointercancel', let_);
+    this.hit.addEventListener('touchstart', e => e.preventDefault(), { passive:false });   // no page scroll from under him
 
     this.t = 0; this.x = 0; this.dir = 1; this.face = 1; this.camX = 0;
     this.st = 'idle'; this.stT = 0; this.act = null; this.recent = []; this.parts = []; this.hop = 0; this.ph = 0;
     this.room = null; this.zt = 0;
+    this.spr = { tw:0, tv:0, ln:0, lv:0 }; this.lx = null; this.ride = 0;
+    this.spotX = 0; this.spotA = 0; this.flare = 0; this.taps = []; this.fid = null; this.hum = 3; this.hopH = 3.2;
+    this.liftY = 0; this.swing = null; this.grab = null; this.greeted = false; this.pendingGreet = null; this.glance = null;
     this.reduced = matchMedia('(prefers-reduced-motion: reduce)');
     this.setHead('wig');
     this.resize();
@@ -14844,7 +15077,71 @@ class Composer {
     const s = typeof o === 'function' ? o(r.width) : o || 1;   // scale: a bigger figure, same drawing
     this.W = Math.max(40, r.width / s); this.H = Math.max(30, r.height / s);
     this.svg.setAttribute('viewBox', `0 ${n2(-this.H)} ${n2(this.W)} ${n2(this.H)}`);
+    this.s = s;
     this.zoneNow();
+    this.initString();
+  }
+  /* ---- late at night, stars and a crescent moon over his room, which dims around the candle ---- */
+  buildSky(){
+    this.sky.replaceChildren(); this.stars = null;
+    this.roomG.style.opacity = this.night ? .8 : '';
+    if(!this.night || !this.H) return;
+    const a = this.za + 4, b = this.zb - 4, top = -this.H + 4, low = -40;
+    if(low - top < 6) return;
+    const r = rng(((b - a) * 97) | 0), n = Math.round((b - a) / 20);
+    this.stars = [];
+    for(let i = 0; i < n; i++){
+      const x = a + r() * (b - a), y = lerp(top, low, Math.pow(r(), 1.4)), big = r() < .22;
+      const e = mk('path', { class:'cz-star', d:big ? 'M0 -1.1L.25 -.25L1.1 0L.25 .25L0 1.1L-.25 .25L-1.1 0L-.25 -.25Z' : 'M-.46 0a.46 .46 0 1 0 .92 0a.46 .46 0 1 0 -.92 0Z', transform:`translate(${P(x, y)})` }, this.sky);
+      this.stars.push({ e, w:.6 + r() * 1.6, ph:r() * TAU, o:.5 + r() * .5 });
+    }
+    const mx = a + (b - a) * (.62 + r() * .3), my = top + 5.5;
+    mk('circle', { class:'cz-glow', cx:n2(mx), cy:n2(my), r:7, style:`fill:url(#${this.gid});opacity:.5` }, this.sky);
+    mk('path', { class:'cz-moon', d:'M.9 -2.55A2.7 2.7 0 1 0 .9 2.55A2.15 2.15 0 0 1 .9 -2.55Z', transform:`translate(${P(mx, my)}) rotate(-20) scale(1.25)` }, this.sky);
+  }
+  twinkle(){ for(const s of this.stars) s.e.style.opacity = n2(s.o * (.55 + .45 * Math.sin(this.t * s.w + s.ph))); }
+  /* the pendulum he makes when held by the collar (and how it settles as he falls) */
+  pend(dt, ax, w2, damp){
+    const S = this.swing || (this.swing = { a:0, v:0 }), n = Math.ceil(dt / .008), q = dt / n;
+    for(let i = 0; i < n; i++){ S.v += (-w2 * Math.sin(S.a) - damp * S.v + clamp(ax, -2500, 2500) / 36 * Math.cos(S.a)) * q; S.a = clamp(S.a + S.v * q, -.7, .7); }
+  }
+  /* ---- the staff line as a string: a damped 1-D wave on a light elastic bed (so it
+     always springs back flat), only simulated while it moves ---- */
+  initString(){
+    const n = Math.max(8, Math.ceil(this.W / 2) + 1);
+    this.sN = n; this.sDx = this.W / (n - 1); this.sY = new Float32Array(n); this.sV = new Float32Array(n); this.sE = 0;
+    this.drawString();
+  }
+  pluck(rx, amp, w = 2.6){   // rx in room units; amp is roughly the dip in px, down is positive
+    if(this.reduced.matches || !this.sY || !this.room) return;
+    const hx = rx + this.za - this.camX, s = this.s || 1;
+    for(let i = 1; i < this.sN - 1; i++){ const d = (i * this.sDx - hx) / w; if(d > -3 && d < 3) this.sV[i] += amp * 80 / s * Math.exp(-d * d); }
+    this.sE = 1;
+  }
+  thump(lx, amp){ this.pluck(this.x + this.face * lx, amp); }
+  sour(){ if(!this.room) return; for(let i = 0; i < 3; i++) this.pluck(this.W * (.2 + .3 * i) - this.za + this.camX, 1.4); this.flare = .6; }
+  stepString(dt){
+    if(!this.sE) return;
+    const n = this.sN, y = this.sY, v = this.sV, c2 = (170 / this.sDx) ** 2, sub = Math.ceil(dt / .004), h = dt / sub;
+    for(let k = 0; k < sub; k++){
+      for(let i = 1; i < n - 1; i++) v[i] += (c2 * (y[i - 1] - 2 * y[i] + y[i + 1]) - 520 * y[i] - 6 * v[i]) * h;
+      for(let i = 1; i < n - 1; i++) y[i] += v[i] * h;
+    }
+    let m = 0; for(let i = 0; i < n; i++) m = Math.max(m, Math.abs(y[i]), Math.abs(v[i]) * .02);
+    if(m < .004){ y.fill(0); v.fill(0); this.sE = 0; }
+    this.drawString();
+  }
+  drawString(){
+    const o = .5 / (this.s || 1);   // the line's centre, half a pixel below the top of the staff
+    if(!this.sE){ this.strEl.setAttribute('d', `M0 ${n2(o)}H${n2(this.W)}`); return; }
+    let d = 'M0 ' + n2(o);
+    for(let i = 1; i < this.sN; i++) d += 'L' + n2(i * this.sDx) + ' ' + (Math.round((this.sY[i] + o) * 1000) / 1000);
+    this.strEl.setAttribute('d', d);
+  }
+  strAt(rx){
+    if(!this.sE) return 0;
+    const u = clamp((rx + this.za - this.camX) / this.sDx, 0, this.sN - 1.001), i = Math.floor(u);
+    return lerp(this.sY[i], this.sY[i + 1], u - i);
   }
   zoneNow(){
     const z = this.o.zone ? this.o.zone(this) : [6, this.W - 6];
@@ -14871,46 +15168,192 @@ class Composer {
       };
       s.R = s.def.room(c) || {};
     }
-    // sketch it in, left to right like a pen crossing the page
-    const quick = this.reduced.matches;
-    for(const s of L.list){
-      s.g.querySelectorAll('.cz-sk').forEach((p, i) => {
-        if(quick){ p.classList.add('in', 'now'); return; }
-        p.style.transitionDelay = n2(.1 + 1.3 * (s.lo / L.W) + i * .035) + 's';
-      });
+    return this.sketch();
+  }
+  /* A single pen draws the room, stroke after stroke, left to right: its nib
+     glows, fresh ink is the accent colour and dries to pencil a moment later,
+     and between strokes the pen lifts and glides to where the next one starts. */
+  sketch(){
+    const paths = [...this.roomG.querySelectorAll('.cz-sk')];
+    this.sk = null;
+    if(this.reduced.matches){ paths.forEach(p => p.classList.add('in', 'now')); return 0; }
+    const toRoom = p => {   // path coords -> room coords, from the transforms between them
+      let m = new DOMMatrix();
+      for(let e = p; e && e !== this.roomG; e = e.parentNode){
+        const tl = e.transform && e.transform.baseVal;
+        if(tl && tl.numberOfItems){ const c = tl.consolidate().matrix; m = new DOMMatrix([c.a, c.b, c.c, c.d, c.e, c.f]).multiply(m); }
+      }
+      return m;
+    };
+    for(const s of this.room.list) s.g.classList.add('cz-dark');   // before measuring, which settles styles
+    const lens = paths.map(p => { try{ return p.getTotalLength(); }catch(e){ return 10; } });
+    const total = lens.reduce((a, b) => a + b, 0), v = Math.max(150, total / 3.1);
+    const list = []; let T = .45, pos = null;
+    paths.forEach((p, i) => {
+      const e = { p, m:toRoom(p), L:lens[i], st:this.room.list.find(q => q.g.contains(p)) };
+      e.a = this.skPt(e, 0); e.b = this.skPt(e, e.L);
+      if(pos) T += Math.min(.2, .03 + len(sub(e.a, pos)) / (v * 3.4));
+      e.t0 = T; e.t1 = T + Math.max(.05, e.L / v); T = e.t1; pos = e.b;
+      p.classList.add('pen'); p.style.strokeDashoffset = 1;
+      list.push(e);
+    });
+    // however much furniture there is, the drawing takes about three and a half seconds
+    const f = Math.min(1, 3.1 / (T - .45));
+    for(const e of list){ e.t0 = .45 + (e.t0 - .45) * f; e.t1 = .45 + (e.t1 - .45) * f; }
+    T = .45 + (T - .45) * f;
+    this.sk = { list, T:0, i:0, end:T, dry:[] };
+    return T;
+  }
+  skPt(e, l){ let q; try{ q = e.p.getPointAtLength(clamp(l, 0, e.L)); }catch(err){ q = { x:0, y:0 }; } const r = e.m.transformPoint(new DOMPoint(q.x, q.y)); return [r.x, r.y]; }
+  tickSketch(dt){
+    const K = this.sk; if(!K) return;
+    K.T += dt;
+    for(let j = K.dry.length - 1; j >= 0; j--) if(K.T > K.dry[j].at){ K.dry[j].p.classList.remove('wet'); K.dry.splice(j, 1); }
+    let tip = null, lift = 0;
+    while(K.i < K.list.length){
+      const e = K.list[K.i];
+      if(K.T < e.t0){   // between strokes: the pen glides, lifted, to the next start
+        const prev = K.list[K.i - 1], from = prev ? prev.b : add(e.a, [-6, -8]), g0 = prev ? prev.t1 : 0;
+        const u = ss((K.T - g0) / Math.max(.01, e.t0 - g0));
+        lift = Math.sin(Math.PI * u); tip = add(mix(from, e.a, u), [0, -2.2 * lift]);
+        break;
+      }
+      const k = clamp((K.T - e.t0) / (e.t1 - e.t0), 0, 1), q = lerp(k, ss(k), .55);
+      if(!e.wet){ e.wet = true; e.p.classList.add('wet'); }
+      if(k >= 1){
+        e.p.style.strokeDashoffset = ''; e.p.classList.add('in');
+        K.dry.push({ p:e.p, at:K.T + .25 }); K.i++;
+        const nx = K.list[K.i];
+        if(e.st && (!nx || nx.st !== e.st)) e.st.g.classList.remove('cz-dark');   // that piece is finished: light its candle
+        continue;
+      }
+      e.p.style.strokeDashoffset = Math.round((1 - q) * 1e4) / 1e4;
+      tip = this.skPt(e, q * e.L);
+      break;
     }
-    if(!quick) requestAnimationFrame(() => requestAnimationFrame(() => this.roomG.querySelectorAll('.cz-sk').forEach(p => p.classList.add('in'))));
+    if(tip){
+      this.pen.setAttribute('transform', `translate(${P(...tip)}) scale(${n2(1 - .25 * lift)})`);
+      this.pen.style.opacity = n2(Math.min(1, K.T / .3) * (1 - .45 * lift));
+    } else this.pen.style.opacity = n2(Math.max(0, 1 - (K.T - K.end) / .35));
+    if(K.T > K.end + 1.6 && !K.dry.length){
+      for(const e of K.list) e.p.classList.remove('pen', 'wet');
+      for(const s of this.room.list) s.g.classList.remove('cz-dark');
+      this.pen.style.opacity = 0; this.sk = null;
+    }
   }
   /* ---- on and off ---- */
   start(){
     this.resize();
-    this.buildRoom();
+    this.skDur = this.buildRoom();
     this.clearSession(); this.clearParts();
     const left = Math.random() < .5;
     this.dir = this.face = left ? 1 : -1;
-    this.x = left ? -12 : this.room.W + 12;
+    this.camX = this.camTarget();
+    // in the wings: just past the faded edge of the stage window
+    this.x = left ? Math.min(-12, this.camX - 10) : Math.max(this.room.W + 12, this.camX + this.zb - this.za + 10);
     this.t = 0; this.ph = 0; this.recent = []; this.justDone = this.rested = false;
     this.camX = this.camTarget();
-    this.st = 'rest'; this.stT = 2.2;   // a beat while the room sketches in
+    this.spotX = this.x; this.spotA = 0; this.fid = null; this.lx = null;
+    this.dayPart();
+    this.mood = { energy:this.night ? .4 : this.morning ? .58 : .78 + Math.random() * .17, insp:.2 + Math.random() * .35 };
+    this.hadCoffee = false; this.newPiece = false; this.premiere = false; this.pending = null; this.hurry = false; this.pace = 1;
+    this.pg = null; this.page.style.opacity = 0;
+    this.tb = this.th = 0; this.turnV = 0; this.lastTb = null;
+    this.liftY = 0; this.swing = null; this.grab = null; this.glance = null; this.pendingGreet = null; this.greeted = false;
+    this.daze.style.opacity = 0;
+    this.buildSky();
+    this.initString();
+    // he waits in the wings while the pen draws, and walks on as it finishes
+    this.st = 'rest'; this.stT = 2.6 - Math.max(.4, this.skDur * .72);
     this.next = null;
   }
-  stop(){ this.clearSession(); this.clearParts(); this.roomG.replaceChildren(); this.room = null; }
+  stop(){ this.clearSession(); this.clearParts(); this.roomG.replaceChildren(); this.room = null; this.sk = null; this.pen.style.opacity = 0; this.spot.style.opacity = 0; this.f.watch.style.opacity = 0; this.pg = null; this.page.style.opacity = 0; this.grab = null; this.liftY = 0; this.swing = null; this.daze.style.opacity = 0; }
   /* ---- the schedule: pick something to do, weighted towards what's nearby ---- */
+  /* ---- what he feels like doing ----
+     Two slow needs steer him. Energy drains as he performs and walks, and
+     comes back with coffee, a read, or better, a nap; late at night it runs
+     low and he drifts to the armchair. Inspiration builds while he rests and
+     listens to himself play; when it brims, an idea strikes and he hurries
+     to the desk. A page he's just written goes with him to the piano or the
+     podium stand for its first performance, and stays there afterwards. */
+  dayPart(){ const h = new Date().getHours(); this.night = h >= 22 || h < 5; this.morning = h >= 5 && h < 10; }
+  want(a, s){
+    const m = this.mood, E = m.energy, M = MOOD[a.id] || {};
+    let w = 1 / (1 + Math.abs(s.X - this.x) / 70);   // nearby things are easier to get to
+    const ri = this.recent.lastIndexOf(a.id);
+    if(ri >= 0) w *= ri === this.recent.length - 1 ? .03 : .2;   // and he likes a change
+    w *= M.e > 0 ? lerp(3.4, .35, E) : lerp(.18, 1.4, E);        // tired: rest; fresh: play
+    if(a.id === 'compose') w *= lerp(.3, 2.4, m.insp);
+    if(this.night){
+      if(a.id === 'reading') w *= 2.6;
+      if(a.id === 'coffee') w *= .3;     // not this late
+      if(a.id === 'timpani') w *= .3;    // the neighbours
+    }
+    if(a.id === 'coffee' && this.morning && !this.hadCoffee) w *= 6;   // first thing: coffee
+    if(this.newPiece && a.score) w *= 6;                              // try out what he's written
+    return Math.max(w, 1e-4);
+  }
   plan(){
+    if(this.pendingGreet){ const k = this.pendingGreet; this.pendingGreet = null; if(this.startGreet(k)) return; }
     const all = this.actsNow();
-    let acts = all.filter(a => !this.recent.includes(a.id));
-    if(!acts.length) acts = all;
-    const opts = acts.map(a => { const s = this.room.list.find(q => q.def.id === a.st); return { a, s, w:s ? 1 / (1 + Math.abs(s.X - this.x) / 70) : 0 }; }).filter(o => o.s);
-    let r = Math.random() * opts.reduce((n, o) => n + o.w, 0), pick = opts[0];
-    for(const o of opts){ r -= o.w; if(r <= 0){ pick = o; break; } }
-    // staying at the same station: stand and stretch for a moment rather than sitting straight back down
-    if(this.justDone && !this.rested && Math.abs(pick.s.X - this.x) < .5){ this.rested = true; this.next = null; this.go('rest'); return; }
+    const wasNight = this.night;
+    this.dayPart();
+    const opts = all.map(a => ({ a, s:this.room.list.find(q => q.def.id === a.st) })).filter(o => o.s);
+    if(wasNight !== this.night) this.buildSky();
+    const carrying = this.pg && this.pg.st === 'carry';
+    let pick = null;
+    if(this.pending){ pick = opts.find(o => o.a === this.pending); this.pending = null; }
+    if(!pick){
+      // an idea strikes: he stops short, and then hurries to the desk
+      const desk = opts.find(o => o.a.id === 'compose');
+      if(desk && !carrying && this.x > 0 && this.x < this.room.W && this.mood.insp > .85 && this.mood.energy > .25 && this.recent[this.recent.length - 1] !== 'compose' && !this.reduced.matches){
+        this.pending = desk.a; this.hurry = true; this.justDone = false; this.fidget('eureka'); return;
+      }
+      let pool = opts;
+      if(carrying){ const sc = opts.filter(o => o.a.score); if(sc.length) pool = sc; }
+      for(const o of pool) o.w = this.want(o.a, o.s);
+      let r = Math.random() * pool.reduce((n, o) => n + o.w, 0);
+      pick = pool[0];
+      for(const o of pool){ r -= o.w; if(r <= 0){ pick = o; break; } }
+      // staying at the same station: a moment on his feet rather than sitting straight back down
+      if(this.justDone && !this.rested && !carrying && Math.abs(pick.s.X - this.x) < .5){ this.rested = true; this.next = null; this.fidget(); return; }
+    }
+    const E = this.mood.energy;
+    this.pace = this.hurry || carrying ? 1.32 : lerp(.7, 1, clamp(E * 1.7, 0, 1));
+    this.hurry = false;
     this.rested = false; this.justDone = false;
     this.next = { a:pick.a, s:pick.s, d:pick.s.def.face, x:pick.s.X };
     this.recent.push(pick.a.id); if(this.recent.length > Math.min(4, all.length - 1)) this.recent.shift();
     this.go('walk');
   }
   go(st){ this.st = st; this.stT = 0; }
+  plan2(a){
+    const E = this.mood ? this.mood.energy : .8, R = Math.random(), S = this.S;
+    // K stretches or shortens every session (the Settings slider); cycles still end on whole cups, lines and strokes
+    const K = this.o.pace ? this.o.pace() : 1, cyc = n => Math.max(1, Math.round(n * K));
+    this.fin = null; this.finHit = false; this.quiet = false; this.tp = null;
+    this.bowLong = false;
+    if(a.id === 'compose') this.endT = 11 * cyc(2 + (R < .4)) + 1;        // whole lines, not half a bar
+    else if(a.id === 'coffee') this.endT = 11 * cyc(1 + (E < .5) + (R < .3)) + 2.2;   // whole cups
+    else if(a.id === 'reading'){
+      const sleepy = this.night || E < .45;
+      S.n0 = sleepy ? (7 + R * 3) * Math.min(1, K) : 14;                   // when he starts to nod
+      this.endT = sleepy ? S.n0 + (12 + R * (this.night ? 30 : 12)) * K : Math.max(6, (10 + R * 3.5) * K);
+      if(!sleepy) S.n0 = Math.max(14, this.endT + 2);                     // awake, he reads right through
+    }
+    else if(a.perform){
+      // fresh, he plays longer; the timpani piece always ends on its big stroke
+      this.fin = a.id === 'timpani' ? 9 * cyc(1 + (E > .5) + (R < .5)) + 7.03 : Math.max(7, (lerp(15, 27, E) + R * 7) * K);
+      this.endT = this.fin + 1.9;
+    } else this.endT = (26 + R * 8) * K;
+  }
+  fidget(k){
+    const all = ['glance', 'watch', 'stretch'].filter(f => f !== this.lastFid);
+    if(!k && this.mood && this.mood.energy < .4 && this.lastFid !== 'yawn' && Math.random() < .65) k = 'yawn';
+    this.fid = this.reduced.matches ? null : k || all[Math.floor(Math.random() * all.length)];
+    if(this.fid !== 'bow') this.lastFid = this.fid;
+    this.bowHit = false; this.go('rest');
+  }
   camTarget(){
     const zw = this.zb - this.za, W = this.room ? this.room.W : 0;
     if(W <= zw - 6) return (W - zw) / 2;
@@ -14937,9 +15380,16 @@ class Composer {
   /* ---- particles: notes, z's, rings ---- */
   emit(kind, lx, ly, o = {}){
     if(this.reduced.matches || this.parts.length > 14) return;
+    if(!o.force && this.act && this.act.perform && this.S){
+      // quiet passages send up fewer, smaller notes; the held last chord sends none
+      if(this.quiet) return;
+      const I = this.S.I ?? 1;
+      if(Math.random() < (1 - I) * .55) return;
+      o = { ...o, s:(o.s ?? .72 + Math.random() * .22) * lerp(.82, 1.16, I) };
+    }
     const x = this.x + this.face * lx;
     let e;
-    if(kind === 'z'){ e = mk('text', { class:'cz-z' }, this.fx); e.textContent = 'z'; }
+    if(kind === 'z' || kind === 'txt'){ e = mk('text', { class:kind === 'z' ? 'cz-z' : 'cz-bravo' }, this.fx); e.textContent = kind === 'z' ? 'z' : o.text; }
     else e = mk('path', { class:kind === 'ring' ? 'cz-ring' : 'cz-note', d:GLYPH[kind] || GLYPH.n8 }, this.fx);
     this.parts.push({ e, x, y:ly + FLOOR, vx:(o.vx ?? (Math.random() - .3) * 2) * this.face, vy:o.vy ?? -(3.4 + Math.random() * 1.6),
       age:0, life:o.life ?? (2.6 + Math.random() * 1.2), s:o.s ?? (.72 + Math.random() * .22), wob:Math.random() * TAU, grow:o.grow || 0 });
@@ -14956,11 +15406,56 @@ class Composer {
     }
   }
   poke(){
-    const busy = this.act && this.st !== 'walk';
-    if(!busy && this.hop > 0) return;
-    if(!busy) this.hop = .0001;
-    const y = busy ? -34 : -40;
-    for(let i = 0; i < 3; i++) setTimeout(() => this.emit(['n8', 'n4', 'n16'][i], (i - 1) * 3, y, { vy:-6 - i, vx:(i - 1) * 2.5, life:1.8 }), i * 90);
+    const now = this.t, busy = this.act && this.st !== 'walk';
+    this.taps = this.taps.filter(x => now - x < 1.4); this.taps.push(now);
+    this.flare = 1;
+    // asleep over his book: he wakes with a start, and goes back to reading
+    if(busy && this.act.id === 'reading' && this.S && this.S.asleep > .4){
+      this.actT = Math.max(2, (this.S.n0 ?? 14) - 5.4); this.S.zz = null; this.endT = Math.max(this.endT, this.actT + 8); this.hop = .0001; this.hopH = 1.7;
+      this.parts.filter(p => p.e.tagName === 'text').forEach(p => p.age = Math.max(p.age, p.life - .25));
+      this.emit('ring', 3, -30, { vy:-3, vx:0, life:.8, s:1.2, grow:1.6 });
+      return;
+    }
+    const notes = (n, y) => { for(let i = 0; i < n; i++) setTimeout(() => this.emit(['n8', 'n4', 'n16', 'n8', 'n4'][i], (i - 1) * 3, y, { vy:-6 - i % 3, vx:(i - 1.5) * 2.2, life:1.8, force:true }), i * 80); };
+    // busy: he glances round at you without missing a beat
+    if(busy){ this.thump(0, .35); if(!this.glance) this.glance = .0001; notes(5, -34); return; }
+    // already facing you: a jump for joy (and three taps earns a bow afterwards)
+    if(this.st === 'greet'){
+      if(this.taps.length >= 3) this.bowNext = true;
+      if(this.hop <= 0){ this.hop = .0001; this.hopH = 3.4; notes(3, -41); }
+      return;
+    }
+    // free: he turns to face you and waves
+    if((this.st === 'walk' || this.st === 'rest') && this.fid !== 'bow' && this.startGreet('wave', this.st === 'walk')){ notes(2, -41); return; }
+    if(this.hop <= 0 && this.st !== 'held' && this.st !== 'fall'){ this.hop = .0001; this.hopH = 3.4; notes(3, -40); }
+  }
+  /* ---- facing you: a wave, or applause ---- */
+  startGreet(kind, resume){
+    if(this.reduced.matches || !GREET[kind]) return false;
+    this.gk = kind; this.resumeWalk = !!(resume && this.next); this.fid = null; this.bravo = false;
+    this.go('greet');
+    return true;
+  }
+  cheerNow(){   // back from practising: whatever he's doing, he stops to applaud
+    if(this.reduced.matches || ['held', 'fall', 'land', 'greet'].includes(this.st)) return;
+    this.pendingGreet = 'clap';
+    if(this.act){ if(this.st === 'setup' || this.st === 'act'){ this.endT = Math.min(this.endT, this.actT); this.fin = null; this.quiet = false; } }
+    else if(this.st === 'walk' || this.st === 'rest'){ this.pendingGreet = null; this.startGreet('clap', this.st === 'walk'); }
+  }
+  /* ---- picked up, carried, dropped ---- */
+  toRoom(cx, cy){ const r = this.host.getBoundingClientRect(), s = this.s || 1; return [(cx - r.left) / s - this.za + this.camX, (cy - r.bottom) / s]; }
+  pickUp(){
+    const g = this.grab; g.on = true;
+    if(this.act) this.clearSession();   // whatever he was doing, he drops it
+    this.act = null; this.fid = null; this.next = null; this.glance = null; this.hop = 0;
+    this.tb = this.th = 0; this.lastTb = null; this.pendingGreet = null;
+    this.swing = { a:0, v:0 }; this.hvx = 0; this.heldT = 0;
+    this.emit('ring', 2, -44, { vy:-2, vx:0, life:.7, s:1.1, grow:1.4, force:true });
+    this.go('held');
+  }
+  letGo(){
+    this.fall = { vy:0, vx:clamp(this.hvx || 0, -140, 140) };
+    this.go('fall');
   }
   show(a, t, x){   // for testing: one activity at one moment, props already drawn
     if(!this.room){ this.resize(); this.buildRoom(); this.roomG.querySelectorAll('.cz-sk').forEach(p => p.classList.add('in', 'now')); }
@@ -14969,6 +15464,8 @@ class Composer {
     this.here = s; this.x = s.X; this.face = this.dir = s.def.face; this.act = a; this.st = 'act';
     this.borrow();
     FLOOR = s.def.floor || 0;
+    if(this.sk){ this.sk.T = 1e3; this.tickSketch(0); this.sk.T = 2e3; this.tickSketch(0); }
+    this.fin = null; this.tp = null;
     this.S = a.build(this.ctx(), rng(7), s.R) || {}; this.setDyn(1); this._w = 1;
     for(let k = Math.max(0, t - 1.5); k <= t; k += 1 / 30){ this.t = k; this.render(a.pose(k, this.S, s.R)); a.update(k, this.S, this.J, this, s.R); this.tickParts(1 / 30); }
     this.camX = this.camTarget(); this.cam.setAttribute('transform', `translate(${n2(this.za - this.camX)} 0)`);
@@ -14979,7 +15476,8 @@ class Composer {
     if(!this.room) return;
     this.t += dt; this.stT += dt;
     if((this.zt += dt) > 1){ this.zt = 0; this.zoneNow(); }
-    if(this.hop > 0){ this.hop += dt; if(this.hop > .42) this.hop = 0; }
+    this.tickSketch(dt);
+    if(this.hop > 0){ this.hop += dt; if(this.hop > .42){ this.hop = 0; if(!this.act) this.pluck(this.x, 1.1); } }
     let pose;
     const st = this.st, T = this.stT, n = this.next, reduced = this.reduced.matches;
     FLOOR = 0;
@@ -14987,33 +15485,123 @@ class Composer {
       const dx = n.x - this.x, want = Math.sign(dx) || this.dir;
       if(Math.abs(dx) < .3 || reduced){
         this.x = n.x; this.dir = n.d; this.here = n.s;
-        if(this.face !== n.d && !reduced){ this.turnFrom = this.face; this.go('turn'); this.after = 'setup'; }
+        if(this.face !== n.d && !reduced){ this.turnFrom = this.face; this.go('turn'); this.after = 'setup'; this.lastTb = null; }
         else { this.face = n.d; this.go('setup'); }
         pose = stand(this.t);
+      } else if(!this.greeted && !reduced && this.x > this.camX + 22 && this.x < this.camX + this.zb - this.za - 22){
+        // his first time on stage: he stops to wave hello
+        this.greeted = true; this.startGreet('wave', true); pose = stand(this.t);
       } else if(this.face !== want){
-        this.turnFrom = this.face; this.dir = want; this.go('turn'); this.after = 'walk'; pose = stand(this.t);
+        this.turnFrom = this.face; this.dir = want; this.go('turn'); this.after = 'walk'; this.lastTb = null; pose = stand(this.t);
       } else {
         const far = Math.abs(dx);
-        const v = (15 + 7 * ss((far - 40) / 80)) * Math.min(1, .25 + T * 1.4) * Math.min(1, .35 + far / 5);
+        const v = (15 + 7 * ss((far - 40) / 80)) * Math.min(1, .25 + T * 1.4) * Math.min(1, .35 + far / 5) * (this.pace || 1);
         const mv = Math.min(far, v * dt);
         this.x += want * mv; this.ph += mv * Math.PI / 8.4;
-        pose = blend(stand(this.t), walk(this.ph), Math.min(1, T * 3, far / 2.5));
+        const wk = Math.min(1, T * 3, far / 2.5);
+        pose = blend(stand(this.t), walk(this.ph), wk);
+        // tired, he trudges with his head down; with an idea or a new page, he leans into it
+        const tired = this.mood ? clamp((.45 - this.mood.energy) / .35, 0, 1) : 0;
+        pose.head += .14 * tired * wk; pose.lean += (.03 * tired + (this.pace > 1.2 ? .05 : 0)) * wk;
+        // each footfall presses the string; now and then he hums as he goes
+        const fs = Math.cos(this.ph) > 0;
+        if(this.fs != null && fs !== this.fs && wk > .5) this.thump(3.6, .24);
+        this.fs = fs;
+        if((this.hum -= dt) < 0){ this.hum = 2.2 + Math.random() * 2.6; if(Math.random() < .2 + .45 * (this.mood ? this.mood.insp : .5) * (this.night ? .5 : 1)) this.emit(Math.random() < .5 ? 'n4' : 'n8', 2.6, -33, { vy:-2.8, vx:-.8, life:2.1, s:.55 }); }
       }
     } else if(st === 'turn'){
-      const k = ss(T / .38);
-      this.face = this.turnFrom * Math.cos(Math.PI * k) || .001 * this.dir;
-      pose = stand(this.t);
-      if(k >= 1){ this.face = this.dir; this.go(this.after); }
+      /* a turn through the front: body eased, head a beat ahead, a small step
+         in each half; heading off somewhere, he's already walking as he comes round */
+      const D = .58, u = clamp(T / D, 0, 1), second = u >= .5;
+      const Tb = Math.PI * ss(u), Th = Math.PI * ss(clamp(u * 1.35, 0, 1));
+      this.turnV = this.lastTb == null ? 0 : (Tb - this.lastTb) / Math.max(dt, 1e-3); this.lastTb = Tb;
+      this.face = second ? this.dir : this.turnFrom;
+      this.tb = second ? Math.PI - Tb : Tb; this.th = second ? Math.PI - Th : Th;
+      pose = turnPose(this.t, u, Math.sin(Tb));
+      if(this.after === 'walk'){
+        const k = ss((u - .55) / .45);
+        if(k > 0){
+          const far = Math.abs(n.x - this.x), mv = Math.min(far, 9.5 * k * (this.pace || 1) * dt);
+          this.x += this.dir * mv; this.ph += mv * Math.PI / 8.4;
+          pose = blend(pose, walk(this.ph), .8 * k);
+        }
+      }
+      if(u >= 1){
+        this.tb = this.th = 0; this.turnV = 0; this.lastTb = null; this.face = this.dir;
+        this.go(this.after);
+        if(this.after === 'walk') this.stT = .27;   // pick up the stride where the turn left it
+      }
     } else if(st === 'rest'){
-      pose = stand(this.t);
-      if(T > 2.6) this.plan();
+      const f = this.fid && FIDGET[this.fid];
+      pose = f ? f.pose(this.t, T, this) : stand(this.t);
+      if(f && f.beat && !this.bowHit && T > f.beat){ this.bowHit = true; f.on(this); }
+      if(T > (f ? f.d : 2.6)){ this.fid = null; this.plan(); }
+    } else if(st === 'greet'){
+      // he turns to face you (head first), does his thing, and turns back
+      const G = GREET[this.gk], D = G.d;
+      const f = Math.min(ss(T / .42), 1 - ss((T - D + .42) / .42));
+      this.tb = f * Math.PI / 2;
+      this.th = Math.min(ss(T / .3), 1 - ss((T - D + .5) / .4)) * Math.PI / 2;
+      pose = blend(stand(this.t), G.pose(this.t, T, this), f);
+      if(G.tick) G.tick(this, T);
+      if(T >= D){
+        this.tb = this.th = 0;
+        if(this.bowNext){ this.bowNext = false; this.taps = []; this.fidget('bow'); }
+        else if(this.resumeWalk && this.next){ this.go('walk'); }
+        else this.plan();
+      }
+    } else if(st === 'held'){
+      const g = this.grab || { cx:0, cy:0 };
+      this.heldT += dt;
+      const q = this.toRoom(g.cx, g.cy), zw = this.zb - this.za;
+      const tx = clamp(q[0], this.camX + 4, this.camX + zw - 4), ty = clamp(q[1] + 27.5, -22, 0);
+      const k = 1 - Math.exp(-dt * 20), px = this.x;
+      this.x += (tx - this.x) * k; this.liftY += (ty - this.liftY) * k;
+      const vx = (this.x - px) / Math.max(dt, 1e-3), ax = (vx - this.hvx) / Math.max(dt, 1e-3); this.hvx = vx;
+      this.pend(dt, ax, 46, 3.4);
+      if(Math.abs(vx) > 40 && Math.sign(vx) !== this.face && this.heldT > .3) this.face = Math.sign(vx);   // he looks where he's going
+      pose = dangle(this.t, this.heldT, Math.min(1, Math.abs(vx) / 60));
+    } else if(st === 'fall'){
+      const F = this.fall;
+      F.vy += 340 * dt; this.liftY += F.vy * dt;
+      F.vx *= Math.exp(-dt * 2.5);
+      const zw = this.zb - this.za; this.x = clamp(this.x + F.vx * dt, this.camX + 4, this.camX + zw - 4);
+      this.pend(dt, 0, 70, 9);
+      pose = blend(dangle(this.t, 9, 0), fallPose(this.t), ss(T / .18));
+      if(this.liftY >= 0){
+        this.liftY = 0; this.swing = null;
+        const v = F.vy + Math.abs(F.vx) * .3;
+        this.impact = clamp(v / 150, .15, 1);
+        this.pluck(this.x, clamp(v / 150, .2, 1.9));
+        if(v > 60) for(const d of [-1, 1]) this.emit('ring', d * 3.2 * this.face, -.4, { vx:d * 7 * this.face, vy:-1.2, life:.55, s:.7, grow:.8, force:true });
+        this.dizzy = v > 108;   // dropped from high up, or thrown
+        this.go('land');
+      }
+    } else if(st === 'land'){
+      const D = this.dizzy ? 2.3 : .7;
+      pose = landPose(this.t, T, this.impact * Math.exp(-T * 6), this.dizzy);
+      if(this.dizzy){
+        const H = headOf(pose), c = [this.x + this.face * H.c[0], H.c[1] - 5], o = 1 - ss((T - 1.7) / .5);
+        this.daze.style.opacity = n2(o);
+        this.dazeS.forEach((e, i) => { const a = T * 5.5 + i * TAU / 3; e.setAttribute('transform', `translate(${P(c[0] + Math.cos(a) * 4.2, c[1] + Math.sin(a) * 1.3)}) scale(${n2(.7 + .3 * Math.sin(a))})`); });
+      }
+      if(T > D){
+        this.daze.style.opacity = 0; this.justDone = false;
+        if(!this.dizzy && !reduced) this.fidget('brush'); else this.plan();
+        this.dizzy = false;
+      }
     }
     if(this.st === 'setup' && !this.act){
       this.act = n.a; this.actT = 0;
       this.borrow();
       this.S = this.act.build(this.ctx(), rng((Math.random() * 1e9) | 0), this.here.R) || {};
-      this.setDyn(0);
-      this.dur = 26 + Math.random() * 8;
+      this.setDyn(0); this.landed = this.bowHit = false;
+      this.plan2(this.act);
+      if(this.pg && this.pg.st === 'carry' && this.act.score && this.here.def.desk){   // the page goes up on the stand
+        const d = this.here.def.desk, f = this.here.def.face;
+        this.pg = { st:'place', k:0, from:this.pg.last || { p:[this.x, -22], a:0, sx:this.face }, desk:{ p:[this.here.X + f * d[0], d[1]], a:f * d[2], f } };
+        this.premiere = this.newPiece; this.bowLong = this.premiere;
+      }
     }
     if(this.act){
       this.actT += dt;
@@ -15021,16 +15609,35 @@ class Composer {
       const T2 = this.stT, ST = this.st;
       let wt = 0, step = 1;   // step: how far up onto the station's floor
       if(ST === 'setup'){ wt = ss((T2 - .75) / .8); step = ss((T2 - .15) / .45); if(T2 > 1.6) this.go('act'); }
-      else if(ST === 'act'){ wt = 1; if(T2 > this.dur) this.go('rise'); }
+      else if(ST === 'act'){ wt = 1; if(this.actT > this.endT){ this.go('rise'); this.moodAfter(a); } }
       else if(ST === 'rise'){ wt = 1 - ss(T2 / .75); if(T2 > .8) this.go(a.perform && !reduced ? 'bow' : 'pack'); }
-      else if(ST === 'bow'){ if(T2 > 1.9) this.go('pack'); }
-      else if(ST === 'pack'){ step = 1 - ss((T2 - .25) / .4); if(T2 > .75){ this.clearSession(); this.justDone = true; this.plan(); } }
+      else if(ST === 'bow'){ if(T2 > .85 && !this.bowHit){ this.bowHit = true; this.thump(0, .5); this.flourish(); } if(T2 > (this.bowLong ? 2.6 : 1.9)) this.go('pack'); }
+      else if(ST === 'pack'){
+        step = 1 - ss((T2 - .25) / .4);
+        if(fl && step < .05 && this.landed){ this.landed = false; this.thump(0, .45); }
+        if(T2 > .75){
+          this.clearSession(); this.justDone = true;
+          if(Math.random() < .5 * Math.min(1, this.o.pace ? this.o.pace() : 1) && !reduced && !(this.pg && this.pg.st === 'carry')){ this.rested = true; this.fidget(); } else this.plan();
+        }
+      }
+      if(ST === 'setup' && fl && step > .95 && !this.landed){ this.landed = true; this.thump(0, .45); }
       if(this.act){
         FLOOR = fl * step;
-        const base = this.st === 'bow' ? bowPose(this.t, this.stT) : stand(this.t);
+        const base = this.st === 'bow' ? bowPose(this.t, this.bowLong ? this.stT * .72 : this.stT) : stand(this.t);
         if(step < 1 && fl) base.hip[1] -= Math.sin(Math.PI * step) * 1.2;   // a little hop up (or down)
         FLOOR = fl;
-        const ap = a.pose(reduced ? 3 : this.actT, this.S, s.R);
+        // a performance has a shape: it grows from quiet to a climax, and ends on a
+        // held last chord (musical time stops, hands lift off) rather than just stopping
+        let tp = reduced ? 3 : this.actT, fz = 0;
+        this.quiet = false;
+        if(this.fin != null && !reduced && tp > this.fin){
+          fz = ss((tp - this.fin) / .3); tp = this.fin; this.quiet = true;
+          if(!this.finHit){ this.finHit = true; this.thump(0, .5); this.flourish(this.premiere); }
+        }
+        this.S.I = this.fin != null ? clamp(.42 + .58 * ss(tp / this.fin / .78) + .06 * Math.sin(tp / this.fin * 19), .35, 1.08) : 1;
+        this.tp = tp;
+        const ap = a.pose(tp, this.S, s.R);
+        if(fz){ const k = (a.lift || 2) * fz; ap.hn = add(ap.hn, [-.5 * fz, -k]); ap.hf = add(ap.hf, [-.4 * fz, -k * .8]); ap.head -= .1 * fz; ap.lean -= .04 * fz; }
         pose = blend(base, ap, wt);
         // held things appear as he settles in, and are put away as he rises (before any bow)
         const ht = this.st, hT = this.stT;
@@ -15039,32 +15646,178 @@ class Composer {
       } else pose = stand(this.t);
     }
     if(!pose) pose = stand(this.t);
+    if(this.st !== 'turn' && this.st !== 'greet'){
+      this.tb = 0; this.th = 0;
+      if(this.glance){
+        const g = this.glance += dt;
+        this.th = Math.PI / 2 * ss(g / .22) * (1 - ss((g - 1.15) / .35));
+        if(g > 1.5) this.glance = null;
+      }
+    }
+    if(this.pg && this.pg.st === 'carry' && (!this.act || this.st === 'setup')){
+      const sh = shoulderOf(pose), k = this.act ? 1 - ss((this.stT - .1) / .4) : 1;
+      pose.hn = mix(pose.hn, add(sh, [3.2, 5.7 + .25 * Math.sin(this.ph * 2)]), k);
+    }
+    // a happy hop: he looks up at you, arms flung wide
+    if(this.hop > 0 && !this.act){
+      const k = Math.sin(Math.PI * this.hop / .42), sh = shoulderOf(pose);
+      pose.head -= .38 * k; pose.lean -= .06 * k;
+      pose.hn = mix(pose.hn, add(sh, [4.2, -6.4]), k); pose.hf = mix(pose.hf, add(sh, [-3.4, -6]), k);
+    }
+    if(!reduced) this.secondary(pose, dt);
+    this.ride = this.act || this.liftY < -.3 ? 0 : this.strAt(this.x);
+    if(this.cheer){ this.cheer = false; this.cheerNow(); }
+    // a greeting that's waiting (he was mid-turn, say) goes ahead as soon as it can
+    if(this.pendingGreet && !reduced){
+      if(this.st === 'walk' || this.st === 'rest'){ const k = this.pendingGreet; this.pendingGreet = null; this.startGreet(k, this.st === 'walk'); }
+      else if(this.act && (this.st === 'setup' || this.st === 'act') && this.endT > this.actT){ this.endT = this.actT; this.fin = null; this.quiet = false; }
+    }
+    if(this.stars) this.twinkle();
     this.render(pose);
-    if(this.act) this.act.update(reduced ? 3 : this.actT, this.S, this.J, this, this.here.R);
+    if(this.act) this.act.update(reduced ? 3 : this.tp ?? this.actT, this.S, this.J, this, this.here.R);
     for(const s of this.room.list) if(s.def.tick) s.def.tick(this.t, s.R);
     FLOOR = 0;
     this.tickParts(dt);
+    this.tickWatch();
+    this.tickPage(dt);
+    // needs drift: walking tires him a little; idle time and music gather ideas
+    if(this.mood && !reduced){
+      const m = this.mood;
+      if(this.st === 'walk') m.energy = Math.max(.04, m.energy - dt * .002 * (this.night ? 1.4 : 1));
+      m.insp = Math.min(1, m.insp + dt * (this.act && this.act.perform ? .002 : this.act && this.act.id === 'compose' ? 0 : .0028));
+    }
     // the stage window eases after him
     const ct = this.camTarget();
     this.camX = reduced ? ct : this.camX + (ct - this.camX) * (1 - Math.exp(-dt * 1.3));
     this.cam.setAttribute('transform', `translate(${n2(this.za - this.camX)} 0)`);
+    this.light(dt);
+    this.stepString(dt);
   }
+  /* Follow-through: his coat tails, queue and hair trail behind his motion and
+     overshoot when he stops or turns, and his body pitches with changes of
+     speed. Two small damped springs, sub-stepped so they stay stable. */
+  secondary(p, dt){
+    const S = this.spr, h = Math.max(dt, 1e-3);
+    const vx = this.lx == null ? 0 : (this.x - this.lx) / h; this.lx = this.x;
+    const vr = vx * (this.face < 0 ? -1 : 1), acc = S.pv == null ? 0 : (vr - S.pv) / h; S.pv = vr;
+    const df = this.st === 'turn' ? this.turnV || 0 : 0;
+    const tt = clamp(-vr * .026 - Math.abs(df) * .07, -.9, .9), lt = clamp(-acc * .0022, -.09, .09);
+    const n = Math.ceil(dt / .008), q = dt / n;
+    for(let i = 0; i < n; i++){
+      S.tv += (95 * (tt - S.tw) - 6.5 * S.tv) * q; S.tw += S.tv * q;
+      S.lv += (70 * (lt - S.ln) - 9 * S.lv) * q; S.ln += S.lv * q;
+    }
+    p.tw += S.tw; p.lean += S.ln;
+  }
+  /* the stage light: a pool of warm light that trails him, brighter when he
+     performs, dimmed low while he dozes; the rest of the room recedes a little */
+  light(dt){
+    const a = this.act, st = this.st, reduced = this.reduced.matches;
+    let want = .62;
+    if(this.sk) want = 0;
+    else if(a && a.perform && st !== 'pack') want = st === 'bow' ? 1.3 : 1;
+    else if(a && a.id === 'reading' && this.S && this.S.asleep) want = .62 - .42 * this.S.asleep;
+    else if(this.fid === 'bow') want = 1.3;
+    this.flare *= Math.exp(-dt * 2.2);
+    const fx = this.x + (a && this.here ? this.face * 7 : 0);
+    const kx = reduced ? 1 : 1 - Math.exp(-dt * 2.4), ka = reduced ? 1 : 1 - Math.exp(-dt * 1.6);
+    this.spotX += (fx - this.spotX) * kx; this.spotA += (want - this.spotA) * ka;
+    const A = Math.min(1.5, this.spotA + this.flare * .7);
+    this.spot.setAttribute('cx', n2(this.spotX));
+    this.spot.setAttribute('transform', `translate(${n2(this.spotX)} -15) scale(${n2(1 + .12 * this.flare)}) translate(${n2(-this.spotX)} 15)`);
+    this.spot.style.opacity = n2(Math.min(1, A));
+    const focus = this.sk ? 0 : clamp(this.spotA, 0, 1);
+    for(const s of this.room.list){
+      const d = Math.max(0, s.lo - this.spotX, this.spotX - s.hi);
+      s.g.style.opacity = n2(1 - focus * .3 * ss((d - 3) / 45));
+    }
+  }
+  flourish(big){
+    this.flare = Math.max(this.flare, big ? 1.2 : .8);
+    const n = big ? 7 : 4;
+    for(let i = 0; i < n; i++) setTimeout(() => this.emit(['n16', 'n8', 'n4', 'n8', 'n16', 'n4', 'n8'][i], (i - (n - 1) / 2) * 3.4, -36, { vy:-5.5 - (i % 2) - (big ? .8 : 0), vx:(i - (n - 1) / 2) * 1.6, life:2.1, force:true }), i * 95);
+  }
+  /* the page in his hand, then on the stand */
+  tickPage(dt){
+    const G = this.pg;
+    if(!G){ this.page.style.opacity = 0; return; }
+    const hand = () => { const h = this.J.hn, c = Math.cos(this.tb || 0); return { p:[this.x + this.face * (h[0] + .7 * c), h[1] - 1.5 + this.hopY + this.ride + (this.liftY || 0)], a:-8 * this.face * c, sx:this.face }; };
+    let q;
+    if(G.st === 'carry') q = hand();
+    else {
+      const d = G.desk;
+      q = { p:d.p, a:d.a, sx:.5 * d.f };
+      if(G.st === 'place'){
+        G.k = Math.min(1, G.k + dt / .6);
+        const k = ss(G.k), f = G.from, arc = Math.sin(Math.PI * k) * 2.5;
+        q = { p:[lerp(f.p[0], d.p[0], k), lerp(f.p[1], d.p[1], k) - arc], a:lerp(f.a, d.a, k), sx:lerp(f.sx, q.sx, k) };
+        if(G.k >= 1) G.st = 'placed';
+      }
+    }
+    G.last = q;
+    this.page.setAttribute('transform', `translate(${P(...q.p)}) rotate(${n2(q.a)}) scale(${n2(q.sx)} 1)`);
+    this.page.style.opacity = 1;
+  }
+  /* how he feels after something: energy spent or restored, inspiration used or gathered */
+  moodAfter(a){
+    const m = this.mood, M = MOOD[a.id] || {};
+    let e = M.e || 0;
+    if(a.perform) e = -(.04 + .0045 * this.endT);   // longer pieces take more out of him
+    if(a.id === 'reading' && this.S && this.S.asleep > .5) e = .62;   // a nap does wonders
+    m.energy = clamp(m.energy + e, .04, this.night ? .72 : 1);
+    m.insp = clamp(m.insp + (M.i || 0), 0, 1);
+    if(a.id === 'coffee') this.hadCoffee = true;
+    if(a.perform && this.premiere){ this.premiere = false; this.newPiece = false; }
+    if(a.id === 'compose'){
+      m.insp = .06;
+      if(this.actsNow().some(q => q.score)){   // pick up the new page; any old one on a stand is cleared away
+        this.newPiece = true; this.pg = { st:'carry' };
+        this.page.style.transition = 'none'; this.page.style.opacity = 0; this.page.getBoundingClientRect(); this.page.style.transition = '';
+      }
+    }
+  }
+  tickWatch(){
+    const F = this.f, T = this.stT, on = this.st === 'rest' && this.fid === 'watch' && T > .7 && T < 3.25;
+    F.watch.style.opacity = on ? 1 : 0;
+    if(!on) return;
+    const h = this.J.hn, pk = this.J.at(1.9, 3.1), m = mix(h, pk, .5);
+    F.chain.setAttribute('d', 'M' + P(...add(h, [-.2, .6])) + 'Q' + P(m[0], Math.max(h[1], pk[1]) + 1.6) + ' ' + P(...pk));
+    const open = ss((T - 1.2) / .3) * (1 - ss((T - 2.7) / .3));
+    F.dial.setAttribute('transform', `translate(${P(h[0] + .2, h[1] - .5)}) scale(${n2(.75 + .25 * open)})`);
+    const a = this.t * 2.2;
+    F.hands.setAttribute('d', 'M0 0L0 -.72M0 0L' + P(Math.sin(a) * .55, -Math.cos(a) * .55));
+  }
+  /* The rig is posed in the side plane, but every joint also has a depth: the
+     near shoulder, hip and hand sit toward you, the far ones away. Turning
+     rotates the rig about the vertical through his hips (tb, 0 = profile, a
+     quarter turn = facing you), so mid-turn his limbs spread apart into a
+     front view, his coat morphs to a front silhouette, and his head, which
+     leads the turn (th), cross-fades to a front-facing one. Past the halfway
+     point the drawing mirrors and near/far swap roles, which lines up exactly
+     because a front view looks the same either way. */
   render(p){
     const a = p.lean, U = [Math.sin(a), -Math.cos(a)], F = [Math.cos(a), Math.sin(a)];
     const at = (v, u) => [p.hip[0] + F[0] * v + U[0] * u, p.hip[1] + F[1] * v + U[1] * u];
-    const shN = at(.3, 10.2), shF = at(-.4, 10.05);
+    const tb = this.tb || 0, cb = Math.cos(tb), sb = Math.sin(tb), px = p.hip[0];
+    const pr = (q, z) => [px + (q[0] - px) * cb - z * sb, q[1]];
+    const zS = 1.9, zP = 1.05;
+    const zC = p.zn ?? (this.pg && this.pg.st === 'carry' && !this.act ? .3 : zS), zF = p.zf ?? -zS;   // a carried page is held at the middle
+    const shN0 = at(.3, 10.2), shF0 = at(-.4, 10.05);
     const H = headOf(p);
-    const armN = ik(shN, p.hn, L.ua, L.fa, ELBOW), armF = ik(shF, p.hf, L.ua, L.fa, ELBOW);
-    const hpN = at(.45, .3), hpF = at(-.45, .3);
-    const legN = ik(hpN, p.fn, L.th, L.sh, KNEE), legF = ik(hpF, p.ff, L.th, L.sh, KNEE);
-    const F_ = this.f;
+    const armN = ik(shN0, p.hn, L.ua, L.fa, ELBOW), armF = ik(shF0, p.hf, L.ua, L.fa, ELBOW);
+    const hpN0 = at(.45, .3), hpF0 = at(-.45, .3);
+    const legN = ik(hpN0, p.fn, L.th, L.sh, KNEE), legF = ik(hpF0, p.ff, L.th, L.sh, KNEE);
+    const shN = pr(shN0, zS), shF = pr(shF0, -zS), hpN = pr(hpN0, zP), hpF = pr(hpF0, -zP);
+    const JN = { j:pr(armN.j, (zS + zC) / 2), e:pr(armN.e, zC) }, JF = { j:pr(armF.j, (zF - zS) / 2), e:pr(armF.e, zF) };
+    const KN = { j:pr(legN.j, zP), e:pr(legN.e, zP) }, KF = { j:pr(legF.j, -zP), e:pr(legF.e, -zP) };
+    const F_ = this.f, fs = Math.max(cb, .42);   // shoes and buckles foreshorten, but never vanish
     const seg = (a, b) => 'M' + P(...a) + 'L' + P(...b);
     const leg = (S, hp, lg) => {
-      const k = lg.j, an = lg.e, x = an[0], y = an[1];
+      const k = lg.j, an = lg.e, x = an[0], y = an[1], X = d => x + d * fs;
       S.thO.setAttribute('d', seg(hp, k)); S.thI.setAttribute('d', seg(hp, k));
       S.shO.setAttribute('d', seg(k, an)); S.shI.setAttribute('d', seg(k, an));
-      S.shoe.setAttribute('d', `M${P(x - 1.15, y + 1)}L${P(x + 2.75, y + 1)}Q${P(x + 3, y + .1)} ${P(x + 1.4, y - .15)}L${P(x - .85, y - .35)}Z`);
-      S.buckle.setAttribute('cx', n2(x + .95)); S.buckle.setAttribute('cy', n2(y + .15));
+      S.shoe.setAttribute('d', `M${P(X(-1.15), y + 1)}L${P(X(2.75), y + 1)}Q${P(X(3), y + .1)} ${P(X(1.4), y - .15)}L${P(X(-.85), y - .35)}Z`);
+      S.buckle.setAttribute('cx', n2(X(.95))); S.buckle.setAttribute('cy', n2(y + .15));
     };
     const arm = (S, sh, am) => {
       const el = am.j, h = am.e, d = nrm(sub(h, el));
@@ -15074,30 +15827,128 @@ class Composer {
       S.cO.setAttribute('d', c); S.cI.setAttribute('d', c);
       S.hand.setAttribute('cx', n2(h[0])); S.hand.setAttribute('cy', n2(h[1]));
     };
-    leg(F_.farLeg, hpF, legF);
-    leg(F_.nearLeg, hpN, legN);
-    arm(F_.farArm, shF, armF);
-    arm(F_.nearArm, shN, armN);
+    leg(F_.farLeg, hpF, KF);
+    leg(F_.nearLeg, hpN, KN);
+    arm(F_.farArm, shF, JF);
+    arm(F_.nearArm, shN, JN);
     const tdir = nrm(mix([-.14, 1], [-1, .55], p.tl)), tl = 7.4 - 2.2 * p.tl;
     const root = at(-2.4, 1.1), tip = add(add(root, tdir, tl), [-.5 + p.tw * .6, p.tw * .25]);
     const fwd = [tdir[1], -tdir[0]], inner = add(add(tip, fwd, -1.25), tdir, -1.1);
-    F_.coat.setAttribute('d', curve([at(1.45, 11.15), at(2.8, 8.4), at(2.5, 4.4), at(1.7, 1.5), at(.2, .35), at(-1.3, .5), inner, tip, at(-2.9, 3.4), at(-2.75, 8.7), at(-1.5, 11.1)], true, .34));
-    F_.lapel.setAttribute('d', 'M' + P(...at(1.5, 10.9)) + 'L' + P(...at(2.35, 7.2)) + 'L' + P(...at(1.95, 5.1)));
-    F_.jabot.setAttribute('d', 'M' + P(...at(1.3, 11)) + 'Q' + P(...at(3.1, 10.6)) + ' ' + P(...at(2.2, 9.3)) + 'Q' + P(...at(2.9, 8.7)) + ' ' + P(...at(2, 8)) + 'L' + P(...at(1.4, 9.6)) + 'Z');
-    F_.buttons.setAttribute('d', [7, 5.6, 4.2].map(u => { const q = at(2.35 - (7 - u) * .02, u); return 'M' + P(q[0] - .01, q[1]) + 'l.02 0'; }).join(''));
-    F_.pocket.setAttribute('d', 'M' + P(...at(.4, 2.6)) + 'L' + P(...at(2.1, 2.9)));
-    F_.head.setAttribute('transform', `translate(${P(...H.c)}) rotate(${n2(H.a * 57.2958)})`);
+    const side = [at(1.45, 11.15), at(2.8, 8.4), at(2.5, 4.4), at(1.7, 1.5), at(.2, .35), at(-1.3, .5), inner, tip, at(-2.9, 3.4), at(-2.75, 8.7), at(-1.5, 11.1)];
+    let coat = side;
+    if(sb > .001){
+      // the same outline seen from the front: shoulders, chest, waist and skirts, left and right
+      const front = [[-1.3, 11.15], [-2.7, 8.4], [-2.3, 4.4], [-2.6, 1.5], [-1.6, .25], [0, .7], [1.6, .25], [2.6, 1.5], [2.3, 4.4], [2.7, 8.4], [1.3, 11.15]]
+        .map(([X, u]) => { const q = at(0, u); return [q[0] + X, q[1]]; });
+      coat = side.map((q, i) => mix(pr(q, 0), front[i], sb));
+    }
+    F_.coat.setAttribute('d', curve(coat, true, .34));
+    const A = (v, u) => pr(at(v, u), 0);
+    F_.lapel.setAttribute('d', 'M' + P(...A(1.5, 10.9)) + 'L' + P(...A(2.35, 7.2)) + 'L' + P(...A(1.95, 5.1)));
+    F_.jabot.setAttribute('d', 'M' + P(...A(1.3, 11)) + 'Q' + P(...A(3.1, 10.6)) + ' ' + P(...A(2.2, 9.3)) + 'Q' + P(...A(2.9, 8.7)) + ' ' + P(...A(2, 8)) + 'L' + P(...A(1.4, 9.6)) + 'Z');
+    F_.buttons.setAttribute('d', [7, 5.6, 4.2].map(u => { const q = A(2.35 - (7 - u) * .02, u); return 'M' + P(q[0] - .01, q[1]) + 'l.02 0'; }).join(''));
+    F_.pocket.setAttribute('d', 'M' + P(...A(.4, 2.6)) + 'L' + P(...A(2.1, 2.9)));
+    F_.lapel.style.opacity = F_.pocket.style.opacity = sb > .001 ? n2(cb) : '';
+    // the head leads the turn: the profile narrows and fades as the front view comes in
+    // like a sprite, the swap happens where both views are equally narrow, so there's no double image
+    const th = this.th ?? tb, ch = Math.cos(th), sh = Math.sin(th), fw = ss((sh - .74) / .07);
+    F_.head.setAttribute('transform', `translate(${P(...pr(H.c, 0))})`);
+    F_.hp.setAttribute('transform', (th ? `scale(${n2((ch < 0 ? -1 : 1) * lerp(1, .5, ss((sh - .15) / .62)))} 1) ` : '') + `rotate(${n2(H.a * 57.2958)})`);
+    F_.hp.style.opacity = fw ? n2(1 - fw) : '';
+    F_.hf.style.opacity = n2(fw);
+    if(fw){
+      F_.hf.setAttribute('transform', `translate(0 ${n2(p.head * 1.6)}) scale(${n2(lerp(.52, 1, ss((sh - .75) / .22)))} 1)`);
+      F_.feat.setAttribute('transform', `translate(${n2(ch * 1.3)} 0)`);   // three-quarter view: the face sits toward where he's looking
+    }
     const blink = (this.t % 3.9) < .13 || p.eye < .5;
     F_.eye.style.opacity = blink ? 0 : 1; F_.lid.style.opacity = blink ? 1 : 0;
+    F_.eyesF.style.opacity = blink ? 0 : 1; F_.lidsF.style.opacity = blink ? 1 : 0;
     F_.queue.setAttribute('transform', `rotate(${n2(p.tw * 10)} -3.35 1.7)`);
     F_.ribbon.setAttribute('transform', `rotate(${n2(p.tw * 12)} -3.9 2.3)`);
     F_.mane.setAttribute('transform', `rotate(${n2(p.tw * 5)} -1 0)`); F_.strands.setAttribute('transform', `rotate(${n2(p.tw * 5)} -1 0)`);
-    const hopY = this.hop > 0 ? -Math.sin(Math.PI * this.hop / .42) * 3.2 : 0;
-    this.actor.setAttribute('transform', `translate(${n2(this.x)} ${n2(hopY)}) scale(${n2(this.face)} 1)`);
-    this.J = { p, shN, shF, H, hn:armN.e, hf:armF.e, en:armN.j, ef:armF.j, kn:legN.j, kf:legF.j, at, w:this._w || 0 };
+    const hopY = this.hopY = this.hop > 0 ? -Math.sin(Math.PI * this.hop / .42) * this.hopH : 0;
+    // from the side his far arm is behind his coat; facing you, both arms are in front of it
+    const front = sb > .6;
+    if(front !== !!this.farFront){
+      this.farFront = front;
+      this.actor.insertBefore(this.lay.farArm, front ? this.lay.pre.sk.parentNode : this.lay.mid.sk.parentNode);
+    }
+    const sw = this.swing ? this.swing.a * 57.2958 : 0;   // hanging from his collar, he swings about it
+    this.actor.setAttribute('transform', `translate(${n2(this.x)} ${n2(hopY + this.ride + (this.liftY || 0))})` + (Math.abs(sw) > .05 ? ` rotate(${n2(sw)} 0 -27.5)` : '') + ` scale(${n2(this.face)} 1)`);
+    this.J = { p, shN, shF, H, hn:JN.e, hf:JF.e, en:JN.j, ef:JF.j, kn:KN.j, kf:KF.j, at, w:this._w || 0 };
   }
 }
 Composer.n = 0;
+function turnPose(t, u, sf){
+  const p = stand(t), s = Math.sin(Math.PI * u);
+  p.hip = add(p.hip, [0, .5 * s]); p.lean = .035 - .03 * s; p.head -= .05 * s;
+  const lift = (a, b) => Math.sin(Math.PI * clamp((u - a) / (b - a), 0, 1));
+  const l = u < .5 ? lift(.06, .44) : lift(.56, .94);   // the near foot in each half (a different foot each time)
+  p.fn = [1.3 - .6 * l, -1.2 - 1.5 * l]; p.ff = [-1.4, -1.2];
+  p.hn = add(p.hn, [.5 * s, -.4 * s]); p.hf = add(p.hf, [-.3 * s, -.3 * s]);
+  // facing you, both sides must match, so near and far meet in the middle
+  const w = sf * sf * sf;
+  for(const [a, b] of [['hn', 'hf'], ['fn', 'ff']]){ const m = mix(p[a], p[b], .5); p[a] = mix(p[a], m, w); p[b] = mix(p[b], m, w); }
+  return p;
+}
+/* facing you: both sides mirror each other, arms at his sides */
+function frontBase(t){
+  const p = stand(t);
+  p.lean = .01; p.hn = [1.1, -14.8]; p.hf = [1.1, -14.8]; p.fn = [.2, -1.2]; p.ff = [.2, -1.2];
+  return p;
+}
+const GREET = {
+  wave:{ d:2.7, pose(t, T){
+    const p = frontBase(t), e = ss((T - .32) / .3) * (1 - ss((T - 2) / .32)), sh = shoulderOf(p);
+    p.hn = mix(p.hn, add(sh, [.6, -10.6]), e);
+    p.zn = lerp(1.9, 4.6 + 1.25 * Math.sin((T - .32) * TAU * 2.2), e);   // hand up and out to the side, waving
+    p.hip = add(p.hip, [0, -.35 * e]);
+    return p;
+  } },
+  clap:{ d:4.6, pose(t, T, c){
+    const p = frontBase(t), e = ss((T - .38) / .3) * (1 - ss((T - 3.75) / .32)), sh = shoulderOf(p);
+    const g = Math.pow(Math.abs(Math.sin((T - .38) * Math.PI * 2.7)), .55), hand = add(sh, [3.4, 4.2]);
+    p.hn = mix(p.hn, hand, e); p.hf = mix(p.hf, hand, e);
+    p.zn = lerp(1.9, .45 + 2.1 * g, e); p.zf = lerp(-1.9, -.45 - 2.1 * g, e);
+    p.hip = add(p.hip, [0, -.5 * e * Math.abs(Math.sin(T * Math.PI * 1.35))]);   // up on his toes
+    c.clapG = g * e + (1 - e);
+    return p;
+  }, tick(c, T){
+    const g = c.clapG;
+    if(c.clapPrev > .15 && g <= .15 && T > .6 && T < 3.7){ c.thump(0, .16); c.emit('ring', 0, -22, { vy:-2.2, vx:0, life:.5, s:.55, grow:1.4, force:true }); }
+    c.clapPrev = g;
+    if(T > 1.25 && !c.bravo){ c.bravo = true; c.flare = 1; c.emit('txt', 0, -43, { text:'bravo!', vy:-2.6, vx:.3, life:2.8, s:1, force:true }); }
+  } }
+};
+/* held by the scruff: legs pedalling in the air at first, then hanging limp */
+function dangle(t, T, fast){
+  const p = stand(t), pedal = Math.max(1 - ss((T - 1.3) / 1.2), fast), k = t * TAU * 1.7;
+  p.hip = [0, -16.1]; p.lean = .03; p.head = .2 + .06 * Math.sin(t * 2.3); p.eye = 1;
+  const leg = ph => [.4 + 2.3 * pedal * Math.sin(k + ph), -1.8 - 2.4 * pedal * Math.max(0, Math.cos(k + ph))];
+  p.fn = leg(0); p.ff = leg(Math.PI);
+  const sh = shoulderOf(p), fl = pedal * .8 + .2;
+  p.hn = add(sh, [1.6 + 2.2 * fl * Math.sin(t * 10.5), 9.4 - 3.4 * fl + 1.2 * fl * Math.cos(t * 8.3)]);
+  p.hf = add(sh, [-.8 - 2 * fl * Math.sin(t * 9.1 + 1), 9.6 - 3.2 * fl + 1.1 * fl * Math.cos(t * 7.7 + 2)]);
+  return p;
+}
+function fallPose(t){
+  const p = stand(t), sh = shoulderOf(p);
+  p.hip = [0, -16.1]; p.lean = -.04; p.head = -.18;
+  p.fn = [2.2, -1.6]; p.ff = [-1.8, -1.5];
+  p.hn = add(sh, [2.6, -7.2]); p.hf = add(sh, [-1.8, -7]);   // arms up as he drops
+  return p;
+}
+function landPose(t, T, sq, dizzy){
+  const p = stand(t), sh = shoulderOf(p);
+  p.hip = add(p.hip, [-.4 * sq, 3.4 * sq]); p.lean = .035 + .22 * sq; p.head = .1 * sq;
+  p.hn = mix(p.hn, add(sh, [4.4, 5.5]), Math.min(1, sq * 2.2)); p.hf = mix(p.hf, add(sh, [-3.6, 5.2]), Math.min(1, sq * 2.2));
+  if(dizzy){
+    const w = 1 - ss((T - 1.6) / .6);
+    p.head += .16 * Math.sin(T * 8) * w; p.lean += .05 * Math.sin(T * 4) * w; p.hip = add(p.hip, [.5 * Math.sin(T * 4) * w, 0]);
+    p.eye = T < 1.4 ? 0 : 1;
+  }
+  return p;
+}
 function bowPose(t, T){
   const k = Math.sin(Math.PI * clamp(T / 1.7, 0, 1)), p = stand(t);
   p.lean = .04 + .6 * ss(k * 1.25); p.head = .22 * k;
@@ -15108,6 +15959,69 @@ function bowPose(t, T){
   p.hn = add(sh, rot([-3.2 - 2 * k, 11], p.lean * .15));  // the other arm sweeps back
   return p;
 }
+/* ---- idle moments between activities ----
+   Each blends in and out of standing; d is how long it lasts. */
+const FIDGET = {
+  // hands clasped behind his back, he looks up at you, and gives a little nod
+  glance:{ d:3.6, pose(t, T){
+    const p = stand(t), e = ss(T / .7) * ss((3.6 - T) / .7), nod = Math.exp(-Math.pow((T - 2.3) * 3.2, 2));
+    p.head = -.03 - .34 * e + .26 * nod * e; p.lean = .035 - .05 * e;
+    p.hn = mix(p.hn, [-2.1, -16.4], e); p.hf = mix(p.hf, [-2.6, -16.7], e);
+    return p;
+  } },
+  // out comes the pocket watch: a look, a tap on the glass, and away it goes
+  watch:{ d:3.9, pose(t, T){
+    const p = stand(t), e = ss(T / .5) * ss((3.9 - T) / .5);
+    const pocket = [2.6, -18.8], up = ss((T - .75) / .5) * (1 - ss((T - 2.75) / .5)), look = [5.3, -22.6];
+    const tap = T > 1.9 && T < 2.4 ? .35 * Math.abs(Math.sin((T - 1.9) * TAU * 2)) : 0;
+    p.hn = mix(p.hn, mix(pocket, look, up), e);
+    p.hf = mix(p.hf, add(look, [-1.3, .6 - tap]), up * e * (T > 1.7 && T < 2.6 ? 1 : 0));
+    p.head = -.03 + .38 * up; p.lean = .035 + .06 * up;
+    return p;
+  } },
+  // a long stretch, up on his toes
+  stretch:{ d:3, pose(t, T){
+    const p = stand(t), e = ss(T / .9) * ss((3 - T) / .8), sh = shoulderOf(p);
+    p.hn = mix(p.hn, add(sh, [2.4, -11.5]), e); p.hf = mix(p.hf, add(sh, [-.2, -11.8]), e);
+    p.lean = .035 - .11 * e; p.head = -.03 - .3 * e; p.hip = add(p.hip, [0, -.8 * e]);
+    p.fn = [1.3, -1.2 - .35 * e]; p.ff = [-1.4, -1.2 - .35 * e];
+    return p;
+  } },
+  // put down again: he brushes off his coat
+  brush:{ d:1.5, pose(t, T){
+    const p = stand(t), e = ss(T / .25) * ss((1.5 - T) / .25), sh = shoulderOf(p);
+    const u = Math.pow(Math.abs(Math.sin(T * Math.PI * 2.6)), .8);
+    p.hn = mix(p.hn, add(sh, [3.2, 4.6 + 5.2 * u]), e); p.head = -.03 + .34 * e; p.lean = .035 + .08 * e;
+    return p;
+  } },
+  // three taps and he bows to his audience
+  bow:{ d:2.1, beat:.85, on(c){ c.thump(0, .6); c.flourish(); }, pose(t, T){ return bowPose(t, T); } },
+  // tired: a big yawn behind his hand
+  yawn:{ d:3, pose(t, T){
+    const p = stand(t), e = ss(T / .6) * ss((3 - T) / .6), y = Math.sin(Math.PI * clamp((T - .3) / 2.2, 0, 1));
+    p.head = -.03 - .34 * y; p.lean = .035 - .05 * y; p.eye = y > .5 ? 0 : 1;
+    const H = headOf(p), mouth = add(H.c, rot([4.3, 2.3], H.a));
+    p.hn = mix(p.hn, mouth, e); p.hf = mix(p.hf, add(p.hf, [-.6, -1.2]), y);
+    return p;
+  } },
+  // an idea! he stops short, a finger in the air
+  eureka:{ d:1.6, beat:.22, on(c){
+      c.flare = 1.1; c.emit('ring', 2.5, -34, { vy:-1.5, vx:0, life:.9, s:1.4, grow:1.8, force:true });
+      c.emit('n8', 2.5, -36, { vy:-3.2, vx:.2, life:2.4, s:1.35, force:true });
+      c.pluck(c.x, .5);
+    }, pose(t, T){
+    const p = stand(t), e = ss(T / .22) * ss((1.6 - T) / .3), sh = shoulderOf(p);
+    p.head = -.03 - .22 * e; p.lean = .035 - .04 * e; p.hip = add(p.hip, [0, -.5 * e]);
+    p.hn = mix(p.hn, add(sh, [2.6, -7.6]), e);
+    return p;
+  } }
+};
+/* what each activity does for him: energy (e) and inspiration (i). Performances
+   also cost energy in proportion to their length (see moodAfter). */
+const MOOD = {
+  conduct:{ i:.06 }, piano:{ i:.07 }, violin:{ i:.05 }, flute:{ i:.05 }, cello:{ i:.06 }, harp:{ i:.05 }, timpani:{ i:.03 },
+  compose:{ e:-.08 }, coffee:{ e:.4, i:.08 }, reading:{ e:.24, i:.1 }
+};
 /* ---- activities ----
    Each is facing +x with the composer's hips at x=0. ext is the horizontal
    span the scene needs, so it's only placed where it fits. build() sketches
@@ -15148,7 +16062,7 @@ const STATIONS = [
     c.sk('back', 'M' + P(...A) + 'L' + P(...B) + 'L' + P(...C) + 'L' + P(...D) + 'Z', 'cz-prop cz-fill cz-fine');
     for(const f of [.33, .66]) c.sk('back', line(add(add(A, v, f), d, .5), add(add(A, v, f), d, 6.8)), 'cz-far cz-hair');
   } },
-{ id:'piano', face:1, ext:[-6.6, 44.6], room(c){
+{ id:'piano', face:1, ext:[-6.6, 44.6], desk:[33.15, -21.4, 9], room(c){
     c.sk('back', 'M-6.2 -8.1H3.2M-6.2 -8.1V-9.2H3.2V-8.1M-5.4 -8.1V0M2.4 -8.1V0');
     c.sk('back', 'M9.2 -12.2H41.4Q44.4 -12.2 44.4 -14.9Q44.4 -17.6 41.4 -17.6H9.2Z', 'cz-prop cz-fill');
     c.sk('back', 'M6.6 -14.3H9.2M6.6 -14.3V-13H9.2');
@@ -15174,7 +16088,7 @@ const STATIONS = [
     }
     return { str };
   } },
-{ id:'podium', face:1, floor:-3.1, ext:[-7.2, 19], room(c){
+{ id:'podium', face:1, floor:-3.1, ext:[-7.2, 19], desk:[15.3, -20.3, 55], room(c){
     c.sk('back', 'M-6.8 0V-3.1H6.8V0', 'cz-prop cz-fill');
     c.sk('back', 'M-5.2 -1.55H5.2', 'cz-prop cz-fine');
     c.sk('back', 'M15.2 -.2V-18.2M12.6 0L15.2 -3.2L17.8 0');
@@ -15202,7 +16116,7 @@ const STATIONS = [
 { id:'lounge', face:1, ext:[-16, 19.2], room(c){
     c.sk('back', 'M-15.6 -10.6H-10.4M-13 -10.6V-.8M-14.8 0Q-13 -1.6 -11.2 0');
     c.sk('back', 'M-14.1 -10.6Q-13 -11.3 -11.9 -10.6M-13.5 -11V-15.2H-12.5V-11', 'cz-prop cz-fine');
-    const glow = mk('circle', { class:'cz-glow', cx:-13, cy:-16.4, r:6, fill:c.glow }, c.g('back'));
+    const glow = mk('circle', { class:'cz-glow', cx:-13, cy:-16.4, r:6, style:`fill:${c.glow}` }, c.g('back'));
     const flame = mk('path', { class:'cz-acc cz-flame' }, c.g('back'));
     c.sk('back', 'M-6.8 -8.3H3.4V-2.2H-6.8M-6.2 -2.2V0M2.8 -2.2V0');
     c.sk('back', 'M-6.8 -2.2V-8.3L-7.6 -22.8Q-7.7 -25.8 -5.4 -26Q-3.5 -26 -3.7 -24.2L-4.6 -12.6', 'cz-prop cz-fill');
@@ -15225,13 +16139,13 @@ const STATIONS = [
 
 const ACTS = [
 /* 1 ---- conducting from a little podium ---- */
-{ id:'conduct', st:'podium', perform:true,
+{ id:'conduct', st:'podium', perform:true, score:true, lift:4.5,
   build(c, r){
     return { bd:60 / (70 + r() * 16), baton:c.dy('top', 'path', { class:'cz-acc cz-baton' }) };
   },
   pose(t, S){
     const p = stand(t), b = t / S.bd, i = Math.floor(b), u = b - i, k = i % 4;
-    const A = 1 + .32 * ss(.5 + .5 * Math.sin(t * TAU / 15));
+    const A = (1 + .32 * ss(.5 + .5 * Math.sin(t * TAU / 15))) * lerp(.62, 1.14, S.I ?? 1);
     p.hip = [0, -16.1 + FLOOR]; p.fn = [1.5, -1.2 + FLOOR]; p.ff = [-1.7, -1.2 + FLOOR];
     p.lean = .1 + .045 * Math.sin(t * TAU / 7) + .05 * (A - 1);
     const pl = pulse(u) * (k === 0 ? 1 : .45);
@@ -15297,38 +16211,39 @@ const ACTS = [
   } },
 
 /* 3 ---- at the grand piano ---- */
-{ id:'piano', st:'piano', perform:true,
+{ id:'piano', st:'piano', perform:true, score:true, lift:2.6,
   build(c, r){
     const st = [], fl = [];
     for(let i = 0; i < 12; i++){ st.push(['flow', 'chord', 'run', 'flow'][Math.floor(r() * 4)]); fl.push(i > 0 && r() < .45); }
     return { st, fl };
   },
   pose(t, S){
-    const p = sit(t), K = -15.05, SEG = 4.5;
+    const p = sit(t), K = -15.05, SEG = 4.5, G = lerp(.6, 1.25, S.I ?? 1);
     p.hip = [-.9, -9.8];
     const hands = (style, t) => {
       if(style === 'chord'){
-        const l = 2.3 * Math.pow(Math.max(0, Math.sin(t * TAU * 1.1)), 3);
+        const l = 2.3 * G * Math.pow(Math.max(0, Math.sin(t * TAU * 1.1)), 3);
         return [[8.3 + .3 * Math.sin(t * 1.3), K - l], [7.3, K - l * .9]];
       }
       if(style === 'run'){
         const u = frac(t * .7);
-        return [[9 - 2 * u, K - .8 * Math.abs(Math.sin(t * TAU * 3))], [7.1 + .4 * Math.sin(t * TAU * .7), K - .7 * Math.pow(Math.max(0, Math.sin(t * TAU * 1.4)), 2)]];
+        return [[9 - 2 * u, K - .8 * G * Math.abs(Math.sin(t * TAU * 3))], [7.1 + .4 * Math.sin(t * TAU * .7), K - .7 * G * Math.pow(Math.max(0, Math.sin(t * TAU * 1.4)), 2)]];
       }
-      return [[8.2 + .9 * Math.sin(t * TAU * .55), K - 1.2 * Math.pow(Math.max(0, Math.sin(t * TAU * 2.6)), 2)],
-              [7.2 + .7 * Math.sin(t * TAU * .4 + 1), K - 1 * Math.pow(Math.max(0, Math.sin(t * TAU * 1.3 + 2)), 2)]];
+      return [[8.2 + .9 * Math.sin(t * TAU * .55), K - 1.2 * G * Math.pow(Math.max(0, Math.sin(t * TAU * 2.6)), 2)],
+              [7.2 + .7 * Math.sin(t * TAU * .4 + 1), K - G * Math.pow(Math.max(0, Math.sin(t * TAU * 1.3 + 2)), 2)]];
     };
     const i = Math.floor(t / SEG) % 12, u = t % SEG;
     let [hn, hf] = hands(S.st[i], t);
     if(u < .5){ const [pn, pf] = hands(S.st[(i + 11) % 12], t), k = ss(u / .5); hn = mix(pn, hn, k); hf = mix(pf, hf, k); }
     let fl = 0;
-    if(S.fl[i] && u > SEG - 1.5){ const q = (u - (SEG - 1.5)) / 1.5; fl = Math.sin(Math.PI * q); hn = [8.2 - 3.4 * fl, K - 10 * Math.pow(fl, 1.4)]; }
+    const big = S.fl[i] && (S.I ?? 1) > .72;
+    if(big && u > SEG - 1.5){ const q = (u - (SEG - 1.5)) / 1.5; fl = Math.sin(Math.PI * q); hn = [8.2 - 3.4 * fl, K - 10 * Math.pow(fl, 1.4)]; }
     p.hn = hn; p.hf = hf;
-    p.lean = .13 + .07 * Math.sin(t * TAU / 3.7) - .12 * fl;
+    p.lean = .13 + .07 * G * Math.sin(t * TAU / 3.7) - .12 * fl;
     p.head = .06 + .07 * Math.sin(t * TAU / 1.9) - .12 * fl;
     const ped = ss(.5 + .5 * Math.sin(t * TAU / 2.3));
     p.fn = [9.1, -1.75 - .6 * (1 - ped)]; p.ff = [5.8, -1.2];
-    S.flq = fl; S.fli = S.fl[i] && u > SEG - 1.5 ? i : -1;
+    S.flq = fl; S.fli = big && u > SEG - 1.5 ? i : -1;
     return p;
   },
   update(t, S, J, api){
@@ -15338,7 +16253,7 @@ const ACTS = [
   } },
 
 /* 4 ---- violin ---- */
-{ id:'violin', st:'podium', perform:true,
+{ id:'violin', st:'podium', perform:true, score:true, lift:1.6,
   build(c){
     return { body:c.dy('pre', 'path', { class:'cz-ink cz-fill cz-inst' }), neck:c.dy('pre', 'path', { class:'cz-ink cz-fine' }),
              bow:c.dy('pre', 'path', { class:'cz-ink cz-fine' }), hair:c.dy('pre', 'path', { class:'cz-acc cz-hair' }) };
@@ -15348,14 +16263,14 @@ const ACTS = [
     return { V0, ax, up:rot(ax, -Math.PI / 2) };
   },
   pose(t, S){
-    const p = stand(t), sw = Math.sin(t * TAU / 4.2);
+    const I = S.I ?? 1, p = stand(t), sw = Math.sin(t * TAU / 4.2) * lerp(.45, 1.25, I);
     p.fn = [2.3, -1.2 + FLOOR]; p.ff = [-2.1, -1.2 + FLOOR];
     p.lean = .07 + .06 * sw; p.hip = [.45 * sw, -16.1 + FLOOR + .25 * Math.sin(t * TAU / 2.1)];
     p.head = .22 + .05 * Math.sin(t * TAU / 2.1 + 1);
     const { V0, ax, up } = this.frame(p);
     const vib = Math.sin(t * TAU * 5.5) * .18, shift = ss(.5 + .5 * Math.sin(t * TAU / 5.3)) * 1.6;
     p.hf = add(add(V0, ax, 9.3 - shift + vib), up, -.9);
-    const seg = Math.floor(t / 3.2) % 3, long = 6.6 + 4.2 * Math.sin(t * TAU * .42), short = 4.8 + 1.3 * Math.sin(t * TAU * 2.3);
+    const seg = Math.floor(t / 3.2) % 3, long = 6.6 + 4.2 * lerp(.55, 1.05, I) * Math.sin(t * TAU * .42), short = 4.8 + 1.3 * Math.sin(t * TAU * 2.3);
     const k = seg === 2 ? ss(frac(t / 3.2) * 4) * ss((1 - frac(t / 3.2)) * 4) : 0;
     const s = lerp(long, short, k);
     const C = add(add(V0, ax, 4.6), up, .3), a = rot(ax, 2.62);
@@ -15377,17 +16292,17 @@ const ACTS = [
   } },
 
 /* 5 ---- cello ---- */
-{ id:'cello', st:'cello', perform:true,
+{ id:'cello', st:'cello', perform:true, lift:1.4,
   build(c){
     return { at:CELLO.at, n:CELLO.n, bow:c.dy('pre', 'path', { class:'cz-ink cz-fine' }), hair:c.dy('pre', 'path', { class:'cz-acc cz-hair' }) };
   },
   pose(t, S){
     const p = sit(t);
     p.hip = [-1.2, -9.8]; p.fn = [6.2, -1.2]; p.ff = [9.9, -1.2];
-    p.lean = .1 + .05 * Math.sin(t * TAU / 4.6); p.head = -.06 + .06 * Math.sin(t * TAU / 2.3);
+    p.lean = .1 + .05 * lerp(.5, 1.4, S.I ?? 1) * Math.sin(t * TAU / 4.6); p.head = -.06 + .06 * Math.sin(t * TAU / 2.3);
     const shift = ss(.5 + .5 * Math.sin(t * TAU / 6.1)) * 3, vib = Math.sin(t * TAU * 5) * .22;
     p.hf = add(S.at(20.2 - shift + vib, 0), S.n, -.9);
-    const seg = Math.floor(t / 3.6) % 3, long = 6.3 + 3.7 * Math.sin(t * TAU * .34), short = 4.6 + 1.1 * Math.sin(t * TAU * 2);
+    const seg = Math.floor(t / 3.6) % 3, long = 6.3 + 3.7 * lerp(.55, 1.05, S.I ?? 1) * Math.sin(t * TAU * .34), short = 4.6 + 1.1 * Math.sin(t * TAU * 2);
     const k = seg === 1 ? ss(frac(t / 3.6) * 4) * ss((1 - frac(t / 3.6)) * 4) : 0;
     const C = S.at(11, 0), a = nrm([-1, -.3]);
     p.hn = add(C, a, lerp(long, short, k));
@@ -15402,7 +16317,7 @@ const ACTS = [
   } },
 
 /* 6 ---- flute ---- */
-{ id:'flute', st:'podium', perform:true,
+{ id:'flute', st:'podium', perform:true, score:true, lift:.6,
   build(c){
     return { tube:c.dy('pre', 'path', { class:'cz-acc cz-flute' }), keys:c.dy('pre', 'path', { class:'cz-ink cz-hair' }) };
   },
@@ -15411,7 +16326,7 @@ const ACTS = [
     return { M, d, dn:rot(d, Math.PI / 2) };
   },
   pose(t, S){
-    const p = stand(t), sw = Math.sin(t * TAU / 5), tau = t % 6.5;
+    const p = stand(t), sw = Math.sin(t * TAU / 5) * lerp(.45, 1.25, S.I ?? 1), tau = t % 6.5;
     const br = tau > 5.6 ? Math.sin(Math.PI * (tau - 5.6) / .9) : 0;
     p.fn = [2.2, -1.2 + FLOOR]; p.ff = [-2, -1.2 + FLOOR];
     p.lean = .06 + .07 * sw - .07 * br; p.hip = [.5 * sw, -16.1 + FLOOR + .3 * Math.sin(t * TAU / 2.5)];
@@ -15432,7 +16347,7 @@ const ACTS = [
   } },
 
 /* 7 ---- timpani ---- */
-{ id:'timpani', st:'drum', perform:true,
+{ id:'timpani', st:'drum', perform:true, lift:3,
   build(c){
     const hits = { n:[0, 1.2, 1.5, 2.4, 3.3], f:[.6, 1.8, 3, 3.6] };
     for(let x = 4.2, s = 0; x < 6.6; x += .09, s ^= 1) (s ? hits.f : hits.n).push(x);
@@ -15453,7 +16368,7 @@ const ACTS = [
     const p = stand(t), tau = t % 9;
     p.fn = [2.4, -1.2]; p.ff = [-1.7, -1.2];
     p.hip = [0, -15.7]; p.lean = .15 + .03 * Math.sin(t * 2); p.head = .12;
-    const ln = this.lift(S.hits.n, tau), lf = this.lift(S.hits.f, tau);
+    const G = lerp(.62, 1.1, S.I ?? 1), ln = this.lift(S.hits.n, tau) * G, lf = this.lift(S.hits.f, tau) * G;
     const head = (x, l) => [x, -15.55 - l];
     const d = l => rot(nrm([1.1, .6]), -.07 * l);
     S.pn = head(16.1, ln); S.pf = head(12.9, lf); S.dn = d(ln); S.df = d(lf);
@@ -15463,22 +16378,24 @@ const ACTS = [
   },
   update(t, S, J, api){
     const tau = t % 9, prev = S.lt, dt = frac((tau - prev) / 9) * 9; S.lt = tau;
-    for(const k of ['n', 'f']) for(const h of S.hits[k]){
+    if(!api.quiet) for(const k of ['n', 'f']) for(const h of S.hits[k]){
       if((prev < h && h <= tau) || (prev > tau && (h > prev || h <= tau))){
-        S.wob = Math.min(1.4, S.wob + (tau > 4 && tau < 6.8 ? .25 : 1));
+        const roll = tau > 4 && tau < 6.8;
+        S.wob = Math.min(1.4, S.wob + (roll ? .25 : 1));
+        api.thump(14.6, h === 7 ? 1.3 : roll ? .1 : .5);
         if(!(tau > 4.3 && tau < 6.7) || Math.random() < .08) api.emit('ring', k === 'n' ? 16.1 : 12.9, -17.5, { vy:-2.4, vx:0, life:.9, s:.8, grow:1.4 });
         if(h === 7) for(let q = 0; q < 2; q++) api.emit(q ? 'n4' : 'n8', 11 + q * 6, -21, { vy:-4.5 });
       }
     }
-    S.wob *= Math.pow(.02, dt);
-    const w = S.wob * Math.sin(t * 60) * .7;
+    S.wob *= Math.pow(.02, dt || (api.quiet ? 1 / 60 : 0));
+    const w = S.wob * Math.sin(api.t * 60) * .7;
     S.skin.setAttribute('d', `M6.8 -14.8Q14.6 ${n2(-13.5 + w)} 22.4 -14.8Q14.6 ${n2(-16.1 + w * .5)} 6.8 -14.8Z`);
     S.mn.setAttribute('d', line(add(J.hn, S.dn, -.3), S.pn)); S.hn.setAttribute('cx', n2(S.pn[0])); S.hn.setAttribute('cy', n2(S.pn[1]));
     S.mf.setAttribute('d', line(add(J.hf, S.df, -.3), S.pf)); S.hf.setAttribute('cx', n2(S.pf[0])); S.hf.setAttribute('cy', n2(S.pf[1]));
   } },
 
 /* 8 ---- harp ---- */
-{ id:'harp', st:'harp', perform:true,
+{ id:'harp', st:'harp', perform:true, lift:2,
   build(c, r, R){
     const str = R.str.map(s => ({ ...s, e:c.dy('pre', 'path', { class:'cz-acc cz-string', d:line(s.top, s.bot) }), h:0 }));
     const plan = side => { const o = []; let tt = 0; while(tt < 60){ o.push({ t:tt, i:side ? Math.floor(r() * 4) : 4 + Math.floor(r() * 4), f:.35 + r() * .3 }); tt += side ? .42 + r() * .25 : .8 + r() * .5; } return o; };
@@ -15496,7 +16413,8 @@ const ACTS = [
     p.lean = .1 + .045 * Math.sin(t * TAU / 4.4); p.head = .12 + .05 * Math.sin(t * TAU / 2.2);
     p.hn = this.hand(S, S.pn, t); p.hf = this.hand(S, S.pf, t);
     const g = t % 9;
-    if(g > 6.4 && g < 8){
+    S.gl = (S.I ?? 1) > .6;
+    if(g > 6.4 && g < 8 && S.gl){
       const k = (g - 6.4) / 1.6, sw = ss(k);
       const x = lerp(3.7, 13.1, sw), h = lerp(-22.5, -9.5, sw);
       p.hn = mix(p.hn, [x, h], Math.sin(Math.PI * k) > .25 ? 1 : ss(Math.sin(Math.PI * k) * 4));
@@ -15505,13 +16423,13 @@ const ACTS = [
     return p;
   },
   update(t, S, J, api){
-    const dt = Math.max(0, t - S.lt), g = t % 9; S.lt = t;
-    for(const list of [S.pn, S.pf]) for(const e of list) if(e.t > t - dt && e.t <= t){ S.str[e.i].h = 1; if(Math.random() < .3) api.emit('n8', S.str[e.i].x + 2, -26); }
-    if(g > 6.4 && g < 8){ for(const s of S.str) if(Math.abs(J.hn[0] - s.x) < .5 && s.h < .6) s.h = 1; }
-    if(S.g0 !== Math.floor(t / 9) && g > 7.9){ S.g0 = Math.floor(t / 9); for(let k = 0; k < 3; k++) api.emit(['n16', 'n8', 'n4'][k], 8 + k * 5, -30 - k, { vy:-4 - k }); }
+    const dt = Math.max(0, t - S.lt) || (api.quiet ? 1 / 60 : 0), g = t % 9; S.lt = t;
+    if(!api.quiet) for(const list of [S.pn, S.pf]) for(const e of list) if(e.t > t - dt && e.t <= t){ S.str[e.i].h = 1; if(Math.random() < .3) api.emit('n8', S.str[e.i].x + 2, -26); }
+    if(g > 6.4 && g < 8 && S.gl){ for(const s of S.str) if(Math.abs(J.hn[0] - s.x) < .5 && s.h < .6) s.h = 1; }
+    if(S.gl && S.g0 !== Math.floor(t / 9) && g > 7.9){ S.g0 = Math.floor(t / 9); for(let k = 0; k < 3; k++) api.emit(['n16', 'n8', 'n4'][k], 8 + k * 5, -30 - k, { vy:-4 - k }); }
     for(const s of S.str){
       s.h = Math.max(0, s.h - dt * 1.3);
-      const v = s.h * .45 * Math.sin(t * 90);
+      const v = s.h * .45 * Math.sin(api.t * 90);
       s.e.style.opacity = n2(s.h);
       if(s.h > 0) s.e.setAttribute('d', 'M' + P(...s.top) + 'Q' + P(s.x + v, (s.top[1] + s.bot[1]) / 2) + ' ' + P(...s.bot));
     }
@@ -15578,8 +16496,9 @@ const ACTS = [
   pose(t, S){
     const p = sit(t);
     p.hip = [-1.7, -9.9]; p.fn = [8.4, -1.2]; p.ff = [7.2, -1.2];
-    const nod = t < 14 ? 0 : t < 19 ? (t < 16 ? ss((t - 14) / 1.8) * .7 : t < 16.25 ? lerp(.7, .05, ss((t - 16) / .25)) : ss((t - 16.25) / 2.6)) : 1;
-    const asleep = ss((t - 18.2) / 1.2);
+    const u = t - (S.n0 ?? 14) + 14;   // his clock, shifted to when he starts to nod
+    const nod = u < 14 ? 0 : u < 19 ? (u < 16 ? ss((u - 14) / 1.8) * .7 : u < 16.25 ? lerp(.7, .05, ss((u - 16) / .25)) : ss((u - 16.25) / 2.6)) : 1;
+    const asleep = ss((u - 18.2) / 1.2);
     const br = Math.sin(t * TAU / (asleep ? 4.6 : 4.2));
     p.lean = -.1 + br * (.012 + .015 * asleep);
     p.head = .16 + .3 * nod + .03 * br * asleep;
@@ -15597,19 +16516,831 @@ const ACTS = [
     const pg = (w, h) => `M0 0L${n2(w)} ${n2(-.55)}L${n2(w)} ${n2(-.55 - h)}L0 ${n2(-h)}Z`;
     S.L.setAttribute('d', pg(-3, 4.1)); S.R.setAttribute('d', pg(3, 4.1));
     S.T.setAttribute('d', 'M-.6 -1.4L-2.4 -1.75M-.6 -2.4L-2.4 -2.75M.6 -1.4L2.4 -1.75M.6 -2.4L2.4 -2.75M.6 -3.3L1.9 -3.55');
-    const turn = t < 14 ? [4.5, 9.8].map(x => (t - x) / .75).find(k => k > 0 && k < 1) : undefined;
+    const n0 = S.n0 ?? 14, turn = t < n0 ? [4.5, 9.8].filter(x => x < n0 - 1).map(x => (t - x) / .75).find(k => k > 0 && k < 1) : undefined;
     if(turn != null){ S.leaf.style.opacity = 1; S.leaf.setAttribute('d', pg(3 * Math.cos(Math.PI * ss(turn)), 4.1 + .6 * Math.sin(Math.PI * turn))); }
     else S.leaf.style.opacity = 0;
     if(S.asleep > .8) every(S, 'zz', t, 1.8, () => { const h = J.H.c; api.emit('z', h[0] + 3.5, h[1] - 3, { vx:1.6, vy:-2.6, life:2.8, s:.8, grow:.9 }); });
   } }
 ];
-/* one shared clock for every composer on screen, capped near 30 fps */
+/* one shared clock for every composer on screen, capped near 60 fps (a 120 Hz
+   display gets every other frame) */
+/* ================= the performance =================
+   The other thing that can live above your library: a little stage with a
+   band of the composer's colleagues and a tiny audience, seen from the back
+   of the hall. It shares his engine: the same pen sketches the stage, the
+   players are the same rig (makeRig, and his render), and each plays with
+   his own activity from ACTS, so a violinist here bows exactly as he does.
+
+   The evening runs by itself: the pen draws the stage, the audience drifts
+   in, the players walk on from the wings and settle at their instruments,
+   and the conductor turns to take the welcome. Then a piece: it grows from
+   quiet to a climax and ends on a held chord (on the timpani's big stroke,
+   if there are timpani). Applause, bows, a pause, and the next piece.
+
+   Tap a player during a piece for a solo (the spotlight finds them); tap the
+   conductor for a crescendo from everyone. Tap the audience between pieces
+   and they applaud, and the band takes another bow; tap someone mid-piece
+   and they leap up cheering, and get shushed. */
+const DECK = -8, PF_GAP = 4.5, PF_EDGE = 12, PF_TOP = -62, PF_BAY = 30, PF_BAYMIN = 26;
+const PF_ORDER = ['harp', 'piano', 'cello', 'timpani', 'flute', 'violin', 'conduct'];
+// the violinist and the flautist each get a plain music stand, down on the stage
+const PF_STAND = { id:'stand', face:1, ext:[-5.4, 19.4], room(c){
+  c.sk('back', 'M15.2 -.2V-18.2M12.6 0L15.2 -3.2L17.8 0');
+  c.sk('back', 'M11.8 -17.6L18.7 -22.4');
+  c.sk('back', 'M12.6 -18.5L17.6 -22', 'cz-prop cz-fine');
+} };
+const PF_SPOT = { harp:{ st:'harp', face:1 }, piano:{ st:'piano', face:1 }, cello:{ st:'cello', face:1 }, timpani:{ st:'drum', face:1 },
+  flute:{ def:PF_STAND, face:1 }, violin:{ def:PF_STAND, face:1 }, conduct:{ st:'podium', face:-1 } };
+// who's who: which hair the rig keeps (pf-own: none of the composer's), and the coat
+const PF_LOOK = { piano:'pf-own pf-t1', harp:'pf-bun pf-t3', cello:'pf-own pf-t2', timpani:'pf-own pf-t3', flute:'pf-own pf-t1', violin:'pf-own pf-t3' };
+/* each player's own face and hair, added to the shared rig (the conductor is
+   the composer himself, Mozart or Beethoven, as chosen in Settings).
+   where: back (behind face, profile) | top (over face, under brow/eye) | over (over everything, profile)
+         fback (behind skin, front view) | ftop (over skin, front view) | feat (with the face features, front view) */
+const PF_HEAD = {
+  // the pianist: cropped dark hair, sideburns, little round spectacles
+  piano:{ face:'M3.5 -.9L4.5 .5L3.28 1.12A3.55 3.55 0 1 1 3.5 -.9Z', parts:[
+    ['top', 'path', { class:'pf-ear', d:'M-.95 -.55Q.05 -1.1 .35 .05Q.5 1.2 -.75 1.15' }],
+    ['top', 'path', { class:'pf-hk', d:'M3.05 -1.95C2.7 -3.55 1.1 -4.25 -.55 -4.1C-2.45 -3.95 -3.85 -2.6 -3.85 -.6C-3.85 .7 -3.35 1.65 -2.75 2.2C-2.3 1.4 -2.1 .45 -1.55 -.5C-1.1 -1.25 -.25 -1.5 .6 -1.55C.75 -.9 .7 -.3 .5 .35L.95 .35C1.25 -.4 1.3 -1.1 1.2 -1.65C1.9 -1.65 2.5 -1.7 3.05 -1.95Z' }],
+    ['over', 'path', { class:'pf-spec', d:'M1.6 -.95A.92 .92 0 1 0 3.44 -.95A.92 .92 0 1 0 1.6 -.95ZM1.6 -.95L-.35 -.8' }],
+    ['fback', 'path', { class:'pf-hk', d:'M-3.6 .6C-3.95 -2.9 -2.1 -4.4 0 -4.4C2.1 -4.4 3.95 -2.9 3.6 .6Z' }],
+    ['ftop', 'path', { class:'pf-hk', d:'M-3.55 .4C-3.85 -2.8 -2 -4.35 0 -4.35C2 -4.35 3.85 -2.8 3.55 .4C3.3 -.6 2.9 -1.5 2.2 -2.05C1.4 -2.55 .5 -2.5 -.2 -2.3C-1.2 -2.6 -2.3 -2.3 -2.9 -1.4C-3.25 -.9 -3.4 -.3 -3.55 .4Z' }],
+    ['feat', 'path', { class:'pf-spec', d:'M-2.02 -.55a.82 .82 0 1 0 1.64 0a.82 .82 0 1 0 -1.64 0M.38 -.55a.82 .82 0 1 0 1.64 0a.82 .82 0 1 0 -1.64 0M-.38 -.6h.76' }]
+  ] },
+  // the cellist: an old hand, bald on top, a grey fringe and a full beard
+  cello:{ face:'M3.5 -.95Q4.85 -.15 4.35 .75L3.3 1.1A3.55 3.55 0 1 1 3.5 -.95Z', parts:[
+    ['top', 'path', { class:'pf-ear', d:'M-.95 -.55Q.05 -1.1 .35 .05Q.5 1.2 -.75 1.15' }],
+    ['top', 'path', { class:'pf-hg', d:'M-2.35 -2.55C-3.55 -2 -4.05 -.7 -3.85 .75C-3.7 1.75 -3.2 2.45 -2.55 2.75C-2.2 2.1 -1.9 1.3 -1.75 .6C-1.95 -.3 -1.95 -1.45 -2.35 -2.55Z' }],
+    ['top', 'path', { class:'pf-hg', d:'M3.45 1.05C3.7 2.25 3.15 3.55 1.95 4.05C.75 4.5 -.55 4 -1.05 2.95C-.6 2.55 -.25 1.95 -.05 1.25C.55 1.75 1.35 1.95 2.1 1.8C2.6 1.7 3.05 1.45 3.45 1.05Z' }],
+    ['top', 'path', { class:'pf-hg', d:'M2.35 1.55C2.9 1.1 3.75 1.05 4.25 1.4C3.9 1.95 3.1 2.1 2.35 1.55Z' }],
+    ['over', 'path', { class:'cz-line cz-brow', d:'M1.05 -1.55Q1.9 -2 2.8 -1.45' }],
+    ['fback', 'path', { class:'pf-hg', d:'M-3.35 -1.9C-4.15 -.8 -4 1 -3.2 2C-2.9 1.1 -2.9 .1 -2.95 -.8ZM3.35 -1.9C4.15 -.8 4 1 3.2 2C2.9 1.1 2.9 .1 2.95 -.8Z' }],
+    ['feat', 'path', { class:'pf-hg', d:'M-2.55 .9C-2.5 3.2 -1.2 4.35 0 4.35C1.2 4.35 2.5 3.2 2.55 .9C1.95 1.55 1.1 1.85 .6 1.55C.35 1.25 -.35 1.25 -.6 1.55C-1.1 1.85 -1.95 1.55 -2.55 .9Z' }],
+    ['feat', 'path', { class:'cz-line cz-brow', d:'M-2.05 -1.45Q-1.3 -1.85 -.6 -1.4M2.05 -1.45Q1.3 -1.85 .6 -1.4' }]
+  ] },
+  // the timpanist: a great mop of curls and mutton-chop whiskers
+  timpani:{ parts:[
+    ['back', 'path', { class:'pf-hk', d:'M-2.6 3.1A1.35 1.35 0 0 1 -4.35 1.3A1.35 1.35 0 0 1 -4.6 -.9A1.5 1.5 0 0 1 -3.8 -3.2A1.55 1.55 0 0 1 -1.6 -4.6A1.5 1.5 0 0 1 .8 -4.9A1.4 1.4 0 0 1 2.9 -3.8A1.2 1.2 0 0 1 3.3 -2.2Z' }],
+    ['top', 'path', { class:'pf-hk', d:'M3.3 -2.2C2.5 -1.7 1.5 -2.1 .8 -1.6C.1 -1.1 -.3 -.4 -.8 .3C-1.2 .9 -1.7 1.5 -2.6 3.1C-3 1.1 -2.7 -1.3 -1.4 -2.7C-.1 -3.9 2.3 -3.7 3.3 -2.2Z' }],
+    ['top', 'path', { class:'pf-hk', d:'M.15 -.65C.55 .5 1.1 1.55 1.95 2.3C1.35 2.75 .45 2.55 -.05 1.9C-.45 1.3 -.55 .45 -.4 -.3Z' }],
+    ['top', 'path', { class:'cz-strand', d:'M-2.9 -1.9q.6 -.5 1.2 .1M-1.1 -3.4q.6 -.5 1.2 .1M.9 -3.5q.6 -.4 1.1 .2M-3.3 .6q.6 -.5 1.1 .2' }],
+    ['fback', 'path', { class:'pf-hk', d:'M-3.2 2.4A1.3 1.3 0 0 1 -4.7 .6A1.45 1.45 0 0 1 -4.4 -1.9A1.5 1.5 0 0 1 -2.6 -3.9A1.55 1.55 0 0 1 0 -4.9A1.55 1.55 0 0 1 2.6 -3.9A1.5 1.5 0 0 1 4.4 -1.9A1.45 1.45 0 0 1 4.7 .6A1.3 1.3 0 0 1 3.2 2.4Z' }],
+    ['ftop', 'path', { class:'pf-hk', d:'M-3.45 .2C-3.6 -2.3 -2.2 -3.9 0 -3.95C2.2 -3.9 3.6 -2.3 3.45 .2C3 -.8 2.4 -1.7 1.5 -2C.9 -1.6 .5 -2.3 0 -2.2C-.5 -2.3 -.9 -1.6 -1.5 -2C-2.4 -1.7 -3 -.8 -3.45 .2Z' }],
+    ['feat', 'path', { class:'pf-hk', d:'M-3.4 .1C-3.3 1.4 -2.8 2.4 -2 2.9C-1.9 2 -2.1 1.1 -2.7 .1ZM3.4 .1C3.3 1.4 2.8 2.4 2 2.9C1.9 2 2.1 1.1 2.7 .1Z' }]
+  ] },
+  // the flautist: long wavy hair, pale, held back with a ribbon band
+  flute:{ face:'M3.52 -.72L4.25 .32L3.35 .98A3.55 3.55 0 1 1 3.52 -.72Z', parts:[
+    ['back', 'path', { class:'pf-hl', d:'M-2.6 -3.3C-4.2 -2.4 -4.7 -.4 -4.4 1.6C-4.1 3.4 -4.9 4.9 -5.7 6.1C-4.4 6.4 -3 5.9 -2.4 4.9C-1.9 3.9 -1.8 2.9 -1.9 1.9Z' }],
+    ['top', 'path', { class:'pf-hl', d:'M3 -2.3C2.1 -4.3 -1.2 -4.9 -3.1 -3.3C-4.3 -2.3 -4.5 -.5 -4.1 1.4C-3.4 1.2 -2.7 .6 -2.4 -.2C-2 -1.3 -1.1 -2.1 .3 -2.2C1.3 -2.2 2.2 -2 3 -2.3Z' }],
+    ['top', 'path', { class:'cz-strand', d:'M-3.6 -1.6q.5 1.4 -.1 2.9M-2.5 -2.9q-.9 1 -.7 2.4M-.5 -3.8q-1.2 .5 -1.6 1.6' }],
+    ['top', 'path', { class:'pf-band', d:'M1.1 -3.9Q-.9 -2.6 -1.4 -.2' }],
+    ['over', 'path', { class:'cz-line cz-hair', d:'M2.2 -1.15l.45 -.45M1.9 -1.2l.2 -.55' }],
+    ['fback', 'path', { class:'pf-hl', d:'M-3.5 -1.2C-4.5 1.2 -4.5 3.8 -5.1 5.9C-3.4 6.2 -2.6 5 -2.5 3.2L2.5 3.2C2.6 5 3.4 6.2 5.1 5.9C4.5 3.8 4.5 1.2 3.5 -1.2Z' }],
+    ['ftop', 'path', { class:'pf-hl', d:'M-3.6 .9C-3.95 -2.8 -2.1 -4.45 0 -4.45C2.1 -4.45 3.95 -2.8 3.6 .9C3.1 -.9 2.2 -2.2 .5 -2.5L0 -3.2L-.5 -2.5C-2.2 -2.2 -3.1 -.9 -3.6 .9Z' }],
+    ['ftop', 'path', { class:'pf-band', d:'M-3.2 -2.2Q0 -4.4 3.2 -2.2' }]
+  ] },
+  // the violinist: long dark locks, a sharp nose, a wild romantic
+  violin:{ face:'M3.45 -1L4.95 .75L3.25 1.12A3.55 3.55 0 1 1 3.45 -1Z', parts:[
+    ['back', 'path', { class:'pf-hk', d:'M-2.4 -3.4C-4.3 -2.6 -4.9 -.3 -4.6 1.9C-4.4 3.5 -4.7 4.8 -5.3 5.8C-4 5.9 -2.9 5 -2.5 3.9C-2.1 2.8 -2.2 1.6 -2 .6Z' }],
+    ['top', 'path', { class:'pf-hk', d:'M3.1 -2.4C2.2 -4.4 -1.3 -5 -3.2 -3.3C-4.3 -2.3 -4.4 -.4 -4 1.5C-3.3 1.3 -2.6 .5 -2.4 -.3C-2.1 -1.3 -1.3 -2 -.1 -2.1C.6 -1.3 1.8 -1.1 2.6 -1.6C3.1 -1.5 3.4 -.9 3.35 -.4C3.7 -1 3.6 -1.9 3.1 -2.4Z' }],
+    ['top', 'path', { class:'cz-strand', d:'M-3.5 -1.2q.6 1.5 .1 3.1M-2.1 -3.3q-.9 1 -.8 2.6M.8 -3.6q-.8 .5 -.9 1.5' }],
+    ['fback', 'path', { class:'pf-hk', d:'M-3.5 -1.4C-4.6 1 -4.6 3.6 -5.2 5.6C-3.6 5.9 -2.8 4.8 -2.6 3.2L2.6 3.2C2.8 4.8 3.6 5.9 5.2 5.6C4.6 3.6 4.6 1 3.5 -1.4Z' }],
+    ['ftop', 'path', { class:'pf-hk', d:'M-3.6 .8C-3.95 -2.9 -2.1 -4.5 0 -4.5C2.1 -4.5 3.95 -2.9 3.6 .8C3.1 -.6 2.3 -1.7 1.3 -2C.4 -1.2 -.3 -1.5 -.8 -2.4C-2 -2.1 -3.1 -.9 -3.6 .8Z' }]
+  ] },
+  // the harpist keeps the bun, with a ringlet at the temple and an earring
+  harp:{ parts:[
+    ['over', 'circle', { class:'pf-gem', cx:-.55, cy:1.55, r:.38 }],
+    ['over', 'path', { class:'cz-line cz-hair', d:'M2.2 -1.15l.45 -.45M1.9 -1.2l.2 -.55' }],
+    ['feat', 'path', { class:'cz-hairline', d:'M-3.5 -.4q-.6 1 0 1.9q.5 .8 -.1 1.6M3.5 -.4q.6 1 0 1.9q-.5 .8 .1 1.6' }]
+  ] }
+};
+function dressHead(m, id){
+  const H = PF_HEAD[id], F = m.f; if(!H) return;
+  if(H.face) F.face.setAttribute('d', H.face);
+  const at = { back:e => F.hp.insertBefore(e, F.face), top:e => F.hp.insertBefore(e, F.brow), over:e => F.hp.appendChild(e),
+    fback:e => F.hf.insertBefore(e, F.hf.firstChild), ftop:e => F.hf.appendChild(e), feat:e => F.feat.appendChild(e) };
+  for(const [w, tag, attrs] of H.parts) at[w](mk(tag, attrs));
+}
+function stageLayout(acts){
+  const ids = PF_ORDER.filter(id => acts.some(a => a.id === id)), list = [];
+  let cur = 0;
+  for(const id of ids){
+    const m = PF_SPOT[id], def = m.def || STATIONS.find(s => s.id === m.st), f = m.face;
+    const [a, b] = f > 0 ? def.ext : [-def.ext[1], -def.ext[0]];
+    const X = cur - a; cur = X + b + PF_GAP;
+    list.push({ id, act:ACTS.find(q => q.id === id), def, face:f, X, lo:X + a, hi:X + b });
+  }
+  let w = Math.max(0, cur - PF_GAP);
+  if(w < 64){ const d = (64 - w) / 2; for(const s of list){ s.X += d; s.lo += d; s.hi += d; } w = 64; }   // a stage never smaller than this
+  const L = -PF_EDGE, R = w + PF_EDGE;
+  return { list, L, R, W:R - L + 10 };   // with the drapes' outer edges
+}
+function tapOn(el, fn){
+  let d = null;
+  el.addEventListener('pointerdown', e => { e.stopPropagation(); d = { id:e.pointerId, x:e.clientX, y:e.clientY }; });
+  el.addEventListener('pointerup', e => { if(d && e.pointerId === d.id && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 10) fn(e); d = null; });
+  el.addEventListener('pointercancel', () => { d = null; });
+}
+
+/* one player: the composer's rig, at one station, with one activity */
+class Musician {
+  constructor(show, sp){
+    this.show = show; this.sp = sp; this.act = sp.act; this.fl = sp.def.floor || 0;
+    const look = sp.id === 'conduct' ? 'pf-t2' + (show.headNow() === 'wig' ? '' : ' pf-beet') : PF_LOOK[sp.id] || '';
+    this.actor = mk('g', { class:'cz-actor ' + look }, show.band);
+    makeRig(this);
+    dressHead(this, sp.id);
+    this.hit = mk('rect', { class:'pf-hit', x:-7, y:-41, width:14, height:42 }, this.actor);
+    tapOn(this.hit, () => show.pokeM(this));
+    this.t = Math.random() * 20; this.tb = this.th = 0; this.hop = 0; this.hopH = 2.2;
+    this.ride = 0; this.liftY = 0; this.swing = null; this.pg = null; this._w = 0;
+    this.x = sp.X; this.face = sp.face; this.st = 'off'; this.stT = 0; this.S = null; this.ph = 0;
+    this.solo = 0; this.v = 16 + Math.random() * 3; this.onFl = false; this.borrowed = false;
+    this.setDyn(0);
+  }
+  // an act asks whether it should be sounding: only mid-piece, and not on the held last chord
+  get quiet(){ return this.st !== 'play' || this.show.phase !== 'play' || this.show.holding; }
+  ctx(){
+    const self = this;
+    return { dy(layer, tag, attrs){ return mk(tag, attrs, self.lay[layer].dy); }, g(layer){ return mk('g', {}, self.lay[layer].dy); } };
+  }
+  setDyn(w){ this.dyw = w; for(const k of ['back', 'mid', 'pre', 'top']) this.lay[k].dy.style.opacity = n2(w); }
+  borrow(){ const s = this.sp; if(!this.borrowed && s.front && s.front.childNodes.length){ this.lay.pre.sk.appendChild(s.front); this.borrowed = true; } }
+  // a fresh start for each piece: whatever the act keeps (timers, strings, planned runs) begins again
+  rebuild(){
+    if(this.act.leave) this.act.leave(this.sp.R);
+    for(const k of ['back', 'mid', 'pre', 'top']) this.lay[k].dy.replaceChildren();
+    this.S = this.act.build(this.ctx(), rng((Math.random() * 1e9) | 0), this.sp.R) || {};
+  }
+  emit(kind, lx, ly, o){ this.show.emitM(this, kind, lx, ly, o); }
+  thump(lx, amp){ this.show.boom(this.x + this.face * lx, amp); }
+  go(st){ this.st = st; this.stT = 0; }
+  step(dt){
+    const P = this.show, sp = this.sp, a = this.act, fl = this.fl;
+    this.t += dt; this.stT += dt;
+    if(this.hop > 0){ this.hop += dt; if(this.hop > .42) this.hop = 0; }
+    this.solo = Math.max(0, this.solo - dt);
+    const T = this.stT, st = this.st;
+    let pose, dyn = 0, tp = 0, upd = false;
+    FLOOR = 0;
+    if(st === 'off') pose = stand(this.t);
+    else if(st === 'walk'){
+      const dx = sp.X - this.x, far = Math.abs(dx);
+      if(far < .25){
+        this.x = sp.X; pose = stand(this.t);
+        if(this.face !== sp.face){ this.turnFrom = this.face; this.go('turn'); } else this.go('setup');
+      } else {
+        const v = this.v * Math.min(1, .3 + T * 1.5) * Math.min(1, .35 + far / 5), mv = Math.min(far, v * dt);
+        this.face = Math.sign(dx); this.x += this.face * mv; this.ph += mv * Math.PI / 8.4;
+        pose = blend(stand(this.t), walk(this.ph), Math.min(1, T * 3, far / 2.5));
+      }
+    } else if(st === 'turn'){
+      const D = .58, u = clamp(T / D, 0, 1), second = u >= .5;
+      const Tb = Math.PI * ss(u), Th = Math.PI * ss(clamp(u * 1.35, 0, 1));
+      this.face = second ? sp.face : this.turnFrom;
+      this.tb = second ? Math.PI - Tb : Tb; this.th = second ? Math.PI - Th : Th;
+      pose = turnPose(this.t, u, Math.sin(Tb));
+      if(u >= 1){ this.tb = this.th = 0; this.face = sp.face; this.go('setup'); }
+    } else {
+      // at the instrument: settling in, poised, playing, rising, bowing, or (the conductor) turned to the hall
+      const step = st === 'setup' && !this.onFl ? ss((T - .15) / .45) : 1;
+      let wt = 1, f = 0;
+      if(st === 'setup'){
+        if(!this.S){ this.borrow(); this.rebuild(); }
+        wt = ss((T - .75) / .8); dyn = ss((T - .4) / .6);
+        if(T > 1.65){ this.onFl = true; this.go('ready'); }
+      } else if(st === 'ready'){ dyn = 1; }
+      else if(st === 'play'){ dyn = 1; tp = P.tp; }
+      else if(st === 'rise'){
+        wt = 1 - ss(T / .75); dyn = 1 - ss(T / .6); tp = this.riseTp;
+        if(T > .8) this.go('bow');
+      } else if(st === 'bow'){
+        wt = 0;
+        if(T > 1.95) this.go('setup');
+      } else if(st === 'front'){
+        const D = 3;
+        f = Math.min(ss(T / .45), 1 - ss((T - D + .5) / .5));
+        this.tb = f * Math.PI / 2;
+        this.th = Math.min(ss(T / .32), 1 - ss((T - D + .55) / .4)) * Math.PI / 2;
+        wt = 1 - f; dyn = 1 - f; tp = T > D / 2 ? 0 : this.riseTp || 0;   // back to the poised pose while facing the hall
+        if(T >= D){ this.tb = this.th = 0; this.go('ready'); }
+      }
+      FLOOR = fl * step;
+      let base = st === 'bow' ? bowPose(this.t, T) : stand(this.t);
+      if(st === 'front'){
+        // facing the hall: the torso folds towards you, so a bow reads as the head dropping
+        const k = Math.sin(Math.PI * clamp((T - .55) / 1.8, 0, 1));
+        base = frontBase(this.t); base.lean = .02 + .5 * k; base.head = .22 * k;
+        base.hip = add(base.hip, [0, .25 * k]);
+      }
+      if(step < 1 && fl) base.hip[1] -= Math.sin(Math.PI * step) * 1.2;   // a little hop up onto the podium
+      FLOOR = fl;
+      if(wt > 0 && this.S){
+        this.S.I = P.intensity(this);
+        const ap = a.pose(tp, this.S, sp.R);
+        const fz = st === 'play' ? P.fz : st === 'rise' || (st === 'front' && T < 1.5) ? (this.riseFz || 0) : 0;
+        if(fz){ const k = (a.lift || 2) * fz; ap.hn = add(ap.hn, [-.5 * fz, -k]); ap.hf = add(ap.hf, [-.4 * fz, -k * .8]); ap.head -= .1 * fz; ap.lean -= .04 * fz; }
+        if(st === 'ready' || st === 'setup'){   // poised: still, but breathing
+          ap.lean += .012 * Math.sin(this.t * TAU / 4.4); ap.head += .035 * Math.sin(this.t * .8 + sp.X);
+        }
+        pose = f ? blend(ap, base, f) : blend(base, ap, wt);
+        upd = true;
+      } else pose = base;
+      this._w = wt;
+      this.setDyn(dyn);
+    }
+    // they come and go behind the drapes
+    const Lx = P.lay, inside = Math.min(this.x - Lx.L, Lx.R - this.x);
+    this.actor.style.opacity = n2(ss((inside + 2) / 9));
+    this.render(pose);
+    if(upd){ FLOOR = fl; a.update(tp, this.S, this.J, this, sp.R); }
+    FLOOR = 0;
+  }
+}
+Musician.prototype.render = Composer.prototype.render;
+
+class Performance {
+  constructor(host, opts){
+    this.host = host; this.o = opts || {};
+    this.svg = mk('svg', { class:'cz-svg pf-svg', 'aria-hidden':'true', focusable:'false' }, host);
+    const id = ++Performance.n;
+    this.gid = 'pfg' + id;
+    const defs = mk('defs', {}, this.svg), rg = mk('radialGradient', { id:this.gid }, defs);
+    mk('stop', { offset:'0', class:'cz-g0' }, rg); mk('stop', { offset:'1', class:'cz-g1' }, rg);
+    const pgr = mk('radialGradient', { id:'pfp' + id }, defs);
+    for(const [o, c] of [[0, 'cz-p0'], [.4, 'cz-p1'], [1, 'cz-p2']]) mk('stop', { offset:o, class:c }, pgr);
+    const sg = mk('radialGradient', { id:'pfs' + id }, defs);
+    for(const [o, c] of [[0, 'cz-s0'], [.55, 'cz-s1'], [1, 'cz-s2']]) mk('stop', { offset:o, class:c }, sg);
+    // the audience sits in the stalls: nothing of them shows below the staff line
+    const cp = mk('clipPath', { id:'pfc' + id }, defs);
+    mk('rect', { x:-5000, y:-400, width:10000, height:400.4 }, cp);
+    // the hall fades out behind the count and the Settings button, so they stay easy to read
+    this.fadeG = mk('linearGradient', { id:'pff' + id, gradientUnits:'userSpaceOnUse', x1:0, x2:1, y1:0, y2:0 }, defs);
+    mk('stop', { offset:0, 'stop-color':'#fff', 'stop-opacity':1 }, this.fadeG);
+    mk('stop', { offset:1, 'stop-color':'#fff', 'stop-opacity':.14 }, this.fadeG);
+    const fm = mk('mask', { id:'pfm' + id, maskUnits:'userSpaceOnUse', x:-5000, y:-400, width:10000, height:800 }, defs);
+    mk('rect', { x:-5000, y:-400, width:10000, height:800, fill:`url(#pff${id})` }, fm);
+    this.world = mk('g', {}, this.svg);
+    this.roomG = mk('g', { class:'cz-room' }, this.world);
+    this.wash = mk('ellipse', { class:'cz-spot', style:`fill:url(#pfs${id});opacity:0` }, this.roomG);
+    this.spot = mk('ellipse', { class:'cz-spot', rx:17, ry:26, style:`fill:url(#pfs${id});opacity:0` }, this.roomG);
+    // the concert hall around the stage: pilasters, sconces, and two tiers of boxes with their own audience
+    this.hallG = mk('g', { mask:`url(#pfm${id})` }, this.roomG);
+    this.hallBack = mk('g', {}, this.hallG);
+    this.boxG = mk('g', {}, this.hallG);
+    this.hallFront = mk('g', {}, this.hallG);
+    this.stageG = mk('g', {}, this.roomG);
+    this.stationsG = mk('g', {}, this.roomG);
+    this.deck = mk('g', { transform:`translate(0 ${DECK})` }, this.roomG);
+    this.band = mk('g', {}, this.deck);
+    this.drapesG = mk('g', {}, this.roomG);
+    this.crowdG = mk('g', { 'clip-path':`url(#pfc${id})` }, this.roomG);
+    this.crowdHit = mk('rect', { class:'pf-hit' }, this.roomG);
+    this.boxHits = mk('g', {}, this.roomG);
+    this.fx = mk('g', { class:'cz-fx' }, this.roomG);
+    this.pen = mk('g', { class:'cz-pen', style:'opacity:0' }, this.roomG);
+    mk('circle', { class:'cz-glow', r:4.2, style:`fill:url(#pfp${id})` }, this.pen);
+    mk('circle', { class:'cz-nib', r:.62 }, this.pen);
+    this.parts = []; this.M = []; this.C = []; this.lights = []; this.sconces = []; this.boxes = [];
+    this.reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    tapOn(this.crowdHit, e => this.pokeCrowd(e));
+  }
+  headNow(){ return this.o.head ? this.o.head() : 'beethoven'; }
+  setConductor(){ const c = this.cond(); if(c) c.actor.classList.toggle('pf-beet', this.headNow() !== 'wig'); }
+  actsNow(){ const f = this.o.acts, l = typeof f === 'function' ? f() : f || ACTS; return l.length ? l : ACTS; }
+  resize(){
+    const r = this.host.getBoundingClientRect(), o = this.o.scale;
+    const s = typeof o === 'function' ? o(r.width) : o || 1;
+    this.W = Math.max(40, r.width / s); this.H = Math.max(30, r.height / s); this.s = s;
+    this.svg.setAttribute('viewBox', `0 ${n2(-this.H)} ${n2(this.W)} ${n2(this.H)}`);
+    this.fit(true);
+  }
+  /* The stage always fits its window (drawn smaller if need be, never cropped),
+     with room for at least a bay of the hall either side; the hall then runs
+     out to the edges of the screen, fading behind the count and the gear. */
+  fit(snap){
+    if(!this.lay || !this.W) return;
+    const z = this.o.zone ? this.o.zone(this) : [4, this.W - 4], s = this.s || 1, bl = (this.o.bleed || [0, 0])[0] / s, br = (this.o.bleed || [0, 0])[1] / s;
+    const za = z[0] - bl, zw = Math.max(20, z[1] - za);
+    const k = clamp(Math.min(zw / (this.lay.W + 2 * PF_BAYMIN), (this.H + 6) / 66), .42, 1);
+    this.fk = k; this.fo = za + zw / 2 - (this.lay.L + this.lay.R) / 2 * k;
+    // the architecture runs to the screen's edges; the stalls only as far as the staff does
+    const hall = { a:(-bl - this.fo) / k, b:(this.W + br - this.fo) / k, sa:-this.fo / k, sb:(this.W - this.fo) / k, fade:this.o.fade ? (z[1] - this.fo) / k : 1e4 };
+    const key = [hall.a, hall.b, hall.fade].map(v => Math.round(v / 4)).join('|');
+    if(key !== this.hallKey){
+      this.hallKey = key; this.hall = hall;
+      this.fadeG.setAttribute('x1', n2(hall.fade)); this.fadeG.setAttribute('x2', n2(hall.fade + 14));
+      if(!snap){ this.buildHall(true); this.buildCrowd(true); }   // the window changed while the show was on
+    }
+    if(snap || this.k == null){ this.k = this.fk; this.ox = this.fo; this.place(); }
+  }
+  easeFit(dt){
+    if(this.k == null || Math.abs(this.k - this.fk) + Math.abs(this.ox - this.fo) < .01) return;
+    const e = 1 - Math.exp(-dt * 3);
+    this.k += (this.fk - this.k) * e; this.ox += (this.fo - this.ox) * e; this.place();
+  }
+  place(){ this.world.setAttribute('transform', `translate(${n2(this.ox)} 0) scale(${Math.round(this.k * 1e4) / 1e4})`); }
+  toWorld(cx, cy){ const r = this.host.getBoundingClientRect(), s = this.s || 1; return [((cx - r.left) / s - this.ox) / this.k, (cy - r.bottom) / s / this.k]; }
+  dayPart(){ const h = new Date().getHours(); this.night = h >= 22 || h < 5; }
+
+  /* ---- the stage, the band, the audience ---- */
+  build(){
+    for(const g of [this.stageG, this.stationsG, this.band, this.drapesG, this.crowdG]) g.replaceChildren();
+    this.clearParts();
+    const lay = this.lay = stageLayout(this.actsNow()), { L, R } = lay, mid = (L + R) / 2;
+    const sk = (par, d, cls = 'cz-prop') => mk('path', { d, class:cls + ' cz-sk', pathLength:1 }, par);
+    // the boards: a raised stage with a front face and a lip
+    sk(this.stageG, `M${L} 0V${DECK}H${R}V0`, 'pf-board');
+    sk(this.stageG, `M${L - 1.6} ${DECK}H${R + 1.6}`);
+    let seams = '';
+    for(let x = L + 17; x < R - 8; x += 17) seams += `M${n2(x)} ${DECK + 1.5}V-.4`;
+    sk(this.stageG, `M${L} ${DECK + 1.5}H${R}` + seams, 'cz-far cz-fine');
+    // candle footlights along the front
+    this.lights = [];
+    const nL = Math.max(2, Math.round((R - L) / 24));
+    for(let i = 0; i < nL; i++){
+      const x = n2(L + (R - L) * (i + .5) / nL);
+      const glow = mk('circle', { class:'cz-glow', cx:x, cy:DECK - 2.2, r:4.5, style:`fill:url(#${this.gid})` }, this.stageG);
+      sk(this.stageG, `M${x - .5} ${DECK - .1}V${DECK - 1.3}H${x + .5}V${DECK - .1}`, 'cz-prop cz-fine');
+      const flame = mk('path', { class:'cz-acc cz-flame' }, this.stageG);
+      this.lights.push({ x, glow, flame, ph:Math.random() * TAU });
+    }
+    // the instruments, each at its chair
+    for(const s of lay.list){
+      s.g = mk('g', { transform:`translate(${n2(s.X)} ${DECK}) scale(${s.face} 1)` }, this.stationsG);
+      s.back = mk('g', {}, s.g); s.front = mk('g', {}, s.g);
+      const c = {
+        sk(where, d, cls = 'cz-prop'){ const par = where === 'front' ? s.front : where === 'back' ? s.back : where; return mk('path', { d, class:cls + ' cz-sk', pathLength:1 }, par); },
+        g(where, attrs){ return mk('g', attrs || {}, where === 'front' ? s.front : s.back); },
+        glow:'url(#' + this.gid + ')'
+      };
+      s.R = s.def.room(c) || {};
+    }
+    // tied-back drapes at both sides, and swags along the top
+    for(const side of [1, -1]){
+      const g = mk('g', side > 0 ? {} : { transform:`translate(${L + R} 0) scale(-1 1)` }, this.drapesG), x = v => n2(L + v);
+      sk(g, `M${x(-4)} ${PF_TOP}H${x(11)}C${x(9)} -48 ${x(2)} -38 ${x(2.6)} -27C${x(3.2)} -18 ${x(6)} -12 ${x(8.5)} ${DECK}H${x(-4)}Z`, 'pf-drape');
+      sk(g, `M${x(6)} ${PF_TOP}C${x(5)} -45 ${x(1)} -36 ${x(1.2)} -27.6C${x(1.4)} -19 ${x(3.2)} -13 ${x(4.6)} ${DECK}`
+        + `M${x(1.2)} ${PF_TOP}C${x(.6)} -45 ${x(-1)} -36 ${x(-.7)} -27.6C${x(-.4)} -19 ${x(.4)} -13 ${x(.8)} ${DECK}`, 'pf-fold');
+      sk(g, `M${x(-4)} -28.8Q${x(-.6)} -25.3 ${x(3.3)} -27.3V-25.2`, 'pf-cord');
+      sk(g, `M${x(3.3)} -25.4q-.95 1.7 0 2.6q.95 -.9 0 -2.6Z`, 'pf-tassel');
+    }
+    const nS = Math.max(2, Math.round((R - L + 10) / 40)), a0 = L - 5, sw = (R - L + 10) / nS;
+    let swags = '', tas = '';
+    for(let i = 0; i < nS; i++){
+      const a = a0 + i * sw, b = a + sw, m = (a + b) / 2;
+      swags += `M${n2(a)} ${PF_TOP - 1}Q${n2(m)} ${PF_TOP + 4.6} ${n2(b)} ${PF_TOP - 1}Q${n2(m)} ${PF_TOP + 1.6} ${n2(a)} ${PF_TOP - 1}Z`;
+      if(i) tas += `M${n2(a)} ${PF_TOP - .6}q-.8 1.9 0 2.8q.8 -.9 0 -2.8Z`;
+    }
+    sk(this.drapesG, swags, 'pf-drape');
+    sk(this.drapesG, `M${L - 6} ${PF_TOP - 1.2}H${R + 6}`);
+    if(tas) sk(this.drapesG, tas, 'pf-tassel');
+    this.room = { list:[{ g:this.hallG }, { g:this.stageG }, ...lay.list, { g:this.drapesG }] };
+    // the lighting: a wash over the whole stage, and a spot for whoever has the tune
+    this.wash.setAttribute('cx', n2(mid)); this.wash.setAttribute('cy', -26);
+    this.wash.setAttribute('rx', n2((R - L) / 2 + 8)); this.wash.setAttribute('ry', 32);
+    this.spotX = mid; this.spotA = 0; this.washA = 0; this.flare = 0;
+    // the band, waiting in the wings
+    this.M = lay.list.map(sp => new Musician(this, sp));
+    const sides = [[], []];
+    for(const m of this.M){
+      const right = m.sp.id === 'conduct' || (m.sp.lo + m.sp.hi) / 2 > mid;
+      m.x = right ? R + 4 : L - 4; m.face = right ? -1 : 1;
+      sides[+right].push(m);
+    }
+    // whoever has farthest to go sets off first
+    sides[0].sort((p, q) => q.sp.X - p.sp.X); sides[1].sort((p, q) => p.sp.X - q.sp.X);
+    for(const s of sides) s.forEach((m, i) => { m.enterAt = i * .8 + Math.random() * .25; });
+  }
+  /* The hall, out from the stage on both sides, one bay at a time: a pilaster
+     with a candle sconce, and two tiers of boxes with bellied fronts, little
+     swagged curtains and people leaning on the rail. */
+  buildHall(live){
+    for(const g of [this.hallBack, this.hallFront, this.boxHits]) g.replaceChildren();
+    this.sconces = []; this.boxes = [];
+    if(!this.lay || !this.hall) return;
+    const { L, R } = this.lay, H = this.hall;
+    const sk = (par, d, cls = 'cz-prop') => mk('path', { d, class:cls + ' cz-sk' + (live ? ' in' : ''), pathLength:1 }, par);
+    for(const d of [-1, 1]){
+      const x0 = d < 0 ? L - 4 : R + 4, n = Math.max(0, Math.ceil((d < 0 ? x0 - H.a : H.b - x0) / PF_BAY));
+      if(!n) continue;
+      const X = u => x0 + d * u, span = (u, v) => [n2(Math.min(X(u), X(v))), n2(Math.max(X(u), X(v)))];
+      const [ea, eb] = span(0, n * PF_BAY);
+      sk(this.hallBack, `M${ea} ${PF_TOP - 1.2}H${eb}M${ea} ${PF_TOP + .6}H${eb}`);   // the cornice
+      sk(this.hallBack, `M${ea} -10H${eb}`, 'cz-far cz-fine');                         // the dado rail behind the stalls
+      for(let i = 0; i < n; i++){
+        const u0 = i * PF_BAY, [pa, pb] = span(u0, u0 + 3), cx = n2((pa + pb) / 2);
+        sk(this.hallBack, `M${pa} 0V${PF_TOP + .6}H${pb}V0`, 'pf-pil');
+        sk(this.hallBack, `M${n2(pa - .7)} ${PF_TOP + .6}H${n2(pb + .7)}M${n2(pa - .5)} -1.2H${n2(pb + .5)}`, 'cz-prop cz-fine');
+        const glow = mk('circle', { class:'cz-glow', cx, cy:-33.4, r:5, style:`fill:url(#${this.gid})` }, this.hallBack);
+        sk(this.hallBack, `M${n2(cx - 1.15)} -31.4H${n2(cx + 1.15)}L${n2(cx + .6)} -30.2H${n2(cx - .6)}ZM${cx} -31.4V-32.5`, 'cz-prop cz-fine');
+        const flame = mk('path', { class:'cz-acc cz-flame' }, this.hallBack);
+        this.sconces.push({ x:cx, y:-32.5, glow, flame, ph:Math.random() * TAU });
+        const [A, B] = span(u0 + 3.6, u0 + PF_BAY - .2), M = n2((A + B) / 2);
+        for(const [rail, top] of [[-24, -38], [-46, -60.4]]){
+          sk(this.hallBack, `M${A} ${rail}V${top + 4.2}Q${M} ${top - 1.8} ${B} ${top + 4.2}V${rail}`, 'pf-inside');   // an arched opening
+          sk(this.hallBack, `M${A} ${top}Q${n2(A + 2.1)} ${top + 5.5} ${n2(A + .9)} ${top + 10.5}H${A}ZM${B} ${top}Q${n2(B - 2.1)} ${top + 5.5} ${n2(B - .9)} ${top + 10.5}H${B}Z`, 'pf-drape');
+          sk(this.hallBack, `M${A} ${top + 1.2}Q${M} ${top + 4.6} ${B} ${top + 1.2}Q${M} ${top + 2.6} ${A} ${top + 1.2}Z`, 'pf-drape');
+          sk(this.hallFront, `M${A} ${rail}H${B}V${rail + 3.6}Q${M} ${rail + 7.2} ${A} ${rail + 3.6}Z`, 'pf-board');
+          sk(this.hallFront, `M${n2(A - .4)} ${rail - .1}H${n2(B + .4)}`);
+          let bl = '';
+          for(let x = A + 1.7; x < B - 1; x += 2.15) bl += `M${n2(x)} ${rail + .95}V${rail + 2.9}`;
+          sk(this.hallFront, bl, 'cz-far cz-fine');
+          this.boxes.push({ A, B, rail, faded:B > H.fade - 2 });
+        }
+      }
+    }
+    // tapping a box works like tapping the stalls (except where the hall fades, behind the gear)
+    for(const b of this.boxes) if(!b.faded) tapOn(mk('rect', { class:'pf-hit', x:b.A, y:b.rail - 10, width:n2(b.B - b.A), height:12 }, this.boxHits), e => this.pokeCrowd(e));
+  }
+  /* the audience: a row of the stalls right across the hall, seen from behind,
+     and a few more in each box, turned towards the stage. Some have fans, and
+     some bring opera glasses. */
+  buildCrowd(seated){
+    this.crowdG.replaceChildren(); this.boxG.replaceChildren();
+    this.C = [];
+    if(!this.lay || !this.hall) return;
+    const H = this.hall, full = this.o.crowd && this.o.crowd() === 'full', r = Math.random;
+    const a = H.sa + 2, b = H.sb - 2, n = Math.max(3, Math.floor((b - a) / 11.5)), sp = (b - a) / n;
+    let seats = Array.from({ length:n }, (_, i) => a + sp * (i + .5) + (r() - .5) * 2.2);
+    if(!full){
+      const keep = seats.filter(() => r() < .55);
+      seats = keep.length >= 3 ? keep : seats.filter((_, i) => i % 2 === 0);
+    }
+    this.C = seats.map(x => this.member(this.crowdG, x, 0, false));
+    for(const bx of this.boxes){
+      const k = full ? 2 + (r() < .6) : 1 + (r() < .55);
+      for(let i = 0; i < k; i++) this.C.push(this.member(this.boxG, bx.A + (bx.B - bx.A) * (i + .5) / k + (r() - .5) * 1.4, bx.rail + 3.4, true));
+    }
+    if(seated) for(const c of this.C) c.arr = -1;
+    const hb = Math.min(H.b, H.fade);
+    this.crowdHit.setAttribute('x', n2(H.sa)); this.crowdHit.setAttribute('width', n2(Math.max(0, Math.min(hb, H.sb) - H.sa)));
+    this.crowdHit.setAttribute('y', -15); this.crowdHit.setAttribute('height', 15.5);
+  }
+  member(par, x, y0, box){
+    const KINDS = ['wig', 'wig', 'dark', 'bun', 'grey', 'tricorn', 'bonnet', 'dark', 'bun', 'wig'];
+    const r = Math.random, kind = KINDS[(r() * KINDS.length) | 0], child = !box && r() < .1;
+    const side = Math.sign(this.center - x) || 1;
+    const prop = box ? (r() < .34 ? 'fan' : r() < .55 ? 'glasses' : null) : (r() < .09 ? 'fan' : r() < .15 ? 'glasses' : null);
+    const g = mk('g', { class:'pf-aud', style:'opacity:0' }, par), tint = 'pf-c' + (1 + ((r() * 4) | 0));
+    const arms = mk('path', { class:'cz-o', style:'stroke-width:1.55;opacity:0' }, g);
+    const armsI = mk('path', { class:tint, style:'stroke:var(--pfc);stroke-width:.6;opacity:0' }, g);
+    // in a box, the balustrade hides everything below the shoulders
+    mk('path', { class:'pf-body ' + tint, d:box ? 'M-4.6 1.4V-.8Q-4.5 -4 -2 -4.45Q0 -4.85 2 -4.45Q4.5 -4 4.6 -.8V1.4Z' : 'M-4.6 7V-.8Q-4.5 -4 -2 -4.45Q0 -4.85 2 -4.45Q4.5 -4 4.6 -.8V7Z' }, g);
+    const head = mk('g', {}, g);
+    if(kind === 'bun') mk('circle', { class:'pf-hd pf-dark', cy:-2.9, r:1.2 }, head);
+    mk('circle', { class:'pf-hd ' + (kind === 'wig' ? 'pf-pale' : kind === 'grey' ? 'pf-grey' : 'pf-dark'), r:2.55 }, head);
+    if(kind === 'wig'){
+      mk('path', { class:'cz-strand', d:'M-2.5 .8q-.45 -1 .45 -1.35M2.5 .8q.45 -1 -.45 -1.35M-1.3 -1.6q1.3 -.7 2.6 0' }, head);
+      mk('path', { class:'cz-hairline', d:'M0 2.3V3.7' }, head);
+      mk('path', { class:'pf-bow', d:'M-1.15 2.35L0 2.95L1.15 2.35V3.55L0 2.95L-1.15 3.55Z' }, head);
+    } else if(kind === 'tricorn') mk('path', { class:'pf-hat', d:'M-4.1 -.8Q-2.1 -4.7 0 -4.45Q2.1 -4.7 4.1 -.8Q0 -2.2 -4.1 -.8Z' }, head);
+    else if(kind === 'bonnet'){
+      mk('path', { class:'pf-bonnet', d:'M-3.15 .7Q-3.7 -3.8 0 -3.95Q3.7 -3.8 3.15 .7Q0 -.8 -3.15 .7Z' }, head);
+      mk('path', { class:'pf-feather', d:'M1.3 -3.5q1.9 -2.6 4 -1.3' }, head);
+    } else mk('path', { class:'cz-strand', d:'M-1.5 -1.4q1.5 -.9 3 0M-.4 -2.3q.8 -.3 1.6 .1' }, head);
+    let fan = null, glass = null;
+    if(prop === 'fan'){   // a folding fan, held up beside the face
+      fan = mk('g', {}, g);
+      const pt = a => P(3.3 * Math.cos(a * Math.PI / 180), 3.3 * Math.sin(a * Math.PI / 180));
+      mk('path', { class:'pf-fan', d:`M0 0L${pt(-165)}A3.3 3.3 0 0 1 ${pt(-15)}Z` }, fan);
+      mk('path', { class:'pf-rib', d:[-137, -110, -83, -56, -29].map(a => 'M0 0L' + pt(a)).join('') }, fan);
+      mk('circle', { class:'pf-palm', r:.72 }, fan);
+    } else if(prop === 'glasses'){   // opera glasses, raised to watch whoever has the tune
+      glass = mk('g', { style:'opacity:0', transform:`translate(${n2(side * 2.2)} -.4) scale(${side} 1)` }, head);
+      mk('path', { class:'pf-hat', d:'M0 -.8H1.7V.8H0Z' }, glass);
+      mk('circle', { class:'pf-palm', cx:.9, cy:1.55, r:.7 }, glass);
+    }
+    const hands = [0, 1].map(() => mk('circle', { class:'pf-palm', r:.8, style:'opacity:0' }, g));
+    return { g, head, hands, arms, armsI, x, y0, box, side, fan, glass, gl:0, bias:box ? side * .85 : 0,
+      kind, sc:box ? .98 + r() * .08 : child ? .92 : 1.2 + r() * .14, arr:0, ph:r() * TAU,
+      sway:.25 + r() * .75, rate:3.8 + r() * 1.4, hx:0, lean:0, tilt:0, jy:0, jv:0, stand:0, clapAt:-9, clapEnd:-9,
+      standUp:false, doze:0, dozy:r() < .35, cheer:-9, look:0, chat:0, chatT:3 + r() * 8, murm:0 };
+  }
+
+  /* ---- on and off ---- */
+  start(){
+    this.stop();
+    this.dayPart();
+    this.build();
+    this.k = null; this.resize();
+    this.buildHall(false); this.buildCrowd(false);
+    this.t = 0; this.T = 0; this.tp = 0; this.fz = 0; this.holding = false; this.holdT = 0;
+    this.piece = null; this.fin = 20; this.focus = null; this.focusT = 0; this.swell = 0; this.zt = 0; this.nextZ = 3;
+    this.skDur = this.sketch();
+    this.phase = 'sketch';
+    const t0 = this.skDur * .4;
+    this.C.forEach(c => { c.arr = t0 + Math.random() * 5.5; });
+    if(this.reduced.matches){
+      // no walking on, no applause: the band is simply there, mid-piece
+      for(const m of this.M){ m.x = m.sp.X; m.face = m.sp.face; m.onFl = true; m.borrow(); m.rebuild(); m.go('play'); }
+      this.C.forEach(c => { c.arr = -1; });
+      this.phase = 'still'; this.piece = { base:.9, top:.9, peak:.7, seed:0 }; this.tp = 3; this.fin = 20;
+    }
+  }
+  stop(){
+    this.clearParts();
+    for(const g of [this.stageG, this.stationsG, this.band, this.drapesG, this.crowdG, this.hallBack, this.hallFront, this.boxG, this.boxHits]) g.replaceChildren();
+    this.M = []; this.C = []; this.sconces = []; this.boxes = []; this.lay = null; this.room = null; this.sk = null; this.hall = null; this.hallKey = null;
+    this.pen.style.opacity = 0; this.spot.style.opacity = 0; this.wash.style.opacity = 0;
+  }
+  get center(){ return this.lay ? (this.lay.L + this.lay.R) / 2 : 0; }
+  cond(){ return this.M.find(m => m.sp.id === 'conduct'); }
+
+  /* ---- the evening ---- */
+  step(dt){
+    if(!this.lay) return;
+    const reduced = this.reduced.matches;
+    this.t += dt; this.T += dt;
+    if((this.zt += dt) > 1){ this.zt = 0; this.fit(); this.dayPart(); }
+    this.easeFit(dt);
+    this.tickSketch(dt);
+    const T = this.T, ph = this.phase;
+    if(ph === 'sketch'){
+      if(T > this.skDur * .6) this.to('arrive');
+    } else if(ph === 'arrive'){
+      for(const m of this.M) if(m.st === 'off' && T >= m.enterAt) m.go('walk');
+      if(this.M.every(m => m.st === 'ready') && this.C.every(c => this.t > c.arr + .6)){
+        this.to('welcome');
+        this.applaud(.55, this.center, 2.6);
+        const c = this.cond();
+        if(c){ c.riseTp = 0; c.riseFz = 0; c.go('front'); this.focusOn(c, 3); }
+      }
+    } else if(ph === 'welcome'){
+      if(T > 3.3) this.to('hush');
+    } else if(ph === 'hush'){
+      if(T > 1.5) this.startPiece();
+    } else if(ph === 'play'){
+      if(!this.holding){
+        this.tp += dt;
+        if(this.tp >= this.fin){ this.tp = this.fin; this.holding = true; this.holdT = 0; this.flourish(); }
+      } else {
+        this.holdT += dt; this.fz = ss(this.holdT / .3);
+        if(this.holdT > 1.5) this.ovation();
+      }
+    } else if(ph === 'ovation'){
+      for(const m of this.M) if(m.bowAt != null && T > m.bowAt && (m.st === 'play' || m.st === 'ready')){
+        m.bowAt = null;
+        m.go(m.sp.id === 'conduct' ? 'front' : 'rise');
+      }
+      if(T > 4.8 && this.M.every(m => m.st === 'ready')){ this.to('interval'); this.gap = 2.2 + Math.random() * 2.8; }
+    } else if(ph === 'interval'){
+      if(T > this.gap && this.M.every(m => m.st === 'ready')) this.to('hush');
+    } else if(ph === 'still'){ this.tp = 3; }
+    if(this.cheer){ this.cheer = false; if(!reduced && this.lay) this.welcomeBack(); }
+    this.swell = Math.max(0, this.swell - dt);
+    if(this.focusT > 0 && (this.focusT -= dt) <= 0) this.focus = null;
+    this.soloist = this.M.find(m => m.solo > 0) || null;
+    for(const m of this.M) m.step(dt);
+    this.stepCrowd(dt);
+    this.light(dt);
+    this.tickParts(dt);
+  }
+  to(ph){ this.phase = ph; this.T = 0; }
+  startPiece(){
+    const quiet = Math.random() < (this.night ? .5 : .22), k = this.o.len ? this.o.len() : 1;
+    this.piece = { quiet, base:quiet ? .34 : .42, top:quiet ? .76 : 1, peak:.6 + Math.random() * .22, seed:Math.random() * 9 };
+    let fin = clamp((17 + Math.random() * 9) * k, 9, 55);
+    // with timpani, the piece ends on their big stroke
+    if(this.M.some(m => m.sp.id === 'timpani')) fin = 9 * Math.max(1, Math.round((fin - 7.03) / 9)) + 7.03;
+    this.fin = fin; this.tp = 0; this.fz = 0; this.holding = false;
+    for(const m of this.M){ m.rebuild(); m.solo = 0; m.go('play'); }
+    this.to('play');
+    // a few will nod off in a quiet one, late at night
+    for(const c of this.C) c.willDoze = this.night && c.dozy && (quiet || Math.random() < .4);
+  }
+  ovation(){
+    this.holding = false; this.to('ovation');
+    const big = !this.piece.quiet;
+    this.applaud(big ? 1 : .6, this.center, big ? 4.2 : 3);
+    for(const m of this.M){ m.riseTp = this.fin; m.riseFz = 1; m.bowAt = .35 + Math.random() * .35; }
+  }
+  // how loud each player is at this moment: the piece's shape, plus any solo or crescendo
+  intensity(m){
+    const P = this.piece;
+    if(!P || (this.phase !== 'play' && this.phase !== 'still')) return .55;
+    const u = this.tp / this.fin;
+    let I = P.base + (P.top - P.base) * ss(u / P.peak) + .06 * Math.sin(u * 19 + P.seed);
+    if(this.swell > 0) I += .34 * Math.min(1, this.swell / .8) * Math.min(1, (4.5 - this.swell) / .9);
+    if(this.soloist && this.soloist !== m) I *= .82;
+    if(m.solo > 0) I += .4 * Math.min(1, m.solo / .8) * Math.min(1, (6 - m.solo) / .5);
+    return clamp(I, .3, 1.15);
+  }
+
+  /* ---- taps ---- */
+  pokeM(m){
+    if(this.reduced.matches || !this.lay) return;
+    this.flare = 1;
+    if(this.phase === 'play' && !this.holding && m.st === 'play'){
+      if(m.sp.id === 'conduct'){
+        // the conductor asks for more, and everyone gives it
+        this.swell = 4.5; this.focusOn(m, 4.5);
+        for(const c of this.C) c.jv -= .8 + Math.random() * .6;
+      } else {
+        m.solo = 6; this.focusOn(m, 6);
+      }
+      for(let i = 0; i < 3; i++) setTimeout(() => this.emitM(m, ['n8', 'n16', 'n4'][i], 3 + i * 2.2, -34 - i, { vy:-5 - i * .4, vx:1 + i * .5, life:2, force:true }), i * 110);
+    } else if(m.st === 'ready' || m.st === 'play' || m.st === 'walk'){
+      if(!m.borrowed) m.hop = .0001;
+      this.emitM(m, 'n8', 2, -40, { vy:-4.5, vx:.6, life:1.8, force:true });
+      this.focusOn(m, 1.6);
+    }
+  }
+  pokeCrowd(e){
+    if(this.reduced.matches || !this.lay || !this.C.length) return;
+    const [x, y] = this.toWorld(e.clientX, e.clientY), d = q => Math.hypot(q.x - x, q.y0 - 7 - y);
+    let c = this.C[0];
+    for(const q of this.C) if(d(q) < d(c)) c = q;
+    if(this.t < c.arr + .5) return;
+    if(this.phase === 'play' && !this.holding){
+      // mid-piece: they leap up cheering, and the neighbours shush them
+      c.cheer = this.t; c.doze = 0; c.jv -= 2;
+      this.emitW('txt', c.x, c.y0 - 17, { text:'bravo!', vy:-2.4, vx:.2, life:2.2, s:.75 });
+      const nb = this.C.filter(q => q !== c && q.y0 === c.y0 && Math.abs(q.x - c.x) < 26);
+      nb.forEach((q, i) => { q.look = Math.sign(c.x - q.x); q.lookT = 2.4; if(i < 2) setTimeout(() => this.emitW('shh', q.x, q.y0 - 13, { vy:-1.6, vx:Math.sign(c.x - q.x) * .6, life:1.6 }), 550 + i * 260); });
+    } else {
+      this.applaud(.8, c.x, 2.6);
+      // between pieces, the band stands for another bow
+      if(this.phase === 'interval' || this.phase === 'hush'){
+        this.to('ovation'); this.T = .2;
+        for(const m of this.M) if(m.st === 'ready'){ m.riseTp = 0; m.riseFz = 0; m.bowAt = .45 + Math.random() * .3; }
+      }
+    }
+  }
+  focusOn(m, s){ this.focus = m; this.focusT = s; }
+  welcomeBack(){   // back from practising: an ovation, whatever's happening
+    this.applaud(1, this.center, 3.4);
+    this.emitW('txt', this.center, -20, { text:'bravo!', vy:-2.4, vx:.2, life:2.8, s:1 });
+  }
+  sour(){   // something went wrong in the app: a wrong note, and a murmur through the hall
+    if(!this.lay) return;
+    this.flare = .6;
+    for(const c of this.C) if(this.t > c.arr){ c.murm = 1.6; c.look = Math.random() < .5 ? -1 : 1; c.lookT = 1.6; }
+    const c = this.C[(Math.random() * this.C.length) | 0];
+    if(c && !this.reduced.matches) this.emitW('txt', c.x, c.y0 - 15, { text:'?', vy:-2, vx:.2, life:1.6, s:.8 });
+  }
+
+  /* ---- the audience ---- */
+  applaud(strength, x0, dur){
+    let bravos = strength > .5 ? (strength > .9 ? 2 : 1) : 0;
+    for(const c of this.C){
+      if(this.t < c.arr) continue;
+      c.clapAt = this.t + Math.abs(c.x - x0) / 90 + Math.random() * .3;
+      c.clapEnd = c.clapAt + dur * (.75 + Math.random() * .5);
+      c.standUp = strength > .9 && Math.random() < .45;
+      c.doze = 0; c.willDoze = false;
+    }
+    const pool = this.C.filter(c => this.t >= c.arr);
+    for(let i = 0; i < bravos && pool.length; i++){
+      const c = pool.splice((Math.random() * pool.length) | 0, 1)[0];
+      setTimeout(() => this.emitW('txt', c.x, c.y0 - 17, { text:i ? 'brava!' : 'bravo!', vy:-2.5, vx:.3 * (i ? -1 : 1), life:2.6, s:.9 }), 500 + i * 650);
+    }
+  }
+  boom(x, amp){
+    // the timpani's big stroke makes the front row jump
+    if(amp < .4) return;
+    for(const c of this.C){
+      const k = amp >= .9 ? 1 : Math.exp(-Math.pow((c.x - x) / 30, 2));
+      c.jv -= amp * (amp >= .9 ? 5.5 : 1.4) * k * (.6 + .4 * Math.random());
+      if(amp >= .9 && c.doze > .3){ c.doze = 0; c.willDoze = false; }
+    }
+  }
+  stepCrowd(dt){
+    const t = this.t, playing = this.phase === 'play' && !this.holding, I = this.intensity({ solo:0 });
+    const fx = this.focus ? this.focus.x : this.soloist ? this.soloist.x : null;
+    for(const c of this.C){
+      const a = (t - c.arr) / .45;
+      if(a < 0){ c.g.style.opacity = 0; continue; }
+      // taking their seat: up from the stalls with a little settle
+      const arr = ss(a), bounce = a > .6 && a < 1.4 ? -Math.sin(Math.PI * (a - .6) / .8) * .9 : 0;
+      // clapping: hands up, meeting over their heads, a little bounce in the seat
+      const w = ss((t - c.clapAt) / .2) * (1 - ss((t - c.clapEnd) / .3));
+      const g = Math.pow(Math.abs(Math.sin((t - c.clapAt) * Math.PI * c.rate)), .6);
+      c.stand += ((c.standUp && w > .2 ? 1 : 0) - c.stand) * (1 - Math.exp(-dt * 5));
+      const ch = t - c.cheer, cheer = ch > 0 && ch < 1.8 ? Math.min(ss(ch / .2), 1 - ss((ch - 1.3) / .5)) : 0;
+      // startled or bouncing: a damped spring back to the seat
+      c.jv += (-c.jy * 60 - c.jv * 9) * dt; c.jy += c.jv * dt;
+      // dozing through a quiet passage, late at night
+      const dz = playing && c.willDoze && I < .62 && this.tp > 4 ? 1 : 0;
+      c.doze += (dz - c.doze) * (1 - Math.exp(-dt * (dz ? .6 : 4)));
+      if(c.doze > .7 && Math.random() < dt * .3) this.emitW('z', c.x + 2, c.y0 - 12, { vy:-2.2, vx:.4, life:2.2, s:.55 });
+      // heads: towards whoever has the tune, swaying with the music, turning to chat between pieces
+      if(c.lookT > 0) c.lookT -= dt; else c.look = 0;
+      if(!playing && this.phase !== 'hush' && (c.chatT -= dt) < 0){ c.chatT = 4 + Math.random() * 9; c.chat = 1.6; c.chatDir = Math.random() < .5 ? -1 : 1; }
+      c.chat = Math.max(0, c.chat - dt);
+      if(playing) c.chat = 0;
+      const chat = c.chat > 0 ? Math.min(1, c.chat / .3, (1.6 - c.chat) / .3) * c.chatDir : 0;
+      let hx = c.look ? c.look * .7 : fx != null ? clamp((fx - c.x) / 45, -1, 1) * .6 : 0;
+      hx += chat * .8;
+      const sw = playing ? Math.sin(t * 1.7 + c.ph) * c.sway * I * (1 - c.doze) : 0;
+      hx += sw * .5 + c.bias;
+      c.hx += (hx - c.hx) * (1 - Math.exp(-dt * 4));
+      const tilt = sw * 6 + chat * 7 + c.doze * 24 * (c.ph > Math.PI ? 1 : -1) + (c.murm > 0 ? Math.sin(t * 9 + c.ph) * 5 : 0);
+      c.tilt += (tilt - c.tilt) * (1 - Math.exp(-dt * 5));
+      c.murm = Math.max(0, c.murm - dt);
+      const clapB = w * -.45 * g - .3 * cheer;
+      const y = c.y0 + (1 - arr) * 4 + bounce + c.jy + clapB - 3.5 * c.stand - 3 * cheer - c.doze * -.5;
+      c.g.style.opacity = n2(arr);
+      c.g.setAttribute('transform', `translate(${n2(c.x)} ${n2(y)}) scale(${n2(c.sc)})`);
+      c.head.setAttribute('transform', `translate(${n2(c.hx)} ${n2(-7 + c.doze * .6)}) rotate(${n2(c.tilt)})`);
+      // arms and hands, when they're up
+      const up = Math.max(w, cheer);
+      if(up > .01){
+        const hy = -10.9 - .9 * c.stand, sep = .8 + 1.9 * g;
+        let hl = [-sep, hy], hr = [sep, hy];
+        if(cheer > w){ const wv = Math.sin(ch * 14) * 1.2; hl = [-4.6, -3]; hr = [3.4 + wv, -12.4]; }
+        c.hands[0].setAttribute('cx', n2(hl[0])); c.hands[0].setAttribute('cy', n2(hl[1]));
+        c.hands[1].setAttribute('cx', n2(hr[0])); c.hands[1].setAttribute('cy', n2(hr[1]));
+        const d = `M-3.3 -3.6Q${n2(hl[0] - 2)} ${n2((hl[1] - 3.6) / 2)} ${P(...hl)}M3.3 -3.6Q${n2(hr[0] + 2)} ${n2((hr[1] - 3.6) / 2)} ${P(...hr)}`;
+        c.arms.setAttribute('d', d); c.armsI.setAttribute('d', d);
+      }
+      for(const e of [...c.hands, c.arms, c.armsI]) e.style.opacity = n2(up);
+      // a fan: fanning briskly between pieces, gently while they play, put down to clap
+      if(c.fan){
+        const k = playing ? Math.sin(t * 2.6 + c.ph) * 5 : Math.sin(t * 10 + c.ph) * 15;
+        c.fan.setAttribute('transform', `translate(${n2(c.side * 3 + c.hx * .4)} -7.6) rotate(${n2(c.side * 28 + k - c.doze * 40 * c.side)})`);
+        c.fan.style.opacity = n2(1 - up);
+      }
+      // opera glasses: up to the eyes while there's something to watch
+      if(c.glass){
+        c.gl += ((playing && c.doze < .3 && up < .1 ? 1 : 0) - c.gl) * (1 - Math.exp(-dt * 3));
+        c.glass.style.opacity = n2(c.gl);
+      }
+    }
+  }
+
+  /* ---- light: footlights, the wash, the spot ---- */
+  light(dt){
+    const ph = this.phase, reduced = this.reduced.matches;
+    let want = 0;
+    if(this.sk) want = 0;
+    else if(ph === 'play' || ph === 'still') want = this.holding ? 1.2 : .45 + .5 * this.intensity({ solo:0 });
+    else if(ph === 'ovation' || ph === 'welcome') want = .95;
+    else if(ph === 'arrive') want = .3;
+    else want = .5;
+    this.flare *= Math.exp(-dt * 2.2);
+    const ka = reduced ? 1 : 1 - Math.exp(-dt * 1.4);
+    this.washA += (want - this.washA) * ka;
+    this.wash.style.opacity = n2(Math.min(1, this.washA * .75 + this.flare * .3));
+    const f = this.focus || this.soloist;
+    const sx = f ? f.x + f.face * 6 : this.spotX, sa = f ? 1 : 0;
+    const kx = reduced ? 1 : 1 - Math.exp(-dt * 3);
+    this.spotX += (sx - this.spotX) * kx; this.spotA += (sa - this.spotA) * (reduced ? 1 : 1 - Math.exp(-dt * 2));
+    this.spot.setAttribute('cx', n2(this.spotX)); this.spot.setAttribute('cy', DECK - 18);
+    this.spot.style.opacity = n2(Math.min(1, this.spotA * (1 + this.flare * .4)));
+    const lit = this.sk ? 0 : Math.min(1, .45 + this.washA * .6);
+    // the house lights go down for each piece, and come up for the applause
+    const house = this.sk ? 0 : (ph === 'play' && !this.holding) || ph === 'hush' ? .3 : 1;
+    this.houseA = (this.houseA ?? 0) + (house - (this.houseA ?? 0)) * (reduced ? 1 : 1 - Math.exp(-dt * 1.2));
+    const flick = (L, y, glowR, k) => {
+      const fl = reduced ? 0 : Math.sin(this.t * 17 + L.ph) * .25 + Math.sin(this.t * 7.3 + L.ph) * .35;
+      L.flame.setAttribute('d', `M${L.x} ${n2(y)}Q${n2(L.x - 1 + fl * .2)} ${n2(y - 1)} ${n2(L.x + fl * .45)} ${n2(y - 2.7 + fl * .3)}Q${n2(L.x + 1 + fl * .2)} ${n2(y - 1)} ${L.x} ${n2(y)}Z`);
+      L.glow.setAttribute('r', n2((glowR + fl * .6) * (.8 + .35 * k)));
+      L.glow.style.opacity = n2(k);
+    };
+    for(const L of this.lights) flick(L, DECK - 1.3, 4.2, lit);
+    for(const L of this.sconces){ flick(L, L.y, 4.6, this.houseA); L.flame.style.opacity = n2(.35 + .65 * this.houseA); }
+  }
+  flourish(){
+    this.flare = 1.2;
+    const players = this.M.filter(m => m.st === 'play');
+    players.forEach((m, j) => {
+      for(let i = 0; i < 2; i++) setTimeout(() => this.emitM(m, ['n16', 'n8', 'n4'][(i + j) % 3], (i - .5) * 3, -36, { vy:-5.5 - i * .6, vx:(i - .5) * 1.8, life:2, force:true }), (i * 2 + j) * 60);
+    });
+  }
+
+  /* ---- particles: notes from the band, bravos and z's from the hall ---- */
+  emitM(m, kind, lx, ly, o = {}){
+    if(this.reduced.matches || this.parts.length > 26) return;
+    if(!o.force && m.S){
+      if(m.quiet) return;
+      const I = m.S.I ?? 1, crowd = Math.max(0, this.M.length - 2) * .06;   // a big band sends up fewer each
+      if(Math.random() < (1 - I) * .55 + crowd) return;
+      o = { ...o, s:(o.s ?? .66 + Math.random() * .2) * lerp(.82, 1.16, I) };
+    }
+    this.spawn(kind, m.x + m.face * lx, DECK + ly + (m.S ? m.fl : 0), { ...o, vx:(o.vx ?? (Math.random() - .3) * 2) * m.face });
+  }
+  emitW(kind, x, y, o = {}){ if(this.reduced.matches || this.parts.length > 30) return; this.spawn(kind, x, y, o); }
+  spawn(kind, x, y, o){
+    let e;
+    if(kind === 'z' || kind === 'txt' || kind === 'shh'){
+      e = mk('text', { class:kind === 'z' ? 'cz-z' : kind === 'shh' ? 'pf-shh' : 'cz-bravo' }, this.fx);
+      e.textContent = kind === 'z' ? 'z' : kind === 'shh' ? 'shh!' : o.text;
+    } else e = mk('path', { class:kind === 'ring' ? 'cz-ring' : 'cz-note', d:GLYPH[kind] || GLYPH.n8 }, this.fx);
+    this.parts.push({ e, x, y, vx:o.vx ?? (Math.random() - .3) * 2, vy:o.vy ?? -(3.4 + Math.random() * 1.6),
+      age:0, life:o.life ?? (2.6 + Math.random() * 1.2), s:o.s ?? (.72 + Math.random() * .22), wob:Math.random() * TAU, grow:o.grow || 0 });
+  }
+}
+Performance.n = 0;
+// the pen that draws the stage is the composer's own
+for(const k of ['sketch', 'skPt', 'tickSketch', 'clearParts', 'tickParts']) Performance.prototype[k] = Composer.prototype[k];
+
 const RUN = new Set(); let raf = 0, last = 0;
 function loop(now){
   raf = 0;
   if(!RUN.size) return;
   raf = requestAnimationFrame(loop);
-  if(now - last < 30) return;
+  if(now - last < 12) return;
   const dt = Math.min(.1, (now - last) / 1000); last = now;
   for(const c of RUN) c.step(dt);
 }
@@ -15617,7 +17348,7 @@ function run(c, on){
   if(on){ RUN.add(c); if(!raf){ last = performance.now(); raf = requestAnimationFrame(loop); } }
   else RUN.delete(c);
 }
-return { Composer, ACTS, STATIONS, run, roomWidth:acts => layoutRoom(acts).W };
+return { Composer, Performance, ACTS, STATIONS, PF_ORDER, run, roomWidth:acts => layoutRoom(acts).W, stageWidth:acts => stageLayout(acts).W };
 })();
 
 /* Two composers share the engine: the one in the library header, and a live
@@ -15633,9 +17364,9 @@ const CZ_ABOUT = {
   cello:['Cello', 'Seated, with long slow bows.'],
   harp:['Harp', 'Plucked strings light up, and the odd glissando.'],
   timpani:['Timpani', 'Rolls, and a big finish.'],
-  compose:['Composing', 'Writing a score at his desk, quill and ink.'],
-  coffee:['Coffee', 'A cup at the café table.'],
-  reading:['Reading', 'By candlelight, until he nods off.']
+  compose:['Composing', 'When an idea strikes, he hurries to his desk. The new page goes with him to its first performance.'],
+  coffee:['Coffee', 'A cup at the café table, first thing in the morning and whenever he flags.'],
+  reading:['Reading', 'By candlelight. Tired, or late at night, he nods off.']
 };
 const CZ_GROUPS = [['#czActsPerf', ['conduct', 'piano', 'violin', 'flute', 'cello', 'harp', 'timpani']], ['#czActsRest', ['compose', 'coffee', 'reading']]];
 // the activities he's allowed; never none
@@ -15665,11 +17396,22 @@ document.querySelectorAll('#mSetCz .set-sw[data-cz]').forEach(b => b.addEventLis
   // refurnish: both rooms are redrawn, and he walks back in when you return
   for(const c of [czMain, czPrev]) if(c.alive) c.start();
 }));
-const czMain = new CZ.Composer($('#czHost'), { acts:czActs, zone(){
+/* the pace slider: 0 to 100, on a log scale around the middle, from about
+   once a minute to about every ten seconds */
+function czPaceK(){ return Math.pow(2.4, (50 - (+pref('composerPace') || 0)) / 50); }
+function czPaceShow(){
+  const v = +pref('composerPace') || 0, el = $('#czPace'); if(!el) return;
+  if(document.activeElement !== el) el.value = v;
+  el.style.setProperty('--v', v + '%');
+  const sec = 25 * czPaceK();
+  $('#czPaceSub').textContent = sec >= 52 ? 'About a minute at each' : `About ${Math.round(sec / 5) * 5} seconds at each`;
+}
+$('#czPace').addEventListener('input', e => { setPref('composerPace', +e.target.value); czPaceShow(); });
+const czMain = new CZ.Composer($('#czHost'), { acts:czActs, pace:czPaceK, zone(){
   const hr = $('#czHost').getBoundingClientRect(), b = $('.wm-right').getBoundingClientRect();
   return [2, b.left - hr.left - 12];   // the stage window: from the left edge (the wordmark fades out) up to the count
 } });
-const czPrev = new CZ.Composer($('#czPrevHost'), { acts:czActs, scale:w => Math.min(1.5, Math.max(1, (w - 12) / (CZ.roomWidth(czActs()) + 8))), zone:c => [6, c.W - 6] });
+const czPrev = new CZ.Composer($('#czPrevHost'), { acts:czActs, pace:czPaceK, scale:w => Math.min(1.5, Math.max(1, (w - 12) / (CZ.roomWidth(czActs()) + 8))), zone:c => [6, c.W - 6] });
 function czHead(){ for(const c of [czMain, czPrev]) c.setHead(pref('composerHead')); }
 function czSeen(c){
   if(document.hidden || $('#viewer').classList.contains('open')) return false;
@@ -15677,8 +17419,13 @@ function czSeen(c){
   const s = $('#mSettings');
   return s.classList.contains('on') && !s.classList.contains('under');
 }
+let czViewAt = 0;
 function czSync(){
   const on = !!pref('composer');
+  // time spent in a score: come back after a good while and he applauds
+  const vOpen = $('#viewer').classList.contains('open');
+  if(vOpen && !czViewAt) czViewAt = Date.now();
+  if(!vOpen && czViewAt){ if(on && Date.now() - czViewAt > 45000) czMain.cheer = true; czViewAt = 0; }
   $('.lib-head').classList.toggle('cz-on', on);
   for(const c of [czMain, czPrev]){
     if(on && !c.alive){ c.alive = true; clearTimeout(c.bye); c.start(); }
@@ -15698,6 +17445,100 @@ $('#setComposer').addEventListener('click', () => { setPref('composer', !pref('c
   window.addEventListener('resize', () => { czMain.resize(); czPrev.resize(); });
   czReady = true;
   czHead(); czSync(); czSyncActs();
+}
+
+/* The performance: the other thing that can live above the library, built on
+   the same engine. Same arrangement as the composer: one in the header, one
+   as a live preview in Settings, each running only while it's on screen. */
+var pfReady = false;
+const PF_ABOUT = {
+  conduct:['Conductor', 'Mozart or Beethoven (you choose which), on a little podium facing the band. He turns to take the applause.'],
+  piano:['Piano', 'At the grand piano, with the odd flourish.'],
+  violin:['Violin', 'Standing, by a music stand.'],
+  flute:['Flute', 'Standing, swaying as she plays.'],
+  cello:['Cello', 'Seated, with long slow bows.'],
+  harp:['Harp', 'Plucked strings light up, and the odd glissando.'],
+  timpani:['Timpani', 'Rolls, and a big stroke to finish on. The front row jumps.']
+};
+const PF_LIST = ['conduct', 'piano', 'violin', 'flute', 'cello', 'harp', 'timpani'];
+// the instruments on stage; never none
+function pfActs(){ const off = pref('performOff') || [], l = CZ.ACTS.filter(a => PF_LIST.includes(a.id) && !off.includes(a.id)); return l.length ? l : CZ.ACTS.filter(a => PF_LIST.includes(a.id)); }
+function pfSyncActs(){
+  if(!pfReady) return;
+  const on = pfActs().map(a => a.id), n = on.length, N = PF_LIST.length;
+  document.querySelectorAll('#mSetPf .set-sw[data-pf]').forEach(b => {
+    const k = on.includes(b.dataset.pf);
+    b.setAttribute('aria-checked', String(k));
+    if(k && n === 1) b.setAttribute('aria-disabled', 'true');   // the last one stays on
+    else b.removeAttribute('aria-disabled');
+  });
+  const nm = id => PF_ABOUT[id][0].toLowerCase(), list = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0];
+  const off = PF_LIST.filter(id => !on.includes(id));
+  $('#sumPf').textContent = !off.length ? 'All seven' : off.length <= 3 ? 'All but ' + list(off.map(nm)) : n <= 3 ? capFirst(list(on.map(nm))) + ' only' : n + ' of ' + N;
+}
+$('#pfInst').innerHTML = PF_LIST.map(id => `<div class="set-row"><span class="set-l"><span class="nm">${PF_ABOUT[id][0]}</span><span class="sub">${PF_ABOUT[id][1]}</span></span><button type="button" class="set-sw" data-pf="${id}" role="switch" aria-checked="true" aria-label="${PF_ABOUT[id][0]}"><i></i></button></div>`).join('');
+document.querySelectorAll('#mSetPf .set-sw[data-pf]').forEach(b => b.addEventListener('click', () => {
+  const id = b.dataset.pf, on = pfActs().map(a => a.id);
+  if(on.includes(id) && on.length === 1) return;
+  const off = PF_LIST.filter(k => k === id ? on.includes(k) : !on.includes(k));
+  setPref('performOff', off);
+  pfSyncActs();
+  pfRestart();   // a new stage for the new band: the curtain goes up again when you return
+}));
+function pfRestart(){ if(!pfReady) return; for(const c of [pfMain, pfPrev]) if(c.alive) c.start(); }
+/* the length slider: 0 to 100, a log scale around the middle, from about ten
+   seconds a piece to about forty */
+function pfLenK(){ return Math.pow(2, ((+pref('performLen') || 0) - 50) / 50); }
+function pfLenShow(){
+  const v = +pref('performLen') || 0, el = $('#pfLen'); if(!el) return;
+  if(document.activeElement !== el) el.value = v;
+  el.style.setProperty('--v', v + '%');
+  const sec = 21.5 * pfLenK();
+  $('#pfLenSub').textContent = `About ${Math.max(10, Math.round(sec / 5) * 5)} seconds each`;
+}
+$('#pfLen').addEventListener('input', e => { setPref('performLen', +e.target.value); pfLenShow(); });
+const pfHead = () => pref('performConductor');
+// the header one runs its hall out to the screen's edges (20px past the host) and fades it behind the count and gear
+const pfMain = new CZ.Performance($('#pfHost'), { acts:pfActs, len:pfLenK, crowd:() => pref('performCrowd'), head:pfHead, bleed:[20, 20], fade:true, zone(){
+  const hr = $('#pfHost').getBoundingClientRect(), b = $('.wm-right').getBoundingClientRect();
+  return [2, b.left - hr.left - 12];   // the same window as the composer's: from the left edge up to the count
+} });
+const pfPrev = new CZ.Performance($('#pfPrevHost'), { acts:pfActs, len:pfLenK, crowd:() => pref('performCrowd'), head:pfHead, bleed:[18, 18],
+  scale:w => Math.min(1.04, Math.max(1, (w - 12) / (CZ.stageWidth(pfActs()) + 60))), zone:c => [6, c.W - 6] });
+let pfViewAt = 0;
+function pfSync(){
+  const on = !!pref('perform');
+  // back from a good long practice: an ovation
+  const vOpen = $('#viewer').classList.contains('open');
+  if(vOpen && !pfViewAt) pfViewAt = Date.now();
+  if(!vOpen && pfViewAt){ if(on && Date.now() - pfViewAt > 45000) pfMain.cheer = true; pfViewAt = 0; }
+  $('.lib-head').classList.toggle('pf-on', on);
+  for(const c of [pfMain, pfPrev]){
+    if(on && !c.alive){ c.alive = true; clearTimeout(c.bye); c.start(); }
+    if(!on && c.alive){
+      c.alive = false;
+      c.bye = setTimeout(() => { CZ.run(c, false); c.stop(); }, 800);   // after the fade
+    }
+    c.host.classList.toggle('on', on);
+    if(on) CZ.run(c, czSeen(c === pfMain ? czMain : czPrev));
+  }
+}
+// the two switches are either-or: turning one on turns the other off
+$('#setComposer').addEventListener('click', () => { if(pref('composer')) setPref('perform', false); syncSettings(); pfSync(); });
+$('#setPerform').addEventListener('click', () => {
+  const v = !pref('perform');
+  setPref('perform', v);
+  if(v) setPref('composer', false);
+  syncSettings(); czSync(); pfSync();
+});
+{
+  if(pref('perform') && pref('composer')) setPref('composer', false);   // never both
+  const mo = new MutationObserver(pfSync);
+  [$('#viewer'), ...$$('.panel')].forEach(e => mo.observe(e, { attributes:true, attributeFilter:['class'] }));
+  document.addEventListener('visibilitychange', pfSync);
+  window.addEventListener('resize', () => { pfMain.resize(); pfPrev.resize(); });
+  pfReady = true;
+  czSync(); pfSync(); pfSyncActs();
 }
 
 /* ---------- misc ---------- */
