@@ -1,6 +1,6 @@
 // Stand — offline cache.
 // Bump CACHE when you change any file, or browsers will keep serving the old one.
-const CACHE = 'stand-v115';
+const CACHE = 'stand-v121';
 
 // The composer prose that used to live inline in index.html now ships as its
 // own file per composer, fetched lazily. Listed here too so the very first

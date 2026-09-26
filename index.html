@@ -2159,6 +2159,93 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 .set-pin .pl-prev{border-bottom:1px solid var(--line)}
 .set-lead{margin:8px 2px 6px;font-size:15px;color:var(--text)}
 @media (prefers-reduced-motion:reduce){ .edge::after{transition:none} }
+/* ---------- the resident composer ---------- */
+.cz-host{position:absolute;bottom:9px;height:64px;pointer-events:none;opacity:0;
+  transition:opacity .7s ease;--cz-bg:var(--slate)}
+.cz-host.on{opacity:1}
+.cz-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;
+  --cz-ink:color-mix(in srgb,var(--text) 64%,var(--cz-bg));
+  --cz-far:color-mix(in srgb,var(--text) 34%,var(--cz-bg));
+  --cz-prop:color-mix(in srgb,var(--text) 40%,var(--cz-bg));
+  --cz-wig:color-mix(in srgb,var(--text) 36%,var(--cz-bg));
+  /* his clothes: a tinted coat, pale stockings and lace, all mixed from the theme */
+  --cz-cloth:color-mix(in srgb,var(--text) 15%,var(--cz-bg));
+  --cz-cloth-far:color-mix(in srgb,var(--text) 7%,var(--cz-bg));
+  --cz-skin:color-mix(in srgb,var(--text) 5%,var(--cz-bg));
+  --cz-stock:color-mix(in srgb,var(--text) 32%,var(--cz-bg));
+  --cz-stock-far:color-mix(in srgb,var(--text) 15%,var(--cz-bg));
+  --cz-lace:color-mix(in srgb,var(--text) 48%,var(--cz-bg));
+  --cz-strand:color-mix(in srgb,var(--cz-bg) 70%,var(--cz-ink));
+  --cz-acc:var(--pencil-hi)}
+.cz-svg path,.cz-svg circle{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.cz-ink,.cz-line{stroke:var(--cz-ink);stroke-width:1.2}
+.cz-far{stroke:var(--cz-far);stroke-width:1.2}
+.cz-prop{stroke:var(--cz-prop);stroke-width:1}
+.cz-fine{stroke-width:.8}
+.cz-hair{stroke-width:.5}
+.cz-svg .cz-fill{fill:var(--cz-bg)}
+/* the figure */
+.cz-o{stroke:var(--cz-ink)} .cz-farpart .cz-o{stroke:var(--cz-far)}
+.cz-i{stroke:var(--cz-cloth)} .cz-farpart .cz-i{stroke:var(--cz-cloth-far)}
+.cz-stock{stroke:var(--cz-stock)} .cz-farpart .cz-stock{stroke:var(--cz-stock-far)}
+.cz-lace{stroke:var(--cz-lace)} .cz-farpart .cz-lace{stroke:var(--cz-stock-far)}
+.cz-thO{stroke-width:3.7}.cz-thI{stroke-width:2.6}
+.cz-shO{stroke-width:2.75}.cz-shI{stroke-width:1.65}
+.cz-uaO{stroke-width:3.25}.cz-uaI{stroke-width:2.15}
+.cz-faO{stroke-width:2.95}.cz-faI{stroke-width:1.85}
+.cz-cfO{stroke-width:3.3}.cz-cfI{stroke-width:2.2}
+.cz-svg .cz-shoe{fill:var(--cz-ink);stroke:none} .cz-svg .cz-farpart .cz-shoe{fill:var(--cz-far)}
+.cz-svg .cz-buckle{fill:var(--cz-lace);stroke:none} .cz-svg .cz-farpart .cz-buckle{fill:var(--cz-stock-far)}
+.cz-svg .cz-hand{fill:var(--cz-skin);stroke:var(--cz-ink);stroke-width:.5}
+.cz-svg .cz-farpart .cz-hand{fill:var(--cz-cloth-far);stroke:var(--cz-far)}
+.cz-svg .cz-body{fill:var(--cz-cloth);stroke:var(--cz-ink);stroke-width:.75}
+.cz-svg .cz-skin{fill:var(--cz-skin);stroke:var(--cz-ink);stroke-width:.75}
+.cz-svg .cz-lacefill{fill:var(--cz-lace);stroke:var(--cz-ink);stroke-width:.4}
+.cz-buttons{stroke:var(--cz-ink);stroke-width:.6}
+.cz-svg .cz-hair{fill:var(--cz-ink);stroke:var(--cz-ink);stroke-width:.4}
+.cz-strand{stroke:var(--cz-strand);stroke-width:.36}
+.cz-hairline{stroke:var(--cz-ink);stroke-width:.9}
+.cz-svg .cz-eye{fill:var(--cz-ink);stroke:none}
+.cz-brow{stroke-width:.85}
+.cz-acc{stroke:var(--cz-acc)}
+.cz-ribbon{stroke-width:.7}
+.cz-baton{stroke-width:.9}
+.cz-flute{stroke-width:1.15}
+.cz-string{stroke-width:.65}
+.cz-steam{stroke-width:.55}
+.cz-svg .cz-dot,.cz-svg .cz-mallet,.cz-svg .cz-flame{fill:var(--cz-acc);stroke:none}
+.cz-svg .cz-glow{stroke:none}
+.cz-g0{stop-color:var(--cz-acc);stop-opacity:.3}
+.cz-g1{stop-color:var(--cz-acc);stop-opacity:0}
+.cz-svg .cz-note{fill:var(--cz-acc);stroke:var(--cz-acc);stroke-width:.5}
+.cz-svg .cz-ring{stroke:var(--cz-acc);stroke-width:.6}
+.cz-z{fill:var(--cz-acc);font:italic 600 5.2px var(--serif)}
+.cz-hit{fill:transparent;stroke:none;pointer-events:all;cursor:pointer}
+/* props are sketched in like pen strokes, and erased the same way */
+.cz-svg .cz-sk{stroke-dasharray:1 2;stroke-dashoffset:1.25;fill-opacity:0;
+  transition:stroke-dashoffset 1s cubic-bezier(.6,.05,.25,1),fill-opacity .5s ease}
+.cz-svg .cz-sk.in{stroke-dashoffset:0;fill-opacity:1}
+.cz-svg .cz-sk.out{stroke-dashoffset:-1.25;fill-opacity:0;
+  transition:stroke-dashoffset .7s cubic-bezier(.5,0,.75,.4),fill-opacity .3s ease}
+.cz-svg .cz-sk.now{transition:none}
+/* in the header: standing on the top line of the staff. While he's on, the
+   wordmark steps aside (it stays in the layout, so nothing else moves) */
+.lib-head{position:relative}
+.wordmark h1{transition:opacity .6s ease}
+.lib-head.cz-on .wordmark h1{opacity:0}
+.lib-head .cz-host{left:20px;right:20px}
+/* the live preview in Settings: drawn half again as large, on a matching staff */
+.cz-prev{position:relative;height:104px;background:color-mix(in srgb,var(--slate) 55%,var(--slate-2));border-bottom:1px solid var(--line)}
+.cz-prev .staff{position:absolute;left:18px;right:18px;bottom:17px;margin:0;height:13px}
+.cz-prev .staff span{margin-bottom:2px}
+.cz-prev .cz-host{left:18px;right:18px;bottom:30px;height:72px;--cz-bg:color-mix(in srgb,var(--slate) 55%,var(--slate-2))}
+@media (prefers-reduced-motion:reduce){ .cz-svg .cz-sk,.cz-svg .cz-sk.out{transition:none} }
+/* Beethoven: the mane replaces the periwig, the cravat takes the accent */
+.cz-svg:not(.cz-beet) .cz-beetpart,.cz-beet .cz-wigpart{display:none}
+.cz-svg.cz-beet .cz-jabot{fill:var(--cz-acc)}
+/* the activities page */
+#mSettings .set-link.off{opacity:.42;pointer-events:none}
+.set-sw[aria-disabled="true"]{opacity:.45;pointer-events:none}
 </style>
 </head>
 <body>
@@ -2183,6 +2270,7 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
       </span>
     </div>
     <div class="staff"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="cz-host" id="czHost" aria-hidden="true"></div>
   </div>
 
   <div class="searchrow">
@@ -2605,6 +2693,40 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
         <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v9a2 2 0 002 2h10a2 2 0 002-2V9"/><path d="M10 13h4"/></svg></span><span class="tx"><span class="nm">Backup</span><span class="sub" id="sumBackup"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
       </button>
     </div>
+    <div class="set-sub">Just for fun</div>
+    <div class="set-card">
+      <div class="cz-prev" aria-hidden="true">
+        <div class="staff"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="cz-host" id="czPrevHost"></div>
+      </div>
+      <div class="set-row">
+        <span class="set-l"><span class="nm">Resident composer</span><span class="sub">A tiny composer keeps a music room on the staff above your library, and wanders about it playing, writing and taking coffee.</span></span>
+        <button type="button" class="set-sw" id="setComposer" role="switch" aria-checked="false" aria-label="Resident composer"><i></i></button>
+      </div>
+      <div class="set-row col" id="czHeadRow">
+        <span class="set-l"><span class="nm">Composer</span></span>
+        <div class="pd-seg set-seg" data-pref="composerHead" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="wig">Mozart</button><button type="button" data-v="beethoven">Beethoven</button></div>
+      </div>
+      <button type="button" class="set-link" data-page="mSetCz" id="czActsLink">
+        <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5V6l10-2v11.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="15.5" r="2.5"/></svg></span><span class="tx"><span class="nm">Activities</span><span class="sub" id="sumCz"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="panel subpage setpage" id="mSetCz" aria-label="Composer activities">
+  <div class="panel-head">
+    <button class="linkbtn" data-back>Back</button>
+    <h3>Activities</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="edge" aria-hidden="true"></div>
+  <div class="plist pdash">
+    <div class="set-sub">Performing</div>
+    <div class="set-card" id="czActsPerf"></div>
+    <div class="set-sub">Between pieces</div>
+    <div class="set-card" id="czActsRest"></div>
+    <p class="pd-hint set-note">Furniture he no longer needs leaves his room, and the rest moves together. He always keeps at least one thing to do.</p>
   </div>
 </div>
 
@@ -8005,7 +8127,9 @@ const PREFS_DEF = { exitSide:'left', folderPlace:'top', folderAlways:false, manu
   // the Pieces list: what each row shows
   plDensity:'comfortable', plWrap:'wrap', plComposer:true, plCat:true, plKeyInfo:true, plFolder:true,
   plAbout:true, plOwnTitle:true, plNotes:true, plFile:true, plProgress:true, plLevel:true, plPin:true,
-  plSections:true, plAboutLink:true };
+  plSections:true, plAboutLink:true,
+  // the settings easter egg
+  composer:false, composerHead:'wig', composerOff:[] };
 let PREFS = null;
 function pref(k){
   if(!PREFS){ try{ PREFS = JSON.parse(localStorage.getItem('stand.prefs') || '{}') || {}; }catch(e){ PREFS = {}; } }
@@ -14453,6 +14577,10 @@ function syncSettings(){
   $('#setFolderAlways').setAttribute('aria-checked', String(!!pref('folderAlways')));
   $('#setManual').setAttribute('aria-checked', String(manualOnly()));
   $('#setFolderPlaceRow').classList.toggle('off', manualOnly());   // nothing to sort, so nothing to place
+  $('#setComposer').setAttribute('aria-checked', String(!!pref('composer')));
+  $('#czHeadRow').classList.toggle('off', !pref('composer'));
+  $('#czActsLink').classList.toggle('off', !pref('composer'));
+  czSyncActs();
   syncBackupStatus();
 }
 $('#setFolderAlways').addEventListener('click', () => {
@@ -14505,6 +14633,7 @@ document.querySelectorAll('.setpage .set-seg').forEach(seg => seg.addEventListen
   if(k === 'nick' || k === 'composerNames' || k === 'titleScope') titlesChanged();
   if(k === 'plDensity' || k === 'plWrap') applyListLook();
   if(k === 'folderPlace' || k === 'exitSide') renderAll();
+  if(k === 'composerHead') czHead();
   syncSettings();
 }));
 $('#bkNow').addEventListener('click', backupLibrary);
@@ -14519,6 +14648,1057 @@ $('#setRestore').addEventListener('click', pickRestore);
 $('#bkFile').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if(f) restoreLibrary(f); });
 $('#bkSave').addEventListener('click', saveBackup);
 $('#bkCancel').addEventListener('click', closeBackupCard);
+
+/* ---------- the resident composer ----------
+   A settings easter egg: a little outline composer who lives on the staff
+   under the wordmark. He strolls to a spot, his props sketch themselves in
+   like pen strokes, he conducts / writes / plays for about thirty seconds,
+   then the props are erased and he wanders off to the next thing.
+
+   Everything is one small SVG per host, drawn procedurally: the figure is a
+   two-bone IK rig (hips, shoulders, knees, elbows) posed by each activity as
+   a pure function of time, so poses blend cleanly in and out. It only runs
+   while its host is actually on screen, at ~30 fps. */
+const CZ = (() => {
+const NS = 'http://www.w3.org/2000/svg';
+const TAU = Math.PI * 2;
+const L = { th:8.6, sh:8.4, ua:6.5, fa:6.3, to:11.4, nk:4.3 };   // limb lengths, px
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x;
+const ss = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
+const lerp = (a, b, k) => a + (b - a) * k;
+const n2 = v => Math.round(v * 100) / 100;
+const P = (x, y) => n2(x) + ' ' + n2(y);
+const add = (a, b, k = 1) => [a[0] + b[0] * k, a[1] + b[1] * k];
+const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
+const len = a => Math.hypot(a[0], a[1]);
+const nrm = a => { const l = len(a) || 1; return [a[0] / l, a[1] / l]; };
+const rot = (a, r) => [a[0] * Math.cos(r) - a[1] * Math.sin(r), a[0] * Math.sin(r) + a[1] * Math.cos(r)];
+const mix = (a, b, k) => [lerp(a[0], b[0], k), lerp(a[1], b[1], k)];
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function mk(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  if(attrs) for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(parent) parent.appendChild(e);
+  return e;
+}
+/* smooth closed/open curve through points (Catmull-Rom as cubic Béziers) */
+function curve(pts, closed, t = .5){
+  const n = pts.length, g = i => closed ? pts[(i + n) % n] : pts[clamp(i, 0, n - 1)];
+  let d = 'M' + P(...pts[0]);
+  for(let i = 0; i < (closed ? n : n - 1); i++){
+    const p0 = g(i - 1), p1 = g(i), p2 = g(i + 1), p3 = g(i + 2), k = t / 3;
+    d += 'C' + P(p1[0] + (p2[0] - p0[0]) * k, p1[1] + (p2[1] - p0[1]) * k) + ' ' +
+               P(p2[0] - (p3[0] - p1[0]) * k, p2[1] - (p3[1] - p1[1]) * k) + ' ' + P(...p2);
+  }
+  return closed ? d + 'Z' : d;
+}
+/* two-bone IK: joint between a and b, lengths l1/l2, pick chooses the bend */
+function ik(a, b, l1, l2, pick){
+  const d0 = sub(b, a), d = len(d0) || 1e-6, u = [d0[0] / d, d0[1] / d];
+  const dm = clamp(d, Math.abs(l1 - l2) + .01, l1 + l2 - .01);
+  const e = add(a, u, dm);
+  const x = (l1 * l1 - l2 * l2 + dm * dm) / (2 * dm), h = Math.sqrt(Math.max(0, l1 * l1 - x * x));
+  const m = add(a, u, x);
+  return { j: pick([m[0] - u[1] * h, m[1] + u[0] * h], [m[0] + u[1] * h, m[1] - u[0] * h]), e };
+}
+/* Which way a joint folds is fixed, like a real limb: seen facing +x, elbows
+   always fold on the clockwise side of the shoulder-to-hand line (so they point
+   back when the arm hangs, down when it reaches forward, forward when it reaches
+   up), and knees on the other side. Choosing "whichever is lower" instead
+   flips the elbow whenever the hand passes under the shoulder. */
+const ELBOW = (cw, ccw) => cw, KNEE = (cw, ccw) => ccw;
+
+/* ---- base poses (local coords: ground y=0, up is negative, facing +x) ----
+   FLOOR lifts standing poses onto a raised floor (the podium). */
+let FLOOR = 0;
+function stand(t){
+  const b = Math.sin(t * TAU / 4.4);
+  const f = FLOOR;
+  return { hip:[0, -16.1 + b * .1 + f], lean:.035 + b * .008, head:-.03, hn:[1.3, -14.6 + b * .15 + f], hf:[-.9, -14.9 + b * .15 + f],
+           fn:[1.3, -1.2 + f], ff:[-1.4, -1.2 + f], eye:1, tl:0, tw:0, eu:0, fu:0, lift:0 };
+}
+function sit(t, seat = -8){
+  const b = Math.sin(t * TAU / 4.4);
+  return { hip:[-.8, seat - 1.7], lean:.05 + b * .008, head:0, hn:[5, -11.6], hf:[4.2, -11.8],
+           fn:[7.7, -1.2], ff:[6.3, -1.2], eye:1, tl:1, tw:0, eu:0, fu:0, lift:0 };
+}
+function walk(ph){
+  const s = Math.sin(ph), c = Math.cos(ph), up = k => 2.1 * Math.pow(Math.max(0, k), 1.4);
+  return { hip:[0, -15.55 - .55 * Math.abs(c)], lean:.075 + .01 * Math.abs(c), head:-.05 + .03 * Math.sin(ph * 2),
+           hn:[.9 - 2.5 * s, -14.4 + .5 * Math.abs(s)], hf:[.2 + 2.5 * s, -14.7 + .5 * Math.abs(s)],
+           fn:[4.2 * s, -1.2 - up(c)], ff:[-4.2 * s, -1.2 - up(-c)], eye:1, tl:.15, tw:.5 * Math.sin(ph * 2 + 1), eu:0, fu:0, lift:0 };
+}
+/* the shoulder a pose will produce, so activities can place hands relative to it */
+function shoulderOf(p){ return [p.hip[0] + Math.sin(p.lean) * 10.2 + .3 * Math.cos(p.lean), p.hip[1] - Math.cos(p.lean) * 10.2 + .3 * Math.sin(p.lean)]; }
+function headOf(p){
+  const nk = [p.hip[0] + Math.sin(p.lean) * L.to, p.hip[1] - Math.cos(p.lean) * L.to], a = p.lean + p.head;
+  return { c:[nk[0] + Math.sin(a) * L.nk, nk[1] - Math.cos(a) * L.nk], a };
+}
+function blend(a, b, k){
+  if(k <= 0) return a; if(k >= 1) return b;
+  const o = {};
+  for(const key in a){
+    const va = a[key], vb = key in b ? b[key] : va;
+    o[key] = Array.isArray(va) ? mix(va, vb, k) : lerp(va, vb, k);
+  }
+  return o;
+}
+
+/* ---- music glyphs for the particles ---- */
+const GLYPH = {
+  n8:'M-1.25 .35a1.3 .92 -22 1 0 2.5 -.7a1.3 .92 -22 1 0 -2.5 .7ZM1.2 -.25V-5.3q.2 1.5 1.9 2.4q.7 .5 .3 1.9',
+  n4:'M-1.25 .35a1.3 .92 -22 1 0 2.5 -.7a1.3 .92 -22 1 0 -2.5 .7ZM1.2 -.25V-5.3',
+  ring:'M-3 0Q0 -1.9 3 0',
+  n16:'M-2.9 .9a1.2 .85 -22 1 0 2.4 -.65a1.2 .85 -22 1 0 -2.4 .65ZM1.8 .1a1.2 .85 -22 1 0 2.4 -.65a1.2 .85 -22 1 0 -2.4 .65ZM-.6 .2V-4.3M4.1 -.5V-5M-.6 -4.75L4.1 -5.45L4.1 -4.65L-.6 -3.95Z'
+};
+
+/* ---------------- the figure and his room ----------------
+   The room is a row of stations laid out once along the staff (desk, piano,
+   podium, cello, harp, timpani, the armchair corner). It's sketched in when
+   he's switched on and stays put; he walks between the stations. Where the
+   room is wider than the gap in the header, the view is a stage window that
+   drifts after him, with softly faded edges. */
+const GAP = 7;
+function layoutRoom(acts = ACTS){
+  let cur = 0;
+  // only the stations some enabled activity uses; the rest close up
+  const out = STATIONS.filter(s => acts.some(a => a.st === s.id)).map(s => {
+    const [a, b] = s.face > 0 ? s.ext : [-s.ext[1], -s.ext[0]];
+    const X = cur - a; cur = X + b + GAP;
+    return { def:s, X, lo:X + a, hi:X + b };
+  });
+  return { list:out, W:cur - GAP };
+}
+
+class Composer {
+  constructor(host, opts){
+    this.host = host; this.o = opts || {};
+    this.svg = mk('svg', { class:'cz-svg', 'aria-hidden':'true', focusable:'false' }, host);
+    const id = ++Composer.n;
+    this.gid = 'czg' + id; this.mid = 'czm' + id;
+    const defs = mk('defs', {}, this.svg), rg = mk('radialGradient', { id:this.gid }, defs);
+    mk('stop', { offset:'0', class:'cz-g0' }, rg); mk('stop', { offset:'1', class:'cz-g1' }, rg);
+    this.fade = mk('linearGradient', { id:'czf' + id, gradientUnits:'userSpaceOnUse', x1:0, x2:100, y1:0, y2:0 }, defs);
+    this.stops = [0, 1, 2, 3].map(i => mk('stop', { offset:[0, .1, .9, 1][i], 'stop-color':'#fff', 'stop-opacity':i % 3 ? 1 : 0 }, this.fade));
+    const mask = this.mask = mk('mask', { id:this.mid, maskUnits:'userSpaceOnUse' }, defs);
+    this.maskRect = mk('rect', { fill:`url(#czf${id})` }, mask);
+    this.view = mk('g', { mask:`url(#${this.mid})` }, this.svg);
+    this.cam = mk('g', {}, this.view);
+    this.roomG = mk('g', { class:'cz-room' }, this.cam);
+    this.actor = mk('g', { class:'cz-actor' }, this.cam);
+    this.fx = mk('g', { class:'cz-fx' }, this.cam);
+    this.lay = {};
+    for(const n of ['back', 'farLeg', 'farArm', 'mid', 'coat', 'nearLeg', 'pre', 'head', 'nearArm', 'top']){
+      const e = mk('g', { class:'cz-' + n }, this.actor);
+      this.lay[n] = ['back', 'mid', 'pre', 'top'].includes(n) ? { sk:mk('g', {}, e), dy:mk('g', {}, e) } : e;
+    }
+    const F = this.f = {};
+    // limbs are outlined tubes: a dark stroke with a narrower cloth-coloured one on top,
+    // so knees and elbows join cleanly at any angle
+    const legSet = par => ({ thO:mk('path', { class:'cz-o cz-thO' }, par), shO:mk('path', { class:'cz-o cz-shO' }, par),
+      shI:mk('path', { class:'cz-stock cz-shI' }, par), thI:mk('path', { class:'cz-i cz-thI' }, par),
+      shoe:mk('path', { class:'cz-shoe' }, par), buckle:mk('circle', { class:'cz-buckle', r:.34 }, par) });
+    const armSet = par => ({ uO:mk('path', { class:'cz-o cz-uaO' }, par), fO:mk('path', { class:'cz-o cz-faO' }, par),
+      uI:mk('path', { class:'cz-i cz-uaI' }, par), fI:mk('path', { class:'cz-i cz-faI' }, par),
+      cO:mk('path', { class:'cz-o cz-cfO' }, par), cI:mk('path', { class:'cz-lace cz-cfI' }, par),
+      hand:mk('circle', { class:'cz-hand', r:.82 }, par) });
+    this.lay.farLeg.classList.add('cz-farpart'); this.lay.farArm.classList.add('cz-farpart');
+    F.farLeg = legSet(this.lay.farLeg);
+    F.farArm = armSet(this.lay.farArm);
+    F.coat     = mk('path', { class:'cz-body cz-coat' }, this.lay.coat);
+    F.lapel    = mk('path', { class:'cz-line cz-fine' }, this.lay.coat);
+    F.buttons  = mk('path', { class:'cz-buttons' }, this.lay.coat);
+    F.pocket   = mk('path', { class:'cz-line cz-fine' }, this.lay.coat);
+    F.jabot    = mk('path', { class:'cz-lacefill cz-jabot' }, this.lay.coat);
+    F.nearLeg = legSet(this.lay.nearLeg);
+    F.head     = mk('g', {}, this.lay.head);
+    // Mozart: a powdered periwig with side rolls, the queue tied with a ribbon
+    F.queue    = mk('path', { class:'cz-hairline cz-wigpart', d:'M-3.35 1.6q-1.1 1 -1.9 3.1' }, F.head);
+    F.ribbon   = mk('path', { class:'cz-acc cz-ribbon cz-wigpart', d:'M-3.9 2.3q-1.5 -1.3 -1.8 .1q.1 .9 1.8 -.1q-.1 1.8 -1.3 1.8q-.9 -.3 1.3 -1.8' }, F.head);
+    F.face     = mk('path', { class:'cz-skin', d:'M3.5 -.9L4.45 .45L3.28 1.12A3.55 3.55 0 1 1 3.5 -.9Z' }, F.head);
+    F.mouth    = mk('path', { class:'cz-line cz-hair', d:'M3.3 1.95l-.75 .12' }, F.head);
+    F.wig      = mk('path', { class:'cz-hair cz-wigpart', d:'M2.55 -2.55C1.9 -4.35 -1.3 -4.95 -3.3 -3.35C-4.75 -2.2 -4.75 .3 -3.8 1.95C-3.1 2.35 -2.5 2.2 -2.2 1.7C-1.4 1.4 -1 .7 -1.3 .1C-1.5 -.8 -.9 -1.9 .3 -2.2C1.1 -2.4 1.9 -2.2 2.55 -2.55Z' }, F.head);
+    F.rolls    = mk('path', { class:'cz-strand cz-wigpart', d:'M-3.55 1.1q-.2 -1 .8 -1.1q.8 0 .7 .75M-3.75 -.75q-.1 -1 .9 -1q.8 .05 .65 .8M-1.2 -3.35q1.1 -.6 2.3 -.35' }, F.head);
+    // Beethoven: the storm of hair, over the head so it's solid all the way through
+    F.mane     = mk('path', { class:'cz-hair cz-beetpart', d:'M2.75 -2.3C2.9 -3.4 2.4 -4.5 1.2 -5Q1.3 -5.9 .3 -5.9Q-.9 -6.7 -2.3 -5.9Q-3.9 -6.3 -4.8 -4.9Q-6.4 -4.5 -6.2 -2.9Q-7.3 -1.9 -6.5 -.6Q-7.2 .8 -5.9 1.5Q-6 3 -4.4 3.1Q-3.4 3.5 -2.7 2.6C-2.1 1.7 -1.4 1.2 -1.35 .3C-1.3 -.7 -.8 -1.5 .1 -1.85C.8 -2.1 1.4 -1.8 1.8 -2.25Q2.2 -1.95 2.75 -2.3Z' }, F.head);
+    F.strands  = mk('path', { class:'cz-strand cz-beetpart', d:'M.8 -4.3q-1.6 -.4 -3 .6M-.6 -3q-2 .1 -3.4 1.9M-2.4 -1.2q-1.4 .7 -2.2 2.4M-4.6 -3.6q-.9 .5 -1.1 1.4' }, F.head);
+    F.brow     = mk('path', { class:'cz-line cz-brow cz-beetpart', d:'M1.05 -1.7L2.7 -1.25' }, F.head);
+    F.eye      = mk('circle', { class:'cz-eye', cx:1.8, cy:-.8, r:.44 }, F.head);
+    F.lid      = mk('path', { class:'cz-line cz-fine', d:'M1.2 -.75q.6 .45 1.2 0', style:'opacity:0' }, F.head);
+    F.nearArm = armSet(this.lay.nearArm);
+    this.hit = mk('rect', { class:'cz-hit', x:-7, y:-40, width:14, height:41 }, this.actor);
+    this.hit.addEventListener('pointerdown', e => { e.stopPropagation(); this.poke(); });
+
+    this.t = 0; this.x = 0; this.dir = 1; this.face = 1; this.camX = 0;
+    this.st = 'idle'; this.stT = 0; this.act = null; this.recent = []; this.parts = []; this.hop = 0; this.ph = 0;
+    this.room = null; this.zt = 0;
+    this.reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    this.setHead('wig');
+    this.resize();
+  }
+  actsNow(){ const f = this.o.acts, l = typeof f === 'function' ? f() : f || ACTS; return l.length ? l : ACTS; }
+  setHead(k){ this.headKind = k; this.svg.classList.toggle('cz-beet', k === 'beethoven'); }
+  /* ---- layout ---- */
+  resize(){
+    const r = this.host.getBoundingClientRect(), o = this.o.scale;
+    const s = typeof o === 'function' ? o(r.width) : o || 1;   // scale: a bigger figure, same drawing
+    this.W = Math.max(40, r.width / s); this.H = Math.max(30, r.height / s);
+    this.svg.setAttribute('viewBox', `0 ${n2(-this.H)} ${n2(this.W)} ${n2(this.H)}`);
+    this.zoneNow();
+  }
+  zoneNow(){
+    const z = this.o.zone ? this.o.zone(this) : [6, this.W - 6];
+    const a = Math.max(0, z[0]), b = Math.max(a + 30, Math.min(this.W, z[1]));
+    this.za = a; this.zb = b;
+    const w = b - a, e = Math.min(.3, 14 / w);
+    this.fade.setAttribute('x1', n2(a)); this.fade.setAttribute('x2', n2(b));
+    this.stops[1].setAttribute('offset', n2(e)); this.stops[2].setAttribute('offset', n2(1 - e));
+    const box = { x:a - 1, y:-this.H * 3, width:w + 2, height:this.H * 4 };
+    for(const k in box){ this.maskRect.setAttribute(k, n2(box[k])); this.mask.setAttribute(k, n2(box[k])); }
+  }
+  /* ---- the room: built and sketched in once ---- */
+  buildRoom(){
+    this.roomG.replaceChildren();
+    const L = layoutRoom(this.actsNow());
+    this.room = L;
+    for(const s of L.list){
+      s.g = mk('g', { transform:`translate(${n2(s.X)} 0) scale(${s.def.face} 1)` }, this.roomG);
+      s.back = mk('g', {}, s.g); s.front = mk('g', {}, s.g);
+      const c = {
+        sk(where, d, cls = 'cz-prop'){ const par = where === 'front' ? s.front : where === 'back' ? s.back : where; return mk('path', { d, class:cls + ' cz-sk', pathLength:1 }, par); },
+        g(where, attrs){ return mk('g', attrs || {}, where === 'front' ? s.front : s.back); },
+        glow:'url(#' + this.gid + ')'
+      };
+      s.R = s.def.room(c) || {};
+    }
+    // sketch it in, left to right like a pen crossing the page
+    const quick = this.reduced.matches;
+    for(const s of L.list){
+      s.g.querySelectorAll('.cz-sk').forEach((p, i) => {
+        if(quick){ p.classList.add('in', 'now'); return; }
+        p.style.transitionDelay = n2(.1 + 1.3 * (s.lo / L.W) + i * .035) + 's';
+      });
+    }
+    if(!quick) requestAnimationFrame(() => requestAnimationFrame(() => this.roomG.querySelectorAll('.cz-sk').forEach(p => p.classList.add('in'))));
+  }
+  /* ---- on and off ---- */
+  start(){
+    this.resize();
+    this.buildRoom();
+    this.clearSession(); this.clearParts();
+    const left = Math.random() < .5;
+    this.dir = this.face = left ? 1 : -1;
+    this.x = left ? -12 : this.room.W + 12;
+    this.t = 0; this.ph = 0; this.recent = []; this.justDone = this.rested = false;
+    this.camX = this.camTarget();
+    this.st = 'rest'; this.stT = 2.2;   // a beat while the room sketches in
+    this.next = null;
+  }
+  stop(){ this.clearSession(); this.clearParts(); this.roomG.replaceChildren(); this.room = null; }
+  /* ---- the schedule: pick something to do, weighted towards what's nearby ---- */
+  plan(){
+    const all = this.actsNow();
+    let acts = all.filter(a => !this.recent.includes(a.id));
+    if(!acts.length) acts = all;
+    const opts = acts.map(a => { const s = this.room.list.find(q => q.def.id === a.st); return { a, s, w:s ? 1 / (1 + Math.abs(s.X - this.x) / 70) : 0 }; }).filter(o => o.s);
+    let r = Math.random() * opts.reduce((n, o) => n + o.w, 0), pick = opts[0];
+    for(const o of opts){ r -= o.w; if(r <= 0){ pick = o; break; } }
+    // staying at the same station: stand and stretch for a moment rather than sitting straight back down
+    if(this.justDone && !this.rested && Math.abs(pick.s.X - this.x) < .5){ this.rested = true; this.next = null; this.go('rest'); return; }
+    this.rested = false; this.justDone = false;
+    this.next = { a:pick.a, s:pick.s, d:pick.s.def.face, x:pick.s.X };
+    this.recent.push(pick.a.id); if(this.recent.length > Math.min(4, all.length - 1)) this.recent.shift();
+    this.go('walk');
+  }
+  go(st){ this.st = st; this.stT = 0; }
+  camTarget(){
+    const zw = this.zb - this.za, W = this.room ? this.room.W : 0;
+    if(W <= zw - 6) return (W - zw) / 2;
+    let f = this.x;
+    if(this.here && this.act) f = (this.here.lo + this.here.hi) / 2;
+    else if(this.st === 'walk' && this.next) f = this.x + Math.sign(this.next.x - this.x) * Math.min(24, Math.abs(this.next.x - this.x));
+    return clamp(f - zw / 2, -4, W - zw + 4);
+  }
+  /* ---- a session at a station: the moving parts ---- */
+  ctx(){
+    const self = this;
+    return { dy(layer, tag, attrs){ return mk(tag, attrs, self.lay[layer].dy); }, g(layer){ return mk('g', {}, self.lay[layer].dy); } };
+  }
+  clearSession(){
+    for(const k of ['back', 'mid', 'pre', 'top']) this.lay[k].dy.replaceChildren();
+    this.giveBack();
+    if(this.act && this.act.leave && this.here) this.act.leave(this.here.R);
+    this.act = null; this.S = null; this.here = null;
+  }
+  // furniture he plays "into" (cello, harp) joins his layers so his bowing arm is drawn over it
+  borrow(){ if(this.here && this.here.front.childNodes.length){ this.lay.pre.sk.appendChild(this.here.front); this.borrowed = this.here; } }
+  giveBack(){ if(this.borrowed){ this.borrowed.g.appendChild(this.borrowed.front); this.borrowed = null; } }
+  setDyn(w){ this.dyw = w; for(const k of ['back', 'mid', 'pre', 'top']) this.lay[k].dy.style.opacity = n2(w); }
+  /* ---- particles: notes, z's, rings ---- */
+  emit(kind, lx, ly, o = {}){
+    if(this.reduced.matches || this.parts.length > 14) return;
+    const x = this.x + this.face * lx;
+    let e;
+    if(kind === 'z'){ e = mk('text', { class:'cz-z' }, this.fx); e.textContent = 'z'; }
+    else e = mk('path', { class:kind === 'ring' ? 'cz-ring' : 'cz-note', d:GLYPH[kind] || GLYPH.n8 }, this.fx);
+    this.parts.push({ e, x, y:ly + FLOOR, vx:(o.vx ?? (Math.random() - .3) * 2) * this.face, vy:o.vy ?? -(3.4 + Math.random() * 1.6),
+      age:0, life:o.life ?? (2.6 + Math.random() * 1.2), s:o.s ?? (.72 + Math.random() * .22), wob:Math.random() * TAU, grow:o.grow || 0 });
+  }
+  clearParts(){ this.parts.forEach(p => p.e.remove()); this.parts = []; }
+  tickParts(dt){
+    for(let i = this.parts.length - 1; i >= 0; i--){
+      const p = this.parts[i]; p.age += dt;
+      if(p.age >= p.life){ p.e.remove(); this.parts.splice(i, 1); continue; }
+      p.x += p.vx * dt + Math.sin(p.age * 2.6 + p.wob) * .09; p.y += p.vy * dt;
+      const k = p.age / p.life, a = Math.min(1, p.age / .35) * (1 - ss((k - .55) / .45));
+      p.e.setAttribute('transform', `translate(${P(p.x, p.y)}) rotate(${n2(Math.sin(p.age * 1.9 + p.wob) * 9)}) scale(${n2(p.s * (1 + p.grow * k))})`);
+      p.e.style.opacity = n2(a);
+    }
+  }
+  poke(){
+    const busy = this.act && this.st !== 'walk';
+    if(!busy && this.hop > 0) return;
+    if(!busy) this.hop = .0001;
+    const y = busy ? -34 : -40;
+    for(let i = 0; i < 3; i++) setTimeout(() => this.emit(['n8', 'n4', 'n16'][i], (i - 1) * 3, y, { vy:-6 - i, vx:(i - 1) * 2.5, life:1.8 }), i * 90);
+  }
+  show(a, t, x){   // for testing: one activity at one moment, props already drawn
+    if(!this.room){ this.resize(); this.buildRoom(); this.roomG.querySelectorAll('.cz-sk').forEach(p => p.classList.add('in', 'now')); }
+    this.clearSession(); this.clearParts();
+    const s = this.room.list.find(q => q.def.id === a.st);
+    this.here = s; this.x = s.X; this.face = this.dir = s.def.face; this.act = a; this.st = 'act';
+    this.borrow();
+    FLOOR = s.def.floor || 0;
+    this.S = a.build(this.ctx(), rng(7), s.R) || {}; this.setDyn(1); this._w = 1;
+    for(let k = Math.max(0, t - 1.5); k <= t; k += 1 / 30){ this.t = k; this.render(a.pose(k, this.S, s.R)); a.update(k, this.S, this.J, this, s.R); this.tickParts(1 / 30); }
+    this.camX = this.camTarget(); this.cam.setAttribute('transform', `translate(${n2(this.za - this.camX)} 0)`);
+    FLOOR = 0;
+  }
+  /* ---- one frame ---- */
+  step(dt){
+    if(!this.room) return;
+    this.t += dt; this.stT += dt;
+    if((this.zt += dt) > 1){ this.zt = 0; this.zoneNow(); }
+    if(this.hop > 0){ this.hop += dt; if(this.hop > .42) this.hop = 0; }
+    let pose;
+    const st = this.st, T = this.stT, n = this.next, reduced = this.reduced.matches;
+    FLOOR = 0;
+    if(st === 'walk'){
+      const dx = n.x - this.x, want = Math.sign(dx) || this.dir;
+      if(Math.abs(dx) < .3 || reduced){
+        this.x = n.x; this.dir = n.d; this.here = n.s;
+        if(this.face !== n.d && !reduced){ this.turnFrom = this.face; this.go('turn'); this.after = 'setup'; }
+        else { this.face = n.d; this.go('setup'); }
+        pose = stand(this.t);
+      } else if(this.face !== want){
+        this.turnFrom = this.face; this.dir = want; this.go('turn'); this.after = 'walk'; pose = stand(this.t);
+      } else {
+        const far = Math.abs(dx);
+        const v = (15 + 7 * ss((far - 40) / 80)) * Math.min(1, .25 + T * 1.4) * Math.min(1, .35 + far / 5);
+        const mv = Math.min(far, v * dt);
+        this.x += want * mv; this.ph += mv * Math.PI / 8.4;
+        pose = blend(stand(this.t), walk(this.ph), Math.min(1, T * 3, far / 2.5));
+      }
+    } else if(st === 'turn'){
+      const k = ss(T / .38);
+      this.face = this.turnFrom * Math.cos(Math.PI * k) || .001 * this.dir;
+      pose = stand(this.t);
+      if(k >= 1){ this.face = this.dir; this.go(this.after); }
+    } else if(st === 'rest'){
+      pose = stand(this.t);
+      if(T > 2.6) this.plan();
+    }
+    if(this.st === 'setup' && !this.act){
+      this.act = n.a; this.actT = 0;
+      this.borrow();
+      this.S = this.act.build(this.ctx(), rng((Math.random() * 1e9) | 0), this.here.R) || {};
+      this.setDyn(0);
+      this.dur = 26 + Math.random() * 8;
+    }
+    if(this.act){
+      this.actT += dt;
+      const a = this.act, s = this.here, fl = s.def.floor || 0;
+      const T2 = this.stT, ST = this.st;
+      let wt = 0, step = 1;   // step: how far up onto the station's floor
+      if(ST === 'setup'){ wt = ss((T2 - .75) / .8); step = ss((T2 - .15) / .45); if(T2 > 1.6) this.go('act'); }
+      else if(ST === 'act'){ wt = 1; if(T2 > this.dur) this.go('rise'); }
+      else if(ST === 'rise'){ wt = 1 - ss(T2 / .75); if(T2 > .8) this.go(a.perform && !reduced ? 'bow' : 'pack'); }
+      else if(ST === 'bow'){ if(T2 > 1.9) this.go('pack'); }
+      else if(ST === 'pack'){ step = 1 - ss((T2 - .25) / .4); if(T2 > .75){ this.clearSession(); this.justDone = true; this.plan(); } }
+      if(this.act){
+        FLOOR = fl * step;
+        const base = this.st === 'bow' ? bowPose(this.t, this.stT) : stand(this.t);
+        if(step < 1 && fl) base.hip[1] -= Math.sin(Math.PI * step) * 1.2;   // a little hop up (or down)
+        FLOOR = fl;
+        const ap = a.pose(reduced ? 3 : this.actT, this.S, s.R);
+        pose = blend(base, ap, wt);
+        // held things appear as he settles in, and are put away as he rises (before any bow)
+        const ht = this.st, hT = this.stT;
+        this.setDyn(ht === 'setup' ? ss((hT - .4) / .6) : ht === 'act' ? 1 : ht === 'rise' ? 1 - ss(hT / .6) : 0);
+        this._w = wt;
+      } else pose = stand(this.t);
+    }
+    if(!pose) pose = stand(this.t);
+    this.render(pose);
+    if(this.act) this.act.update(reduced ? 3 : this.actT, this.S, this.J, this, this.here.R);
+    for(const s of this.room.list) if(s.def.tick) s.def.tick(this.t, s.R);
+    FLOOR = 0;
+    this.tickParts(dt);
+    // the stage window eases after him
+    const ct = this.camTarget();
+    this.camX = reduced ? ct : this.camX + (ct - this.camX) * (1 - Math.exp(-dt * 1.3));
+    this.cam.setAttribute('transform', `translate(${n2(this.za - this.camX)} 0)`);
+  }
+  render(p){
+    const a = p.lean, U = [Math.sin(a), -Math.cos(a)], F = [Math.cos(a), Math.sin(a)];
+    const at = (v, u) => [p.hip[0] + F[0] * v + U[0] * u, p.hip[1] + F[1] * v + U[1] * u];
+    const shN = at(.3, 10.2), shF = at(-.4, 10.05);
+    const H = headOf(p);
+    const armN = ik(shN, p.hn, L.ua, L.fa, ELBOW), armF = ik(shF, p.hf, L.ua, L.fa, ELBOW);
+    const hpN = at(.45, .3), hpF = at(-.45, .3);
+    const legN = ik(hpN, p.fn, L.th, L.sh, KNEE), legF = ik(hpF, p.ff, L.th, L.sh, KNEE);
+    const F_ = this.f;
+    const seg = (a, b) => 'M' + P(...a) + 'L' + P(...b);
+    const leg = (S, hp, lg) => {
+      const k = lg.j, an = lg.e, x = an[0], y = an[1];
+      S.thO.setAttribute('d', seg(hp, k)); S.thI.setAttribute('d', seg(hp, k));
+      S.shO.setAttribute('d', seg(k, an)); S.shI.setAttribute('d', seg(k, an));
+      S.shoe.setAttribute('d', `M${P(x - 1.15, y + 1)}L${P(x + 2.75, y + 1)}Q${P(x + 3, y + .1)} ${P(x + 1.4, y - .15)}L${P(x - .85, y - .35)}Z`);
+      S.buckle.setAttribute('cx', n2(x + .95)); S.buckle.setAttribute('cy', n2(y + .15));
+    };
+    const arm = (S, sh, am) => {
+      const el = am.j, h = am.e, d = nrm(sub(h, el));
+      S.uO.setAttribute('d', seg(sh, el)); S.uI.setAttribute('d', seg(sh, el));
+      S.fO.setAttribute('d', seg(el, add(h, d, -1.1))); S.fI.setAttribute('d', seg(el, add(h, d, -1.1)));
+      const c = seg(add(h, d, -1.55), add(h, d, -.95));
+      S.cO.setAttribute('d', c); S.cI.setAttribute('d', c);
+      S.hand.setAttribute('cx', n2(h[0])); S.hand.setAttribute('cy', n2(h[1]));
+    };
+    leg(F_.farLeg, hpF, legF);
+    leg(F_.nearLeg, hpN, legN);
+    arm(F_.farArm, shF, armF);
+    arm(F_.nearArm, shN, armN);
+    const tdir = nrm(mix([-.14, 1], [-1, .55], p.tl)), tl = 7.4 - 2.2 * p.tl;
+    const root = at(-2.4, 1.1), tip = add(add(root, tdir, tl), [-.5 + p.tw * .6, p.tw * .25]);
+    const fwd = [tdir[1], -tdir[0]], inner = add(add(tip, fwd, -1.25), tdir, -1.1);
+    F_.coat.setAttribute('d', curve([at(1.45, 11.15), at(2.8, 8.4), at(2.5, 4.4), at(1.7, 1.5), at(.2, .35), at(-1.3, .5), inner, tip, at(-2.9, 3.4), at(-2.75, 8.7), at(-1.5, 11.1)], true, .34));
+    F_.lapel.setAttribute('d', 'M' + P(...at(1.5, 10.9)) + 'L' + P(...at(2.35, 7.2)) + 'L' + P(...at(1.95, 5.1)));
+    F_.jabot.setAttribute('d', 'M' + P(...at(1.3, 11)) + 'Q' + P(...at(3.1, 10.6)) + ' ' + P(...at(2.2, 9.3)) + 'Q' + P(...at(2.9, 8.7)) + ' ' + P(...at(2, 8)) + 'L' + P(...at(1.4, 9.6)) + 'Z');
+    F_.buttons.setAttribute('d', [7, 5.6, 4.2].map(u => { const q = at(2.35 - (7 - u) * .02, u); return 'M' + P(q[0] - .01, q[1]) + 'l.02 0'; }).join(''));
+    F_.pocket.setAttribute('d', 'M' + P(...at(.4, 2.6)) + 'L' + P(...at(2.1, 2.9)));
+    F_.head.setAttribute('transform', `translate(${P(...H.c)}) rotate(${n2(H.a * 57.2958)})`);
+    const blink = (this.t % 3.9) < .13 || p.eye < .5;
+    F_.eye.style.opacity = blink ? 0 : 1; F_.lid.style.opacity = blink ? 1 : 0;
+    F_.queue.setAttribute('transform', `rotate(${n2(p.tw * 10)} -3.35 1.7)`);
+    F_.ribbon.setAttribute('transform', `rotate(${n2(p.tw * 12)} -3.9 2.3)`);
+    F_.mane.setAttribute('transform', `rotate(${n2(p.tw * 5)} -1 0)`); F_.strands.setAttribute('transform', `rotate(${n2(p.tw * 5)} -1 0)`);
+    const hopY = this.hop > 0 ? -Math.sin(Math.PI * this.hop / .42) * 3.2 : 0;
+    this.actor.setAttribute('transform', `translate(${n2(this.x)} ${n2(hopY)}) scale(${n2(this.face)} 1)`);
+    this.J = { p, shN, shF, H, hn:armN.e, hf:armF.e, en:armN.j, ef:armF.j, kn:legN.j, kf:legF.j, at, w:this._w || 0 };
+  }
+}
+Composer.n = 0;
+function bowPose(t, T){
+  const k = Math.sin(Math.PI * clamp(T / 1.7, 0, 1)), p = stand(t);
+  p.lean = .04 + .6 * ss(k * 1.25); p.head = .22 * k;
+  p.hip = [p.hip[0] - 1.6 * k, p.hip[1] - .3 * k];
+  p.fn = [1.6, -1.2]; p.ff = [-.6, -1.2];
+  const sh = shoulderOf(p);
+  p.hf = add(sh, rot([1.2, 6.4], p.lean * .6));          // hand to the waistcoat
+  p.hn = add(sh, rot([-3.2 - 2 * k, 11], p.lean * .15));  // the other arm sweeps back
+  return p;
+}
+/* ---- activities ----
+   Each is facing +x with the composer's hips at x=0. ext is the horizontal
+   span the scene needs, so it's only placed where it fits. build() sketches
+   the furniture (drawn in as pen strokes) and makes the moving parts;
+   pose(t) is a pure function of time; update() moves the held things. */
+const pulse = (u, k = 6) => Math.exp(-u * k);
+const frac = x => x - Math.floor(x);
+function every(S, key, t, gap, fn){
+  if(S[key] == null) S[key] = t + gap * (.4 + Math.random() * .6);
+  if(t >= S[key]){ S[key] = t + gap * (.7 + Math.random() * .6); fn(); }
+}
+function line(a, b){ return 'M' + P(...a) + 'L' + P(...b); }
+function stool(c){
+  c.sk('back', 'M-5.4 -8.1H2.8M-4.7 -8.1L-5.4 0M2.1 -8.1L2.8 0');
+  c.sk('back', 'M-5 -3.4H2.4', 'cz-prop cz-fine');
+}
+
+
+/* ---- the room ----
+   Stations are laid out left to right in this order. Each is drawn facing
+   +x with the composer's spot at x=0; face -1 mirrors it. ext is the span its
+   furniture needs. Anything put in 'front' is lent to the composer's own
+   layers while he plays it, so his bowing arm passes in front of it. */
+const PAGE = (() => { const d = nrm([7.9, -4.1]), v = [-.85, -2.7], A = [8.9, -15.25]; return { d, v, A, B:add(A, d, 7.3),
+  dot:i => add(add(A, d, .8 + i * .82), v, .22 + ((i * 5) % 4) * .17) }; })();
+const CELLO = (() => { const E = [9.2, 0], ax = nrm([-.29, -1]), n = [-ax[1], ax[0]]; return { E, ax, n, at:(s, v) => add(add(E, ax, s), n, v) }; })();
+const CUP = 'M-1.45 0L-1.75 -2.7H1.75L1.45 0Z', HANDLE = 'M-1.62 -2.2Q-2.95 -2.25 -2.75 -1.2Q-2.55 -.35 -1.5 -.55';
+const STATIONS = [
+{ id:'desk', face:1, ext:[-6.6, 23.4], room(c){
+    c.sk('back', 'M-5.8 -8.1H2.6M-5.2 -8.1L-5.8 0M2 -8.1L2.6 0');
+    c.sk('back', 'M-5.2 -8.1L-6.3 -20.2Q-6.4 -21.5 -5.2 -21.2');
+    c.sk('back', 'M5.8 -14.6H23.2M6.6 -14.6V-12.8H22.4V-14.6');
+    c.sk('back', 'M7.4 -12.8L7.9 0M21.6 -12.8L21.1 0');
+    c.sk('back', 'M8.1 -14.6L16 -18.7L16.6 -14.6');
+    c.sk('back', 'M19 -14.6V-16.3Q20.3 -17.5 21.6 -16.3V-14.6M19.5 -16.9H21.1');
+    c.sk('back', 'M21.1 -16.9L23.6 -23.4', 'cz-prop cz-fine');   // a spare quill in the ink
+    const { A, B, v, d } = PAGE, C = add(B, v), D = add(A, v);
+    c.sk('back', 'M' + P(...A) + 'L' + P(...B) + 'L' + P(...C) + 'L' + P(...D) + 'Z', 'cz-prop cz-fill cz-fine');
+    for(const f of [.33, .66]) c.sk('back', line(add(add(A, v, f), d, .5), add(add(A, v, f), d, 6.8)), 'cz-far cz-hair');
+  } },
+{ id:'piano', face:1, ext:[-6.6, 44.6], room(c){
+    c.sk('back', 'M-6.2 -8.1H3.2M-6.2 -8.1V-9.2H3.2V-8.1M-5.4 -8.1V0M2.4 -8.1V0');
+    c.sk('back', 'M9.2 -12.2H41.4Q44.4 -12.2 44.4 -14.9Q44.4 -17.6 41.4 -17.6H9.2Z', 'cz-prop cz-fill');
+    c.sk('back', 'M6.6 -14.3H9.2M6.6 -14.3V-13H9.2');
+    c.sk('back', 'M11.8 -12.2L12.3 -.3H13.4L13.8 -12.2M38.8 -12.2L39.3 -.3H40.4L40.8 -12.2');
+    c.sk('back', 'M9.9 -12.2V-2.4M8.1 -1.7H11.4', 'cz-prop cz-fine');
+    c.sk('back', 'M12.4 -17.6L43.9 -28.4');
+    c.sk('back', 'M32.4 -17.6L33.5 -24.6', 'cz-prop cz-fine');
+    c.sk('back', 'M10.4 -17.6L12.1 -21.6M11 -18.3L12.9 -22.3', 'cz-prop cz-fine');
+  } },
+{ id:'harp', face:1, ext:[-5.6, 20.2], room(c){
+    stool(c);
+    const Nk = [[2.8, -24.4], [5.6, -27.3], [9, -26.9], [12.6, -28.3], [15.7, -30.6], [18.4, -31.1]];
+    c.sk('front', 'M12.4 -2.2L2.1 -24.4L3.3 -24.7L14.2 -2.2Z', 'cz-ink cz-fill cz-inst');
+    c.sk('front', curve(Nk, false, .5));
+    c.sk('front', 'M18.3 -30.8L16.4 -2.2M17.3 -31.2Q18.1 -34 19.8 -32.2Q20.3 -31.3 19.2 -31', 'cz-prop');
+    c.sk('front', 'M11.4 -2.2H18.1L18.7 0H10.9Z', 'cz-prop cz-fill');
+    const neckY = x => { for(let i = 0; i < Nk.length - 1; i++){ const [a, b] = [Nk[i], Nk[i + 1]]; if(x <= b[0]) return lerp(a[1], b[1], (x - a[0]) / (b[0] - a[0])); } return Nk[Nk.length - 1][1]; };
+    const str = [];
+    for(let i = 0; i < 8; i++){
+      const x = 4.3 + i * 1.12, top = [x, neckY(x) + .5], bot = [x, -2.2 - (12.95 - x) * 2.155 - .4];
+      c.sk('front', line(top, bot), 'cz-far cz-hair');
+      str.push({ x, top, bot });
+    }
+    return { str };
+  } },
+{ id:'podium', face:1, floor:-3.1, ext:[-7.2, 19], room(c){
+    c.sk('back', 'M-6.8 0V-3.1H6.8V0', 'cz-prop cz-fill');
+    c.sk('back', 'M-5.2 -1.55H5.2', 'cz-prop cz-fine');
+    c.sk('back', 'M15.2 -.2V-18.2M12.6 0L15.2 -3.2L17.8 0');
+    c.sk('back', 'M11.8 -17.6L18.7 -22.4');
+    c.sk('back', 'M12.6 -18.5L17.6 -22', 'cz-prop cz-fine');
+  } },
+{ id:'drum', face:-1, ext:[-4.5, 22.6], room(c){
+    c.sk('back', 'M7.1 -14.6Q7.4 -6.4 14.6 -5.9Q21.8 -6.4 22.1 -14.6', 'cz-prop cz-fill');
+    c.sk('back', 'M6.8 -14.8Q14.6 -13.5 22.4 -14.8Q14.6 -16.1 6.8 -14.8Z', 'cz-prop cz-fill');
+    c.sk('back', 'M9.3 -9L7.8 0M19.9 -9L21.4 0M14.6 -5.9V-.9M11.6 -.9L14.1 -2.3');
+    c.sk('back', 'M8.6 -14.9V-16.1M12.3 -15.6V-16.8M16.9 -15.6V-16.8M20.6 -14.9V-16.1', 'cz-prop cz-fine');
+    // the mallets wait on the rim
+    c.sk('back', 'M17.5 -15.4L23.5 -19.2M18.4 -15.1L24.3 -18.6', 'cz-prop cz-fine');
+  } },
+{ id:'cello', face:-1, ext:[-5.6, 12.8], room(c){
+    stool(c);
+    const { at } = CELLO;
+    const W = [[2.2, 0], [3.2, 3], [5, 3.55], [7, 3.1], [8.6, 2.15], [10.1, 2.55], [12.6, 3], [14.5, 2.2], [15.3, 0]];
+    const pts = W.map(([s, v]) => at(s, v)).concat(W.slice(1, -1).reverse().map(([s, v]) => at(s, -v)));
+    c.sk('front', curve(pts, true, .5), 'cz-ink cz-fill cz-inst');
+    c.sk('front', line(at(0, 0), at(2.2, 0)) + line(at(15.3, 0), at(25.2, 0)));
+    c.sk('front', 'M' + P(...at(26, 0)) + 'a.9 .9 0 1 0 .01 0', 'cz-prop cz-fine');
+    c.sk('front', line(at(4.2, 0), at(24.8, 0)) + line(at(7.1, -1.3), at(7.1, 1.3)), 'cz-far cz-hair');
+  } },
+{ id:'lounge', face:1, ext:[-16, 19.2], room(c){
+    c.sk('back', 'M-15.6 -10.6H-10.4M-13 -10.6V-.8M-14.8 0Q-13 -1.6 -11.2 0');
+    c.sk('back', 'M-14.1 -10.6Q-13 -11.3 -11.9 -10.6M-13.5 -11V-15.2H-12.5V-11', 'cz-prop cz-fine');
+    const glow = mk('circle', { class:'cz-glow', cx:-13, cy:-16.4, r:6, fill:c.glow }, c.g('back'));
+    const flame = mk('path', { class:'cz-acc cz-flame' }, c.g('back'));
+    c.sk('back', 'M-6.8 -8.3H3.4V-2.2H-6.8M-6.2 -2.2V0M2.8 -2.2V0');
+    c.sk('back', 'M-6.8 -2.2V-8.3L-7.6 -22.8Q-7.7 -25.8 -5.4 -26Q-3.5 -26 -3.7 -24.2L-4.6 -12.6', 'cz-prop cz-fill');
+    c.sk('back', 'M-4.6 -12.6H2.6Q4.2 -12.6 4 -11.2L3.4 -8.3', 'cz-prop');
+    c.sk('back', 'M8.6 -13.3H18.8M9.2 -12.7H18.2', 'cz-prop');
+    c.sk('back', 'M13.7 -12.7V-1.4M10.7 0Q13.7 -2.2 16.7 0');
+    c.sk('back', 'M10.8 -13.5Q12.8 -12.9 14.8 -13.5', 'cz-prop cz-fine');
+    const cup = c.g('back', { transform:'translate(12.8 -13.55)' });
+    c.sk(cup, CUP, 'cz-ink cz-fill cz-fine'); c.sk(cup, HANDLE, 'cz-ink cz-fine');
+    const book = c.g('back');
+    c.sk(book, 'M15.3 -13.3L18.5 -13.3L18.3 -14.4L15.5 -14.4Z', 'cz-ink cz-fill cz-fine');
+    return { glow, flame, cup, book, home:[12.8, -13.55] };
+  },
+  tick(t, R){
+    const fl = Math.sin(t * 17) * .25 + Math.sin(t * 7.3) * .35;
+    R.flame.setAttribute('d', `M-13 -15.4Q${n2(-14.1 + fl * .2)} -16.5 ${n2(-13 + fl * .5)} ${n2(-18.4 + fl * .3)}Q${n2(-11.9 + fl * .2)} -16.5 -13 -15.4Z`);
+    R.glow.setAttribute('r', n2(6 + fl * .7));
+  } }
+];
+
+const ACTS = [
+/* 1 ---- conducting from a little podium ---- */
+{ id:'conduct', st:'podium', perform:true,
+  build(c, r){
+    return { bd:60 / (70 + r() * 16), baton:c.dy('top', 'path', { class:'cz-acc cz-baton' }) };
+  },
+  pose(t, S){
+    const p = stand(t), b = t / S.bd, i = Math.floor(b), u = b - i, k = i % 4;
+    const A = 1 + .32 * ss(.5 + .5 * Math.sin(t * TAU / 15));
+    p.hip = [0, -16.1 + FLOOR]; p.fn = [1.5, -1.2 + FLOOR]; p.ff = [-1.7, -1.2 + FLOOR];
+    p.lean = .1 + .045 * Math.sin(t * TAU / 7) + .05 * (A - 1);
+    const pl = pulse(u) * (k === 0 ? 1 : .45);
+    p.hip[1] += .35 * pl; p.head = -.04 + .11 * pl;
+    const sh = shoulderOf(p);
+    const I = [[7, 5.2], [4.3, 4.2], [9.9, 4.4], [7.3, .8]], R = [4.8, 3.1, 3.1, 6.2];
+    const a = I[k], z = I[(k + 1) % 4], e = u;
+    const x = lerp(a[0], z[0], e), y = lerp(a[1], z[1], e) - R[k] * Math.sin(Math.PI * Math.pow(u, .75)) * A;
+    p.hn = add(sh, [7 + (x - 7) * A, y]);
+    const bar = Math.floor(i / 4), cue = bar % 3 === 2 ? Math.sin(Math.PI * clamp((k + u) / 4, 0, 1)) : 0;
+    p.hf = add(sh, mix([3.4, 8.6], [8.6, -2.6 * A], ss(cue * 1.4)));
+    return p;
+  },
+  update(t, S, J){
+    const d = rot(nrm(sub(J.hn, J.en)), -.55);
+    S.baton.setAttribute('d', line(add(J.hn, d, -.4), add(J.hn, d, 8.6)));
+  } },
+
+/* 2 ---- writing a score at a writing slope ---- */
+{ id:'compose', st:'desk',
+  build(c){
+    const dots = [];
+    for(let i = 0; i < 8; i++){ const q = PAGE.dot(i); dots.push({ q, e:c.dy('back', 'circle', { class:'cz-dot', cx:n2(q[0]), cy:n2(q[1]), r:.5 }) }); }
+    return { dots, ink:[20.3, -16.9], quill:c.dy('top', 'path', { class:'cz-ink cz-fine' }), vane:c.dy('top', 'path', { class:'cz-ink cz-vane' }) };
+  },
+  pose(t, S){
+    const p = sit(t), tau = t % 11, nib = q => sub(q, [.75, 1.05]);
+    p.hip = [-.9, -9.8]; p.fn = [7.4, -1.2]; p.ff = [6, -1.2];
+    p.hf = [9.6, -15.8]; p.lean = .24; p.head = .2;
+    const dot = i => S.dots[clamp(i, 0, 7)].q;
+    if(tau < 7){
+      const i = Math.floor(tau / .875), u = frac(tau / .875);
+      let q = u < .62 ? add(dot(i), [.35 * Math.sin(tau * 31), .25 * Math.sin(tau * 23) - .15]) : mix(dot(i), dot(i + 1), ss((u - .62) / .38));
+      if(u >= .62) q = add(q, [0, -.9 * Math.sin(Math.PI * (u - .62) / .38)]);
+      p.hn = nib(q); p.lean += .02 * Math.sin(tau * 3);
+    } else if(tau < 8.4){
+      const k = tau - 7, ink = S.ink;
+      const up = mix(dot(7), add(ink, [0, -1.6]), ss(k / .45));
+      const dip = k > .45 && k < .95 ? Math.sin(Math.PI * (k - .45) / .5) * 1.4 : 0;
+      p.hn = nib(k < .95 ? add(up, [0, dip]) : mix(add(ink, [0, -1.6]), [9, -18.6], ss((k - .95) / .45)));
+      p.lean = .24 + .04 * Math.sin(Math.PI * clamp(k / 1.4, 0, 1));
+    } else {
+      const k = tau - 8.4, into = ss(k / .7), back = ss((k - 1.95) / .6);
+      p.lean = lerp(.24, -.02, into * (1 - back)); p.head = lerp(.2, -.14, into * (1 - back));
+      const chin = add(headOf(p).c, rot([2.1, 3.2], p.lean + p.head));
+      const tap = .35 * Math.max(0, Math.sin(k * 11)) * (k > .8 && k < 1.9);
+      p.hn = mix(mix(nib([9, -18.6]), add(chin, [.3, .8 - tap]), into), nib(dot(0)), back);
+    }
+    return p;
+  },
+  update(t, S, J, api){
+    const tau = t % 11;
+    S.dots.forEach((d, i) => {
+      const on = tau < 7 ? tau > (i + .35) * .875 : tau < 10.55 ? 1 : 1 - ss((tau - 10.55) / .4);
+      d.e.style.opacity = n2(+on);
+      d.e.setAttribute('r', tau < 7 && tau < (i + .7) * .875 ? n2(.5 + .35 * Math.max(0, 1 - (tau - (i + .35) * .875) * 4)) : .5);
+    });
+    if(tau > 7 && (S.pg == null || t - S.pg > 5)){ S.pg = t; api.emit('n8', 12, -21, { vy:-4.2 }); }
+    const h = J.hn, n = add(h, [.75, 1.05]), top = add(h, rot([-2.3, -6.6], .1 * Math.sin(t * 5)));
+    S.quill.setAttribute('d', line(n, top));
+    const a = mix(n, top, .38), m = mix(a, top, .5), pr = nrm(rot(sub(top, n), Math.PI / 2));
+    S.vane.setAttribute('d', 'M' + P(...a) + 'Q' + P(...add(m, pr, 1.7)) + ' ' + P(...top) + 'Q' + P(...add(m, pr, .35)) + ' ' + P(...a) + 'Z');
+  } },
+
+/* 3 ---- at the grand piano ---- */
+{ id:'piano', st:'piano', perform:true,
+  build(c, r){
+    const st = [], fl = [];
+    for(let i = 0; i < 12; i++){ st.push(['flow', 'chord', 'run', 'flow'][Math.floor(r() * 4)]); fl.push(i > 0 && r() < .45); }
+    return { st, fl };
+  },
+  pose(t, S){
+    const p = sit(t), K = -15.05, SEG = 4.5;
+    p.hip = [-.9, -9.8];
+    const hands = (style, t) => {
+      if(style === 'chord'){
+        const l = 2.3 * Math.pow(Math.max(0, Math.sin(t * TAU * 1.1)), 3);
+        return [[8.3 + .3 * Math.sin(t * 1.3), K - l], [7.3, K - l * .9]];
+      }
+      if(style === 'run'){
+        const u = frac(t * .7);
+        return [[9 - 2 * u, K - .8 * Math.abs(Math.sin(t * TAU * 3))], [7.1 + .4 * Math.sin(t * TAU * .7), K - .7 * Math.pow(Math.max(0, Math.sin(t * TAU * 1.4)), 2)]];
+      }
+      return [[8.2 + .9 * Math.sin(t * TAU * .55), K - 1.2 * Math.pow(Math.max(0, Math.sin(t * TAU * 2.6)), 2)],
+              [7.2 + .7 * Math.sin(t * TAU * .4 + 1), K - 1 * Math.pow(Math.max(0, Math.sin(t * TAU * 1.3 + 2)), 2)]];
+    };
+    const i = Math.floor(t / SEG) % 12, u = t % SEG;
+    let [hn, hf] = hands(S.st[i], t);
+    if(u < .5){ const [pn, pf] = hands(S.st[(i + 11) % 12], t), k = ss(u / .5); hn = mix(pn, hn, k); hf = mix(pf, hf, k); }
+    let fl = 0;
+    if(S.fl[i] && u > SEG - 1.5){ const q = (u - (SEG - 1.5)) / 1.5; fl = Math.sin(Math.PI * q); hn = [8.2 - 3.4 * fl, K - 10 * Math.pow(fl, 1.4)]; }
+    p.hn = hn; p.hf = hf;
+    p.lean = .13 + .07 * Math.sin(t * TAU / 3.7) - .12 * fl;
+    p.head = .06 + .07 * Math.sin(t * TAU / 1.9) - .12 * fl;
+    const ped = ss(.5 + .5 * Math.sin(t * TAU / 2.3));
+    p.fn = [9.1, -1.75 - .6 * (1 - ped)]; p.ff = [5.8, -1.2];
+    S.flq = fl; S.fli = S.fl[i] && u > SEG - 1.5 ? i : -1;
+    return p;
+  },
+  update(t, S, J, api){
+    every(S, 'nt', t, 1.25, () => api.emit(['n8', 'n4', 'n16'][Math.floor(Math.random() * 3)], 22 + Math.random() * 16, -20 - Math.random() * 3));
+    if(S.fli >= 0 && S.flq > .9) S.peak = S.fli;
+    if(S.peak != null && S.flq < .15 && S.fli === S.peak){ S.peak = null; for(let k = 0; k < 3; k++) api.emit(['n8', 'n16', 'n4'][k], 18 + k * 7, -19 - k * 2, { vy:-5 - k }); }
+  } },
+
+/* 4 ---- violin ---- */
+{ id:'violin', st:'podium', perform:true,
+  build(c){
+    return { body:c.dy('pre', 'path', { class:'cz-ink cz-fill cz-inst' }), neck:c.dy('pre', 'path', { class:'cz-ink cz-fine' }),
+             bow:c.dy('pre', 'path', { class:'cz-ink cz-fine' }), hair:c.dy('pre', 'path', { class:'cz-acc cz-hair' }) };
+  },
+  frame(p){
+    const H = headOf(p), V0 = add(H.c, rot([1.5, 3.9], H.a * .5)), ax = rot([1, 0], -.1 + H.a * .3);
+    return { V0, ax, up:rot(ax, -Math.PI / 2) };
+  },
+  pose(t, S){
+    const p = stand(t), sw = Math.sin(t * TAU / 4.2);
+    p.fn = [2.3, -1.2 + FLOOR]; p.ff = [-2.1, -1.2 + FLOOR];
+    p.lean = .07 + .06 * sw; p.hip = [.45 * sw, -16.1 + FLOOR + .25 * Math.sin(t * TAU / 2.1)];
+    p.head = .22 + .05 * Math.sin(t * TAU / 2.1 + 1);
+    const { V0, ax, up } = this.frame(p);
+    const vib = Math.sin(t * TAU * 5.5) * .18, shift = ss(.5 + .5 * Math.sin(t * TAU / 5.3)) * 1.6;
+    p.hf = add(add(V0, ax, 9.3 - shift + vib), up, -.9);
+    const seg = Math.floor(t / 3.2) % 3, long = 6.6 + 4.2 * Math.sin(t * TAU * .42), short = 4.8 + 1.3 * Math.sin(t * TAU * 2.3);
+    const k = seg === 2 ? ss(frac(t / 3.2) * 4) * ss((1 - frac(t / 3.2)) * 4) : 0;
+    const s = lerp(long, short, k);
+    const C = add(add(V0, ax, 4.6), up, .3), a = rot(ax, 2.62);
+    p.hn = add(C, a, s);
+    S.a = a;
+    return p;
+  },
+  update(t, S, J, api){
+    const { V0, ax, up } = this.frame(J.p), at = (u, v) => add(add(V0, ax, u), up, v);
+    const pts = [[0, 0], [.4, 1.75], [2.1, 1.85], [2.9, 1.1], [3.8, 1.55], [5.7, 1.4], [6.5, 0], [5.7, -1.4], [3.8, -1.55], [2.9, -1.1], [2.1, -1.85], [.4, -1.75]];
+    S.body.setAttribute('d', curve(pts.map(q => at(...q)), true, .5));
+    S.neck.setAttribute('d', line(at(1, 0), at(11.3, 0)) + 'M' + P(...at(12.1, 0)) + 'a.7 .7 0 1 0 .01 0');
+    const a = rot(nrm(sub(J.hn, J.en)), .9), h = J.hn, g = rot(a, Math.PI / 2);
+    const bdir = S.a || a;
+    const gb = rot(bdir, Math.PI / 2);
+    S.bow.setAttribute('d', line(add(h, bdir, .6), add(h, bdir, -14.5)));
+    S.hair.setAttribute('d', line(add(add(h, bdir, -.4), gb, -.55), add(add(h, bdir, -14.2), gb, -.3)));
+    every(S, 'nt', t, 1.5, () => api.emit(Math.random() < .6 ? 'n8' : 'n4', 13 + Math.random() * 3, -32));
+  } },
+
+/* 5 ---- cello ---- */
+{ id:'cello', st:'cello', perform:true,
+  build(c){
+    return { at:CELLO.at, n:CELLO.n, bow:c.dy('pre', 'path', { class:'cz-ink cz-fine' }), hair:c.dy('pre', 'path', { class:'cz-acc cz-hair' }) };
+  },
+  pose(t, S){
+    const p = sit(t);
+    p.hip = [-1.2, -9.8]; p.fn = [6.2, -1.2]; p.ff = [9.9, -1.2];
+    p.lean = .1 + .05 * Math.sin(t * TAU / 4.6); p.head = -.06 + .06 * Math.sin(t * TAU / 2.3);
+    const shift = ss(.5 + .5 * Math.sin(t * TAU / 6.1)) * 3, vib = Math.sin(t * TAU * 5) * .22;
+    p.hf = add(S.at(20.2 - shift + vib, 0), S.n, -.9);
+    const seg = Math.floor(t / 3.6) % 3, long = 6.3 + 3.7 * Math.sin(t * TAU * .34), short = 4.6 + 1.1 * Math.sin(t * TAU * 2);
+    const k = seg === 1 ? ss(frac(t / 3.6) * 4) * ss((1 - frac(t / 3.6)) * 4) : 0;
+    const C = S.at(11, 0), a = nrm([-1, -.3]);
+    p.hn = add(C, a, lerp(long, short, k));
+    S.a = a;
+    return p;
+  },
+  update(t, S, J, api){
+    const h = J.hn, a = S.a, g = [a[1], -a[0]];
+    S.bow.setAttribute('d', line(add(h, a, .6), add(h, a, -14.5)));
+    S.hair.setAttribute('d', line(add(add(h, a, -.3), g, -.55), add(add(h, a, -14.2), g, -.3)));
+    every(S, 'nt', t, 1.7, () => api.emit(Math.random() < .5 ? 'n4' : 'n8', 4 + Math.random() * 3, -28));
+  } },
+
+/* 6 ---- flute ---- */
+{ id:'flute', st:'podium', perform:true,
+  build(c){
+    return { tube:c.dy('pre', 'path', { class:'cz-acc cz-flute' }), keys:c.dy('pre', 'path', { class:'cz-ink cz-hair' }) };
+  },
+  frame(p){
+    const H = headOf(p), M = add(H.c, rot([2.6, 2.35], H.a)), d = rot([1, 0], H.a * .5 + .2);
+    return { M, d, dn:rot(d, Math.PI / 2) };
+  },
+  pose(t, S){
+    const p = stand(t), sw = Math.sin(t * TAU / 5), tau = t % 6.5;
+    const br = tau > 5.6 ? Math.sin(Math.PI * (tau - 5.6) / .9) : 0;
+    p.fn = [2.2, -1.2 + FLOOR]; p.ff = [-2, -1.2 + FLOOR];
+    p.lean = .06 + .07 * sw - .07 * br; p.hip = [.5 * sw, -16.1 + FLOOR + .3 * Math.sin(t * TAU / 2.5)];
+    p.head = .1 + .06 * Math.sin(t * TAU / 2.5 + .8) - .1 * br;
+    const { M, d, dn } = this.frame(p), f = k => Math.sin(t * TAU * k) > .3 ? .35 : 0;
+    p.hf = add(add(M, d, 4.8), dn, .95 + f(3.1));
+    p.hn = add(add(M, d, 9.4), dn, .95 + f(4.3) - br * .4);
+    S.br = br;
+    return p;
+  },
+  update(t, S, J, api){
+    const { M, d, dn } = this.frame(J.p);
+    S.tube.setAttribute('d', line(add(M, d, -1.3), add(M, d, 14.6)));
+    let k = '';
+    for(const u of [3.4, 6.3, 7.6, 11.1, 12.4]) k += line(add(add(M, d, u), dn, -.55), add(add(M, d, u + .5), dn, -.55));
+    S.keys.setAttribute('d', k);
+    if(S.br < .05) every(S, 'nt', t, 1.1, () => { const e = add(M, d, 14.6); api.emit('n8', e[0] + 1, e[1] - 2, { vy:-3 }); });
+  } },
+
+/* 7 ---- timpani ---- */
+{ id:'timpani', st:'drum', perform:true,
+  build(c){
+    const hits = { n:[0, 1.2, 1.5, 2.4, 3.3], f:[.6, 1.8, 3, 3.6] };
+    for(let x = 4.2, s = 0; x < 6.6; x += .09, s ^= 1) (s ? hits.f : hits.n).push(x);
+    hits.n.push(7); hits.f.push(7);
+    return { hits, skin:c.dy('back', 'path', { class:'cz-prop cz-fill' }),
+      mf:c.dy('mid', 'path', { class:'cz-far cz-fine' }), hf:c.dy('mid', 'circle', { class:'cz-acc cz-mallet', r:1.05 }),
+      mn:c.dy('top', 'path', { class:'cz-ink cz-fine' }), hn:c.dy('top', 'circle', { class:'cz-acc cz-mallet', r:1.05 }), wob:0, lt:0 };
+  },
+  lift(list, tau){
+    const n = list.length, L0 = 9;
+    let i = n - 1; for(let j = 0; j < n; j++) if(list[j] <= tau) i = j;
+    const tp = list[i] > tau ? list[i] - L0 : list[i], tn = i + 1 < n ? list[i + 1] : list[0] + L0;
+    const gap = tn - tp, x = (tau - tp) / gap, roll = tau > 4 && tau < 6.8 ? .6 + .6 * (tau - 4) / 2.6 : 0;
+    const H = roll ? roll * 1.6 : Math.min(8.5, 1.4 + gap * 5.2);
+    return H * Math.pow(Math.sin(Math.PI * clamp(x, 0, 1)), .72);
+  },
+  pose(t, S){
+    const p = stand(t), tau = t % 9;
+    p.fn = [2.4, -1.2]; p.ff = [-1.7, -1.2];
+    p.hip = [0, -15.7]; p.lean = .15 + .03 * Math.sin(t * 2); p.head = .12;
+    const ln = this.lift(S.hits.n, tau), lf = this.lift(S.hits.f, tau);
+    const head = (x, l) => [x, -15.55 - l];
+    const d = l => rot(nrm([1.1, .6]), -.07 * l);
+    S.pn = head(16.1, ln); S.pf = head(12.9, lf); S.dn = d(ln); S.df = d(lf);
+    p.hn = add(S.pn, S.dn, -6.2); p.hf = add(S.pf, S.df, -6.2);
+    p.head = .12 + .04 * Math.sin(tau * 9) * (tau > 4 && tau < 6.8);
+    return p;
+  },
+  update(t, S, J, api){
+    const tau = t % 9, prev = S.lt, dt = frac((tau - prev) / 9) * 9; S.lt = tau;
+    for(const k of ['n', 'f']) for(const h of S.hits[k]){
+      if((prev < h && h <= tau) || (prev > tau && (h > prev || h <= tau))){
+        S.wob = Math.min(1.4, S.wob + (tau > 4 && tau < 6.8 ? .25 : 1));
+        if(!(tau > 4.3 && tau < 6.7) || Math.random() < .08) api.emit('ring', k === 'n' ? 16.1 : 12.9, -17.5, { vy:-2.4, vx:0, life:.9, s:.8, grow:1.4 });
+        if(h === 7) for(let q = 0; q < 2; q++) api.emit(q ? 'n4' : 'n8', 11 + q * 6, -21, { vy:-4.5 });
+      }
+    }
+    S.wob *= Math.pow(.02, dt);
+    const w = S.wob * Math.sin(t * 60) * .7;
+    S.skin.setAttribute('d', `M6.8 -14.8Q14.6 ${n2(-13.5 + w)} 22.4 -14.8Q14.6 ${n2(-16.1 + w * .5)} 6.8 -14.8Z`);
+    S.mn.setAttribute('d', line(add(J.hn, S.dn, -.3), S.pn)); S.hn.setAttribute('cx', n2(S.pn[0])); S.hn.setAttribute('cy', n2(S.pn[1]));
+    S.mf.setAttribute('d', line(add(J.hf, S.df, -.3), S.pf)); S.hf.setAttribute('cx', n2(S.pf[0])); S.hf.setAttribute('cy', n2(S.pf[1]));
+  } },
+
+/* 8 ---- harp ---- */
+{ id:'harp', st:'harp', perform:true,
+  build(c, r, R){
+    const str = R.str.map(s => ({ ...s, e:c.dy('pre', 'path', { class:'cz-acc cz-string', d:line(s.top, s.bot) }), h:0 }));
+    const plan = side => { const o = []; let tt = 0; while(tt < 60){ o.push({ t:tt, i:side ? Math.floor(r() * 4) : 4 + Math.floor(r() * 4), f:.35 + r() * .3 }); tt += side ? .42 + r() * .25 : .8 + r() * .5; } return o; };
+    return { str, pn:plan(1), pf:plan(0), lt:0 };
+  },
+  hand(S, list, t, gl){
+    let i = 0; while(i + 1 < list.length && list[i + 1].t <= t) i++;
+    const a = list[i], b = list[i + 1] || a, sp = s => { const q = S.str[s.i]; return mix(q.bot, q.top, s.f); };
+    const u = t - a.t, pa = sp(a), pulled = add(pa, [-1.7, -.5]);
+    return u < .14 ? mix(pa, pulled, ss(u / .14)) : mix(pulled, add(sp(b), [.25, 0]), ss((u - .14) / Math.max(.1, b.t - a.t - .14)));
+  },
+  pose(t, S){
+    const p = sit(t);
+    p.hip = [-1.2, -9.8]; p.fn = [7.2, -1.2]; p.ff = [9.2, -1.2];
+    p.lean = .1 + .045 * Math.sin(t * TAU / 4.4); p.head = .12 + .05 * Math.sin(t * TAU / 2.2);
+    p.hn = this.hand(S, S.pn, t); p.hf = this.hand(S, S.pf, t);
+    const g = t % 9;
+    if(g > 6.4 && g < 8){
+      const k = (g - 6.4) / 1.6, sw = ss(k);
+      const x = lerp(3.7, 13.1, sw), h = lerp(-22.5, -9.5, sw);
+      p.hn = mix(p.hn, [x, h], Math.sin(Math.PI * k) > .25 ? 1 : ss(Math.sin(Math.PI * k) * 4));
+      p.lean += .05 * Math.sin(Math.PI * k);
+    }
+    return p;
+  },
+  update(t, S, J, api){
+    const dt = Math.max(0, t - S.lt), g = t % 9; S.lt = t;
+    for(const list of [S.pn, S.pf]) for(const e of list) if(e.t > t - dt && e.t <= t){ S.str[e.i].h = 1; if(Math.random() < .3) api.emit('n8', S.str[e.i].x + 2, -26); }
+    if(g > 6.4 && g < 8){ for(const s of S.str) if(Math.abs(J.hn[0] - s.x) < .5 && s.h < .6) s.h = 1; }
+    if(S.g0 !== Math.floor(t / 9) && g > 7.9){ S.g0 = Math.floor(t / 9); for(let k = 0; k < 3; k++) api.emit(['n16', 'n8', 'n4'][k], 8 + k * 5, -30 - k, { vy:-4 - k }); }
+    for(const s of S.str){
+      s.h = Math.max(0, s.h - dt * 1.3);
+      const v = s.h * .45 * Math.sin(t * 90);
+      s.e.style.opacity = n2(s.h);
+      if(s.h > 0) s.e.setAttribute('d', 'M' + P(...s.top) + 'Q' + P(s.x + v, (s.top[1] + s.bot[1]) / 2) + ' ' + P(...s.bot));
+    }
+  } },
+
+/* 9 ---- a coffee break (Bach would approve) ---- */
+{ id:'coffee', st:'lounge',
+  build(c){
+    const cup = c.g('top');
+    mk('path', { class:'cz-ink cz-fill cz-fine', d:CUP }, cup);
+    mk('path', { class:'cz-ink cz-fine', d:HANDLE }, cup);
+    const steam = [0, 1].map(() => c.dy('back', 'path', { class:'cz-acc cz-steam' }));
+    return { cup, steam, home:[12.8, -13.55], handle:[-2.75, -1.35] };
+  },
+  leave(R){ R.cup.style.opacity = ''; },
+  pose(t, S){
+    const p = sit(t), tau = t % 11;
+    p.hip = [-1, -9.8]; p.lean = .02 + .012 * Math.sin(t * TAU / 4.4); p.head = -.02;
+    p.fn = [8.2, -5 + .45 * Math.sin(t * TAU / 1.7)]; p.ff = [6.3, -1.2];
+    const rest = [6.8, -15.2], grab = add(S.home, S.handle);
+    p.hf = [4.4, -12.1];
+    let cup = S.home, rt = 0, held = false;
+    const mouthCup = pp => { const H = headOf(pp); return add(H.c, rot([4.1, 4.2], H.a)); };
+    if(tau < 4){ p.hn = rest; }
+    else if(tau < 4.9){ const k = ss((tau - 4) / .9); p.hn = mix(rest, grab, k); p.lean = .02 + .12 * Math.sin(Math.PI * k * .5); }
+    else if(tau < 8.6){
+      held = true;
+      const up = ss((tau - 4.9) / 1.1), down = ss((tau - 7.5) / 1.1), sip = ss((tau - 5.9) / .5) * (1 - ss((tau - 7.1) / .5));
+      p.lean = lerp(.14, .02, up) + .12 * down * (1 - down) * 4 * .25;
+      p.head = -.02 - .16 * sip;
+      const m = mouthCup(p);
+      cup = mix(S.home, m, up * (1 - down)); cup = add(cup, [0, -2.2 * Math.sin(Math.PI * up) * (1 - down) - 2 * Math.sin(Math.PI * down) * down]);
+      rt = -38 * sip;
+      p.hn = add(cup, rot(S.handle, rt / 57.3));
+    } else { const k = ss((tau - 8.6) / .7); p.hn = mix(grab, rest, k); p.lean = .02 - .05 * Math.sin(Math.PI * clamp((tau - 9.4) / 1.6, 0, 1)); }
+    S.c = { cup, rt, held };
+    return p;
+  },
+  update(t, S, J, api, R){
+    R.cup.style.opacity = n2(1 - api.dyw);
+    const c = S.c;
+    let o = c.cup;
+    if(c.held) o = sub(J.hn, rot(S.handle, c.rt / 57.3));
+    S.cup.setAttribute('transform', `translate(${P(...o)}) rotate(${n2(c.rt)})`);
+    const on = 1 - ss(len(sub(o, S.home)) / 1.5);
+    S.steam.forEach((e, i) => {
+      const ph = t * 1.3 + i * 1.7, x0 = S.home[0] - .5 + i * 1.1, y0 = S.home[1] - 3.4, h = 4.5 + i;
+      let d = 'M' + P(x0, y0);
+      for(let k = 1; k <= 6; k++){ const yy = y0 - k * h / 6; d += 'L' + P(x0 + Math.sin(ph * 2.2 + k * 1.1) * .55 * (k / 6 + .3), yy); }
+      e.setAttribute('d', d);
+      e.style.opacity = n2(on * (.45 + .35 * Math.sin(ph)));
+    });
+  } },
+
+/* 10 ---- reading by candlelight, and nodding off ---- */
+{ id:'reading', st:'lounge',
+  build(c){
+    const book = c.g('top');
+    const L = mk('path', { class:'cz-ink cz-fill cz-fine' }, book), R = mk('path', { class:'cz-ink cz-fill cz-fine' }, book);
+    const T = mk('path', { class:'cz-far cz-hair' }, book), leaf = mk('path', { class:'cz-ink cz-fill cz-fine' }, book);
+    return { book, L, R, T, leaf };
+  },
+  leave(R){ R.book.style.opacity = ''; },
+  pose(t, S){
+    const p = sit(t);
+    p.hip = [-1.7, -9.9]; p.fn = [8.4, -1.2]; p.ff = [7.2, -1.2];
+    const nod = t < 14 ? 0 : t < 19 ? (t < 16 ? ss((t - 14) / 1.8) * .7 : t < 16.25 ? lerp(.7, .05, ss((t - 16) / .25)) : ss((t - 16.25) / 2.6)) : 1;
+    const asleep = ss((t - 18.2) / 1.2);
+    const br = Math.sin(t * TAU / (asleep ? 4.6 : 4.2));
+    p.lean = -.1 + br * (.012 + .015 * asleep);
+    p.head = .16 + .3 * nod + .03 * br * asleep;
+    p.eye = asleep > .5 || (nod > .55 && t % 1.3 < .9) ? 0 : 1;
+    const sh = shoulderOf(p);
+    const B = mix(add(sh, [5.9, 3.3]), [5.2, -12.2], asleep);
+    p.hn = add(B, [1.9, 1.3]); p.hf = add(B, [-1.9, 1.5]);
+    S.B = B; S.tilt = asleep * 1.05; S.nod = nod; S.asleep = asleep;
+    return p;
+  },
+  update(t, S, J, api, R){
+    R.book.style.opacity = n2(1 - api.dyw);
+    const B = J.w < .99 ? mix(add(J.hn, [-1.9, -1.3]), S.B, .5) : S.B;
+    S.book.setAttribute('transform', `translate(${P(...B)}) rotate(${n2(-S.tilt * 57.3 * .35)}) scale(1 ${n2(1 - S.tilt * .55)})`);
+    const pg = (w, h) => `M0 0L${n2(w)} ${n2(-.55)}L${n2(w)} ${n2(-.55 - h)}L0 ${n2(-h)}Z`;
+    S.L.setAttribute('d', pg(-3, 4.1)); S.R.setAttribute('d', pg(3, 4.1));
+    S.T.setAttribute('d', 'M-.6 -1.4L-2.4 -1.75M-.6 -2.4L-2.4 -2.75M.6 -1.4L2.4 -1.75M.6 -2.4L2.4 -2.75M.6 -3.3L1.9 -3.55');
+    const turn = t < 14 ? [4.5, 9.8].map(x => (t - x) / .75).find(k => k > 0 && k < 1) : undefined;
+    if(turn != null){ S.leaf.style.opacity = 1; S.leaf.setAttribute('d', pg(3 * Math.cos(Math.PI * ss(turn)), 4.1 + .6 * Math.sin(Math.PI * turn))); }
+    else S.leaf.style.opacity = 0;
+    if(S.asleep > .8) every(S, 'zz', t, 1.8, () => { const h = J.H.c; api.emit('z', h[0] + 3.5, h[1] - 3, { vx:1.6, vy:-2.6, life:2.8, s:.8, grow:.9 }); });
+  } }
+];
+/* one shared clock for every composer on screen, capped near 30 fps */
+const RUN = new Set(); let raf = 0, last = 0;
+function loop(now){
+  raf = 0;
+  if(!RUN.size) return;
+  raf = requestAnimationFrame(loop);
+  if(now - last < 30) return;
+  const dt = Math.min(.1, (now - last) / 1000); last = now;
+  for(const c of RUN) c.step(dt);
+}
+function run(c, on){
+  if(on){ RUN.add(c); if(!raf){ last = performance.now(); raf = requestAnimationFrame(loop); } }
+  else RUN.delete(c);
+}
+return { Composer, ACTS, STATIONS, run, roomWidth:acts => layoutRoom(acts).W };
+})();
+
+/* Two composers share the engine: the one in the library header, and a live
+   preview in Settings, scaled so his whole room fits the card. Each runs only
+   while it's actually on screen: the header one pauses whenever a panel or the
+   reader covers the library, or the app is in the background. */
+var czReady = false;
+const CZ_ABOUT = {
+  conduct:['Conducting', 'From a little podium, baton in hand.'],
+  piano:['Piano', 'At the grand piano, with the odd flourish.'],
+  violin:['Violin', 'On the podium, by the music stand.'],
+  flute:['Flute', 'On the podium, swaying as he plays.'],
+  cello:['Cello', 'Seated, with long slow bows.'],
+  harp:['Harp', 'Plucked strings light up, and the odd glissando.'],
+  timpani:['Timpani', 'Rolls, and a big finish.'],
+  compose:['Composing', 'Writing a score at his desk, quill and ink.'],
+  coffee:['Coffee', 'A cup at the café table.'],
+  reading:['Reading', 'By candlelight, until he nods off.']
+};
+const CZ_GROUPS = [['#czActsPerf', ['conduct', 'piano', 'violin', 'flute', 'cello', 'harp', 'timpani']], ['#czActsRest', ['compose', 'coffee', 'reading']]];
+// the activities he's allowed; never none
+function czActs(){ const off = pref('composerOff') || [], l = CZ.ACTS.filter(a => !off.includes(a.id)); return l.length ? l : CZ.ACTS; }
+function czSyncActs(){
+  if(!czReady) return;   // settings can sync during startup, before this part of the script has run
+  const on = czActs().map(a => a.id), n = on.length, N = CZ.ACTS.length;
+  document.querySelectorAll('#mSetCz .set-sw[data-cz]').forEach(b => {
+    const k = on.includes(b.dataset.cz);
+    b.setAttribute('aria-checked', String(k));
+    if(k && n === 1) b.setAttribute('aria-disabled', 'true');   // the last one stays on
+    else b.removeAttribute('aria-disabled');
+  });
+  const nm = id => CZ_ABOUT[id][0].toLowerCase(), list = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0];
+  const off = CZ.ACTS.map(a => a.id).filter(id => !on.includes(id));
+  $('#sumCz').textContent = !off.length ? 'All ten' : off.length <= 3 ? 'All but ' + list(off.map(nm)) : n <= 3 ? capFirst(list(on.map(nm))) + ' only' : n + ' of ' + N;
+}
+for(const [sel, ids] of CZ_GROUPS){
+  $(sel).innerHTML = ids.map(id => `<div class="set-row"><span class="set-l"><span class="nm">${CZ_ABOUT[id][0]}</span><span class="sub">${CZ_ABOUT[id][1]}</span></span><button type="button" class="set-sw" data-cz="${id}" role="switch" aria-checked="true" aria-label="${CZ_ABOUT[id][0]}"><i></i></button></div>`).join('');
+}
+document.querySelectorAll('#mSetCz .set-sw[data-cz]').forEach(b => b.addEventListener('click', () => {
+  const id = b.dataset.cz, on = czActs().map(a => a.id);
+  if(on.includes(id) && on.length === 1) return;
+  const off = CZ.ACTS.map(a => a.id).filter(k => k === id ? on.includes(k) : !on.includes(k));
+  setPref('composerOff', off);
+  czSyncActs();
+  // refurnish: both rooms are redrawn, and he walks back in when you return
+  for(const c of [czMain, czPrev]) if(c.alive) c.start();
+}));
+const czMain = new CZ.Composer($('#czHost'), { acts:czActs, zone(){
+  const hr = $('#czHost').getBoundingClientRect(), b = $('.wm-right').getBoundingClientRect();
+  return [2, b.left - hr.left - 12];   // the stage window: from the left edge (the wordmark fades out) up to the count
+} });
+const czPrev = new CZ.Composer($('#czPrevHost'), { acts:czActs, scale:w => Math.min(1.5, Math.max(1, (w - 12) / (CZ.roomWidth(czActs()) + 8))), zone:c => [6, c.W - 6] });
+function czHead(){ for(const c of [czMain, czPrev]) c.setHead(pref('composerHead')); }
+function czSeen(c){
+  if(document.hidden || $('#viewer').classList.contains('open')) return false;
+  if(c === czMain) return !document.querySelector('.panel.on');
+  const s = $('#mSettings');
+  return s.classList.contains('on') && !s.classList.contains('under');
+}
+function czSync(){
+  const on = !!pref('composer');
+  $('.lib-head').classList.toggle('cz-on', on);
+  for(const c of [czMain, czPrev]){
+    if(on && !c.alive){ c.alive = true; clearTimeout(c.bye); c.start(); }
+    if(!on && c.alive){
+      c.alive = false;
+      c.bye = setTimeout(() => { CZ.run(c, false); c.stop(); }, 800);   // after the fade
+    }
+    c.host.classList.toggle('on', on);
+    if(on) CZ.run(c, czSeen(c));
+  }
+}
+$('#setComposer').addEventListener('click', () => { setPref('composer', !pref('composer')); syncSettings(); czSync(); });
+{
+  const mo = new MutationObserver(czSync);
+  [$('#viewer'), ...$$('.panel')].forEach(e => mo.observe(e, { attributes:true, attributeFilter:['class'] }));
+  document.addEventListener('visibilitychange', czSync);
+  window.addEventListener('resize', () => { czMain.resize(); czPrev.resize(); });
+  czReady = true;
+  czHead(); czSync(); czSyncActs();
+}
 
 /* ---------- misc ---------- */
 let rt;
