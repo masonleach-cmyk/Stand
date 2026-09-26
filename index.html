@@ -2275,11 +2275,11 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 .lib-head.cz-on .staff span:first-child,.cz-prev:has(#czPrevHost.on) .staff span:first-child{visibility:hidden;transition:visibility 0s .7s}
 .lib-head:has(.staff.sour) .cz-staffline{animation:czSour 1.1s ease-out}
 @keyframes czSour{12%,60%{stroke:var(--red);stroke-opacity:1}}
-/* in the header: standing on the top line of the staff. While he's on, the
-   wordmark steps aside (it stays in the layout, so nothing else moves) */
+/* in the header: standing on the top line of the staff. If his room doesn't fit
+   beside the wordmark, it steps aside (it stays in the layout, so nothing else moves) */
 .lib-head{position:relative}
 .wordmark h1{transition:opacity .6s ease}
-.lib-head.cz-on .wordmark h1{opacity:0}
+.lib-head.wm-hide:is(.cz-on,.pf-on) .wordmark h1{opacity:0}
 .lib-head .cz-host{left:20px;right:20px}
 /* the live preview in Settings: drawn half again as large, on a matching staff */
 .cz-prev{position:relative;height:104px;background:color-mix(in srgb,var(--slate) 55%,var(--slate-2));border-bottom:1px solid var(--line)}
@@ -2339,11 +2339,10 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 .pf-svg .pf-palm{fill:var(--cz-skin);stroke:var(--cz-ink);stroke-width:.45}
 .pf-svg .pf-hit{pointer-events:all;fill:transparent;stroke:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pf-svg .pf-shh{fill:var(--cz-acc);stroke:none;font:italic 600 4.2px var(--serif);text-anchor:middle}
-.lib-head.pf-on .wordmark h1{opacity:0}
 /* each layer of the performance is its own composited layer: the still ones are
    rasterised once, and only the moving ones repaint */
 .pf-host .pf-layer{will-change:transform}
-.pf-veil{stop-color:var(--cz-bg)}
+#pfBoxes:disabled{opacity:.45;cursor:default}
 /* the count and the Settings button always sit above the scene */
 .lib-head .wm-right{position:relative;z-index:2}
 /* the performance sets its candle light itself, every frame: no transitions to restart */
@@ -2843,6 +2842,13 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
         <div class="set-range">
           <input type="range" id="pfLen" min="0" max="100" step="1" aria-label="Length of each piece">
           <span class="set-range-ends" aria-hidden="true"><span>Short</span><span>Long</span></span>
+        </div>
+      </div>
+      <div class="set-row col" id="pfBoxRow">
+        <span class="set-l"><span class="nm">Boxes beside the stage</span><span class="sub" id="pfBoxSub"></span></span>
+        <div class="set-range">
+          <input type="range" id="pfBoxes" min="1" max="1" step="1" aria-label="Boxes beside the stage">
+          <span class="set-range-ends" aria-hidden="true"><span>1</span><span id="pfBoxMax">1</span></span>
         </div>
       </div>
       <button type="button" class="set-link" data-page="mSetPf" id="pfInstLink">
@@ -8284,7 +8290,7 @@ const PREFS_DEF = { exitSide:'left', folderPlace:'top', folderAlways:false, manu
   // the settings easter egg
   composer:false, composerHead:'wig', composerOff:[], composerPace:50,
   // the other easter egg (only one of the two is ever on)
-  perform:false, performCrowd:'few', performOff:[], performLen:50, performConductor:'beethoven' };
+  perform:false, performCrowd:'few', performOff:[], performLen:50, performConductor:'beethoven', performBoxes:99 };
 let PREFS = null;
 function pref(k){
   if(!PREFS){ try{ PREFS = JSON.parse(localStorage.getItem('stand.prefs') || '{}') || {}; }catch(e){ PREFS = {}; } }
@@ -14742,6 +14748,8 @@ function syncSettings(){
   $('#pfCondRow').classList.toggle('off', !pf);
   $('#pfCrowdRow').classList.toggle('off', !pf);
   $('#pfLenRow').classList.toggle('off', !pf);
+  $('#pfBoxRow').classList.toggle('off', !pf);
+  pfBoxShow();
   $('#pfInstLink').classList.toggle('off', !pf);
   pfLenShow();
   czSyncActs();
@@ -16563,7 +16571,7 @@ function setV(e, v){
 }
 // an audience member's shoulders, down to b below the seat line
 const PF_BODY = b => `M-4.6 ${n2(b)}V-.8Q-4.5 -4 -2 -4.45Q0 -4.85 2 -4.45Q4.5 -4 4.6 -.8V${n2(b)}Z`;
-const DECK = -8, PF_GAP = 4.5, PF_EDGE = 12, PF_TOP = -62, PF_BAY = 30, PF_BAYMIN = 26;
+const DECK = -8, PF_GAP = 4.5, PF_EDGE = 12, PF_TOP = -62, PF_BAY = 30;
 const PF_ORDER = ['harp', 'piano', 'cello', 'timpani', 'flute', 'violin', 'conduct'];
 // the violinist and the flautist each get a plain music stand, down on the stage
 const PF_STAND = { id:'stand', face:1, ext:[-5.4, 19.4], room(c){
@@ -16790,7 +16798,7 @@ class Performance {
        the flames and the notes live in the other two. In paint order:
          back   hall walls and boxes, the stage, the furniture       (still)
          mid    lighting, people in the boxes, the band, the flames  (moving)
-         front  box fronts, the drapes, the fade behind the gear     (still)
+         front  box fronts and the drapes                             (still)
          top    the stalls, notes and bravos, the pen                (moving) */
     const id = ++Performance.n;
     this.gid = 'pfg' + id;
@@ -16804,11 +16812,6 @@ class Performance {
     for(const [o, c] of [[0, 'cz-p0'], [.4, 'cz-p1'], [1, 'cz-p2']]) mk('stop', { offset:o, class:c }, pgr);
     const sg = mk('radialGradient', { id:'pfs' + id }, defs);
     for(const [o, c] of [[0, 'cz-s0'], [.55, 'cz-s1'], [1, 'cz-s2']]) mk('stop', { offset:o, class:c }, sg);
-    // the hall fades out behind the count and the Settings button, so they stay easy to read:
-    // a veil of the background colour over it (much cheaper than a mask)
-    this.fadeG = mk('linearGradient', { id:'pff' + id, gradientUnits:'userSpaceOnUse', x1:1e4, x2:1e4 + 1, y1:0, y2:0 }, defs);
-    mk('stop', { offset:0, class:'pf-veil', 'stop-opacity':0 }, this.fadeG);
-    mk('stop', { offset:1, class:'pf-veil', 'stop-opacity':.86 }, this.fadeG);
     // back
     this.hallBack = mk('g', {}, back.w);
     this.stageG = mk('g', {}, back.w);
@@ -16824,7 +16827,6 @@ class Performance {
     // front
     this.hallFront = mk('g', {}, front.w);
     this.drapesG = mk('g', {}, front.w);
-    this.veil = mk('rect', { x:-5000, y:-80, width:10000, height:80.6, style:`fill:url(#pff${id})` }, front.w);
     // top
     this.crowdG = mk('g', {}, top.w);
     this.crowdHit = mk('rect', { class:'pf-hit' }, top.w);
@@ -16846,22 +16848,22 @@ class Performance {
     for(const L of this.layers) L.svg.setAttribute('viewBox', `0 ${n2(-this.H)} ${n2(this.W)} ${n2(this.H)}`);
     this.fit(true);
   }
-  /* The stage always fits its window (drawn smaller if need be, never cropped),
-     with room for at least a bay of the hall either side; the hall then runs
-     out to the edges of the screen, fading behind the count and the gear. */
+  /* The hall is the stage with a chosen number of bays of boxes either side
+     (o.boxes). It always fits its window whole: drawn smaller if need be,
+     never cropped. The window (o.zone) is told how wide the hall wants to be
+     at full size, so the header can decide whether the wordmark still fits. */
   fit(snap){
     if(!this.lay || !this.W) return;
-    const z = this.o.zone ? this.o.zone(this) : [4, this.W - 4], s = this.s || 1, bl = (this.o.bleed || [0, 0])[0] / s, br = (this.o.bleed || [0, 0])[1] / s;
-    const za = z[0] - bl, zw = Math.max(20, z[1] - za);
-    const k = clamp(Math.min(zw / (this.lay.W + 2 * PF_BAYMIN), (this.H + 6) / 66), .42, 1);
+    const n = Math.max(1, Math.round(this.o.boxes ? this.o.boxes() : 1)), s = this.s || 1;
+    const SW = this.lay.W + 2 * n * PF_BAY;
+    const z = this.o.zone ? this.o.zone(this, SW * s) : [4, this.W - 4];
+    const za = z[0], zw = Math.max(20, z[1] - za);
+    const k = clamp(Math.min(zw / SW, (this.H + 6) / 66), .3, 1);
     this.fk = k; this.fo = za + zw / 2 - (this.lay.L + this.lay.R) / 2 * k;
-    // the architecture runs to the screen's edges; the stalls only as far as the staff does
-    const hall = { a:(-bl - this.fo) / k, b:(this.W + br - this.fo) / k, sa:-this.fo / k, sb:(this.W - this.fo) / k, fade:this.o.fade ? (z[1] - this.fo) / k : 1e4 };
-    const key = [hall.a, hall.b, hall.fade].map(v => Math.round(v / 4)).join('|');
-    if(key !== this.hallKey){
-      this.hallKey = key; this.hall = hall;
-      this.fadeG.setAttribute('x1', n2(hall.fade)); this.fadeG.setAttribute('x2', n2(hall.fade + 14));
-      if(!snap){ this.buildHall(true); this.buildCrowd(true); }   // the window changed while the show was on
+    const hall = { a:this.lay.L - 4 - n * PF_BAY, b:this.lay.R + 4 + n * PF_BAY };
+    if(String(n) !== this.hallKey){
+      this.hallKey = String(n); this.hall = hall;
+      if(!snap){ this.buildHall(true); this.buildCrowd(true); }   // a new number of boxes while the show is on
     }
     if(snap || this.k == null){ this.k = this.fk; this.ox = this.fo; this.place(); }
   }
@@ -16978,12 +16980,12 @@ class Performance {
           let bl = '';
           for(let x = A + 1.7; x < B - 1; x += 2.15) bl += `M${n2(x)} ${rail + .95}V${rail + 2.9}`;
           sk(this.hallFront, bl, 'cz-far cz-fine');
-          this.boxes.push({ A, B, rail, faded:B > H.fade - 2 });
+          this.boxes.push({ A, B, rail });
         }
       }
     }
-    // tapping a box works like tapping the stalls (except where the hall fades, behind the gear)
-    for(const b of this.boxes) if(!b.faded) tapOn(mk('rect', { class:'pf-hit', x:b.A, y:b.rail - 10, width:n2(b.B - b.A), height:12 }, this.boxHits), e => this.pokeCrowd(e));
+    // tapping a box works like tapping the stalls
+    for(const b of this.boxes) tapOn(mk('rect', { class:'pf-hit', x:b.A, y:b.rail - 10, width:n2(b.B - b.A), height:12 }, this.boxHits), e => this.pokeCrowd(e));
   }
   /* the audience: a row of the stalls right across the hall, seen from behind,
      and a few more in each box, turned towards the stage. Some have fans, and
@@ -16993,7 +16995,7 @@ class Performance {
     this.C = [];
     if(!this.lay || !this.hall) return;
     const H = this.hall, full = this.o.crowd && this.o.crowd() === 'full', r = Math.random;
-    const a = H.sa + 2, b = H.sb - 2, n = Math.max(3, Math.floor((b - a) / 11.5)), sp = (b - a) / n;
+    const a = H.a + 2, b = H.b - 2, n = Math.max(3, Math.floor((b - a) / 11.5)), sp = (b - a) / n;
     let seats = Array.from({ length:n }, (_, i) => a + sp * (i + .5) + (r() - .5) * 2.2);
     if(!full){
       const keep = seats.filter(() => r() < .55);
@@ -17005,8 +17007,7 @@ class Performance {
       for(let i = 0; i < k; i++) this.C.push(this.member(this.boxG, bx.A + (bx.B - bx.A) * (i + .5) / k + (r() - .5) * 1.4, bx.rail + 3.4, true));
     }
     if(seated) for(const c of this.C) c.arr = -1;
-    const hb = Math.min(H.b, H.fade);
-    this.crowdHit.setAttribute('x', n2(H.sa)); this.crowdHit.setAttribute('width', n2(Math.max(0, Math.min(hb, H.sb) - H.sa)));
+    this.crowdHit.setAttribute('x', n2(H.a)); this.crowdHit.setAttribute('width', n2(H.b - H.a));
     this.crowdHit.setAttribute('y', -15); this.crowdHit.setAttribute('height', 15.5);
   }
   member(par, x, y0, box){
@@ -17428,7 +17429,7 @@ function run(c, on){
   if(on){ RUN.add(c); if(!raf){ last = performance.now(); raf = requestAnimationFrame(loop); } }
   else RUN.delete(c);
 }
-return { Composer, Performance, ACTS, STATIONS, PF_ORDER, run, roomWidth:acts => layoutRoom(acts).W, stageWidth:acts => stageLayout(acts).W };
+return { Composer, Performance, ACTS, STATIONS, PF_ORDER, PF_BAY, run, roomWidth:acts => layoutRoom(acts).W, stageWidth:acts => stageLayout(acts).W };
 })();
 
 /* Two composers share the engine: the one in the library header, and a live
@@ -17487,9 +17488,21 @@ function czPaceShow(){
   $('#czPaceSub').textContent = sec >= 52 ? 'About a minute at each' : `About ${Math.round(sec / 5) * 5} seconds at each`;
 }
 $('#czPace').addEventListener('input', e => { setPref('composerPace', +e.target.value); czPaceShow(); });
+/* The header window for the composer or the performance: up to the count and
+   the Settings button, never under them. The wordmark keeps its place on the
+   left if the whole scene (need, in px) fits beside it at full size; if not, it
+   fades out and the scene has the whole width, from bleed px past the left
+   edge of the host. */
+function headerZone(host, need, bleed){
+  const hr = host.getBoundingClientRect(), b = $('.wm-right').getBoundingClientRect(), t = $('.wordmark h1').getBoundingClientRect();
+  const end = b.left - hr.left - 12, after = t.right - hr.left + 16, head = $('.lib-head');
+  const room = end - after - (head.classList.contains('wm-hide') ? 6 : 0);   // a little give, so it doesn't flicker at the edge
+  const fits = room >= need;
+  head.classList.toggle('wm-hide', !fits);
+  return fits ? [after, end] : [2 - bleed, end];
+}
 const czMain = new CZ.Composer($('#czHost'), { acts:czActs, pace:czPaceK, zone(){
-  const hr = $('#czHost').getBoundingClientRect(), b = $('.wm-right').getBoundingClientRect();
-  return [2, b.left - hr.left - 12];   // the stage window: from the left edge (the wordmark fades out) up to the count
+  return headerZone($('#czHost'), CZ.roomWidth(czActs()) + 8, 0);   // his whole room, or the wordmark steps aside
 } });
 const czPrev = new CZ.Composer($('#czPrevHost'), { acts:czActs, pace:czPaceK, scale:w => Math.min(1.5, Math.max(1, (w - 12) / (CZ.roomWidth(czActs()) + 8))), zone:c => [6, c.W - 6] });
 function czHead(){ for(const c of [czMain, czPrev]) c.setHead(pref('composerHead')); }
@@ -17554,6 +17567,7 @@ function pfSyncActs(){
   });
   const nm = id => PF_ABOUT[id][0].toLowerCase(), list = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0];
   const off = PF_LIST.filter(id => !on.includes(id));
+  pfBoxShow();
   $('#sumPf').textContent = !off.length ? 'All seven' : off.length <= 3 ? 'All but ' + list(off.map(nm)) : n <= 3 ? capFirst(list(on.map(nm))) + ' only' : n + ' of ' + N;
 }
 $('#pfInst').innerHTML = PF_LIST.map(id => `<div class="set-row"><span class="set-l"><span class="nm">${PF_ABOUT[id][0]}</span><span class="sub">${PF_ABOUT[id][1]}</span></span><button type="button" class="set-sw" data-pf="${id}" role="switch" aria-checked="true" aria-label="${PF_ABOUT[id][0]}"><i></i></button></div>`).join('');
@@ -17578,13 +17592,37 @@ function pfLenShow(){
 }
 $('#pfLen').addEventListener('input', e => { setPref('performLen', +e.target.value); pfLenShow(); });
 const pfHead = () => pref('performConductor');
-// the header one runs its hall out to the screen's edges (20px past the host) and fades it behind the count and gear
-const pfMain = new CZ.Performance($('#pfHost'), { acts:pfActs, len:pfLenK, crowd:() => pref('performCrowd'), head:pfHead, bleed:[20, 20], fade:true, zone(){
+/* Boxes beside the stage: the most that fit at full size between the left edge
+   of the screen and the count, so the hall never runs under the Settings
+   button. The stored 99 means "as many as fit". */
+function pfMaxBoxes(){
   const hr = $('#pfHost').getBoundingClientRect(), b = $('.wm-right').getBoundingClientRect();
-  return [2, b.left - hr.left - 12];   // the same window as the composer's: from the left edge up to the count
-} });
-const pfPrev = new CZ.Performance($('#pfPrevHost'), { acts:pfActs, len:pfLenK, crowd:() => pref('performCrowd'), head:pfHead, bleed:[18, 18],
-  scale:w => Math.min(1.04, Math.max(1, (w - 12) / (CZ.stageWidth(pfActs()) + 60))), zone:c => [6, c.W - 6] });
+  if(!hr.width) return 1;
+  const avail = (b.left - hr.left - 12) + 16;   // the window without the wordmark: headerZone's [2 - 18, end]
+  return Math.max(1, Math.floor((avail - CZ.stageWidth(pfActs())) / (2 * CZ.PF_BAY) + 1e-6));
+}
+function pfBoxes(){ return Math.max(1, Math.min(+pref('performBoxes') || 1, pfMaxBoxes())); }
+function pfBoxShow(){
+  const el = $('#pfBoxes'); if(!el || !pfReady) return;
+  const max = pfMaxBoxes(), v = pfBoxes();
+  el.max = max; el.disabled = max < 2;
+  if(document.activeElement !== el) el.value = v;
+  el.style.setProperty('--v', (max > 1 ? (v - 1) / (max - 1) * 100 : 100) + '%');
+  $('#pfBoxMax').textContent = max;
+  $('#pfBoxSub').textContent = max < 2 ? 'One on each side is all there’s room for on this screen'
+    : v === 1 ? 'One on each side' : `${v} on each side` + (v === max ? ', as many as fit' : '');
+}
+$('#pfBoxes').addEventListener('input', e => {
+  const v = +e.target.value, max = pfMaxBoxes();
+  setPref('performBoxes', v >= max ? 99 : v);   // at the top it stays "as many as fit", on any screen
+  pfBoxShow();
+  for(const c of [pfMain, pfPrev]) if(c.alive) c.fit(false);   // the hall changes there and then
+});
+// the header one may reach 18px past the host on the left, to the screen's edge
+const pfMain = new CZ.Performance($('#pfHost'), { acts:pfActs, len:pfLenK, crowd:() => pref('performCrowd'), head:pfHead, boxes:pfBoxes,
+  zone:(c, need) => headerZone($('#pfHost'), need, 18) });
+const pfPrev = new CZ.Performance($('#pfPrevHost'), { acts:pfActs, len:pfLenK, crowd:() => pref('performCrowd'), head:pfHead, boxes:pfBoxes,
+  scale:w => Math.min(1.04, Math.max(1, (w - 12) / (CZ.stageWidth(pfActs()) + 2 * pfBoxes() * CZ.PF_BAY))), zone:c => [-12, c.W + 12] });
 let pfViewAt = 0;
 function pfSync(){
   const on = !!pref('perform');
@@ -17616,9 +17654,9 @@ $('#setPerform').addEventListener('click', () => {
   const mo = new MutationObserver(pfSync);
   [$('#viewer'), ...$$('.panel')].forEach(e => mo.observe(e, { attributes:true, attributeFilter:['class'] }));
   document.addEventListener('visibilitychange', pfSync);
-  window.addEventListener('resize', () => { pfMain.resize(); pfPrev.resize(); });
+  window.addEventListener('resize', () => { pfMain.resize(); pfPrev.resize(); pfBoxShow(); });
   pfReady = true;
-  czSync(); pfSync(); pfSyncActs();
+  czSync(); pfSync(); pfSyncActs(); pfBoxShow();
 }
 
 /* ---------- misc ---------- */
