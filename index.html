@@ -2145,6 +2145,8 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 .subpage{z-index:41;transform:translateX(100%);transition:transform .32s cubic-bezier(.32,.72,0,1),visibility 0s linear .32s}
 .subpage.on{transform:none;transition:transform .32s cubic-bezier(.32,.72,0,1),visibility 0s}
 #mSettings.under{transform:translateX(-24%)}
+#mAppear.on.under,#mSetHead.on.under{transform:translateX(-24%)}
+#mSetCz,#mSetPf,#mSetBd{z-index:42}
 .setpage .plist.pdash{padding-top:6px}
 .setroot .set-sub{margin:26px 4px 8px}
 .setroot .set-sub:first-of-type{margin-top:14px}
@@ -2279,7 +2281,7 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
    beside the wordmark, it steps aside (it stays in the layout, so nothing else moves) */
 .lib-head{position:relative}
 .wordmark h1{transition:opacity .6s ease}
-.lib-head.wm-hide:is(.cz-on,.pf-on) .wordmark h1{opacity:0}
+.lib-head.wm-hide:is(.cz-on,.pf-on,.bd-on) .wordmark h1{opacity:0}
 .lib-head .cz-host{left:20px;right:20px}
 /* the live preview in Settings: drawn half again as large, on a matching staff */
 .cz-prev{position:relative;height:104px;background:color-mix(in srgb,var(--slate) 55%,var(--slate-2));border-bottom:1px solid var(--line)}
@@ -2347,11 +2349,56 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
 .lib-head .wm-right{position:relative;z-index:2}
 /* the performance sets its candle light itself, every frame: no transitions to restart */
 .pf-svg .cz-glow,.pf-svg .cz-flame{transition:none}
-#pfRow{border-top:1px solid var(--line)}
 .lib-head .pf-host{left:20px;right:20px}
 /* the activities page */
-#mSettings .set-link.off{opacity:.42;pointer-events:none}
+#mSettings .set-link.off,#mSetHead .set-link.off{opacity:.42;pointer-events:none}
 .set-sw[aria-disabled="true"]{opacity:.45;pointer-events:none}
+/* ---------- the library header page: a live preview, a choice of scene, and its options ---------- */
+.set-pin .cz-prev{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.hd-plain{position:absolute;left:0;right:0;top:34%;text-align:center;font-size:13px;color:var(--text-faint);opacity:0;transition:opacity .3s}
+.hd-prev.plain .hd-plain{opacity:1}
+.hd-opt{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px;text-align:left;background:none;color:inherit;transition:background .15s}
+.hd-opt:active{background:var(--slate-3)}
+.hd-opt + .hd-opt{border-top:1px solid var(--line)}
+.hd-opt .tx{flex:1;min-width:0}
+.hd-opt .nm{display:block;font-size:15.5px;color:var(--text)}
+.hd-opt .sub{display:block;font-size:12.5px;line-height:1.4;color:var(--text-faint);margin-top:2px}
+.hd-opt .ck{flex:none;display:grid;width:22px;color:var(--pencil-hi);opacity:0;transition:opacity .15s}
+.hd-opt[aria-checked="true"] .ck{opacity:1}
+.hd-sec[hidden]{display:none}
+#mSetHead .hd-sec .set-sub{margin:26px 4px 8px}
+.hd-sec .set-row + .set-link,.hd-sec .set-link + .set-row{border-top:1px solid var(--line)}
+/* ---------- songbirds ----------
+   Poles and wires in the same pencil; the birds' feathers mixed from the
+   theme, with the accent for a robin's breast, a goldfinch's back, a tit's
+   wings. */
+.bd-host .pf-layer{will-change:transform}
+.bd-svg .bd-pole{fill:color-mix(in srgb,var(--text) 7%,var(--cz-bg));stroke:var(--cz-prop);stroke-width:.9}
+.bd-svg .bd-wire{fill:none;stroke:var(--cz-far);stroke-width:.7}
+.lib-head:has(.staff.sour) .bd-wire{animation:czSour 1.1s ease-out}
+.bd-svg .pf-hit{pointer-events:all;fill:transparent;stroke:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.bd-svg .bd-bird{--bb:color-mix(in srgb,var(--text) 20%,var(--cz-bg));--bw:color-mix(in srgb,var(--text) 34%,var(--cz-bg));
+  --bbr:color-mix(in srgb,var(--text) 9%,var(--cz-bg));--bc:var(--bb)}
+.bd-svg .bd-sp{--bc:color-mix(in srgb,var(--text) 40%,var(--cz-bg))}
+.bd-svg .bd-rb{--bbr:color-mix(in srgb,var(--cz-acc) 55%,var(--cz-bg))}
+.bd-svg .bd-gf{--bb:color-mix(in srgb,var(--cz-acc) 32%,var(--cz-bg));--bw:color-mix(in srgb,var(--text) 52%,var(--cz-bg));
+  --bbr:color-mix(in srgb,var(--cz-acc) 18%,var(--cz-bg));--bc:color-mix(in srgb,var(--text) 58%,var(--cz-bg))}
+.bd-svg .bd-tt{--bb:color-mix(in srgb,var(--text) 13%,var(--cz-bg));--bw:color-mix(in srgb,var(--cz-acc) 38%,var(--cz-bg));
+  --bbr:color-mix(in srgb,var(--cz-acc) 22%,var(--cz-bg));--bc:color-mix(in srgb,var(--text) 62%,var(--cz-bg))}
+.bd-svg .bd-ng{--bb:color-mix(in srgb,var(--text) 22%,var(--cz-bg));--bw:color-mix(in srgb,var(--text) 30%,var(--cz-bg));
+  --bbr:color-mix(in srgb,var(--text) 10%,var(--cz-bg));--bc:var(--bb)}
+.bd-svg .bd-cr{--bb:color-mix(in srgb,#000 42%,var(--cz-bg));--bw:color-mix(in srgb,#000 26%,var(--cz-bg));--bbr:var(--bb);--bc:var(--bb)}
+[data-tone=light] .bd-svg .bd-cr{--bb:color-mix(in srgb,var(--text) 72%,var(--cz-bg));--bw:color-mix(in srgb,var(--text) 58%,var(--cz-bg))}
+.bd-svg .bd-bd,.bd-svg .bd-hd{fill:var(--bb);stroke:var(--cz-ink);stroke-width:.45}
+.bd-svg .bd-wg{fill:var(--bw);stroke:var(--cz-ink);stroke-width:.35}
+.bd-svg .bd-tl{fill:var(--bw);stroke:var(--cz-ink);stroke-width:.4}
+.bd-svg .bd-ng .bd-tl{fill:color-mix(in srgb,var(--cz-acc) 42%,var(--cz-bg))}
+.bd-svg .bd-br{fill:var(--bbr);stroke:none}
+.bd-svg .bd-cap{fill:var(--bc);stroke:none}
+.bd-svg .bd-eye{fill:var(--cz-ink);stroke:none}
+.bd-svg .bd-cr .bd-eye{fill:var(--cz-lace)}
+.bd-svg .bd-bk{fill:var(--cz-ink);stroke:none}
+.bd-svg .bd-leg{stroke-width:.45}
 </style>
 </head>
 <body>
@@ -2378,6 +2425,7 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
     <div class="staff"><span></span><span></span><span></span><span></span><span></span></div>
     <div class="cz-host" id="czHost" aria-hidden="true"></div>
     <div class="cz-host pf-host" id="pfHost" aria-hidden="true"></div>
+    <div class="cz-host bd-host" id="bdHost" aria-hidden="true"></div>
   </div>
 
   <div class="searchrow">
@@ -2781,6 +2829,9 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
       <button type="button" class="set-link" id="apOpen">
         <span class="ic"><span class="ap-sw" id="apSw" aria-hidden="true"><span class="ap-page"></span><i></i></span></span><span class="tx"><span class="nm">Appearance</span><span class="sub" id="apOpenSub"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
       </button>
+      <button type="button" class="set-link" data-page="mSetHead">
+        <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5v15M19.5 4.5v15"/><path d="M4.5 9.5h15M4.5 14h15" opacity=".55"/><circle cx="11" cy="7.6" r="1.7" fill="currentColor" stroke="none"/><circle cx="15" cy="12.1" r="1.7" fill="currentColor" stroke="none"/></svg></span><span class="tx"><span class="nm">Library header</span><span class="sub" id="sumHead"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
       <button type="button" class="set-link" data-page="mSetTitles">
         <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7V5h15v2"/><path d="M12 5v14"/><path d="M9 19h6"/></svg></span><span class="tx"><span class="nm">Titles</span><span class="sub" id="sumTitles"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
       </button>
@@ -2800,61 +2851,118 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
         <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v9a2 2 0 002 2h10a2 2 0 002-2V9"/><path d="M10 13h4"/></svg></span><span class="tx"><span class="nm">Backup</span><span class="sub" id="sumBackup"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
       </button>
     </div>
-    <div class="set-sub">Just for fun</div>
-    <div class="set-card">
-      <div class="cz-prev" aria-hidden="true">
-        <div class="staff"><span></span><span></span><span></span><span></span><span></span></div>
-        <div class="cz-host" id="czPrevHost"></div>
-        <div class="cz-host pf-host" id="pfPrevHost"></div>
-      </div>
-      <div class="set-row">
-        <span class="set-l"><span class="nm">Resident composer</span><span class="sub">A tiny composer keeps a music room on the staff above your library, and wanders about it playing, writing and taking coffee. Tap him to say hello, or pick him up and move him.</span></span>
-        <button type="button" class="set-sw" id="setComposer" role="switch" aria-checked="false" aria-label="Resident composer"><i></i></button>
-      </div>
-      <div class="set-row col" id="czHeadRow">
-        <span class="set-l"><span class="nm">Composer</span></span>
-        <div class="pd-seg set-seg" data-pref="composerHead" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="wig">Mozart</button><button type="button" data-v="beethoven">Beethoven</button></div>
-      </div>
-      <div class="set-row col" id="czPaceRow">
-        <span class="set-l"><span class="nm">How often he changes activity</span><span class="sub" id="czPaceSub"></span></span>
-        <div class="set-range">
-          <input type="range" id="czPace" min="0" max="100" step="1" aria-label="How often he changes activity">
-          <span class="set-range-ends" aria-hidden="true"><span>Rarely</span><span>Often</span></span>
-        </div>
-      </div>
-      <button type="button" class="set-link" data-page="mSetCz" id="czActsLink">
-        <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5V6l10-2v11.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="15.5" r="2.5"/></svg></span><span class="tx"><span class="nm">Activities</span><span class="sub" id="sumCz"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+  </div>
+</div>
+
+<div class="panel subpage setpage" id="mSetHead" aria-label="Library header">
+  <div class="panel-head">
+    <button class="linkbtn" data-back>Back</button>
+    <h3>Library header</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="set-pin">
+    <div class="cz-prev hd-prev" id="hdPrev" aria-hidden="true">
+      <div class="staff"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="cz-host" id="czPrevHost"></div>
+      <div class="cz-host pf-host" id="pfPrevHost"></div>
+      <div class="cz-host bd-host" id="bdPrevHost"></div>
+      <span class="hd-plain">Just the wordmark and the staff</span>
+    </div>
+  </div>
+  <div class="edge" aria-hidden="true"></div>
+  <div class="plist pdash">
+    <div class="set-card" id="hdOpts" role="radiogroup" aria-label="Above your library">
+      <button type="button" class="hd-opt" data-head="none" role="radio" aria-checked="false">
+        <span class="tx"><span class="nm">Plain</span><span class="sub">Nothing above the staff.</span></span><span class="ck" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
       </button>
-      <div class="set-row" id="pfRow">
-        <span class="set-l"><span class="nm">Performance</span><span class="sub">A little concert hall above your library instead, where a band plays to a tiny audience. Tap a player for a solo, the conductor for a crescendo, or the audience to start the applause. Only one of these can be on at a time.</span></span>
-        <button type="button" class="set-sw" id="setPerform" role="switch" aria-checked="false" aria-label="Performance"><i></i></button>
-      </div>
-      <div class="set-row col" id="pfCondRow">
-        <span class="set-l"><span class="nm">Conductor</span></span>
-        <div class="pd-seg set-seg" data-pref="performConductor" style="--n:2;--i:1"><span class="pdk"></span><button type="button" data-v="wig">Mozart</button><button type="button" data-v="beethoven">Beethoven</button></div>
-      </div>
-      <div class="set-row col" id="pfCrowdRow">
-        <span class="set-l"><span class="nm">Audience</span></span>
-        <div class="pd-seg set-seg" data-pref="performCrowd" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="few">A few</button><button type="button" data-v="full">Full house</button></div>
-      </div>
-      <div class="set-row col" id="pfLenRow">
-        <span class="set-l"><span class="nm">Length of each piece</span><span class="sub" id="pfLenSub"></span></span>
-        <div class="set-range">
-          <input type="range" id="pfLen" min="0" max="100" step="1" aria-label="Length of each piece">
-          <span class="set-range-ends" aria-hidden="true"><span>Short</span><span>Long</span></span>
-        </div>
-      </div>
-      <div class="set-row col" id="pfBoxRow">
-        <span class="set-l"><span class="nm">Boxes beside the stage</span><span class="sub" id="pfBoxSub"></span></span>
-        <div class="set-range">
-          <input type="range" id="pfBoxes" min="1" max="1" step="1" aria-label="Boxes beside the stage">
-          <span class="set-range-ends" aria-hidden="true"><span>1</span><span id="pfBoxMax">1</span></span>
-        </div>
-      </div>
-      <button type="button" class="set-link" data-page="mSetPf" id="pfInstLink">
-        <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 20V9l7-4 7 4v11"/><path d="M9 20v-5h6v5"/></svg></span><span class="tx"><span class="nm">Instruments</span><span class="sub" id="sumPf"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      <button type="button" class="hd-opt" data-head="composer" role="radio" aria-checked="false">
+        <span class="tx"><span class="nm">Resident composer</span><span class="sub">A tiny composer keeps a music room on the staff, and wanders about it playing, writing and taking coffee. Tap him to say hello, or pick him up and move him.</span></span><span class="ck" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      </button>
+      <button type="button" class="hd-opt" data-head="perform" role="radio" aria-checked="false">
+        <span class="tx"><span class="nm">Performance</span><span class="sub">A little concert hall, where a band plays to a tiny audience. Tap a player for a solo, the conductor for a crescendo, or the audience to start the applause.</span></span><span class="ck" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      </button>
+      <button type="button" class="hd-opt" data-head="birds" role="radio" aria-checked="false">
+        <span class="tx"><span class="nm">Songbirds</span><span class="sub">A flock settles on five wires strung like a staff, sitting in the shape of a tune, one bird to a note, and sings it through. Tap a bird for a solo, or tap the wires to ruffle them. At night they sleep, all but the nightingale.</span></span><span class="ck" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
       </button>
     </div>
+    <div class="hd-sec" data-for="composer" hidden>
+      <div class="set-sub">Resident composer</div>
+      <div class="set-card">
+    <div class="set-row col" id="czHeadRow">
+      <span class="set-l"><span class="nm">Composer</span></span>
+      <div class="pd-seg set-seg" data-pref="composerHead" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="wig">Mozart</button><button type="button" data-v="beethoven">Beethoven</button></div>
+    </div>
+    <div class="set-row col" id="czPaceRow">
+      <span class="set-l"><span class="nm">How often he changes activity</span><span class="sub" id="czPaceSub"></span></span>
+      <div class="set-range">
+        <input type="range" id="czPace" min="0" max="100" step="1" aria-label="How often he changes activity">
+        <span class="set-range-ends" aria-hidden="true"><span>Rarely</span><span>Often</span></span>
+      </div>
+    </div>
+    <button type="button" class="set-link" data-page="mSetCz" id="czActsLink">
+      <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5V6l10-2v11.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="15.5" r="2.5"/></svg></span><span class="tx"><span class="nm">Activities</span><span class="sub" id="sumCz"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+    </button>
+      </div>
+    </div>
+    <div class="hd-sec" data-for="perform" hidden>
+      <div class="set-sub">Performance</div>
+      <div class="set-card">
+    <div class="set-row col" id="pfCondRow">
+      <span class="set-l"><span class="nm">Conductor</span></span>
+      <div class="pd-seg set-seg" data-pref="performConductor" style="--n:2;--i:1"><span class="pdk"></span><button type="button" data-v="wig">Mozart</button><button type="button" data-v="beethoven">Beethoven</button></div>
+    </div>
+    <div class="set-row col" id="pfCrowdRow">
+      <span class="set-l"><span class="nm">Audience</span></span>
+      <div class="pd-seg set-seg" data-pref="performCrowd" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="few">A few</button><button type="button" data-v="full">Full house</button></div>
+    </div>
+    <div class="set-row col" id="pfLenRow">
+      <span class="set-l"><span class="nm">Length of each piece</span><span class="sub" id="pfLenSub"></span></span>
+      <div class="set-range">
+        <input type="range" id="pfLen" min="0" max="100" step="1" aria-label="Length of each piece">
+        <span class="set-range-ends" aria-hidden="true"><span>Short</span><span>Long</span></span>
+      </div>
+    </div>
+    <div class="set-row col" id="pfBoxRow">
+      <span class="set-l"><span class="nm">Boxes beside the stage</span><span class="sub" id="pfBoxSub"></span></span>
+      <div class="set-range">
+        <input type="range" id="pfBoxes" min="1" max="1" step="1" aria-label="Boxes beside the stage">
+        <span class="set-range-ends" aria-hidden="true"><span>1</span><span id="pfBoxMax">1</span></span>
+      </div>
+    </div>
+    <button type="button" class="set-link" data-page="mSetPf" id="pfInstLink">
+      <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 20V9l7-4 7 4v11"/><path d="M9 20v-5h6v5"/></svg></span><span class="tx"><span class="nm">Instruments</span><span class="sub" id="sumPf"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+    </button>
+      </div>
+    </div>
+    <div class="hd-sec" data-for="birds" hidden>
+      <div class="set-sub">Songbirds</div>
+      <div class="set-card">
+        <div class="set-row col">
+          <span class="set-l"><span class="nm">Flock</span><span class="sub">A small one sings the first phrase of each tune and leaves room for the wordmark; a large one sings the whole tune.</span></span>
+          <div class="pd-seg set-seg" data-pref="birdsFlock" style="--n:2;--i:0"><span class="pdk"></span><button type="button" data-v="small">Small</button><button type="button" data-v="large">Large</button></div>
+        </div>
+        <div class="set-row">
+          <span class="set-l"><span class="nm">The crow</span><span class="sub">Now and then a crow drops in on the pole to join the chorus, badly. Tap him to send him off.</span></span>
+          <button type="button" class="set-sw" id="setBdCrow" role="switch" aria-checked="true" aria-label="The crow"><i></i></button>
+        </div>
+        <button type="button" class="set-link" data-page="mSetBd">
+          <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5V6l10-2v11.5"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="15.5" r="2.5"/></svg></span><span class="tx"><span class="nm">Tunes</span><span class="sub" id="sumBd"></span></span><span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel subpage setpage" id="mSetBd" aria-label="Songbird tunes">
+  <div class="panel-head">
+    <button class="linkbtn" data-back>Back</button>
+    <h3>Tunes</h3>
+    <span class="linkbtn" aria-hidden="true"></span>
+  </div>
+  <div class="edge" aria-hidden="true"></div>
+  <div class="plist pdash">
+    <div class="set-card" id="bdTunes"></div>
+    <p class="pd-hint set-note">The flock picks a different one each time, from the ones that are on. There’s always at least one.</p>
   </div>
 </div>
 
@@ -3087,7 +3195,7 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
   </div>
 </div>
 
-<div class="panel subpage" id="mAppear" aria-label="Appearance">
+<div class="panel subpage setpage" id="mAppear" aria-label="Appearance">
   <div class="panel-head">
     <button class="linkbtn" id="apBack">Back</button>
     <h3>Appearance</h3>
@@ -3098,7 +3206,8 @@ input.doomed{border-color:color-mix(in srgb,var(--red) 70%,transparent) !importa
     <button type="button" data-tone="light">Light</button>
   </div>
   <div class="edge" aria-hidden="true"></div>
-  <div class="plist ap-scroll"><div class="ap-grid" id="apGrid" role="group" aria-label="Base"></div></div>
+  <div class="plist ap-scroll"><div class="ap-grid" id="apGrid" role="group" aria-label="Base"></div>
+  </div>
   <div class="ap-foot">
     <div class="ap-foot-t"><span>Accent</span><span class="ap-acc-nm" id="apAccName"></span></div>
     <div class="ap-accrow">
@@ -3526,6 +3635,7 @@ function fault(text, el){
   const st = $('.lib-head .staff'); if(st) replayClass(st, 'sour', 1400);
   try{ if(czMain.alive) czMain.sour(); }catch(e){}   // before the composer is set up, nothing to twang
   try{ if(pfMain.alive) pfMain.sour(); }catch(e){}
+  try{ if(bdMain.alive) bdMain.sour(); }catch(e){}
   renderFaults();
 }
 function renderFaults(){
@@ -8290,7 +8400,9 @@ const PREFS_DEF = { exitSide:'left', folderPlace:'top', folderAlways:false, manu
   // the settings easter egg
   composer:false, composerHead:'wig', composerOff:[], composerPace:50,
   // the other easter egg (only one of the two is ever on)
-  perform:false, performCrowd:'few', performOff:[], performLen:50, performConductor:'beethoven', performBoxes:99 };
+  perform:false, performCrowd:'few', performOff:[], performLen:50, performConductor:'beethoven', performBoxes:99,
+  // and the third (again, only one of the three is ever on)
+  birds:false, birdsFlock:'small', birdsCrow:true, birdsOff:[] };
 let PREFS = null;
 function pref(k){
   if(!PREFS){ try{ PREFS = JSON.parse(localStorage.getItem('stand.prefs') || '{}') || {}; }catch(e){ PREFS = {}; } }
@@ -14619,19 +14731,21 @@ $('#setBtn').addEventListener('click', () => {
 $('#faultClear').addEventListener('click', () => { FAULTS.length = 0; renderFaults(); });
 /* Settings is a short index; each topic slides in on its own page, the
    way Appearance always has. Every row says where things stand now. */
-function openSetPage(id){
+// a sub-page slides in over the page it was opened from (Settings, or Library header), and Back returns there
+function openSetPage(id, from){
   const pg = $('#' + id); if(!pg) return;
   syncSettings();
   pg.querySelector('.plist').scrollTop = 0;
+  pg.dataset.from = from || 'mSettings';
   pg.classList.add('on');
-  $('#mSettings').classList.add('under');
+  $('#' + pg.dataset.from).classList.add('under');
 }
 function closeSetPage(pg){
   pg.classList.remove('on');
-  $('#mSettings').classList.remove('under');
+  $('#' + (pg.dataset.from || 'mSettings')).classList.remove('under');
   syncSettings();
 }
-document.querySelectorAll('#mSettings .set-link[data-page]').forEach(b => b.addEventListener('click', () => openSetPage(b.dataset.page)));
+document.querySelectorAll('#mSettings .set-link[data-page], #mSetHead .set-link[data-page]').forEach(b => b.addEventListener('click', () => openSetPage(b.dataset.page, b.closest('.panel').id)));
 document.querySelectorAll('.subpage [data-back]').forEach(b => b.addEventListener('click', () => closeSetPage(b.closest('.subpage'))));
 const SEC_LABEL = { 30:'30 s', 90:'90 s', 180:'3 min', 300:'5 min' };
 const LIST_DETAILS = ['plComposer','plCat','plKeyInfo','plFolder','plAbout','plOwnTitle','plNotes','plFile','plProgress','plLevel','plPin','plSections','plAboutLink'];
@@ -14674,6 +14788,7 @@ $('#apOpen').addEventListener('click', () => {
   apTone = (THEME_BY[t.split('-')[0]] || THEME_BY.dark).tone;
   renderAppear(t);
   $('#apGrid').parentElement.scrollTop = 0;
+  syncSettings();
   $('#mAppear').classList.add('on');
   $('#mSettings').classList.add('under');
 });
@@ -14722,6 +14837,19 @@ function checkBackupReminder(){
   el.hidden = !due;
   if(due) $('#bkRemindText').textContent = last ? `Your last backup was ${agoText(last)}.` : 'Your library hasn’t been backed up from this phone yet.';
 }
+/* The library header: plain, or one of the three scenes. Only the chosen
+   scene's options are shown, under the choice. */
+function headChoice(){ return pref('birds') ? 'birds' : pref('perform') ? 'perform' : pref('composer') ? 'composer' : 'none'; }
+function syncHeadUI(){
+  const h = headChoice();
+  document.querySelectorAll('#hdOpts [data-head]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.head === h)));
+  document.querySelectorAll('#mSetHead .hd-sec').forEach(sec => { sec.hidden = sec.dataset.for !== h; });
+  $('#hdPrev').classList.toggle('plain', h === 'none');
+  $('#setBdCrow').setAttribute('aria-checked', String(!!pref('birdsCrow')));
+  $('#sumHead').textContent = h === 'composer' ? 'Resident composer, ' + (pref('composerHead') === 'wig' ? 'Mozart' : 'Beethoven')
+    : h === 'perform' ? 'Performance, ' + (pref('performCrowd') === 'full' ? 'a full house' : 'a few in the audience')
+    : h === 'birds' ? 'Songbirds, ' + (pref('birdsFlock') === 'large' ? 'a large flock' : 'a small flock') : 'Plain';
+}
 function syncSettings(){
   const auto = !!pref('autolog');
   $('#setAutolog').setAttribute('aria-checked', auto);
@@ -14738,21 +14866,12 @@ function syncSettings(){
   $('#setFolderAlways').setAttribute('aria-checked', String(!!pref('folderAlways')));
   $('#setManual').setAttribute('aria-checked', String(manualOnly()));
   $('#setFolderPlaceRow').classList.toggle('off', manualOnly());   // nothing to sort, so nothing to place
-  $('#setComposer').setAttribute('aria-checked', String(!!pref('composer')));
-  $('#czHeadRow').classList.toggle('off', !pref('composer'));
-  $('#czPaceRow').classList.toggle('off', !pref('composer'));
+  syncHeadUI();
   czPaceShow();
-  $('#czActsLink').classList.toggle('off', !pref('composer'));
-  const pf = !!pref('perform');
-  $('#setPerform').setAttribute('aria-checked', String(pf));
-  $('#pfCondRow').classList.toggle('off', !pf);
-  $('#pfCrowdRow').classList.toggle('off', !pf);
-  $('#pfLenRow').classList.toggle('off', !pf);
-  $('#pfBoxRow').classList.toggle('off', !pf);
   pfBoxShow();
-  $('#pfInstLink').classList.toggle('off', !pf);
   pfLenShow();
   czSyncActs();
+  bdSyncTunes();
   syncBackupStatus();
 }
 $('#setFolderAlways').addEventListener('click', () => {
@@ -14807,6 +14926,7 @@ document.querySelectorAll('.setpage .set-seg').forEach(seg => seg.addEventListen
   if(k === 'folderPlace' || k === 'exitSide') renderAll();
   if(k === 'composerHead') czHead();
   if(k === 'performCrowd') pfRestart();
+  if(k === 'birdsFlock') bdRestart();
   if(k === 'performConductor' && pfReady) for(const c of [pfMain, pfPrev]) c.setConductor();
   syncSettings();
 }));
@@ -17416,6 +17536,607 @@ Performance.n = 0;
 // the pen that draws the stage is the composer's own
 for(const k of ['skPt', 'tickSketch', 'clearParts', 'tickParts']) Performance.prototype[k] = Composer.prototype[k];
 
+/* ---------- songbirds ----------
+   The third thing that can live above the library, on the same engine. Two
+   telegraph poles, and five wires strung between them like a staff. A flock
+   settles on the wires in the shape of a tune, one bird to a note (the higher
+   the note, the higher the wire), and sings it through, left to right, in
+   time. Then they shuffle along into the next one: some hop across, some
+   leave, newcomers fly in to fill the gaps.
+   Each wire is a string, a little chain of masses and springs: it sags under
+   the birds on it, dips when one lands, springs back when one leaves and
+   rings when you tap it. At night the flock sleeps, heads tucked, all but the
+   nightingale. */
+const BD_WIRE = [-21.5, -29.9, -38.3, -46.7, -55.1], BD_TOP = -59.8, BD_N = 29, BD_SPAN = { small:140, large:230 };
+// the tunes: MIDI pitches and lengths (in units of u seconds); `small` notes for a small flock
+const BD_TUNES = [
+  { id:'ode', u:.42, small:8, p:[64,64,65,67,67,65,64,62,60,60,62,64,64,62,62], d:[1,1,1,1,1,1,1,1,1,1,1,1,1.5,.5,2] },
+  { id:'twinkle', u:.4, small:7, p:[60,60,67,67,69,69,67,65,65,64,64,62,62,60], d:[1,1,1,1,1,1,2,1,1,1,1,1,1,2] },
+  { id:'nacht', u:.2, small:9, p:[67,62,67,62,67,62,67,71,74,72,69,72,69,72,69,66,69,62], d:[3,1,3,1,1,1,1,1,4,3,1,3,1,1,1,1,1,4] },
+  { id:'elise', u:.17, small:9, p:[76,75,76,75,76,71,74,72,69,60,64,69,71,64,68,71,72], d:[1,1,1,1,1,1,1,1,3,1,1,1,3,1,1,1,3] },
+  { id:'minuet', u:.3, small:8, p:[74,67,69,71,72,74,67,67,76,72,74,76,78,79,67,67], d:[2,1,1,1,1,2,2,2,2,1,1,1,1,2,2,2] },
+  { id:'spring', u:.2, small:7, p:[64,68,68,68,66,64,71,71,69,68,68,68,66,64,71], d:[2,2,2,2,1,1,4,1,1,2,2,2,1,1,4] }
+];
+// sparrows, robins, goldfinches and tits, in about those proportions
+const BD_KINDS = ['sp', 'sp', 'sp', 'sp', 'rb', 'rb', 'gf', 'gf', 'tt', 'tt'];
+/* one bird, facing +x, feet on the wire at 0,0. The parts that move (head,
+   tail, lower beak, the wing that opens in flight) are kept for later */
+function birdParts(par, kind){
+  const g = mk('g', { class:'bd-bird bd-' + kind, style:'display:none' }, par);
+  const tail = mk('path', { class:'bd-tl', d:'M-2 -2.6L-6.3 -1L-5.8 .05L-1.7 -1.5Z' }, g);
+  const legs = mk('path', { class:'cz-ink bd-leg', d:'M-.5 -1.3L-.75 0M.75 -1.3L.8 0' }, g);
+  mk('ellipse', { class:'bd-bd', cx:-.2, cy:-3.3, rx:3.2, ry:2.35, transform:'rotate(-14 -.2 -3.3)' }, g);
+  mk('path', { class:'bd-br', d:'M2.75 -4Q3.05 -2 .95 -1.15Q-.6 -.75 -1.3 -1.45Q1.3 -2.3 2.75 -4Z' }, g);
+  const wing = mk('path', { class:'bd-wg', d:'M-3 -3.7Q-1.4 -5.5 1.15 -4.4Q1.35 -2.95 -1 -2.35Q-2.7 -2.2 -4.1 -2.1Z' }, g);
+  const fw = mk('path', { class:'bd-wg', style:'display:none' }, g);
+  const head = mk('g', {}, g);
+  mk('circle', { class:'bd-hd', cx:2.5, cy:-5.5, r:1.8 }, head);
+  mk('path', { class:'bd-cap', d:'M.8 -6.05A1.8 1.8 0 0 1 4.25 -5.9Q2.5 -6.5 .8 -6.05Z' }, head);
+  const eye = mk('circle', { class:'bd-eye', cx:3.2, cy:-5.75, r:.37 }, head);
+  mk('path', { class:'bd-bk', d:'M4.15 -5.85L5.95 -5.3L4.2 -4.95Z' }, head);
+  const jaw = mk('path', { class:'bd-bk', d:'M4.2 -5.05L5.65 -5.05L4.15 -4.6Z' }, head);
+  const hit = mk('circle', { class:'pf-hit', cy:-3.8, r:6.5 }, g);
+  g.__v = fw.__v = 'none';
+  return { g, tail, legs, wing, fw, head, eye, jaw, hit };
+}
+// the wing spread in flight: ph 0 is the top of the stroke, 1 the bottom
+function BD_WING(ph){
+  const S = [-.3, -4.2], th = (-98 - 118 * ph) * Math.PI / 180, T = [S[0] + 6.4 * Math.cos(th), S[1] + 6.4 * Math.sin(th)];
+  const B = [-2.9, -3.3], u = nrm(sub(T, S)), nn = [-u[1], u[0]];
+  return 'M' + P(...S) + 'Q' + P(...add(mix(S, T, .5), nn, 1.5)) + ' ' + P(...T) + 'Q' + P(...add(mix(T, B, .5), nn, -.4)) + ' ' + P(...B) + 'Z';
+}
+
+class Songbirds {
+  constructor(host, opts){
+    this.host = host; this.o = opts || {};
+    /* three layers: the poles and grass never change once drawn (rasterised
+       once); the wires and the flock move; the notes and the pen sit on top */
+    const id = ++Songbirds.n;
+    const layer = () => { const svg = mk('svg', { class:'cz-svg bd-svg pf-layer', 'aria-hidden':'true', focusable:'false' }, host); return { svg, w:mk('g', {}, svg) }; };
+    const back = layer(), mid = layer(), top = layer();
+    this.layers = [back, mid, top];
+    this.svg = back.svg;
+    const defs = mk('defs', {}, back.svg);
+    const pgr = mk('radialGradient', { id:'bdp' + id }, defs);
+    for(const [o, c] of [[0, 'cz-p0'], [.4, 'cz-p1'], [1, 'cz-p2']]) mk('stop', { offset:o, class:c }, pgr);
+    const sg = mk('radialGradient', { id:'bds' + id }, defs);
+    for(const [o, c] of [[0, 'cz-s0'], [.55, 'cz-s1'], [1, 'cz-s2']]) mk('stop', { offset:o, class:c }, sg);
+    this.scene = mk('g', {}, back.w);
+    this.wireHit = mk('rect', { class:'pf-hit' }, back.w);
+    this.spot = mk('ellipse', { class:'cz-spot', rx:10, ry:14, style:`fill:url(#bds${id});opacity:0` }, mid.w);
+    this.wiresG = mk('g', { class:'bd-wires' }, mid.w);
+    this.flock = mk('g', {}, mid.w);
+    this.fx = mk('g', { class:'cz-fx' }, top.w);
+    this.pen = mk('g', { class:'cz-pen', style:'opacity:0' }, top.w);
+    mk('circle', { class:'cz-glow', r:4.2, style:`fill:url(#bdp${id})` }, this.pen);
+    mk('circle', { class:'cz-nib', r:.62 }, this.pen);
+    this.parts = []; this.B = []; this.X = []; this.wr = []; this.slots = [];
+    this.reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    tapOn(this.wireHit, e => this.pokeWire(e));
+  }
+  flockNow(){ return this.o.flock && this.o.flock() === 'large' ? 'large' : 'small'; }
+  tunesNow(){ const l = this.o.tunes ? this.o.tunes() : BD_TUNES; return l.length ? l : BD_TUNES; }
+  resize(){
+    const r = this.host.getBoundingClientRect(), o = this.o.scale;
+    const s = typeof o === 'function' ? o(r.width) : o || 1;
+    this.W = Math.max(40, r.width / s); this.H = Math.max(30, r.height / s); this.s = s;
+    for(const L of this.layers) L.svg.setAttribute('viewBox', `0 ${n2(-this.H)} ${n2(this.W)} ${n2(this.H)}`);
+    this.fit(true);
+  }
+  // the wires are a fixed length for each size of flock; they always fit whole
+  fit(snap){
+    if(!this.lay || !this.W) return;
+    const s = this.s || 1, SW = this.lay.W;
+    const z = this.o.zone ? this.o.zone(this, SW * s) : [4, this.W - 4];
+    const za = z[0], zw = Math.max(20, z[1] - za);
+    const k = clamp(Math.min(zw / SW, (this.H + 6) / 66), .3, 1);
+    this.fk = k; this.fo = za + zw / 2 - (this.lay.L + this.lay.R) / 2 * k;
+    if(snap || this.k == null){ this.k = this.fk; this.ox = this.fo; this.place(); }
+  }
+  easeFit(dt){
+    if(this.k == null || Math.abs(this.k - this.fk) + Math.abs(this.ox - this.fo) < .01) return;
+    const e = 1 - Math.exp(-dt * 3);
+    this.k += (this.fk - this.k) * e; this.ox += (this.fo - this.ox) * e; this.place();
+  }
+  place(){ const t = `translate(${n2(this.ox)} 0) scale(${Math.round(this.k * 1e4) / 1e4})`; for(const L of this.layers) L.w.setAttribute('transform', t); }
+  toWorld(cx, cy){ const r = this.host.getBoundingClientRect(), s = this.s || 1; return [((cx - r.left) / s - this.ox) / this.k, (cy - r.bottom) / s / this.k]; }
+  // just past what can be seen, left and right, in world units: where birds come from and go to
+  edges(){
+    const r = this.host.getBoundingClientRect(), s = this.s || 1, k = this.k || 1, ox = this.ox || 0;
+    const a = this.o.inset ? -10 : -r.left - 14, b = this.o.inset ? r.width + 10 : (document.documentElement.clientWidth || innerWidth) - r.left + 14;
+    return [(a / s - ox) / k - 8, (b / s - ox) / k + 8];
+  }
+  dayPart(){ const h = new Date().getHours(); this.night = h >= 22 || h < 5; }
+
+  /* ---- the poles and the wires ---- */
+  build(){
+    this.scene.replaceChildren(); this.wiresG.replaceChildren();
+    const span = BD_SPAN[this.flockNow()];
+    const lay = this.lay = { span, L:-12, R:span + 12, W:span + 24, a:2.4, b:span - 2.4, sag:span * .011 };
+    const sk = (d, cls) => mk('path', { d, class:cls + ' cz-sk', pathLength:1 }, this.scene);
+    const tuft = x => `M${n2(x - 1.1)} 0q.2 -1.6 -.5 -2.4M${n2(x)} 0q0 -2 .45 -3M${n2(x + 1.1)} 0q.1 -1.3 .8 -2.1`;
+    for(const x of [0, span]){
+      const o = x ? -1 : 1;   // towards the other pole
+      sk(`M${n2(x - 1.25)} 0V${n2(BD_TOP + 1.4)}L${x} ${BD_TOP}L${n2(x + 1.25)} ${n2(BD_TOP + 1.4)}V0Z`, 'bd-pole');
+      let pegs = '', ins = '';
+      for(const y of BD_WIRE){
+        pegs += `M${n2(x - 3)} ${y + 1.1}H${n2(x + 3)}`;
+        const ix = x + o * 2.4;   // a glass insulator on each peg, on the inside
+        ins += `M${n2(ix - .75)} ${y + 1.1}V${y + .2}Q${n2(ix)} ${y - .75} ${n2(ix + .75)} ${y + .2}V${y + 1.1}`;
+      }
+      sk(pegs, 'cz-prop cz-fine');
+      sk(ins, 'cz-prop cz-hair');
+      sk(`M${x} ${n2(BD_TOP + 8)}L${n2(x - o * 10)} 0`, 'cz-far cz-fine');   // a stay out to the ground
+      sk(tuft(x - 2.8) + tuft(x + 2.6) + tuft(x - o * 10), 'cz-far cz-fine');
+    }
+    let grass = '';
+    for(let x = 24; x < span - 18; x += 30 + (x * 7 % 13)) grass += tuft(x);
+    if(grass) sk(grass, 'cz-far cz-fine');
+    this.wr = BD_WIRE.map((y0, k) => {
+      const w = { k, y0, p:mk('path', { class:'bd-wire cz-sk', pathLength:1 }, this.wiresG),
+        y:new Float32Array(BD_N), v:new Float32Array(BD_N), f:new Float32Array(BD_N), drawn:null };
+      this.drawWire(w, true);
+      return w;
+    });
+    for(const [k, v] of Object.entries({ x:lay.a, width:n2(lay.b - lay.a), y:BD_TOP - 2, height:n2(-BD_TOP - 14) })) this.wireHit.setAttribute(k, v);
+    this.room = { list:[{ g:this.scene }, { g:this.wiresG }] };
+  }
+  nodeF(x){ const L = this.lay; return clamp((x - L.a) / (L.b - L.a), 0, 1) * (BD_N - 1); }
+  // where a wire is at x, this frame: its hang, plus whatever it's doing
+  wireY(w, x){
+    const L = this.lay, u = clamp((x - L.a) / (L.b - L.a), 0, 1), f = u * (BD_N - 1), i = Math.min(BD_N - 2, f | 0), r = f - i;
+    return w.y0 + L.sag * 4 * u * (1 - u) + w.y[i] * (1 - r) + w.y[i + 1] * r;
+  }
+  drawWire(w, force){
+    let moved = force || !w.drawn;
+    if(!moved) for(let i = 0; i < BD_N; i++) if(Math.abs(w.y[i] - w.drawn[i]) > .03){ moved = true; break; }
+    if(!moved) return;
+    w.drawn = Float32Array.from(w.y);
+    const L = this.lay, pts = [];
+    for(let i = 0; i < BD_N; i++){ const u = i / (BD_N - 1); pts.push([L.a + (L.b - L.a) * u, w.y0 + L.sag * 4 * u * (1 - u) + w.y[i]]); }
+    w.p.setAttribute('d', curve(pts, false));
+  }
+  // a push on a wire at x (down is positive), spread over a node or two
+  kick(k, x, a, wd = 1.3){
+    const w = this.wr[k]; if(!w || this.reduced.matches) return;
+    const f = this.nodeF(x);
+    for(let i = 1; i < BD_N - 1; i++) w.v[i] += a * Math.exp(-Math.pow((i - f) / wd, 2));
+  }
+  stepWires(dt){
+    for(const w of this.wr) w.f.fill(0);
+    for(const b of this.B) if(b.on && b.k >= 0){
+      const f = this.nodeF(b.x), i = Math.min(BD_N - 2, f | 0), r = f - i, w = this.wr[b.k].f;
+      w[i] += b.m * (1 - r); w[i + 1] += b.m * r;
+    }
+    const K = 6000, D = 2.8, n = Math.max(1, Math.ceil(dt / .005)), h = dt / n;
+    for(const w of this.wr){
+      const y = w.y, v = w.v, f = w.f;
+      if(this.reduced.matches){   // no ringing: each wire simply takes its sag
+        for(let s = 0; s < 400; s++) for(let i = 1; i < BD_N - 1; i++) y[i] += ((y[i - 1] + y[i + 1]) / 2 + f[i] / (2 * K) - y[i]) * .9;
+        continue;
+      }
+      for(let s = 0; s < n; s++){
+        for(let i = 1; i < BD_N - 1; i++) v[i] += (K * (y[i - 1] - 2 * y[i] + y[i + 1]) + f[i] - D * v[i]) * h;
+        for(let i = 1; i < BD_N - 1; i++) y[i] += v[i] * h;
+      }
+    }
+  }
+
+  /* ---- the tune: where each bird sits, and when it sings ---- */
+  setTune(){
+    const all = this.tunesNow(), pool = all.length > 1 && this.tune ? all.filter(t => t.id !== this.tune.id) : all;
+    const T = this.tune = pool[(Math.random() * pool.length) | 0];
+    const n = this.flockNow() === 'large' ? T.p.length : Math.min(T.small, T.p.length);
+    const p = T.p.slice(0, n), d = T.d.slice(0, n), lo = Math.min(...p), hi = Math.max(...p);
+    // long notes get a little more room on the wire, as they would on the page
+    const dm = [...d].sort((a, b) => a - b)[n >> 1];
+    const w = d.map(v => .7 + .3 * Math.min(2, v / dm)), tot = w.reduce((a, b) => a + b, 0);
+    const a = this.lay.a + 7, b = this.lay.b - 7;
+    let c = 0, at = 0;
+    this.slots = p.map((q, i) => {
+      const x = a + (c + w[i] / 2) / tot * (b - a); c += w[i];
+      const s = { i, x, k:hi > lo ? Math.round((q - lo) / (hi - lo) * 4) : 2, at, dur:d[i] * T.u };
+      at += s.dur; return s;
+    });
+    this.songLen = at;
+  }
+
+  /* ---- birds ---- */
+  bird(kind, x, y){
+    const b = birdParts(this.flock, kind);
+    Object.assign(b, { kind, sc:kind === 'cr' ? 1.5 : 1.02 + Math.random() * .12, x, k:0, on:false, wx:x, wy:y,
+      face:Math.random() < .5 ? 1 : -1, fl:null, lp:null, hop:0, hopH:1.3, flut:false, flip:false, land:0, ha:0, haT:0, haHold:0,
+      ta:0, tv:0, sing:0, open:0, slp:0, asleep:false, wake:0, preen:0, idleT:1 + Math.random() * 3, taps:[], wph:Math.random() * TAU,
+      t:Math.random() * 9, slot:-1, leaving:false, gone:false });
+    b.m = kind === 'cr' ? 0 : 650 * b.sc;
+    tapOn(b.hit, () => this.pokeBird(b));
+    return b;
+  }
+  flyTo(b, x1, k, o = {}){
+    b.fl = { x1, k, y1:o.y1 ?? -80, t:-(o.delay || 0), dur:o.dur || 1, h:o.h ?? 6, ease:o.ease || 'io', leave:!!o.leave, face:o.face, go:false };
+  }
+  offX(side){ const e = this.edges(); return side < 0 ? e[0] - Math.random() * 20 : e[1] + Math.random() * 20; }
+  arriveAt(s, delay){
+    const side = (s.x < this.lay.span / 2) === (Math.random() < .8) ? -1 : 1;
+    const b = this.bird(BD_KINDS[(Math.random() * BD_KINDS.length) | 0], 0, -66 - Math.random() * 16);
+    b.wx = this.offX(side);
+    const dist = Math.abs(b.wx - s.x);
+    this.flyTo(b, s.x, s.k, { delay, dur:Math.min(2.6, .9 + dist / 150), h:4 + Math.random() * 8, ease:'out' });
+    b.slot = s.i; this.B.push(b);
+  }
+  leave(b, delay = 0){
+    b.leaving = true; b.slot = -1;
+    this.flyTo(b, this.offX(b.wx < this.lay.span / 2 ? -1 : 1), null, { y1:-78 - Math.random() * 14, delay, dur:1.2 + Math.random() * .6, h:4, ease:'in', leave:true });
+  }
+  // a loop out and back to the same spot on the wire
+  loop(b, delay, big){
+    b.lp = { t:-delay, dur:(big ? 1.7 : 1.25) + Math.random() * .5, dir:Math.random() < .5 ? -1 : 1, R:(big ? 12 : 7) + Math.random() * 8, h:(big ? 16 : 10) + Math.random() * 7 };
+  }
+  // the next tune: the flock shuffles into its shape
+  change(){
+    if(this.crow && this.crow.sang){ this.leave(this.crow, .3); this.crow = null; }
+    this.setTune();
+    const S = this.slots, n = S.length, have = this.B.filter(b => !b.leaving).sort((p, q) => p.x - q.x);
+    while(have.length > n) this.leave(have.splice((Math.random() * have.length) | 0, 1)[0], Math.random() * .7);
+    const m = have.length, used = new Set();
+    have.forEach((b, j) => {
+      const i = m > 1 ? Math.round(j * (n - 1) / (m - 1)) : n >> 1, s = S[i];
+      used.add(i); b.slot = i;
+      if(b.k === s.k && Math.abs(b.x - s.x) < .8) return;
+      const dist = Math.hypot(b.x - s.x, (b.k - s.k) * 8);
+      this.flyTo(b, s.x, s.k, { delay:.15 + j * .07 + Math.random() * .35, dur:.5 + dist / 90, h:3 + dist * .12 });
+    });
+    S.forEach((s, i) => { if(!used.has(i)) this.arriveAt(s, .4 + Math.random() * 1.4); });
+    this.to('move');
+  }
+  perched(){ return this.B.filter(b => b.on && !b.fl && !b.lp); }
+  crowMaybe(){
+    if(this.crow || this.night || !this.o.crow || !this.o.crow() || this.reduced.matches || Math.random() > .4) return;
+    const c = this.crow = this.bird('cr', 0, -82);
+    c.wx = this.edges()[1] + 10; this.X.push(c);
+    this.flyTo(c, this.lay.span, -1, { delay:.6 + Math.random(), dur:2, h:5, ease:'out', face:-1 });
+  }
+
+  /* ---- on and off ---- */
+  start(){
+    this.stop();
+    this.dayPart();
+    this.build();
+    this.k = null; this.resize();
+    this.t = 0; this.T = 0; this.tune = null; this.round = 0; this.chorus = 0; this.wTaps = [];
+    this.setTune();
+    this.skDur = this.sketch();
+    this.to('sketch');
+    if(this.reduced.matches){
+      // no flying in: the flock is simply there, on the wires
+      for(const s of this.slots){ const b = this.bird(BD_KINDS[s.i % BD_KINDS.length], s.x, 0); b.on = true; b.k = s.k; b.slot = s.i; b.face = 1; this.B.push(b); }
+      this.to('still');
+    }
+  }
+  stop(){
+    this.clearParts();
+    for(const g of [this.scene, this.wiresG, this.flock]) g.replaceChildren();
+    this.B = []; this.X = []; this.wr = []; this.slots = []; this.crow = null; this.ng = null; this.burst = null;
+    this.lay = null; this.room = null; this.sk = null; this.spotB = null; this.spotA = 0;
+    this.pen.style.opacity = 0; this.spot.style.opacity = 0;
+  }
+  // the composer's pen draws the poles and strings the wires
+  sketch(){
+    const paths = [this.scene, this.wiresG].flatMap(r => [...r.querySelectorAll('.cz-sk')]);
+    this.sk = null;
+    if(this.reduced.matches){ paths.forEach(p => p.classList.add('in', 'now')); return 0; }
+    const worlds = this.layers.map(L => L.w);
+    const toRoom = p => {
+      let m = new DOMMatrix();
+      for(let e = p; e && !worlds.includes(e); e = e.parentNode){
+        const tl = e.transform && e.transform.baseVal;
+        if(tl && tl.numberOfItems){ const c = tl.consolidate().matrix; m = new DOMMatrix([c.a, c.b, c.c, c.d, c.e, c.f]).multiply(m); }
+      }
+      return m;
+    };
+    const lens = paths.map(p => { try{ return p.getTotalLength(); }catch(e){ return 10; } });
+    const total = lens.reduce((a, b) => a + b, 0), v = Math.max(150, total / 2.6);
+    const list = []; let T = .45, pos = null;
+    paths.forEach((p, i) => {
+      const e = { p, m:toRoom(p), L:lens[i], st:this.room.list.find(q => q.g.contains(p)) };
+      e.a = this.skPt(e, 0); e.b = this.skPt(e, e.L);
+      if(pos) T += Math.min(.2, .03 + len(sub(e.a, pos)) / (v * 3.4));
+      e.t0 = T; e.t1 = T + Math.max(.05, e.L / v); T = e.t1; pos = e.b;
+      p.classList.add('pen'); p.style.strokeDashoffset = 1;
+      list.push(e);
+    });
+    const f = Math.min(1, 2.6 / (T - .45));
+    for(const e of list){ e.t0 = .45 + (e.t0 - .45) * f; e.t1 = .45 + (e.t1 - .45) * f; }
+    T = .45 + (T - .45) * f;
+    this.sk = { list, T:0, i:0, end:T, dry:[] };
+    return T;
+  }
+
+  /* ---- the day ---- */
+  step(dt){
+    if(!this.lay) return;
+    // thirty frames a second is plenty for birds this size
+    this.acc = (this.acc || 0) + dt;
+    if(this.acc < 1 / 31) return;
+    dt = Math.min(.1, this.acc); this.acc = 0;
+    this.t += dt; this.T += dt;
+    if((this.zt = (this.zt || 0) + dt) > 1){ this.zt = 0; this.fit(); this.dayPart(); }
+    this.easeFit(dt);
+    this.tickSketch(dt);
+    const ph = this.phase, T = this.T;
+    if(ph === 'sketch'){
+      if(T > this.skDur * .7){ this.slots.forEach((s, i) => this.arriveAt(s, i * .16 + Math.random() * .5)); this.to('move'); }
+    } else if(ph === 'move'){
+      if(this.B.every(b => b.on && !b.fl && !b.lp)){ this.to('settle'); this.settleT = 1 + Math.random() * 1.4; }
+    } else if(ph === 'settle'){
+      if(T > this.settleT){ if(this.night) this.toSleep(); else this.startSong(); }
+    } else if(ph === 'sing') this.stepSong(dt);
+    else if(ph === 'rest'){
+      if(T > this.restT){ if(this.night) this.toSleep(); else this.change(); }
+      else if(Math.random() < dt * 1.1){   // chatter between tunes
+        const l = this.perched(), b = l[(Math.random() * l.length) | 0];
+        if(b){ b.sing = .2; if(Math.random() < .6) this.emitB(b, 'n16', { vy:-3.5, life:1.3, s:.5 }); }
+      }
+    } else if(ph === 'sleep') this.stepNight(dt);
+    if(this.cheer){ this.cheer = false; if(!this.reduced.matches && ph !== 'sketch' && ph !== 'still') this.chorus = 3.2; }
+    if(this.chorus > 0){   // back from practising: the whole flock sings at once
+      this.chorus -= dt;
+      for(const b of this.perched()) if(Math.random() < dt * 3.2){ b.wake = Math.max(b.wake, .4); this.chirp(b, [.15, .3, .6][(Math.random() * 3) | 0], false); }
+    }
+    this.stepWires(dt);
+    for(const b of this.B) this.stepBird(b, dt);
+    for(const b of this.X) this.stepBird(b, dt);
+    if(this.B.some(b => b.gone)) this.B = this.B.filter(b => !b.gone);
+    if(this.X.some(b => b.gone)) this.X = this.X.filter(b => !b.gone);
+    for(const w of this.wr) this.drawWire(w);
+    this.light(dt);
+    this.tickParts(dt);
+  }
+  to(ph){ this.phase = ph; this.T = 0; }
+  startSong(){
+    this.bySlot = [];
+    for(const b of this.B) if(b.slot >= 0) this.bySlot[b.slot] = b;
+    this.tp = -.4; this.fired = 0; this.to('sing');
+    this.cawAt = this.crow && this.crow.on && !this.crow.sang ? 2 + ((Math.random() * Math.max(1, this.slots.length - 4)) | 0) : -1;
+  }
+  stepSong(dt){
+    this.tp += dt;
+    while(this.fired < this.slots.length && this.tp >= this.slots[this.fired].at){
+      const s = this.slots[this.fired], b = this.bySlot[s.i];
+      if(b && b.on && !b.lp) this.chirp(b, s.dur, this.round > 0 && Math.random() < .35);
+      if(this.fired === this.cawAt) this.caw();
+      this.fired++;
+    }
+    if(this.tp > this.songLen + .9){
+      // often once more from the top, with a trill or two
+      if(this.round === 0 && Math.random() < .55){ this.round = 1; this.tp = -.7; this.fired = 0; this.cawAt = -1; }
+      else {
+        this.round = 0;
+        if(this.crow) this.crow.sang = true;
+        this.to('rest'); this.restT = 3 + Math.random() * 3.5;
+        this.crowMaybe();
+      }
+    }
+  }
+  chirp(b, dur, trill, o){
+    b.sing = Math.min(.55, dur * .85) + .1; b.tv += 55; this.spotB = b;
+    if(b.k >= 0) this.kick(b.k, b.x, 4 * b.sc);
+    this.emitB(b, dur >= .6 ? 'n4' : dur <= .22 ? 'n16' : 'n8', { vy:-4.2 - Math.random(), life:1.7, ...o });
+    if(trill) setTimeout(() => this.emitB(b, 'n16', { vy:-5, life:1.4, s:.55 }), 90);
+  }
+  // the crow joins in, once, whenever it likes, and everyone turns round
+  caw(){
+    const c = this.crow; if(!c || !c.on) return;
+    c.sing = .55; c.tv += 80;
+    this.emit('txt', c.wx - 5, c.wy - 12, { text:'caw!', vy:-2.4, vx:-.5, life:2, s:.85 });
+    for(const b of this.B) if(b.on && !b.fl && !b.lp){
+      b.haT = -8; b.haHold = 1.4;
+      if(Math.sign(c.x - b.x) !== b.face && Math.random() < .7){ b.hop = .0001; b.hopH = 1; b.flip = true; }
+      else if(Math.random() < .4){ b.hop = .0001; b.hopH = .8; }
+    }
+  }
+
+  /* ---- night: heads tucked, and one bird who won't stop singing ---- */
+  toSleep(){
+    const mid = this.lay.span / 2; let ng = null;
+    for(const b of this.B) if(!ng || Math.abs(b.x - mid) < Math.abs(ng.x - mid)) ng = b;
+    this.ng = ng;
+    for(const b of this.B) b.asleep = b !== ng;
+    if(ng) ng.g.classList.replace('bd-' + ng.kind, 'bd-ng');
+    this.ngT = 1.2; this.burst = null; this.to('sleep');
+  }
+  wakeAll(){
+    if(this.ng){ this.ng.g.classList.replace('bd-ng', 'bd-' + this.ng.kind); this.ng = null; }
+    for(const b of this.B) b.asleep = false;
+  }
+  stepNight(dt){
+    if(!this.night){ this.wakeAll(); this.to('rest'); this.restT = 2.5; return; }
+    const ng = this.ng;
+    if(ng && ng.on && !ng.lp){
+      if(this.burst){
+        if((this.burst.t -= dt) <= 0){
+          // a fast run: the notes fan out, and only some of them make it into the air
+          if(this.burst.i % 2 === 0) this.chirp(ng, .15, false, { vx:ng.face * (1 + Math.random() * 2.6), vy:-2.6 - Math.random() * 2.6, s:.44 + Math.random() * .14, life:1.5 });
+          else { ng.sing = .2; ng.tv += 30; }
+          this.burst.t = this.burst.iv;
+          if(++this.burst.i >= this.burst.n){ this.burst = null; this.ngT = 1.8 + Math.random() * 3.5; }
+        }
+      } else if((this.ngT -= dt) <= 0) this.burst = { n:4 + ((Math.random() * 6) | 0), i:0, t:0, iv:.1 + Math.random() * .08 };
+    }
+    for(const b of this.B) if(b.asleep && b.slp > .8 && Math.random() < dt * .07) this.emit('z', b.wx + 2, b.wy - 7, { vy:-2, vx:.4, life:2.2, s:.5 });
+  }
+
+  /* ---- taps ---- */
+  pokeBird(b){
+    if(this.reduced.matches || !this.lay || !b.on || b.fl || b.lp) return;
+    if(b.kind === 'cr'){ this.caw(); this.leave(b, .45); if(this.crow === b) this.crow = null; return; }
+    const now = this.t;
+    b.taps = b.taps.filter(x => now - x < 1.3); b.taps.push(now);
+    // asleep: a start, a puzzled look round, and back to sleep
+    if(b.slp > .4){ b.wake = 2.6; b.hop = .0001; b.hopH = .9; this.emit('txt', b.wx, b.wy - 10, { text:'?', vy:-2, vx:.2, life:1.5, s:.7 }); return; }
+    // three taps and it's had enough: a loop out over the street and back
+    if(b.taps.length >= 3){ b.taps = []; this.loop(b, 0, false); this.emitB(b, 'n8', { vy:-4, life:1.5 }); return; }
+    if(this.phase === 'sing' || b === this.ng){   // a solo: a run of notes
+      b.sing = .9; b.tv += 150; this.spotB = b;
+      for(let i = 0; i < 4; i++) setTimeout(() => this.emitB(b, ['n16', 'n8', 'n16', 'n4'][i], { vy:-5 - i * .4, vx:b.face * (1 + i * .5), life:1.8 }), i * 110);
+      return;
+    }
+    b.sing = .3; b.hop = .0001; b.hopH = 1.5; b.tv += 90;
+    this.emitB(b, 'n8', { vy:-4.5, life:1.6 });
+  }
+  pokeWire(e){
+    if(this.reduced.matches || !this.lay || !this.wr.length) return;
+    const [x, y] = this.toWorld(e.clientX, e.clientY);
+    let w = this.wr[0];
+    for(const q of this.wr) if(Math.abs(this.wireY(q, x) - y) < Math.abs(this.wireY(w, x) - y)) w = q;
+    this.kick(w.k, x, 45, 1.8);
+    const now = this.t;
+    this.wTaps = this.wTaps.filter(t => now - t < 1.5); this.wTaps.push(now);
+    const busy = this.phase === 'sketch' || this.phase === 'move';
+    // three taps sends the whole flock up; they come down and start the tune again
+    if(this.wTaps.length >= 3 && !busy){
+      this.wTaps = [];
+      this.perched().forEach((b, j) => { b.wake = Math.max(b.wake, 3); this.loop(b, j * .04 + Math.random() * .25, true); });
+      this.round = 0; this.to('move');
+      return;
+    }
+    for(const b of this.perched()){
+      const d = Math.abs(b.x - x);
+      if(b.k === w.k && d < 24){ b.hop = .0001; b.hopH = 2.2 + Math.random() * 1.4 - d / 20; b.flut = true; b.wake = Math.max(b.wake, 1.5); }
+      else if(d < 40 && b.slp < .4){ b.haT = 10; b.haHold = .8; }
+    }
+  }
+  welcomeBack(){ this.chorus = 3.2; }
+  sour(){   // something went wrong in the app: the wires jangle and the flock flinches
+    if(!this.lay || !this.wr.length) return;
+    for(const w of this.wr) for(let i = 1; i < BD_N - 1; i++) w.v[i] += (Math.random() - .5) * 30;
+    if(this.reduced.matches) return;
+    for(const b of this.perched()){ b.hop = .0001; b.hopH = 1.4 + Math.random(); b.flut = true; }
+    const b = this.B[(Math.random() * this.B.length) | 0];
+    if(b) this.emit('txt', b.wx, b.wy - 10, { text:'?', vy:-2, vx:.2, life:1.6, s:.8 });
+  }
+
+  /* ---- one bird, each frame ---- */
+  idle(b){
+    const busy = this.phase === 'sing', r = Math.random();
+    b.idleT = (busy ? 2.2 : 1) + Math.random() * (busy ? 4 : 3.2);
+    if(r < .36){ b.haT = -14 + Math.random() * 30; b.haHold = .7 + Math.random() * 1.5; }   // a look round
+    else if(r < .6) b.tv += 120 + Math.random() * 80;                                       // a flick of the tail
+    else if(busy) return;
+    else if(r < .76){ b.hop = .0001; b.hopH = 1 + Math.random() * .6; b.flip = true; }      // a hop to face the other way
+    else if(r < .9) b.preen = 1 + Math.random() * .8;                                       // a preen
+    else {                                                                                  // a shuffle along the wire
+      const s = this.slots[b.slot]; if(!s || b.k < 0) return;
+      b.x = clamp(b.x + (Math.random() < .5 ? -1.3 : 1.3), s.x - 2.2, s.x + 2.2);
+      b.hop = .0001; b.hopH = .7;
+    }
+  }
+  stepBird(b, dt){
+    b.t += dt;
+    const R = this.reduced.matches, perchY = () => b.k >= 0 ? this.wireY(this.wr[b.k], b.x) : BD_TOP;
+    let x = b.x, y, tilt = 0, fly = false, flare = false;
+    const f = b.fl;
+    if(f){ f.t += dt; if(f.t < 0 && !b.on){ setV(b.g, 0); return; } }   // not set off yet
+    if(f && f.t >= 0){
+      if(!f.go){
+        f.go = true; f.x0 = b.wx; f.y0 = b.wy; b.hop = 0;
+        if(b.on){ b.on = false; if(b.k >= 0) this.kick(b.k, b.x, 7 * b.sc); }   // a push down as it leaves
+      }
+      const u = clamp(f.t / f.dur, 0, 1), e = f.ease === 'out' ? 1 - (1 - u) * (1 - u) : f.ease === 'in' ? u * u : u * u * (3 - 2 * u);
+      const y1 = f.k == null ? f.y1 : f.k < 0 ? BD_TOP : this.wireY(this.wr[f.k], f.x1);
+      const cx = (f.x0 + f.x1) / 2, cy = Math.min(f.y0, y1) - f.h, q = 1 - e;
+      x = q * q * f.x0 + 2 * q * e * cx + e * e * f.x1; y = q * q * f.y0 + 2 * q * e * cy + e * e * y1;
+      if(Math.abs(f.x1 - x) > 2) b.face = f.x1 > x ? 1 : -1;
+      tilt = clamp(Math.atan2(y - b.wy, Math.abs(x - b.wx) + .05) * 40, -30, 30);
+      fly = true;
+      if(!f.leave && u > .8){ flare = true; tilt = lerp(tilt, -26, ss((u - .8) / .2)); }   // wings up, tail down, to land
+      if(u >= 1){
+        b.fl = null;
+        if(f.leave){ b.g.remove(); b.gone = true; return; }
+        b.on = true; b.k = f.k; b.x = x = f.x1; b.land = 1; fly = false; tilt = 0;
+        if(f.face) b.face = f.face;
+        if(f.k >= 0) this.kick(f.k, f.x1, 15 * b.sc);
+        y = perchY();
+      }
+    } else if(b.lp && (b.lp.t += dt) >= 0){
+      const L = b.lp, u = clamp(L.t / L.dur, 0, 1), base = perchY();
+      if(b.on){ b.on = false; b.hop = 0; if(b.k >= 0) this.kick(b.k, b.x, 7 * b.sc); }
+      x = b.x + L.dir * L.R * Math.sin(TAU * u); y = base - L.h * Math.sin(Math.PI * u);
+      b.face = Math.cos(TAU * u) * L.dir >= 0 ? 1 : -1;
+      tilt = clamp(Math.atan2(y - b.wy, Math.abs(x - b.wx) + .05) * 40, -30, 30);
+      fly = true;
+      if(u > .85){ flare = true; tilt = lerp(tilt, -24, ss((u - .85) / .15)); }
+      if(u >= 1){
+        b.lp = null; b.on = true; b.land = 1; fly = false; tilt = 0;
+        if(b.k >= 0) this.kick(b.k, b.x, 14 * b.sc);
+        x = b.x; y = base;
+      }
+    } else y = perchY();
+    // timers
+    b.sing = Math.max(0, b.sing - dt); b.land = Math.max(0, b.land - dt * 3);
+    b.preen = Math.max(0, b.preen - dt); b.wake = Math.max(0, b.wake - dt);
+    if(b.haHold > 0 && (b.haHold -= dt) <= 0) b.haT = 0;
+    const sleepy = b.asleep && b.wake <= 0 ? 1 : 0;
+    b.slp += (sleepy - b.slp) * (1 - Math.exp(-dt * (sleepy ? .8 : 5)));
+    if(b.on && !fly && !R && this.phase !== 'still' && b.slp < .3 && (b.idleT -= dt) < 0) this.idle(b);
+    // hops, on the wire
+    if(!fly && b.hop > 0){
+      b.hop += dt / (.26 + b.hopH * .04);
+      if(b.flip && b.hop > .5){ b.flip = false; b.face *= -1; }
+      if(b.hop >= 1){ b.hop = 0; b.flut = false; if(b.k >= 0 && b.on) this.kick(b.k, b.x, 5 * b.sc); }
+      else y -= b.hopH * Math.sin(Math.PI * b.hop);
+    }
+    // head: up to sing, round to look, down to preen, tucked away to sleep
+    let ha = b.sing > 0 ? -16 : b.preen > 0 ? 40 + Math.sin(b.t * 17) * 7 : b.haT;
+    ha = lerp(ha, 34, b.slp);
+    b.ha += (ha - b.ha) * (1 - Math.exp(-dt * 12));
+    b.tv += (-170 * b.ta - 10 * b.tv) * dt; b.ta += b.tv * dt;   // the tail is a little spring
+    const op = b.sing > 0 ? .55 + .45 * Math.abs(Math.sin(b.t * 30)) : 0;
+    b.open += (op - b.open) * (1 - Math.exp(-dt * 25));
+    // draw
+    b.wx = x; b.wy = y;
+    const bob = b.sing > 0 && !fly ? -.35 * Math.abs(Math.sin(b.t * 15)) : 0;
+    const settle = b.land > 0 ? Math.sin(b.land * Math.PI) * 9 : 0;
+    const qq = v => Math.round(v * 20) / 20;
+    setV(b.g, 1);
+    setA(b.g, 'transform', `translate(${qq(x)} ${qq(y + bob)}) scale(${n2(b.face * b.sc * (1 + b.slp * .08))} ${n2(b.sc * (1 + b.slp * .1))}) rotate(${Math.round(tilt + settle)} 0 -3.3)`);
+    setA(b.head, 'transform', `translate(${n2(-.9 * b.slp)} ${n2(1.3 * b.slp)}) rotate(${Math.round(b.ha)} 1.7 -4.4)`);
+    setA(b.tail, 'transform', `rotate(${Math.round(b.ta)} -2 -2.3)`);
+    setA(b.jaw, 'transform', `rotate(${Math.round(b.open * 26)} 4.2 -5)`);
+    setV(b.eye, b.slp > .55 ? 0 : 1);
+    const flap = fly || b.land > .6 || (b.hop > 0 && b.flut);
+    setV(b.wing, flap ? 0 : 1); setV(b.fw, flap ? 1 : 0); setV(b.legs, fly ? 0 : 1);
+    if(flap){
+      b.wph += dt * TAU * (fly ? 7.5 : 13);
+      setA(b.fw, 'd', BD_WING(flare ? .12 + .08 * Math.sin(b.wph * 1.7) : (1 + Math.sin(b.wph)) / 2));
+    }
+  }
+
+  /* ---- a soft light on whoever is singing ---- */
+  light(dt){
+    const b = this.spotB, on = !!(b && b.sing > 0 && b.on && !b.gone);
+    this.spotA += ((on ? 1 : 0) - this.spotA) * (1 - Math.exp(-dt * (on ? 8 : 2.5)));
+    if(b && !b.gone){ setA(this.spot, 'cx', Math.round(b.wx * 4) / 4); setA(this.spot, 'cy', Math.round((b.wy - 4) * 4) / 4); }
+    setO(this.spot, Math.round(this.spotA * .9 * 40) / 40);
+  }
+
+  /* ---- particles: notes from the birds, z's, a caw ---- */
+  emitB(b, kind, o = {}){ this.emit(kind, b.wx + b.face * 5.6 * b.sc, b.wy - 5.6 * b.sc, { vx:b.face * (.6 + Math.random() * .8), ...o }); }
+  emit(kind, x, y, o = {}){
+    if(this.reduced.matches || this.parts.length > 30) return;
+    let e;
+    if(kind === 'z' || kind === 'txt'){
+      e = mk('text', { class:kind === 'z' ? 'cz-z' : 'cz-bravo' }, this.fx);
+      e.textContent = kind === 'z' ? 'z' : o.text;
+    } else e = mk('path', { class:'cz-note', d:GLYPH[kind] || GLYPH.n8 }, this.fx);
+    this.parts.push({ e, x, y, vx:o.vx ?? (Math.random() - .3) * 2, vy:o.vy ?? -3.6, age:0, life:o.life ?? 2,
+      s:o.s ?? (.58 + Math.random() * .16), wob:Math.random() * TAU, grow:o.grow || 0 });
+  }
+}
+Songbirds.n = 0;
+// the pen and the notes are the composer's own
+for(const k of ['skPt', 'tickSketch', 'clearParts', 'tickParts']) Songbirds.prototype[k] = Composer.prototype[k];
+
 const RUN = new Set(); let raf = 0, last = 0;
 function loop(now){
   raf = 0;
@@ -17429,7 +18150,8 @@ function run(c, on){
   if(on){ RUN.add(c); if(!raf){ last = performance.now(); raf = requestAnimationFrame(loop); } }
   else RUN.delete(c);
 }
-return { Composer, Performance, ACTS, STATIONS, PF_ORDER, PF_BAY, run, roomWidth:acts => layoutRoom(acts).W, stageWidth:acts => stageLayout(acts).W };
+return { Composer, Performance, Songbirds, ACTS, STATIONS, PF_ORDER, PF_BAY, BD_TUNES, run, roomWidth:acts => layoutRoom(acts).W, stageWidth:acts => stageLayout(acts).W,
+  birdsWidth:flock => (BD_SPAN[flock] || BD_SPAN.small) + 24 };
 })();
 
 /* Two composers share the engine: the one in the library header, and a live
@@ -17509,7 +18231,7 @@ function czHead(){ for(const c of [czMain, czPrev]) c.setHead(pref('composerHead
 function czSeen(c){
   if(document.hidden || $('#viewer').classList.contains('open')) return false;
   if(c === czMain) return !document.querySelector('.panel.on');
-  const s = $('#mSettings');
+  const s = $('#mSetHead');   // the previews live on the Library header page
   return s.classList.contains('on') && !s.classList.contains('under');
 }
 let czViewAt = 0;
@@ -17530,7 +18252,6 @@ function czSync(){
     if(on) CZ.run(c, czSeen(c));
   }
 }
-$('#setComposer').addEventListener('click', () => { setPref('composer', !pref('composer')); syncSettings(); czSync(); });
 {
   const mo = new MutationObserver(czSync);
   [$('#viewer'), ...$$('.panel')].forEach(e => mo.observe(e, { attributes:true, attributeFilter:['class'] }));
@@ -17641,14 +18362,6 @@ function pfSync(){
     if(on) CZ.run(c, czSeen(c === pfMain ? czMain : czPrev));
   }
 }
-// the two switches are either-or: turning one on turns the other off
-$('#setComposer').addEventListener('click', () => { if(pref('composer')) setPref('perform', false); syncSettings(); pfSync(); });
-$('#setPerform').addEventListener('click', () => {
-  const v = !pref('perform');
-  setPref('perform', v);
-  if(v) setPref('composer', false);
-  syncSettings(); czSync(); pfSync();
-});
 {
   if(pref('perform') && pref('composer')) setPref('composer', false);   // never both
   const mo = new MutationObserver(pfSync);
@@ -17657,6 +18370,81 @@ $('#setPerform').addEventListener('click', () => {
   window.addEventListener('resize', () => { pfMain.resize(); pfPrev.resize(); pfBoxShow(); });
   pfReady = true;
   czSync(); pfSync(); pfSyncActs(); pfBoxShow();
+}
+
+/* Songbirds: the third thing that can live above the library, on the same
+   engine and in the same arrangement: one in the header, one as the live
+   preview on the Library header page, each running only while it's seen. */
+var bdReady = false;
+const BD_ABOUT = {
+  ode:['Ode to Joy', 'Beethoven, from the Ninth Symphony'],
+  twinkle:['Ah, vous dirai-je, maman', 'The tune of Mozart’s Twinkle variations'],
+  nacht:['Eine kleine Nachtmusik', 'Mozart, the opening bars'],
+  elise:['Für Elise', 'Beethoven'],
+  minuet:['Minuet in G', 'Petzold, from the Anna Magdalena Bach notebook'],
+  spring:['Spring', 'Vivaldi, from The Four Seasons']
+};
+const BD_LIST = CZ.BD_TUNES.map(t => t.id);
+// the tunes they may sing; never none
+function bdTunes(){ const off = pref('birdsOff') || [], l = CZ.BD_TUNES.filter(t => !off.includes(t.id)); return l.length ? l : CZ.BD_TUNES; }
+function bdSyncTunes(){
+  if(!bdReady) return;
+  const on = bdTunes().map(t => t.id), n = on.length, N = BD_LIST.length;
+  document.querySelectorAll('#mSetBd .set-sw[data-bd]').forEach(b => {
+    const k = on.includes(b.dataset.bd);
+    b.setAttribute('aria-checked', String(k));
+    if(k && n === 1) b.setAttribute('aria-disabled', 'true');   // the last one stays on
+    else b.removeAttribute('aria-disabled');
+  });
+  const nm = id => BD_ABOUT[id][0], list = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0];
+  const off = BD_LIST.filter(id => !on.includes(id));
+  $('#sumBd').textContent = !off.length ? 'All six' : off.length <= 2 ? 'All but ' + list(off.map(nm)) : n <= 2 ? list(on.map(nm)) + ' only' : n + ' of ' + N;
+}
+$('#bdTunes').innerHTML = BD_LIST.map(id => `<div class="set-row"><span class="set-l"><span class="nm">${BD_ABOUT[id][0]}</span><span class="sub">${BD_ABOUT[id][1]}</span></span><button type="button" class="set-sw" data-bd="${id}" role="switch" aria-checked="true" aria-label="${BD_ABOUT[id][0]}"><i></i></button></div>`).join('');
+document.querySelectorAll('#mSetBd .set-sw[data-bd]').forEach(b => b.addEventListener('click', () => {
+  const id = b.dataset.bd, on = bdTunes().map(t => t.id);
+  if(on.includes(id) && on.length === 1) return;
+  setPref('birdsOff', BD_LIST.filter(k => k === id ? on.includes(k) : !on.includes(k)));
+  bdSyncTunes();   // the flock picks from the new list at its next change of tune
+}));
+$('#setBdCrow').addEventListener('click', () => { setPref('birdsCrow', !pref('birdsCrow')); syncSettings(); });
+function bdRestart(){ if(!bdReady) return; for(const c of [bdMain, bdPrev]) if(c.alive) c.start(); }
+const bdOpts = { tunes:bdTunes, flock:() => pref('birdsFlock'), crow:() => !!pref('birdsCrow') };
+const bdMain = new CZ.Songbirds($('#bdHost'), { ...bdOpts, zone:(c, need) => headerZone($('#bdHost'), need, 0) });
+const bdPrev = new CZ.Songbirds($('#bdPrevHost'), { ...bdOpts, inset:true,
+  scale:w => Math.min(1.12, Math.max(1, (w - 12) / CZ.birdsWidth(pref('birdsFlock')))), zone:c => [6, c.W - 6] });
+let bdViewAt = 0;
+function bdSync(){
+  const on = !!pref('birds');
+  // back from a good long practice: the whole flock bursts into song
+  const vOpen = $('#viewer').classList.contains('open');
+  if(vOpen && !bdViewAt) bdViewAt = Date.now();
+  if(!vOpen && bdViewAt){ if(on && Date.now() - bdViewAt > 45000) bdMain.cheer = true; bdViewAt = 0; }
+  $('.lib-head').classList.toggle('bd-on', on);
+  for(const c of [bdMain, bdPrev]){
+    if(on && !c.alive){ c.alive = true; clearTimeout(c.bye); c.start(); }
+    if(!on && c.alive){
+      c.alive = false;
+      c.bye = setTimeout(() => { CZ.run(c, false); c.stop(); }, 800);   // after the fade
+    }
+    c.host.classList.toggle('on', on);
+    if(on) CZ.run(c, czSeen(c === bdMain ? czMain : czPrev));
+  }
+}
+// the header is one choice: plain, or one of the three
+function setHeader(v){
+  setPref('composer', v === 'composer'); setPref('perform', v === 'perform'); setPref('birds', v === 'birds');
+  syncSettings(); czSync(); pfSync(); bdSync();
+}
+document.querySelectorAll('#hdOpts [data-head]').forEach(b => b.addEventListener('click', () => { if(b.dataset.head !== headChoice()) setHeader(b.dataset.head); }));
+{
+  if(pref('birds') && (pref('composer') || pref('perform'))){ setPref('composer', false); setPref('perform', false); }   // never two
+  const mo = new MutationObserver(bdSync);
+  [$('#viewer'), ...$$('.panel')].forEach(e => mo.observe(e, { attributes:true, attributeFilter:['class'] }));
+  document.addEventListener('visibilitychange', bdSync);
+  window.addEventListener('resize', () => { bdMain.resize(); bdPrev.resize(); });
+  bdReady = true;
+  czSync(); pfSync(); bdSync(); bdSyncTunes(); syncHeadUI();
 }
 
 /* ---------- misc ---------- */
